@@ -10,11 +10,11 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
 - Tarea siguiente: **P3.2 — inscripción con código de un uso y consentimiento**.
 - Tarea principal en curso: ninguna al cerrar esta sesión.
 - Tareas verificadas: **P0.1, P0.2, P1.1, P1.2, P1.3, P2.1, P2.2, P2.3 y P3.1**.
-- Pendiente externo de P0.3: workflow preparado; ejecución alojada pendiente de comprobar tras la publicación autorizada del código en esta sesión. No bloquea el desarrollo local de P3.2.
+- Pendiente externo de P0.3: workflow preparado; código publicado en `main`; falta comprobar el resultado alojado de GitHub Actions. No bloquea el desarrollo local de P3.2.
 - Evidencias: [P0.1](evidencias/P0.1-2026-10-17.md), [P0.2/P2.1](evidencias/P0.2-2026-10-17.md), [P0.3](evidencias/P0.3-2026-10-17.md), [fase 1](evidencias/P1-2026-10-17.md), [P2.2](evidencias/P2.2-2026-10-17.md), [P2.3](evidencias/P2.3-2026-10-17.md) y [P3.1](evidencias/P3.1-2026-10-17.md).
 - Herramientas: JDK completo, Gradle, Android SDK y PostgreSQL comprobados. Guía reproducible en [desarrollo](desarrollo.md).
 
-El prototipo Python/SQLite conserva su contrato 0.1 y la evidencia previa de 16 pruebas HTTP y 2 JavaScript. Los dos APKs nativos base siguen sin consentimiento funcional, login ni sincronización; no cambiaron en esta fase. OpenAPI 0.2 pasa 49 tests. Ktor implementa login/refresh/logout, JWT por biblioteca, sesiones revocables, auditoría transaccional y límites compartidos en PostgreSQL. Ocho unitarios y 31 tests PostgreSQL aprobados; autenticación real tras reinicio y error 503 al perder BD comprobados. `/ready` comprueba infraestructura de BD; `/health` informa proceso. Faltan inscripción, recepción, consultas y revocación de dispositivos definitivos. Sin validación Android, HTTPS de piloto ni GitHub Actions. Publicación inicial en `main` autorizada por el usuario y en preparación; el resultado verificable se registra en la bitácora de publicación. Sin despliegue de la aplicación. Las instrucciones y nombres de variables del entorno están guardados en borrador, sin valores, publicación o restauración probada.
+El prototipo Python/SQLite conserva su contrato 0.1 y la evidencia previa de 16 pruebas HTTP y 2 JavaScript. Los dos APKs nativos base siguen sin consentimiento funcional, login ni sincronización; no cambiaron en esta fase. OpenAPI 0.2 pasa 49 tests. Ktor implementa login/refresh/logout, JWT por biblioteca, sesiones revocables, auditoría transaccional y límites compartidos en PostgreSQL. Ocho unitarios y 31 tests PostgreSQL aprobados; autenticación real tras reinicio y error 503 al perder BD comprobados. `/ready` comprueba infraestructura de BD; `/health` informa proceso. Faltan inscripción, recepción, consultas y revocación de dispositivos definitivos. Sin validación Android, HTTPS de piloto ni GitHub Actions. Código publicado en GitHub en `main`; commit inicial y coincidencia remota verificados en la bitácora de publicación. Sin despliegue de la aplicación. Las instrucciones y nombres de variables del entorno están guardados en borrador, sin valores, publicación o restauración probada.
 
 ## Seguimiento por fase
 
@@ -38,7 +38,7 @@ Todos los IDs remiten a tareas definidas en el plan maestro. Al comenzar una tar
 | --- | --- | --- | --- |
 | P0.1 | verificada | [Evidencia](evidencias/P0.1-2026-10-17.md) | Fallos reproducidos/corregidos y límites del prototipo registrados. |
 | P0.2 | verificada | [Evidencia](evidencias/P0.2-2026-10-17.md), [desarrollo](desarrollo.md). | Toolchain completo, PostgreSQL y compilación nativa comprobados. |
-| P0.3 | bloqueada | [Evidencia](evidencias/P0.3-2026-10-17.md). | CI configurada y comandos locales probados; publicación autorizada en esta sesión, ejecución alojada pendiente de comprobar. |
+| P0.3 | bloqueada | [Evidencia](evidencias/P0.3-2026-10-17.md). | CI configurada y comandos locales probados; código publicado en `main`, ejecución alojada pendiente de comprobar. |
 | P1.1 | verificada | [Evidencia fase 1](evidencias/P1-2026-10-17.md), [requisitos](requisitos.md). | Datos, alcance, acceso, retención y límites definidos. |
 | P1.2 | verificada | [Estados](estados.md), [evidencia](evidencias/P1-2026-10-17.md). | Flujos positivos/negativos y revocación offline definidos. |
 | P1.3 | verificada | [Historias](historias.md), [evidencia](evidencias/P1-2026-10-17.md). | 12 historias relacionadas con los 15 criterios, sin declarar aceptación funcional. |
@@ -55,7 +55,8 @@ Todos los IDs remiten a tareas definidas en el plan maestro. Al comenzar una tar
 - El usuario autorizó subir el proyecto a `Juanguz095/ProyectoDesarrolloMoviles`.
 - El origen HTTPS coincide con el repositorio indicado; lectura remota correcta y sin referencias existentes al comenzar. No hay historial remoto que reemplazar.
 - Preparados 77 archivos de código, configuración, pruebas y documentación para el primer commit en `main`. Revisión de rutas, tamaños y patrones habituales de secretos sin hallazgos; excluidos `.tooling`, `.venv`, builds, datos SQLite, variables locales y llaves de firma.
-- La publicación se realizará mediante push normal, sin forzar. La revisión final y coincidencia de SHA se comprueban después del push; este commit inicial no acredita por sí solo esa comprobación posterior.
+- Push normal a `origin/main` completado, salida 0, sin forzar. Commit inicial `a88103a319d65091dfe32e660e97114ee7728022`; consulta posterior con `git ls-remote` confirma el mismo SHA en GitHub. Esta actualización documental se publica en un segundo commit y su SHA final se verifica al terminar.
+- Comprobación documental satisfactoria (34 tareas, 15 criterios, 22 documentos). `diff --check` reconoce los finales CRLF del wrapper Windows mediante `core.whitespace=cr-at-eol`; el wrapper no se modifica.
 - No se repiten suites funcionales en esta sesión de publicación; resultados previos y límites en las evidencias P0–P3.1. CI alojada pendiente de verificación. Sin despliegue ni publicación del entorno.
 - El avance funcional se conserva: P3.1 verificada, siguiente P3.2.
 
