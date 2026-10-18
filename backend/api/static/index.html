@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>AuditLab · MVP local</title>
+  <style>
+    :root { font-family: Inter, ui-sans-serif, system-ui, sans-serif; color: #17231d; background: #f3f6f4; font-synthesis: none; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    header { color: #fff; background: #163b2a; padding: 28px max(24px, calc((100vw - 1080px) / 2)); }
+    header p { color: #c7ded0; margin: 7px 0 0; }
+    main { width: min(1080px, calc(100% - 32px)); margin: 26px auto 60px; }
+    .notice { padding: 14px 16px; background: #fff7da; border: 1px solid #efdfa2; border-radius: 10px; margin-bottom: 18px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; align-items: start; }
+    section { background: white; border: 1px solid #dfe7e1; border-radius: 14px; padding: 20px; box-shadow: 0 3px 14px #1538220c; }
+    h1 { margin: 0; font-size: 24px; } h2 { margin: 0 0 14px; font-size: 19px; } h3 { margin: 20px 0 8px; font-size: 15px; }
+    p { line-height: 1.5; } label { display: block; font-size: 13px; font-weight: 650; margin: 12px 0 5px; }
+    input, select { width: 100%; padding: 10px 11px; border: 1px solid #bac9bf; border-radius: 8px; font: inherit; background: white; }
+    input[type=checkbox] { width: auto; margin-right: 8px; }
+    .check { display: flex; align-items: start; font-weight: 450; line-height: 1.45; }
+    button { border: 0; border-radius: 8px; background: #197247; color: white; padding: 10px 14px; margin: 12px 6px 0 0; font: inherit; font-weight: 650; cursor: pointer; }
+    button:hover { background: #115b37; } button:disabled { opacity: .45; cursor: not-allowed; }
+    button.secondary { color: #1d4430; background: #e5f0e9; } button.danger { background: #a93c38; }
+    .muted { color: #627168; font-size: 13px; } .status { min-height: 22px; margin-top: 12px; font-size: 14px; }
+    .ok { color: #12643a; } .error { color: #a32c2c; } .pill { display: inline-block; padding: 3px 8px; border-radius: 999px; background: #e5f0e9; font-size: 12px; }
+    .scroll { overflow-x: auto; } table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
+    th, td { text-align: left; border-bottom: 1px solid #e7ece8; padding: 8px 6px; vertical-align: top; }
+    code { overflow-wrap: anywhere; } .code { background: #f0f4f1; border-radius: 6px; padding: 8px; }
+    .hidden { display: none; }
+    @media (max-width: 480px) { .grid { grid-template-columns: 1fr; } section { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header><h1>AuditLab</h1><p>Prototipo local · eventos simulados con consentimiento</p></header>
+  <main>
+    <div class="notice"><strong>Demostración local.</strong> Esta página solo envía eventos de prueba al servidor local cuando pulsas el botón. No lee SMS, llamadas, chats ni datos de otras aplicaciones. No usar para monitoreo real ni exponer en Internet.</div>
+    <div class="grid">
+      <section aria-labelledby="agent-title">
+        <h2 id="agent-title">Agente · Dispositivo A</h2>
+        <p class="muted">Primero inicia sesión como admin en el Centro de control y genera un código de inscripción.</p>
+        <label for="enrollment-code">Código de inscripción</label>
+        <input id="enrollment-code" autocomplete="off" placeholder="Pega el código de un solo uso">
+        <label class="check"><input id="consent" type="checkbox">Acepto el monitoreo de eventos propios de AuditLab y metadatos permitidos. Entiendo que puedo revocarlo.</label>
+        <button id="enroll">Aceptar e inscribir</button>
+        <div id="agent-status" class="status" role="status"></div>
+        <div id="active-device" class="hidden">
+          <p>Dispositivo: <code id="device-id"></code> <span class="pill">monitoreo activo</span></p>
+          <label for="event-kind">Evento de prueba</label>
+          <select id="event-kind">
+            <option value="agent_started">Agente iniciado</option>
+            <option value="sync_succeeded">Sincronización correcta</option>
+            <option value="sync_failed">Sincronización fallida</option>
+          </select>
+          <button id="send-event">Registrar y enviar evento simulado</button>
+          <button id="revoke-local" class="secondary">Revocar consentimiento en este agente</button>
+          <p class="muted">La transmisión solo ocurre al pulsar el botón. El token del dispositivo vive en memoria de esta pestaña.</p>
+        </div>
+      </section>
+
+      <section aria-labelledby="console-title">
+        <h2 id="console-title">Centro de control · Dispositivo B</h2>
+        <div id="login-panel">
+          <label for="username">Usuario</label>
+          <select id="username"><option value="admin">admin</option><option value="auditor">auditor</option></select>
+          <label for="password">Contraseña configurada en el servidor</label>
+          <input id="password" type="password" autocomplete="current-password">
+          <button id="login">Iniciar sesión</button>
+        </div>
+        <div id="console-panel" class="hidden">
+          <p>Sesión: <strong id="role"></strong> <button id="logout" class="secondary">Cerrar sesión</button></p>
+          <div id="admin-actions">
+            <h3>Inscripción</h3>
+            <button id="create-code">Generar código de un solo uso</button>
+            <div id="new-code" class="code hidden"></div>
+          </div>
+          <h3>Dispositivos</h3>
+          <button id="refresh-devices" class="secondary">Actualizar dispositivos</button>
+          <div id="devices" class="scroll"></div>
+          <h3>Historial de eventos</h3>
+          <button id="refresh-events" class="secondary">Actualizar eventos</button>
+          <button id="export-events" class="secondary">Exportar CSV</button>
+          <div id="events" class="scroll"></div>
+          <h3>Registro de accesos</h3>
+          <button id="refresh-audit" class="secondary">Actualizar auditoría</button>
+          <div id="audit" class="scroll"></div>
+        </div>
+        <div id="console-status" class="status" role="status"></div>
+      </section>
+    </div>
+  </main>
+<script>
+  let userToken = null;
+  let deviceToken = null;
+  let deviceId = null;
+  let consentContext = null;
+
+  const $ = (id) => document.getElementById(id);
+  const message = (id, text, error = false) => {
+    const el = $(id); el.textContent = text; el.className = `status ${error ? 'error' : 'ok'}`;
+  };
+  async function request(path, {method = 'GET', token = null, code = null, body = undefined} = {}) {
+    const headers = {};
+    if (token) headers.Authorization = `Bearer ${token}`;
+    if (code) headers['X-Enrollment-Code'] = code;
+    if (body !== undefined) headers['Content-Type'] = 'application/json';
+    const response = await fetch(path, {method, headers, body: body === undefined ? undefined : JSON.stringify(body)});
+    const data = response.status === 204 ? null : await response.json();
+    if (!response.ok) throw new Error(data?.detail || data?.title || `Error HTTP ${response.status}`);
+    return data;
+  }
+  function table(items, columns, actions = null) {
+    if (!items?.length) return '<p class="muted">Sin registros.</p>';
+    const head = columns.map(c => `<th>${c[1]}</th>`).join('') + (actions ? '<th>Acción</th>' : '');
+    const rows = items.map(item => `<tr>${columns.map(c => `<td>${escapeHtml(item[c[0]] ?? '—')}</td>`).join('')}${actions ? `<td>${actions(item)}</td>` : ''}</tr>`).join('');
+    return `<table><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table>`;
+  }
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  }
+
+  $('login').onclick = async () => {
+    try {
+      const result = await request('/v1/auth/login', {method: 'POST', body: {username: $('username').value, password: $('password').value}});
+      userToken = result.accessToken;
+      $('password').value = '';
+      $('login-panel').classList.add('hidden'); $('console-panel').classList.remove('hidden');
+      $('role').textContent = result.role;
+      $('admin-actions').classList.toggle('hidden', result.role !== 'admin');
+      message('console-status', 'Sesión iniciada.');
+      await Promise.all([loadDevices(), loadEvents(), loadAudit()]);
+    } catch (error) { message('console-status', error.message, true); }
+  };
+  $('logout').onclick = () => { userToken = null; $('console-panel').classList.add('hidden'); $('login-panel').classList.remove('hidden'); message('console-status', 'Sesión cerrada.'); };
+  $('create-code').onclick = async () => {
+    try {
+      const data = await request('/v1/devices/enrollment-code', {method: 'POST', token: userToken, body: {}});
+      $('new-code').textContent = `Código (válido 10 minutos, un uso): ${data.code}`;
+      $('new-code').classList.remove('hidden');
+      message('console-status', 'Código generado. Cópialo al agente.');
+      await loadAudit();
+    } catch (error) { message('console-status', error.message, true); }
+  };
+  $('enroll').onclick = async () => {
+    if (!$('consent').checked) return message('agent-status', 'Debes aceptar el consentimiento antes de inscribir.', true);
+    const acceptedAt = new Date().toISOString();
+    const consentId = crypto.randomUUID();
+    try {
+      const result = await request('/v1/devices/enroll', {
+        method: 'POST', code: $('enrollment-code').value.trim(),
+        body: {consentAcknowledged: true, consent: {consentId, policyVersion: 'mvp-1', acceptedAt}}
+      });
+      deviceToken = result.deviceToken; deviceId = result.deviceId;
+      $('send-event').disabled = false;
+      consentContext = {consentId, policyVersion: 'mvp-1', acceptedAt};
+      $('device-id').textContent = deviceId; $('active-device').classList.remove('hidden');
+      $('enroll').disabled = true; $('enrollment-code').disabled = true; $('consent').disabled = true;
+      message('agent-status', 'Consentimiento registrado. El agente está activo.');
+      if (userToken) await loadDevices();
+    } catch (error) { message('agent-status', error.message, true); }
+  };
+  $('send-event').onclick = async () => {
+    if (!deviceToken) return;
+    const kind = $('event-kind').value;
+    const event = {
+      eventId: crypto.randomUUID(), timestamp: new Date().toISOString(),
+      category: kind === 'agent_started' ? 'app_lifecycle' : 'sync',
+      direction: 'occurred', sourceDevice: deviceId, consentContext: consentContext,
+      metadata: {appEventCode: kind, networkState: navigator.onLine ? 'online' : 'offline'}
+    };
+    try {
+      const result = await request('/v1/events', {method: 'POST', token: deviceToken, body: {events: [event]}});
+      message('agent-status', `Evento enviado. Aceptados: ${result.accepted}.`);
+      if (userToken) await loadEvents();
+    } catch (error) { message('agent-status', error.message, true); }
+  };
+  $('revoke-local').onclick = async () => {
+    const revocationToken = deviceToken;
+    const revokedDeviceId = deviceId;
+    // Stop locally before waiting for any network operation.
+    deviceToken = null; consentContext = null; deviceId = null;
+    $('send-event').disabled = true;
+    $('active-device').classList.add('hidden'); $('enroll').disabled = true;
+    $('enrollment-code').disabled = false; $('consent').checked = false; $('consent').disabled = false;
+    $('enrollment-code').value = '';
+    message('agent-status', 'Monitoreo detenido. Confirmando revocación con el servidor…');
+    let serverResult = null;
+    if (revocationToken && revokedDeviceId) {
+      try { await request(`/v1/devices/${revokedDeviceId}/consent-revoke`, {method: 'POST', token: revocationToken}); serverResult = true; }
+      catch (error) { serverResult = error.message; }
+    }
+    $('enroll').disabled = false;
+    message('agent-status', serverResult === true
+      ? 'Consentimiento revocado. La credencial local se borró y el servidor detuvo nuevas transmisiones.'
+      : `Se borró la credencial local, pero no se confirmó la revocación en el servidor: ${serverResult || 'sin dispositivo activo'}. Pide al admin que lo revoque.`,
+      serverResult !== true);
+  };
+  async function loadDevices() {
+    try {
+      const data = await request('/v1/devices', {token: userToken});
+      $('devices').innerHTML = table(data.items, [['deviceId','Dispositivo'],['status','Estado'],['lastSeenAt','Último evento']], item => item.status === 'active' && $('role').textContent === 'admin' ? `<button class="danger" data-revoke="${escapeHtml(item.deviceId)}">Revocar</button>` : '—');
+      document.querySelectorAll('[data-revoke]').forEach(button => button.onclick = async () => {
+        if (!confirm('¿Revocar este dispositivo? No podrá enviar más eventos.')) return;
+        try { await request(`/v1/devices/${button.dataset.revoke}/revoke`, {method: 'POST', token: userToken}); message('console-status', 'Dispositivo revocado.'); await loadDevices(); await loadAudit(); }
+        catch (error) { message('console-status', error.message, true); }
+      });
+    } catch (error) { message('console-status', error.message, true); }
+  }
+  async function loadEvents() {
+    if (!userToken) return;
+    try {
+      const data = await request('/v1/events?limit=50', {token: userToken});
+      $('events').innerHTML = table(data.items.map(e => ({...e, metadata: JSON.stringify(e.metadata)})), [['timestamp','Fecha UTC'],['category','Categoría'],['sourceDevice','Dispositivo'],['metadata','Metadatos']]);
+      await loadAudit();
+    } catch (error) { message('console-status', error.message, true); }
+  }
+  async function loadAudit() {
+    if (!userToken) return;
+    try {
+      const data = await request('/v1/audit-log', {token: userToken});
+      $('audit').innerHTML = table(data.items, [['occurredAt','Fecha UTC'],['actorId','Actor'],['action','Acción'],['resourceId','Recurso']]);
+    } catch (error) { message('console-status', error.message, true); }
+  }
+  $('refresh-devices').onclick = loadDevices;
+  $('refresh-events').onclick = loadEvents;
+  $('refresh-audit').onclick = loadAudit;
+  $('export-events').onclick = async () => {
+    try {
+      const response = await fetch('/v1/events/export.csv', {headers: {Authorization: `Bearer ${userToken}`}});
+      if (!response.ok) { const data = await response.json(); throw new Error(data.detail || data.title || 'No se pudo exportar.'); }
+      const url = URL.createObjectURL(await response.blob());
+      const link = document.createElement('a'); link.href = url; link.download = 'auditlab-events.csv'; link.click(); URL.revokeObjectURL(url);
+      message('console-status', 'Reporte CSV descargado.'); await loadAudit();
+    } catch (error) { message('console-status', error.message, true); }
+  };
+</script>
+</body>
+</html>

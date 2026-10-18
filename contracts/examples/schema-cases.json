@@ -1,0 +1,746 @@
+[
+  {
+    "name": "login",
+    "schema": "LoginRequest",
+    "valid": true,
+    "value": {
+      "username": "auditor",
+      "password": "fixture-only-password"
+    }
+  },
+  {
+    "name": "refresh",
+    "schema": "RefreshRequest",
+    "valid": true,
+    "value": {
+      "refreshToken": "fixture-only-not-a-real-credential-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    }
+  },
+  {
+    "name": "session",
+    "schema": "SessionTokens",
+    "valid": true,
+    "value": {
+      "accessToken": "fixture-only-not-a-real-credential-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "refreshToken": "fixture-only-not-a-real-credential-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "tokenType": "Bearer",
+      "expiresIn": 900,
+      "refreshExpiresIn": 604800,
+      "sessionId": "00000000-0000-4000-8000-000000000002",
+      "user": {
+        "userId": "00000000-0000-4000-8000-000000000002",
+        "username": "admin",
+        "role": "admin"
+      }
+    }
+  },
+  {
+    "name": "consent",
+    "schema": "ConsentContext",
+    "valid": true,
+    "value": {
+      "consentId": "00000000-0000-4000-8000-000000000003",
+      "policyVersion": "mvp-1",
+      "acceptedAt": "2026-10-17T12:00:00Z"
+    }
+  },
+  {
+    "name": "enrollment",
+    "schema": "EnrollmentRequest",
+    "valid": true,
+    "value": {
+      "consentAcknowledged": true,
+      "consent": {
+        "consentId": "00000000-0000-4000-8000-000000000003",
+        "policyVersion": "mvp-1",
+        "acceptedAt": "2026-10-17T12:00:00Z"
+      }
+    }
+  },
+  {
+    "name": "enrollment_response",
+    "schema": "EnrollmentResponse",
+    "valid": true,
+    "value": {
+      "deviceId": "00000000-0000-4000-8000-000000000002",
+      "deviceToken": "fixture-only-not-a-real-credential-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "status": "active",
+      "consentContext": {
+        "consentId": "00000000-0000-4000-8000-000000000003",
+        "policyVersion": "mvp-1",
+        "acceptedAt": "2026-10-17T12:00:00Z"
+      },
+      "enrolledAt": "2026-10-17T12:00:01Z"
+    }
+  },
+  {
+    "name": "enrollment_code",
+    "schema": "EnrollmentCode",
+    "valid": true,
+    "value": {
+      "code": "fixture-only-not-a-real-credential-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "expiresIn": 600,
+      "expiresAt": "2026-10-17T12:10:00Z"
+    }
+  },
+  {
+    "name": "event_input",
+    "schema": "EventInput",
+    "valid": true,
+    "value": {
+      "eventId": "00000000-0000-4000-8000-000000000004",
+      "timestamp": "2026-10-17T12:01:00Z",
+      "category": "app_lifecycle",
+      "direction": "occurred",
+      "sourceDevice": "00000000-0000-4000-8000-000000000002",
+      "consentContext": {
+        "consentId": "00000000-0000-4000-8000-000000000003",
+        "policyVersion": "mvp-1",
+        "acceptedAt": "2026-10-17T12:00:00Z"
+      },
+      "isSimulated": true,
+      "metadata": {
+        "batteryPercent": 50,
+        "networkState": "online",
+        "appEventCode": "agent_started"
+      }
+    }
+  },
+  {
+    "name": "optional_metadata",
+    "schema": "EventInput",
+    "valid": true,
+    "value": {
+      "eventId": "00000000-0000-4000-8000-000000000004",
+      "timestamp": "2026-10-17T12:01:00Z",
+      "category": "app_lifecycle",
+      "direction": "occurred",
+      "sourceDevice": "00000000-0000-4000-8000-000000000002",
+      "consentContext": {
+        "consentId": "00000000-0000-4000-8000-000000000003",
+        "policyVersion": "mvp-1",
+        "acceptedAt": "2026-10-17T12:00:00Z"
+      },
+      "isSimulated": true
+    }
+  },
+  {
+    "name": "empty_metadata",
+    "schema": "Metadata",
+    "valid": true,
+    "value": {}
+  },
+  {
+    "name": "event_read",
+    "schema": "EventRead",
+    "valid": true,
+    "value": {
+      "eventId": "00000000-0000-4000-8000-000000000004",
+      "timestamp": "2026-10-17T12:01:00Z",
+      "category": "app_lifecycle",
+      "direction": "occurred",
+      "sourceDevice": "00000000-0000-4000-8000-000000000002",
+      "consentContext": {
+        "consentId": "00000000-0000-4000-8000-000000000003",
+        "policyVersion": "mvp-1",
+        "acceptedAt": "2026-10-17T12:00:00Z"
+      },
+      "isSimulated": true,
+      "metadata": {
+        "batteryPercent": 50,
+        "networkState": "online",
+        "appEventCode": "agent_started"
+      },
+      "receivedAt": "2026-10-17T12:01:01Z"
+    }
+  },
+  {
+    "name": "batch",
+    "schema": "EventBatch",
+    "valid": true,
+    "value": {
+      "events": [
+        {
+          "eventId": "00000000-0000-4000-8000-000000000004",
+          "timestamp": "2026-10-17T12:01:00Z",
+          "category": "app_lifecycle",
+          "direction": "occurred",
+          "sourceDevice": "00000000-0000-4000-8000-000000000002",
+          "consentContext": {
+            "consentId": "00000000-0000-4000-8000-000000000003",
+            "policyVersion": "mvp-1",
+            "acceptedAt": "2026-10-17T12:00:00Z"
+          },
+          "isSimulated": true,
+          "metadata": {
+            "batteryPercent": 50,
+            "networkState": "online",
+            "appEventCode": "agent_started"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "batch_result",
+    "schema": "EventBatchResult",
+    "valid": true,
+    "value": {
+      "accepted": 1,
+      "duplicates": 0
+    }
+  },
+  {
+    "name": "device",
+    "schema": "Device",
+    "valid": true,
+    "value": {
+      "deviceId": "00000000-0000-4000-8000-000000000002",
+      "status": "active",
+      "lastSeenAt": null,
+      "enrolledAt": "2026-10-17T12:00:01Z",
+      "revokedAt": null,
+      "consentContext": {
+        "consentId": "00000000-0000-4000-8000-000000000003",
+        "policyVersion": "mvp-1",
+        "acceptedAt": "2026-10-17T12:00:00Z"
+      },
+      "appVersion": null
+    }
+  },
+  {
+    "name": "audit",
+    "schema": "AuditEntry",
+    "valid": true,
+    "value": {
+      "auditId": "00000000-0000-4000-8000-000000000002",
+      "actor": {
+        "type": "user",
+        "id": "00000000-0000-4000-8000-000000000002"
+      },
+      "action": "events_queried",
+      "resource": {
+        "type": "event",
+        "deviceId": "00000000-0000-4000-8000-000000000002"
+      },
+      "filters": {
+        "device": "00000000-0000-4000-8000-000000000002",
+        "from": "2026-10-17T12:00:00Z",
+        "limit": 50
+      },
+      "result": "success",
+      "occurredAt": "2026-10-17T12:02:00Z",
+      "correlationId": "00000000-0000-4000-8000-000000000002"
+    }
+  },
+  {
+    "name": "eventpage",
+    "schema": "EventPage",
+    "valid": true,
+    "value": {
+      "items": [],
+      "nextCursor": null
+    }
+  },
+  {
+    "name": "devicepage",
+    "schema": "DevicePage",
+    "valid": true,
+    "value": {
+      "items": [],
+      "nextCursor": null
+    }
+  },
+  {
+    "name": "auditpage",
+    "schema": "AuditPage",
+    "valid": true,
+    "value": {
+      "items": [],
+      "nextCursor": null
+    }
+  },
+  {
+    "name": "problem",
+    "schema": "Problem",
+    "valid": true,
+    "value": {
+      "type": "about:blank",
+      "title": "Solicitud inválida",
+      "status": 400,
+      "code": "INVALID_REQUEST",
+      "correlationId": "00000000-0000-4000-8000-000000000002"
+    }
+  },
+  {
+    "name": "invalid_category",
+    "schema": "EventInput",
+    "valid": false,
+    "value": {
+      "eventId": "00000000-0000-4000-8000-000000000004",
+      "timestamp": "2026-10-17T12:01:00Z",
+      "category": [],
+      "direction": "occurred",
+      "sourceDevice": "00000000-0000-4000-8000-000000000002",
+      "consentContext": {
+        "consentId": "00000000-0000-4000-8000-000000000003",
+        "policyVersion": "mvp-1",
+        "acceptedAt": "2026-10-17T12:00:00Z"
+      },
+      "isSimulated": true,
+      "metadata": {
+        "batteryPercent": 50,
+        "networkState": "online",
+        "appEventCode": "agent_started"
+      }
+    }
+  },
+  {
+    "name": "invalid_direction",
+    "schema": "EventInput",
+    "valid": false,
+    "value": {
+      "eventId": "00000000-0000-4000-8000-000000000004",
+      "timestamp": "2026-10-17T12:01:00Z",
+      "category": "app_lifecycle",
+      "direction": {},
+      "sourceDevice": "00000000-0000-4000-8000-000000000002",
+      "consentContext": {
+        "consentId": "00000000-0000-4000-8000-000000000003",
+        "policyVersion": "mvp-1",
+        "acceptedAt": "2026-10-17T12:00:00Z"
+      },
+      "isSimulated": true,
+      "metadata": {
+        "batteryPercent": 50,
+        "networkState": "online",
+        "appEventCode": "agent_started"
+      }
+    }
+  },
+  {
+    "name": "invalid_eventId",
+    "schema": "EventInput",
+    "valid": false,
+    "value": {
+      "eventId": "invalid",
+      "timestamp": "2026-10-17T12:01:00Z",
+      "category": "app_lifecycle",
+      "direction": "occurred",
+      "sourceDevice": "00000000-0000-4000-8000-000000000002",
+      "consentContext": {
+        "consentId": "00000000-0000-4000-8000-000000000003",
+        "policyVersion": "mvp-1",
+        "acceptedAt": "2026-10-17T12:00:00Z"
+      },
+      "isSimulated": true,
+      "metadata": {
+        "batteryPercent": 50,
+        "networkState": "online",
+        "appEventCode": "agent_started"
+      }
+    }
+  },
+  {
+    "name": "invalid_timestamp",
+    "schema": "EventInput",
+    "valid": false,
+    "value": {
+      "eventId": "00000000-0000-4000-8000-000000000004",
+      "timestamp": "2026-10-17T12:00:00",
+      "category": "app_lifecycle",
+      "direction": "occurred",
+      "sourceDevice": "00000000-0000-4000-8000-000000000002",
+      "consentContext": {
+        "consentId": "00000000-0000-4000-8000-000000000003",
+        "policyVersion": "mvp-1",
+        "acceptedAt": "2026-10-17T12:00:00Z"
+      },
+      "isSimulated": true,
+      "metadata": {
+        "batteryPercent": 50,
+        "networkState": "online",
+        "appEventCode": "agent_started"
+      }
+    }
+  },
+  {
+    "name": "invalid_isSimulated",
+    "schema": "EventInput",
+    "valid": false,
+    "value": {
+      "eventId": "00000000-0000-4000-8000-000000000004",
+      "timestamp": "2026-10-17T12:01:00Z",
+      "category": "app_lifecycle",
+      "direction": "occurred",
+      "sourceDevice": "00000000-0000-4000-8000-000000000002",
+      "consentContext": {
+        "consentId": "00000000-0000-4000-8000-000000000003",
+        "policyVersion": "mvp-1",
+        "acceptedAt": "2026-10-17T12:00:00Z"
+      },
+      "isSimulated": "true",
+      "metadata": {
+        "batteryPercent": 50,
+        "networkState": "online",
+        "appEventCode": "agent_started"
+      }
+    }
+  },
+  {
+    "name": "missing_isSimulated",
+    "schema": "EventInput",
+    "valid": false,
+    "value": {
+      "eventId": "00000000-0000-4000-8000-000000000004",
+      "timestamp": "2026-10-17T12:01:00Z",
+      "category": "app_lifecycle",
+      "direction": "occurred",
+      "sourceDevice": "00000000-0000-4000-8000-000000000002",
+      "consentContext": {
+        "consentId": "00000000-0000-4000-8000-000000000003",
+        "policyVersion": "mvp-1",
+        "acceptedAt": "2026-10-17T12:00:00Z"
+      },
+      "metadata": {
+        "batteryPercent": 50,
+        "networkState": "online",
+        "appEventCode": "agent_started"
+      }
+    }
+  },
+  {
+    "name": "missing_consentContext",
+    "schema": "EventInput",
+    "valid": false,
+    "value": {
+      "eventId": "00000000-0000-4000-8000-000000000004",
+      "timestamp": "2026-10-17T12:01:00Z",
+      "category": "app_lifecycle",
+      "direction": "occurred",
+      "sourceDevice": "00000000-0000-4000-8000-000000000002",
+      "isSimulated": true,
+      "metadata": {
+        "batteryPercent": 50,
+        "networkState": "online",
+        "appEventCode": "agent_started"
+      }
+    }
+  },
+  {
+    "name": "invalid_metadata_networkState_26",
+    "schema": "EventInput",
+    "valid": false,
+    "value": {
+      "eventId": "00000000-0000-4000-8000-000000000004",
+      "timestamp": "2026-10-17T12:01:00Z",
+      "category": "app_lifecycle",
+      "direction": "occurred",
+      "sourceDevice": "00000000-0000-4000-8000-000000000002",
+      "consentContext": {
+        "consentId": "00000000-0000-4000-8000-000000000003",
+        "policyVersion": "mvp-1",
+        "acceptedAt": "2026-10-17T12:00:00Z"
+      },
+      "isSimulated": true,
+      "metadata": {
+        "batteryPercent": 50,
+        "networkState": {},
+        "appEventCode": "agent_started"
+      }
+    }
+  },
+  {
+    "name": "invalid_metadata_batteryPercent_27",
+    "schema": "EventInput",
+    "valid": false,
+    "value": {
+      "eventId": "00000000-0000-4000-8000-000000000004",
+      "timestamp": "2026-10-17T12:01:00Z",
+      "category": "app_lifecycle",
+      "direction": "occurred",
+      "sourceDevice": "00000000-0000-4000-8000-000000000002",
+      "consentContext": {
+        "consentId": "00000000-0000-4000-8000-000000000003",
+        "policyVersion": "mvp-1",
+        "acceptedAt": "2026-10-17T12:00:00Z"
+      },
+      "isSimulated": true,
+      "metadata": {
+        "batteryPercent": true,
+        "networkState": "online",
+        "appEventCode": "agent_started"
+      }
+    }
+  },
+  {
+    "name": "invalid_metadata_batteryPercent_28",
+    "schema": "EventInput",
+    "valid": false,
+    "value": {
+      "eventId": "00000000-0000-4000-8000-000000000004",
+      "timestamp": "2026-10-17T12:01:00Z",
+      "category": "app_lifecycle",
+      "direction": "occurred",
+      "sourceDevice": "00000000-0000-4000-8000-000000000002",
+      "consentContext": {
+        "consentId": "00000000-0000-4000-8000-000000000003",
+        "policyVersion": "mvp-1",
+        "acceptedAt": "2026-10-17T12:00:00Z"
+      },
+      "isSimulated": true,
+      "metadata": {
+        "batteryPercent": 101,
+        "networkState": "online",
+        "appEventCode": "agent_started"
+      }
+    }
+  },
+  {
+    "name": "invalid_metadata_appEventCode_29",
+    "schema": "EventInput",
+    "valid": false,
+    "value": {
+      "eventId": "00000000-0000-4000-8000-000000000004",
+      "timestamp": "2026-10-17T12:01:00Z",
+      "category": "app_lifecycle",
+      "direction": "occurred",
+      "sourceDevice": "00000000-0000-4000-8000-000000000002",
+      "consentContext": {
+        "consentId": "00000000-0000-4000-8000-000000000003",
+        "policyVersion": "mvp-1",
+        "acceptedAt": "2026-10-17T12:00:00Z"
+      },
+      "isSimulated": true,
+      "metadata": {
+        "batteryPercent": 50,
+        "networkState": "online",
+        "appEventCode": "read_sms"
+      }
+    }
+  },
+  {
+    "name": "invalid_metadata_sms_30",
+    "schema": "EventInput",
+    "valid": false,
+    "value": {
+      "eventId": "00000000-0000-4000-8000-000000000004",
+      "timestamp": "2026-10-17T12:01:00Z",
+      "category": "app_lifecycle",
+      "direction": "occurred",
+      "sourceDevice": "00000000-0000-4000-8000-000000000002",
+      "consentContext": {
+        "consentId": "00000000-0000-4000-8000-000000000003",
+        "policyVersion": "mvp-1",
+        "acceptedAt": "2026-10-17T12:00:00Z"
+      },
+      "isSimulated": true,
+      "metadata": {
+        "batteryPercent": 50,
+        "networkState": "online",
+        "appEventCode": "agent_started",
+        "sms": "forbidden"
+      }
+    }
+  },
+  {
+    "name": "client_received_at",
+    "schema": "EventInput",
+    "valid": false,
+    "value": {
+      "eventId": "00000000-0000-4000-8000-000000000004",
+      "timestamp": "2026-10-17T12:01:00Z",
+      "category": "app_lifecycle",
+      "direction": "occurred",
+      "sourceDevice": "00000000-0000-4000-8000-000000000002",
+      "consentContext": {
+        "consentId": "00000000-0000-4000-8000-000000000003",
+        "policyVersion": "mvp-1",
+        "acceptedAt": "2026-10-17T12:00:00Z"
+      },
+      "isSimulated": true,
+      "metadata": {
+        "batteryPercent": 50,
+        "networkState": "online",
+        "appEventCode": "agent_started"
+      },
+      "receivedAt": "2026-10-17T12:01:01Z"
+    }
+  },
+  {
+    "name": "extra_field",
+    "schema": "EventInput",
+    "valid": false,
+    "value": {
+      "eventId": "00000000-0000-4000-8000-000000000004",
+      "timestamp": "2026-10-17T12:01:00Z",
+      "category": "app_lifecycle",
+      "direction": "occurred",
+      "sourceDevice": "00000000-0000-4000-8000-000000000002",
+      "consentContext": {
+        "consentId": "00000000-0000-4000-8000-000000000003",
+        "policyVersion": "mvp-1",
+        "acceptedAt": "2026-10-17T12:00:00Z"
+      },
+      "isSimulated": true,
+      "metadata": {
+        "batteryPercent": 50,
+        "networkState": "online",
+        "appEventCode": "agent_started"
+      },
+      "extra": "forbidden"
+    }
+  },
+  {
+    "name": "null_battery",
+    "schema": "EventInput",
+    "valid": false,
+    "value": {
+      "eventId": "00000000-0000-4000-8000-000000000004",
+      "timestamp": "2026-10-17T12:01:00Z",
+      "category": "app_lifecycle",
+      "direction": "occurred",
+      "sourceDevice": "00000000-0000-4000-8000-000000000002",
+      "consentContext": {
+        "consentId": "00000000-0000-4000-8000-000000000003",
+        "policyVersion": "mvp-1",
+        "acceptedAt": "2026-10-17T12:00:00Z"
+      },
+      "isSimulated": true,
+      "metadata": {
+        "batteryPercent": null,
+        "networkState": "online",
+        "appEventCode": "agent_started"
+      }
+    }
+  },
+  {
+    "name": "empty_batch",
+    "schema": "EventBatch",
+    "valid": false,
+    "value": {
+      "events": []
+    }
+  },
+  {
+    "name": "denied_consent",
+    "schema": "EnrollmentRequest",
+    "valid": false,
+    "value": {
+      "consentAcknowledged": false,
+      "consent": {
+        "consentId": "00000000-0000-4000-8000-000000000003",
+        "policyVersion": "mvp-1",
+        "acceptedAt": "2026-10-17T12:00:00Z"
+      }
+    }
+  },
+  {
+    "name": "extra_refresh_field",
+    "schema": "RefreshRequest",
+    "valid": false,
+    "value": {
+      "refreshToken": "fixture-only-not-a-real-credential-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "role": "admin"
+    }
+  },
+  {
+    "name": "unknown_audit_field",
+    "schema": "AuditFilters",
+    "valid": false,
+    "value": {
+      "password": "forbidden"
+    }
+  },
+  {
+    "name": "invalid_role",
+    "schema": "User",
+    "valid": false,
+    "value": {
+      "userId": "00000000-0000-4000-8000-000000000002",
+      "username": "auditor",
+      "role": "superuser"
+    }
+  },
+  {
+    "name": "system_actor",
+    "schema": "AuditActor",
+    "valid": true,
+    "value": {
+      "type": "system",
+      "id": null
+    }
+  },
+  {
+    "name": "user_actor_without_id",
+    "schema": "AuditActor",
+    "valid": false,
+    "value": {
+      "type": "user",
+      "id": null
+    }
+  },
+  {
+    "name": "system_actor_with_id",
+    "schema": "AuditActor",
+    "valid": false,
+    "value": {
+      "type": "system",
+      "id": "00000000-0000-4000-8000-000000000002"
+    }
+  },
+  {
+    "name": "revoked_device",
+    "schema": "Device",
+    "valid": true,
+    "value": {
+      "deviceId": "00000000-0000-4000-8000-000000000002",
+      "status": "revoked",
+      "lastSeenAt": null,
+      "enrolledAt": "2026-10-17T12:00:01Z",
+      "revokedAt": "2026-10-17T12:02:00Z",
+      "consentContext": {
+        "consentId": "00000000-0000-4000-8000-000000000003",
+        "policyVersion": "mvp-1",
+        "acceptedAt": "2026-10-17T12:00:00Z"
+      },
+      "appVersion": null
+    }
+  },
+  {
+    "name": "revoked_without_date",
+    "schema": "Device",
+    "valid": false,
+    "value": {
+      "deviceId": "00000000-0000-4000-8000-000000000002",
+      "status": "revoked",
+      "lastSeenAt": null,
+      "enrolledAt": "2026-10-17T12:00:01Z",
+      "revokedAt": null,
+      "consentContext": {
+        "consentId": "00000000-0000-4000-8000-000000000003",
+        "policyVersion": "mvp-1",
+        "acceptedAt": "2026-10-17T12:00:00Z"
+      },
+      "appVersion": null
+    }
+  },
+  {
+    "name": "active_with_revoked_date",
+    "schema": "Device",
+    "valid": false,
+    "value": {
+      "deviceId": "00000000-0000-4000-8000-000000000002",
+      "status": "active",
+      "lastSeenAt": null,
+      "enrolledAt": "2026-10-17T12:00:01Z",
+      "revokedAt": "2026-10-17T12:02:00Z",
+      "consentContext": {
+        "consentId": "00000000-0000-4000-8000-000000000003",
+        "policyVersion": "mvp-1",
+        "acceptedAt": "2026-10-17T12:00:00Z"
+      },
+      "appVersion": null
+    }
+  }
+]

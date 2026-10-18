@@ -1,0 +1,1569 @@
+openapi: 3.1.0
+info:
+  title: AuditLab API definitiva
+  version: 0.2.0
+  description: 'Contrato objetivo Ktor/PostgreSQL. Su definición no implica rutas ya implementadas. El prototipo
+    Python mantiene su contrato separado en prototype-v0.1.yaml. Solo eventos propios, simulados y metadatos permitidos.
+    TLS y validación de certificados obligatorios fuera de loopback. Credenciales solo por headers/cuerpos autenticados;
+    respuestas con Cache-Control: no-store. Ejemplos y fixtures son ficticios.'
+servers:
+- url: /v1
+  description: Base relativa; configurar host HTTPS autorizado para piloto.
+security:
+- UserBearer: []
+tags:
+- name: Auth
+- name: Enrollment
+- name: Devices
+- name: Events
+- name: Audit
+paths:
+  /auth/login:
+    post:
+      operationId: login
+      tags:
+      - Auth
+      summary: Iniciar sesión de usuario
+      description: Error uniforme para cuenta inexistente o contraseña incorrecta. Access token de 15 minutos; sesión/refresh
+        con duración absoluta de 7 días.
+      responses:
+        '200':
+          description: Operación confirmada. La transacción y su auditoría deben persistir antes de responder éxito.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+            Cache-Control:
+              $ref: '#/components/headers/NoStore'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionTokens'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+  /auth/refresh:
+    post:
+      operationId: refreshSession
+      tags:
+      - Auth
+      summary: Renovar y rotar credenciales de la sesión
+      description: Refresh de un uso, almacenado como hash. Rotación atómica; reutilizar uno consumido invalida
+        la sesión y devuelve REFRESH_REUSED. No ampliar la expiración absoluta original.
+      responses:
+        '200':
+          description: Operación confirmada. La transacción y su auditoría deben persistir antes de responder éxito.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+            Cache-Control:
+              $ref: '#/components/headers/NoStore'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionTokens'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+  /auth/logout:
+    post:
+      operationId: logout
+      tags:
+      - Auth
+      summary: Revocar la sesión actual
+      description: Invalida sesión, access y refresh asociados. El servidor comprueba el estado de sesión en cada
+        petición protegida.
+      responses:
+        '204':
+          description: Operación confirmada. La transacción y su auditoría deben persistir antes de responder éxito.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+            Cache-Control:
+              $ref: '#/components/headers/NoStore'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-roles:
+      - admin
+      - auditor
+  /devices/enrollment-code:
+    post:
+      operationId: createEnrollmentCode
+      tags:
+      - Enrollment
+      summary: Crear código de inscripción de un uso
+      description: Válido 10 minutos. Se devuelve una sola vez; persistir solo hash aleatorio y auditar la creación.
+      responses:
+        '201':
+          description: Operación confirmada. La transacción y su auditoría deben persistir antes de responder éxito.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+            Cache-Control:
+              $ref: '#/components/headers/NoStore'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrollmentCode'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-roles:
+      - admin
+  /devices/enroll:
+    post:
+      operationId: enrollDevice
+      tags:
+      - Enrollment
+      summary: Inscribir dispositivo con consentimiento explícito
+      description: La app muestra la política y registra aceptación antes de llamar. Consumo de código atómico;
+        inválido, vencido o usado devuelve 401 ENROLLMENT_CODE_INVALID. Retorna consentimiento canonicalizado que
+        el agente debe reutilizar.
+      responses:
+        '201':
+          description: Operación confirmada. La transacción y su auditoría deben persistir antes de responder éxito.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+            Cache-Control:
+              $ref: '#/components/headers/NoStore'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrollmentResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/EnrollmentUnauthorized'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      security:
+      - EnrollmentCode: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnrollmentRequest'
+  /devices:
+    get:
+      operationId: listDevices
+      tags:
+      - Devices
+      summary: Listar dispositivos del grupo
+      description: Orden descendente (enrolledAt, deviceId). lastSeenAt es última comunicación aceptada; no prueba
+        de conectividad en tiempo real. Consulta auditada.
+      responses:
+        '200':
+          description: Operación confirmada. La transacción y su auditoría deben persistir antes de responder éxito.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+            Cache-Control:
+              $ref: '#/components/headers/NoStore'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DevicePage'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-roles:
+      - admin
+      - auditor
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/DeviceStatus'
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 50
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+          minLength: 16
+          maxLength: 2048
+        description: Reutilizar los mismos filtros; cursor vencido, manipulado o de otro actor devuelve INVALID_CURSOR.
+  /devices/{deviceId}:
+    get:
+      operationId: getDevice
+      tags:
+      - Devices
+      summary: Consultar un dispositivo
+      description: ''
+      responses:
+        '200':
+          description: Operación confirmada. La transacción y su auditoría deben persistir antes de responder éxito.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+            Cache-Control:
+              $ref: '#/components/headers/NoStore'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-roles:
+      - admin
+      - auditor
+      parameters:
+      - name: deviceId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+  /devices/{deviceId}/revoke:
+    post:
+      operationId: revokeDevice
+      tags:
+      - Devices
+      summary: Revocar un dispositivo desde el centro
+      description: Idempotente para un dispositivo existente. Tras commit no se persisten más lotes bajo la credencial.
+        Serializar con recepción; no borra automáticamente los eventos históricos.
+      responses:
+        '204':
+          description: Operación confirmada. La transacción y su auditoría deben persistir antes de responder éxito.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+            Cache-Control:
+              $ref: '#/components/headers/NoStore'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-roles:
+      - admin
+      parameters:
+      - name: deviceId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+  /devices/{deviceId}/consent-revoke:
+    post:
+      operationId: revokeOwnConsent
+      tags:
+      - Devices
+      summary: Revocar consentimiento propio
+      description: El agente detiene captura/envío antes de contactar y solo puede revocarse a sí mismo. Tras revocar,
+        su credencial no autoriza nada; 401/DEVICE_REVOKED posterior permite terminar la limpieza local.
+      responses:
+        '204':
+          description: Operación confirmada. La transacción y su auditoría deben persistir antes de responder éxito.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+            Cache-Control:
+              $ref: '#/components/headers/NoStore'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-roles:
+      - device
+      security:
+      - DeviceBearer: []
+      parameters:
+      - name: deviceId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+  /events:
+    post:
+      operationId: ingestEvents
+      tags:
+      - Events
+      summary: Persistir lote autorizado de eventos
+      description: 'Máximo 256 KiB UTF-8. Validar consentimiento exacto, identidad y reloj antes de commit. Lote
+        atómico: cualquier inválido/conflicto rechaza todo. Duplicado por (sourceDevice,eventId) solo si el contenido
+        normalizado es igual. accepted + duplicates debe igualar el tamaño del lote. receivedAt lo asigna exclusivamente
+        el servidor.'
+      responses:
+        '202':
+          description: Operación confirmada. La transacción y su auditoría deben persistir antes de responder éxito.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+            Cache-Control:
+              $ref: '#/components/headers/NoStore'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventBatchResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-roles:
+      - device
+      security:
+      - DeviceBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventBatch'
+    get:
+      operationId: listEvents
+      tags:
+      - Events
+      summary: Consultar historial filtrado
+      description: from inclusivo, to exclusivo, from < to. Orden descendente (timestamp,eventId,sourceDevice).
+        Cursor ligado a actor/filtros y techo de recepción de la primera página; no incorporar altas posteriores.
+        Retención puede eliminar filas entre páginas. Consulta y filtros mínimos quedan auditados.
+      responses:
+        '200':
+          description: Operación confirmada. La transacción y su auditoría deben persistir antes de responder éxito.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+            Cache-Control:
+              $ref: '#/components/headers/NoStore'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventPage'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-roles:
+      - admin
+      - auditor
+      parameters:
+      - name: device
+        in: query
+        required: false
+        schema:
+          type: string
+          format: uuid
+      - name: category
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/Category'
+      - name: from
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+          description: RFC 3339 con zona. El servidor normaliza a UTC con precisión de microsegundos.
+        description: Inicio inclusivo.
+      - name: to
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+          description: RFC 3339 con zona. El servidor normaliza a UTC con precisión de microsegundos.
+        description: Fin exclusivo; debe ser posterior a from.
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+        description: Coincidencia exacta con eventId o un appEventCode permitido; no búsqueda sobre contenido libre.
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 50
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+          minLength: 16
+          maxLength: 2048
+        description: Reutilizar los mismos filtros; cursor vencido, manipulado o de otro actor devuelve INVALID_CURSOR.
+  /devices/{deviceId}/events/{eventId}:
+    get:
+      operationId: getEvent
+      tags:
+      - Events
+      summary: Consultar detalle por clave compuesta
+      description: ''
+      responses:
+        '200':
+          description: Operación confirmada. La transacción y su auditoría deben persistir antes de responder éxito.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+            Cache-Control:
+              $ref: '#/components/headers/NoStore'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventRead'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-roles:
+      - admin
+      - auditor
+      parameters:
+      - name: deviceId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: eventId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+  /events/export.csv:
+    get:
+      operationId: exportEvents
+      tags:
+      - Events
+      summary: Exportar conjunto filtrado como CSV
+      description: Mismos filtros que historial, máximo 10000 filas y mismo orden estable. Si lo supera, 409 EXPORT_LIMIT_EXCEEDED
+        sin CSV parcial. Escape de CSV y neutralización de fórmulas; descargar sin credenciales en URL. Auditar
+        filtros y resultado; un corte de red no equivale a descarga completa.
+      responses:
+        '200':
+          description: Operación confirmada. La transacción y su auditoría deben persistir antes de responder éxito.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+            Cache-Control:
+              $ref: '#/components/headers/NoStore'
+            Content-Disposition:
+              schema:
+                type: string
+              example: attachment; filename="auditlab-events.csv"
+          content:
+            text/csv:
+              schema:
+                type: string
+              example: "eventId,timestamp,category,isSimulated\r\n00000000-0000-4000-8000-000000000010,2026-10-17T12:00:00Z,app_lifecycle,true\r\
+                \n"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-roles:
+      - admin
+      - auditor
+      parameters:
+      - name: device
+        in: query
+        required: false
+        schema:
+          type: string
+          format: uuid
+      - name: category
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/Category'
+      - name: from
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+          description: RFC 3339 con zona. El servidor normaliza a UTC con precisión de microsegundos.
+        description: Inicio inclusivo.
+      - name: to
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+          description: RFC 3339 con zona. El servidor normaliza a UTC con precisión de microsegundos.
+        description: Fin exclusivo; debe ser posterior a from.
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+        description: Coincidencia exacta con eventId o un appEventCode permitido; no búsqueda sobre contenido libre.
+  /audit-log:
+    get:
+      operationId: listAuditLog
+      tags:
+      - Audit
+      summary: Consultar accesos y acciones
+      description: Orden descendente (occurredAt,auditId). Cursor de 10 minutos, ligado a actor/filtros; from <
+        to. La consulta también queda auditada. No existen rutas para editar o borrar registros.
+      responses:
+        '200':
+          description: Operación confirmada. La transacción y su auditoría deben persistir antes de responder éxito.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+            Cache-Control:
+              $ref: '#/components/headers/NoStore'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditPage'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-roles:
+      - admin
+      - auditor
+      parameters:
+      - name: actorId
+        in: query
+        required: false
+        schema:
+          type: string
+          format: uuid
+      - name: action
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/AuditAction'
+      - name: result
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/AuditResult'
+      - name: from
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+          description: RFC 3339 con zona. El servidor normaliza a UTC con precisión de microsegundos.
+      - name: to
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+          description: RFC 3339 con zona. El servidor normaliza a UTC con precisión de microsegundos.
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 50
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+          minLength: 16
+          maxLength: 2048
+        description: Reutilizar los mismos filtros; cursor vencido, manipulado o de otro actor devuelve INVALID_CURSOR.
+components:
+  securitySchemes:
+    UserBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT; issuer/audience/algoritmo/sesión validados
+    DeviceBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: opaque-device-token
+    EnrollmentCode:
+      type: apiKey
+      in: header
+      name: X-Enrollment-Code
+  headers:
+    CorrelationId:
+      description: Identificador asignado por el servidor; no contiene credenciales.
+      schema:
+        type: string
+        format: uuid
+    NoStore:
+      description: No almacenar respuestas con datos o credenciales.
+      schema:
+        const: no-store
+  responses:
+    BadRequest:
+      description: Solicitud inválida.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationId'
+        Cache-Control:
+          $ref: '#/components/headers/NoStore'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: about:blank
+            title: Solicitud inválida.
+            status: 400
+            code: INVALID_REQUEST
+            correlationId: 00000000-0000-4000-8000-000000000001
+    Unauthorized:
+      description: Autenticación inválida, expirada o revocada.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationId'
+        Cache-Control:
+          $ref: '#/components/headers/NoStore'
+        WWW-Authenticate:
+          schema:
+            const: Bearer
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: about:blank
+            title: Autenticación inválida, expirada o revocada.
+            status: 401
+            code: UNAUTHENTICATED
+            correlationId: 00000000-0000-4000-8000-000000000001
+    Forbidden:
+      description: Rol o dispositivo sin alcance para esta operación.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationId'
+        Cache-Control:
+          $ref: '#/components/headers/NoStore'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: about:blank
+            title: Rol o dispositivo sin alcance para esta operación.
+            status: 403
+            code: FORBIDDEN
+            correlationId: 00000000-0000-4000-8000-000000000001
+    NotFound:
+      description: Recurso no encontrado.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationId'
+        Cache-Control:
+          $ref: '#/components/headers/NoStore'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: about:blank
+            title: Recurso no encontrado.
+            status: 404
+            code: RESOURCE_NOT_FOUND
+            correlationId: 00000000-0000-4000-8000-000000000001
+    Conflict:
+      description: Conflicto de estado, consentimiento, ID o límite de exportación.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationId'
+        Cache-Control:
+          $ref: '#/components/headers/NoStore'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: about:blank
+            title: Conflicto de estado, consentimiento, ID o límite de exportación.
+            status: 409
+            code: EVENT_ID_CONFLICT
+            correlationId: 00000000-0000-4000-8000-000000000001
+    PayloadTooLarge:
+      description: El lote supera 256 KiB UTF-8.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationId'
+        Cache-Control:
+          $ref: '#/components/headers/NoStore'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: about:blank
+            title: El lote supera 256 KiB UTF-8.
+            status: 413
+            code: PAYLOAD_TOO_LARGE
+            correlationId: 00000000-0000-4000-8000-000000000001
+    TooManyRequests:
+      description: Límite de solicitudes; respetar Retry-After.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationId'
+        Cache-Control:
+          $ref: '#/components/headers/NoStore'
+        Retry-After:
+          schema:
+            type: integer
+            minimum: 1
+          description: Segundos antes del reintento.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: about:blank
+            title: Límite de solicitudes; respetar Retry-After.
+            status: 429
+            code: RATE_LIMITED
+            correlationId: 00000000-0000-4000-8000-000000000001
+    InternalError:
+      description: Error interno saneado; sin SQL o stack traces.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationId'
+        Cache-Control:
+          $ref: '#/components/headers/NoStore'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: about:blank
+            title: Error interno saneado; sin SQL o stack traces.
+            status: 500
+            code: INTERNAL_ERROR
+            correlationId: 00000000-0000-4000-8000-000000000001
+    Unavailable:
+      description: Servicio o persistencia temporalmente no disponibles.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationId'
+        Cache-Control:
+          $ref: '#/components/headers/NoStore'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: about:blank
+            title: Servicio o persistencia temporalmente no disponibles.
+            status: 503
+            code: SERVICE_UNAVAILABLE
+            correlationId: 00000000-0000-4000-8000-000000000001
+    EnrollmentUnauthorized:
+      description: Autenticación inválida, expirada o revocada.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationId'
+        Cache-Control:
+          $ref: '#/components/headers/NoStore'
+        WWW-Authenticate:
+          schema:
+            const: EnrollmentCode
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: about:blank
+            title: Autenticación inválida, expirada o revocada.
+            status: 401
+            code: ENROLLMENT_CODE_INVALID
+            correlationId: 00000000-0000-4000-8000-000000000001
+  schemas:
+    Role:
+      type: string
+      enum:
+      - admin
+      - auditor
+    Category:
+      type: string
+      enum:
+      - app_lifecycle
+      - sync
+      - device_status
+    Direction:
+      type: string
+      enum:
+      - inbound
+      - outbound
+      - occurred
+    DeviceStatus:
+      type: string
+      enum:
+      - active
+      - revoked
+    AppEventCode:
+      type: string
+      enum:
+      - agent_started
+      - sync_succeeded
+      - sync_failed
+      - consent_revoked
+    AuditAction:
+      type: string
+      enum:
+      - login_succeeded
+      - login_failed
+      - session_refreshed
+      - session_revoked
+      - enrollment_code_created
+      - device_enrolled
+      - devices_listed
+      - device_queried
+      - events_queried
+      - events_received
+      - event_queried
+      - report_exported
+      - device_revoked
+      - consent_revoked
+      - audit_log_queried
+      - retention_executed
+      - bootstrap_user_created
+    AuditResult:
+      type: string
+      enum:
+      - success
+      - denied
+      - failure
+    LoginRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - username
+      - password
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 64
+          pattern: ^[A-Za-z0-9][A-Za-z0-9_.-]{2,63}$
+        password:
+          type: string
+          minLength: 1
+          maxLength: 128
+          writeOnly: true
+    RefreshRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - refreshToken
+      properties:
+        refreshToken:
+          type: string
+          minLength: 32
+          maxLength: 4096
+          description: Credencial secreta; nunca incluirla en logs, URLs, reportes o auditoría.
+    User:
+      type: object
+      additionalProperties: false
+      required:
+      - userId
+      - username
+      - role
+      properties:
+        userId:
+          type: string
+          format: uuid
+        username:
+          type: string
+          minLength: 3
+          maxLength: 64
+        role:
+          $ref: '#/components/schemas/Role'
+    SessionTokens:
+      type: object
+      additionalProperties: false
+      required:
+      - accessToken
+      - refreshToken
+      - tokenType
+      - expiresIn
+      - refreshExpiresIn
+      - sessionId
+      - user
+      properties:
+        accessToken:
+          type: string
+          minLength: 32
+          maxLength: 4096
+          description: Credencial secreta; nunca incluirla en logs, URLs, reportes o auditoría.
+        refreshToken:
+          type: string
+          minLength: 32
+          maxLength: 4096
+          description: Credencial secreta; nunca incluirla en logs, URLs, reportes o auditoría.
+        tokenType:
+          const: Bearer
+        expiresIn:
+          type: integer
+          minimum: 1
+          maximum: 900
+        refreshExpiresIn:
+          type: integer
+          minimum: 1
+          maximum: 604800
+        sessionId:
+          type: string
+          format: uuid
+        user:
+          $ref: '#/components/schemas/User'
+    ConsentContext:
+      type: object
+      additionalProperties: false
+      required:
+      - consentId
+      - policyVersion
+      - acceptedAt
+      properties:
+        consentId:
+          type: string
+          format: uuid
+        policyVersion:
+          type: string
+          minLength: 1
+          maxLength: 40
+          pattern: ^[A-Za-z0-9][A-Za-z0-9_.-]{0,39}$
+        acceptedAt:
+          type: string
+          format: date-time
+          description: RFC 3339 con zona. El servidor normaliza a UTC con precisión de microsegundos.
+    EnrollmentRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - consentAcknowledged
+      - consent
+      properties:
+        consentAcknowledged:
+          type: boolean
+          const: true
+        consent:
+          $ref: '#/components/schemas/ConsentContext'
+        appVersion:
+          type: string
+          minLength: 1
+          maxLength: 40
+    EnrollmentCode:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - expiresIn
+      - expiresAt
+      properties:
+        code:
+          type: string
+          minLength: 32
+          maxLength: 4096
+          description: Credencial secreta; nunca incluirla en logs, URLs, reportes o auditoría.
+        expiresIn:
+          const: 600
+        expiresAt:
+          type: string
+          format: date-time
+          description: RFC 3339 con zona. El servidor normaliza a UTC con precisión de microsegundos.
+    EnrollmentResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - deviceId
+      - deviceToken
+      - status
+      - consentContext
+      - enrolledAt
+      properties:
+        deviceId:
+          type: string
+          format: uuid
+        deviceToken:
+          type: string
+          minLength: 32
+          maxLength: 4096
+          description: Credencial secreta; nunca incluirla en logs, URLs, reportes o auditoría.
+        status:
+          const: active
+        consentContext:
+          $ref: '#/components/schemas/ConsentContext'
+        enrolledAt:
+          type: string
+          format: date-time
+          description: RFC 3339 con zona. El servidor normaliza a UTC con precisión de microsegundos.
+    Metadata:
+      type: object
+      additionalProperties: false
+      required: []
+      properties:
+        networkState:
+          type: string
+          enum:
+          - online
+          - offline
+          - unknown
+        batteryPercent:
+          type: integer
+          minimum: 0
+          maximum: 100
+        appEventCode:
+          $ref: '#/components/schemas/AppEventCode'
+    EventInput:
+      type: object
+      additionalProperties: false
+      required:
+      - eventId
+      - timestamp
+      - category
+      - direction
+      - sourceDevice
+      - consentContext
+      - isSimulated
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        timestamp:
+          type: string
+          format: date-time
+          description: RFC 3339 con zona. El servidor normaliza a UTC con precisión de microsegundos.
+        category:
+          $ref: '#/components/schemas/Category'
+        direction:
+          $ref: '#/components/schemas/Direction'
+        sourceDevice:
+          type: string
+          format: uuid
+        consentContext:
+          $ref: '#/components/schemas/ConsentContext'
+        isSimulated:
+          type: boolean
+        metadata:
+          $ref: '#/components/schemas/Metadata'
+    EventRead:
+      type: object
+      additionalProperties: false
+      required:
+      - eventId
+      - timestamp
+      - category
+      - direction
+      - sourceDevice
+      - consentContext
+      - isSimulated
+      - metadata
+      - receivedAt
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        timestamp:
+          type: string
+          format: date-time
+          description: RFC 3339 con zona. El servidor normaliza a UTC con precisión de microsegundos.
+        category:
+          $ref: '#/components/schemas/Category'
+        direction:
+          $ref: '#/components/schemas/Direction'
+        sourceDevice:
+          type: string
+          format: uuid
+        consentContext:
+          $ref: '#/components/schemas/ConsentContext'
+        isSimulated:
+          type: boolean
+        metadata:
+          $ref: '#/components/schemas/Metadata'
+        receivedAt:
+          type: string
+          format: date-time
+          description: RFC 3339 con zona. El servidor normaliza a UTC con precisión de microsegundos.
+    EventBatch:
+      type: object
+      additionalProperties: false
+      required:
+      - events
+      properties:
+        events:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/EventInput'
+    EventBatchResult:
+      type: object
+      additionalProperties: false
+      required:
+      - accepted
+      - duplicates
+      properties:
+        accepted:
+          type: integer
+          minimum: 0
+          maximum: 100
+        duplicates:
+          type: integer
+          minimum: 0
+          maximum: 100
+    Device:
+      type: object
+      additionalProperties: false
+      required:
+      - deviceId
+      - status
+      - lastSeenAt
+      - enrolledAt
+      - revokedAt
+      - consentContext
+      - appVersion
+      properties:
+        deviceId:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/DeviceStatus'
+        lastSeenAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: RFC 3339 con zona. El servidor normaliza a UTC con precisión de microsegundos.
+        enrolledAt:
+          type: string
+          format: date-time
+          description: RFC 3339 con zona. El servidor normaliza a UTC con precisión de microsegundos.
+        revokedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: RFC 3339 con zona. El servidor normaliza a UTC con precisión de microsegundos.
+        consentContext:
+          $ref: '#/components/schemas/ConsentContext'
+        appVersion:
+          type:
+          - string
+          - 'null'
+          maxLength: 40
+      allOf:
+      - if:
+          properties:
+            status:
+              const: active
+        then:
+          properties:
+            revokedAt:
+              type: 'null'
+        else:
+          properties:
+            revokedAt:
+              type: string
+              format: date-time
+    AuditFilters:
+      type: object
+      additionalProperties: false
+      required: []
+      properties:
+        device:
+          type: string
+          format: uuid
+        category:
+          $ref: '#/components/schemas/Category'
+        from:
+          type: string
+          format: date-time
+          description: RFC 3339 con zona. El servidor normaliza a UTC con precisión de microsegundos.
+        to:
+          type: string
+          format: date-time
+          description: RFC 3339 con zona. El servidor normaliza a UTC con precisión de microsegundos.
+        q:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+        status:
+          $ref: '#/components/schemas/DeviceStatus'
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+        actorId:
+          type: string
+          format: uuid
+        action:
+          $ref: '#/components/schemas/AuditAction'
+        result:
+          $ref: '#/components/schemas/AuditResult'
+    AuditResource:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      properties:
+        type:
+          type: string
+          enum:
+          - session
+          - device
+          - event
+          - report
+          - audit
+          - enrollment_code
+          - user
+          - system
+        deviceId:
+          type: string
+          format: uuid
+        eventId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        sessionId:
+          type: string
+          format: uuid
+    AuditActor:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - id
+      properties:
+        type:
+          type: string
+          enum:
+          - user
+          - device
+          - system
+        id:
+          type:
+          - string
+          - 'null'
+          format: uuid
+      allOf:
+      - if:
+          properties:
+            type:
+              const: system
+        then:
+          properties:
+            id:
+              type: 'null'
+        else:
+          properties:
+            id:
+              type: string
+              format: uuid
+    AuditEntry:
+      type: object
+      additionalProperties: false
+      required:
+      - auditId
+      - actor
+      - action
+      - resource
+      - filters
+      - result
+      - occurredAt
+      - correlationId
+      properties:
+        auditId:
+          type: string
+          format: uuid
+        actor:
+          $ref: '#/components/schemas/AuditActor'
+        action:
+          $ref: '#/components/schemas/AuditAction'
+        resource:
+          $ref: '#/components/schemas/AuditResource'
+        filters:
+          $ref: '#/components/schemas/AuditFilters'
+        result:
+          $ref: '#/components/schemas/AuditResult'
+        occurredAt:
+          type: string
+          format: date-time
+          description: RFC 3339 con zona. El servidor normaliza a UTC con precisión de microsegundos.
+        correlationId:
+          type: string
+          format: uuid
+    EventPage:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - nextCursor
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/EventRead'
+        nextCursor:
+          type:
+          - string
+          - 'null'
+          minLength: 16
+          maxLength: 2048
+          description: Cursor opaco firmado ligado al actor, filtros y orden. Vence a los 10 minutos; null si no
+            hay otra página.
+    DevicePage:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - nextCursor
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/Device'
+        nextCursor:
+          type:
+          - string
+          - 'null'
+          minLength: 16
+          maxLength: 2048
+          description: Cursor opaco firmado ligado al actor, filtros y orden. Vence a los 10 minutos; null si no
+            hay otra página.
+    AuditPage:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - nextCursor
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/AuditEntry'
+        nextCursor:
+          type:
+          - string
+          - 'null'
+          minLength: 16
+          maxLength: 2048
+          description: Cursor opaco firmado ligado al actor, filtros y orden. Vence a los 10 minutos; null si no
+            hay otra página.
+    Problem:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - title
+      - status
+      - code
+      - correlationId
+      properties:
+        type:
+          const: about:blank
+        title:
+          type: string
+          minLength: 1
+          maxLength: 120
+        status:
+          type: integer
+          enum:
+          - 400
+          - 401
+          - 403
+          - 404
+          - 409
+          - 413
+          - 429
+          - 500
+          - 503
+        code:
+          type: string
+          enum:
+          - INVALID_REQUEST
+          - INVALID_JSON
+          - INVALID_CURSOR
+          - INVALID_RANGE
+          - CONSENT_REQUIRED
+          - POLICY_UNSUPPORTED
+          - UNAUTHENTICATED
+          - SESSION_EXPIRED
+          - SESSION_REVOKED
+          - REFRESH_REUSED
+          - FORBIDDEN
+          - DEVICE_SCOPE_MISMATCH
+          - RESOURCE_NOT_FOUND
+          - DEVICE_REVOKED
+          - CONSENT_MISMATCH
+          - EVENT_ID_CONFLICT
+          - ENROLLMENT_CODE_INVALID
+          - EXPORT_LIMIT_EXCEEDED
+          - PAYLOAD_TOO_LARGE
+          - RATE_LIMITED
+          - SERVICE_UNAVAILABLE
+          - INTERNAL_ERROR
+        detail:
+          type: string
+          maxLength: 500
+        correlationId:
+          type: string
+          format: uuid

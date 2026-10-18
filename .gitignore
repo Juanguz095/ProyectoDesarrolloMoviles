@@ -1,0 +1,22 @@
+# Android / Gradle
+.gradle/
+.tooling/
+.venv/
+**/build/
+__pycache__/
+backend/api/data/
+local.properties
+*.iml
+.idea/
+
+# Local environment
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+*.p12
+
+# OS
+.DS_Store
+Thumbs.db
