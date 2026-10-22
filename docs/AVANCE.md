@@ -6,9 +6,9 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
 
 ## Alcance actual de la solicitud
 
-El 22 de octubre el usuario aportó un beta y después un contexto vinculante para la fase 1 académica local. Se prepararon [plan académico](PLAN_ACADEMICO.md), [propuesta I01](PLAN_I01.md) y [avance independiente](AVANCE_ACADEMICO.md). Después de aprobar la propuesta, el usuario autorizó ejecutar I01: base implementada y Build/lint CLI verificados; pendiente Sync IDE/apertura Android y revisión de cierre. I02 no está autorizado. El contexto exige versiones concretas, aprobación entre incrementos y excluye fase 2/red/transmisión.
+El 22 de octubre el usuario aportó un beta y después un contexto vinculante para la fase 1 académica local. Se prepararon [plan académico](PLAN_ACADEMICO.md), [propuesta I01](PLAN_I01.md) y [avance independiente](AVANCE_ACADEMICO.md). Tras ejecutar I01, el usuario autorizó continuar hasta I03. I02 e I03 están implementados y verificados con 48 pruebas JVM; build Android y lint satisfactorios. La Activity conserva la pantalla base; SQLite y aceptación persistida no están implementados en esta ruta. Siguen pendientes Sync IDE/apertura Android de I01 y la revisión de cierre. Se detiene antes de I04. El contexto exige versiones concretas, aprobación entre incrementos y excluye fase 2/red/transmisión.
 
-El estado siguiente documenta el sistema ampliado anterior y se conserva como histórico. Su tarea P3.2 no es la siguiente acción autorizada para esta ruta académica; la siguiente propuesta local es I01.
+El estado siguiente documenta el sistema ampliado anterior y se conserva como histórico. Su tarea P3.2 no es la siguiente acción de esta ruta académica; el siguiente incremento local es I04, pendiente de autorización.
 
 ## Estado del sistema ampliado previo
 
@@ -55,6 +55,13 @@ Todos los IDs remiten a tareas definidas en el plan maestro. Al comenzar una tar
 | P3.2 | pendiente | Contrato y tablas de códigos/dispositivos/consentimientos preparados. | Implementar consumo atómico de código, consentimiento versionado y credencial revocable; probar doble inscripción concurrente y roles. |
 
 ## Bitácora de sesiones
+
+### 22 de octubre de 2026 — Ejecución I02/I03 académica
+
+- Solicitud de continuar hasta I03 atendida en orden; dependencia de pruebas kotlin.test2.2.10/JUnit4 expresamente aprobada por el usuario, sin cambiar versiones de herramientas.
+- Modelos/contratos y AuditService implementados solo en `academic/domain`: aceptación, límites 1000/100, errores explícitos, borrado y revocación antes de limpieza. Coordinación compartida comprobada con dobles en memoria; no acredita SQLite, durabilidad ni cola Android.
+- 15 pruebas de I02 y 33 nuevas de I03: **48 aprobadas, 0 fallos/errores/omitidas**. Build Android, firma debug y lint (0 incidencias) verificados. Evidencias [I02](evidencias/academico/I02-2026-10-22.md) e [I03](evidencias/academico/I03-2026-10-22.md).
+- Commits locales separados por incremento; sin push, despliegue o fase 2. Instrucciones de arranque de nube actualizadas en borrador, sin publicación. I01 mantiene pendientes IDE/Android; I04 requiere una nueva autorización.
 
 ### 22 de octubre de 2026 — Ejecución I01 académica
 

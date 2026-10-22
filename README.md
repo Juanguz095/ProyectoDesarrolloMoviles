@@ -6,7 +6,7 @@ Para continuar el desarrollo, sigue el [plan maestro por fases](docs/PLAN_MAESTR
 
 ## Primera entrega académica
 
-La solicitud del 22 de octubre define una app local con `app`/`domain` y doce incrementos. Consulta el [plan académico mejorado](docs/PLAN_ACADEMICO.md), la [propuesta limitada a I01](docs/PLAN_I01.md) y su [registro propio](docs/AVANCE_ACADEMICO.md). Esta ruta solo simula eventos y requiere aprobación entre incrementos; la fase 2 y la transmisión quedan fuera de autorización. I01 ya tiene módulos y Activity base compilables, APK debug y lint sin incidencias. Faltan Sync en Android Studio y prueba en Android para cerrar su validación; I02 no está autorizado.
+La solicitud del 22 de octubre define una app local con `app`/`domain` y doce incrementos. Consulta el [plan académico mejorado](docs/PLAN_ACADEMICO.md), la [propuesta de I01](docs/PLAN_I01.md) y su [registro propio](docs/AVANCE_ACADEMICO.md). El usuario autorizó continuar hasta I03: modelos, contratos y AuditService implementados, con **48 pruebas JVM satisfactorias**, build Android y lint sin incidencias. El [dominio académico](docs/DOMINIO_ACADEMICO.md) controla aceptación, límites 1000/100 y revocación con reintento de borrado. Los tests usan almacenamiento en memoria; SQLite y su integración con la pantalla llegan después. La Activity sigue siendo la base de I01 y faltan Sync en Android Studio y ejecución en Android. I04 (CSV) es el siguiente incremento, pendiente de autorización. La fase 2 y la transmisión siguen fuera del alcance actual.
 
 El plan maestro de dos apps/API que sigue pertenece al trabajo previo; sus módulos se conservan como referencia y no forman parte de la implementación autorizada de esta entrega local.
 

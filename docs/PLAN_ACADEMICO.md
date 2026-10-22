@@ -1,7 +1,7 @@
 # AuditLab — Plan de la primera entrega académica
 
 **Versión:** 1.0 · **Fecha:** 22 de octubre de 2026, America/Lima.
-**Estado:** plan mejorado a partir del [beta recibido](referencias/plan-beta-original-2026-10-22.txt) y del [contexto vinculante del usuario](referencias/contexto-auditlab-2026-10-22.txt). El contexto más reciente prevalece ante diferencias. Incluye el mapa de I01–I12 como referencia; **el trabajo autorizado se limita a I01**. Tras aprobar la propuesta, el usuario autorizó su ejecución; Build/lint CLI están verificados y la validación IDE/Android sigue pendiente. El PDF y sus prompts específicos aún no se han recibido; falta contrastar su lista exacta de archivos y rúbrica.
+**Estado:** plan mejorado a partir del [beta recibido](referencias/plan-beta-original-2026-10-22.txt) y del [contexto vinculante del usuario](referencias/contexto-auditlab-2026-10-22.txt). El contexto más reciente prevalece ante diferencias. Incluye el mapa de I01–I12 como referencia. Después de I01, el usuario autorizó expresamente continuar hasta I03: I02 e I03 se ejecutaron en orden y cuentan con 48 pruebas JVM satisfactorias. Build/lint CLI están verificados y la validación IDE/Android de I01 sigue pendiente. **I04 no está autorizado.** El PDF y sus prompts específicos aún no se han recibido; falta contrastar su lista exacta de archivos y rúbrica. El [avance](AVANCE_ACADEMICO.md) registra resultados y límites.
 
 **Seguimiento de esta entrega:** [AVANCE_ACADEMICO.md](AVANCE_ACADEMICO.md).
 **Referencia histórica del sistema ampliado, fuera de la fase autorizada:** [plan maestro](PLAN_MAESTRO.md) y [avance previo](AVANCE.md).
@@ -320,8 +320,8 @@ En Windows usar `gradlew.bat` en lugar de `./gradlew`; en Omarchy usar la termin
 
 La fase 2 y cualquier integración, cliente de red o transmisión permanecen fuera de autorización, incluso al terminar I12; requieren una nueva solicitud explícita. Los eventos de llamadas/mensajes de esta entrega siguen siendo ficticios y su modelo no se reutiliza como contrato remoto sin revisión.
 
-## 10. Primer paso concreto
+## 10. Estado y siguiente paso concreto
 
-**I01 implementado.** La propuesta y las instrucciones de uso están en [PLAN_I01.md](PLAN_I01.md); resultados en [evidencia I01](evidencias/academico/I01-2026-10-22.md). Las versiones exigidas compilan en CLI. Siguiente paso: verificar Sync en Android Studio y apertura en Android y revisar el cierre; I02 requiere una nueva aprobación explícita.
+**I01 implementado; I02 e I03 implementados y verificados en JVM.** La propuesta y las instrucciones de uso de la base están en [PLAN_I01.md](PLAN_I01.md). Resultados en evidencias [I01](evidencias/academico/I01-2026-10-22.md), [I02](evidencias/academico/I02-2026-10-22.md) e [I03](evidencias/academico/I03-2026-10-22.md). Las versiones exigidas compilan en CLI y la suite acumula 48 pruebas. La pantalla sigue siendo la base; no se ha implementado SQLite ni persistencia de aceptación.
 
-Al terminar I01, entregar diff, resultados y pendientes, y **detenerse para aprobación antes de I02**. No ejecutar este mapa completo de doce incrementos como una sola tarea.
+Revisar los resultados de I02/I03 y completar Sync en Android Studio y apertura en Android de I01. **Detenerse antes de I04 (CSV), pendiente de autorización.** La solicitud de continuar hasta I03 permitió esos dos incrementos en orden; no autoriza ejecutar el resto del mapa ni la fase 2.

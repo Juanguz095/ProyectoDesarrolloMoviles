@@ -2,6 +2,12 @@ package com.auditlab.domain
 
 import java.util.UUID
 
+private val policyVersionPattern = Regex("[A-Za-z0-9][A-Za-z0-9_.-]{0,39}")
+
+internal fun requirePolicyVersion(version: String) {
+    require(policyVersionPattern.matches(version)) { "Policy version must contain 1 to 40 identifier characters" }
+}
+
 enum class EventKind { CALL, MESSAGE }
 enum class EventDirection { INCOMING, OUTGOING }
 
@@ -12,9 +18,7 @@ data class ConsentContext(
     val acceptedAtEpochMs: Long,
 ) {
     init {
-        require(policyVersion.matches(Regex("[A-Za-z0-9][A-Za-z0-9_.-]{0,39}"))) {
-            "Policy version must contain 1 to 40 identifier characters"
-        }
+        requirePolicyVersion(policyVersion)
         require(acceptedAtEpochMs >= 0) { "Acceptance timestamp cannot be negative" }
     }
 }
