@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.os.Build
 import android.view.WindowInsets
 import android.view.View
+import android.content.Intent
 import android.widget.*
 import com.auditlab.domain.*
 import java.text.DateFormat
@@ -15,11 +16,18 @@ class MainActivity : Activity() {
     private lateinit var session: AuditSession
     private var screen = ScreenData()
     private val observer: (ScreenData) -> Unit = { screen = it; render() }
+    private var exportRequestId: String? = null
+    private var exportRequestCode = 100
+    private var nextExportCode = 101
+    private var resumed = false
     private val eventButtons = listOf(R.id.call_incoming, R.id.call_outgoing, R.id.message_incoming, R.id.message_outgoing)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        exportRequestId = savedInstanceState?.getString("exportRequestId")
+        exportRequestCode = savedInstanceState?.getInt("exportRequestCode", 100) ?: 100
+        nextExportCode = savedInstanceState?.getInt("nextExportCode", 101) ?: 101
         session = (application as AuditApplication).auditSession
         applyInsets()
         findViewById<CheckBox>(R.id.consent_checkbox).setOnCheckedChangeListener { _, _ -> renderControls() }
@@ -35,17 +43,61 @@ class MainActivity : Activity() {
                 if (index % 2 == 0) EventDirection.INCOMING else EventDirection.OUTGOING)
         } }
         findViewById<Button>(R.id.refresh_button).setOnClickListener { session.refresh() }
+        findViewById<Button>(R.id.export_button).setOnClickListener { session.prepareExport() }
     }
 
     override fun onStart() {
         super.onStart()
         session.observe(observer)
-        if (!session.state.busy) session.refresh()
+        if (exportRequestId != null && session.state.exportRequest == null) {
+            val expired = checkNotNull(exportRequestId)
+            exportRequestId = null
+            session.receiveExportResult(expired, null, false)
+        }
+        if (!session.state.busy && (exportRequestId == null || session.state.acceptance == null)) session.refresh(preserveMessage = true)
     }
 
     override fun onStop() {
         session.removeObserver(observer)
         super.onStop()
+    }
+
+    override fun onPostResume() { super.onPostResume(); resumed = true; launchPendingExport() }
+    override fun onPause() { resumed = false; super.onPause() }
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString("exportRequestId", exportRequestId)
+        outState.putInt("exportRequestCode", exportRequestCode)
+        outState.putInt("nextExportCode", nextExportCode)
+        super.onSaveInstanceState(outState)
+    }
+
+    @Suppress("DEPRECATION")
+    private fun launchPendingExport() {
+        val request = screen.exportRequest ?: return
+        if (!resumed || screen.busy || exportRequestId != null || screen.acceptance !is Acceptance.Granted) return
+        exportRequestId = request.id
+        exportRequestCode = nextExportCode
+        nextExportCode = if (nextExportCode == 65535) 100 else nextExportCode + 1
+        try {
+            startActivityForResult(Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "text/csv"
+                putExtra(Intent.EXTRA_TITLE, "auditlab-eventos.csv")
+            }, exportRequestCode)
+        } catch (_: android.content.ActivityNotFoundException) {
+            exportRequestId = null
+            session.receiveExportResult(request.id, null, false)
+        }
+    }
+
+    @Deprecated("Framework callback required without additional Activity libraries")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == exportRequestCode) {
+            val id = exportRequestId ?: return
+            exportRequestId = null
+            session.receiveExportResult(id, data?.data, resultCode != RESULT_OK)
+        }
     }
 
     @Suppress("DEPRECATION")
@@ -90,6 +142,7 @@ class MainActivity : Activity() {
             setText(if (screen.acceptance is Acceptance.Granted) R.string.history_empty else R.string.history_locked)
         }
         renderControls()
+        launchPendingExport()
     }
 
     private fun renderControls() {
@@ -100,6 +153,7 @@ class MainActivity : Activity() {
         findViewById<Button>(R.id.decline_button).isEnabled = canAccept
         eventButtons.forEach { findViewById<Button>(it).isEnabled = !screen.busy && state is Acceptance.Granted }
         findViewById<Button>(R.id.refresh_button).isEnabled = !screen.busy
+        findViewById<Button>(R.id.export_button).isEnabled = !screen.busy && state is Acceptance.Granted && screen.exportRequest == null
         findViewById<ProgressBar>(R.id.busy_indicator).visibility = if (screen.busy) View.VISIBLE else View.GONE
     }
 

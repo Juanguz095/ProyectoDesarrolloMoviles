@@ -18,6 +18,10 @@ class AuditService(
     // No claim of persistence is made in that case; an explicit retry is required.
     private var revocationNotSaved = false
 
+    fun currentAcceptance(): AuditResult<ConsentContext> = coordinator.exclusive {
+        withAcceptance { AuditResult.Success(it) }
+    }
+
     init { requirePolicyVersion(currentPolicyVersion) }
 
     fun record(kind: EventKind, direction: EventDirection): AuditResult<Event> = coordinator.exclusive {

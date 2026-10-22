@@ -34,6 +34,10 @@
             android:enabled="false" android:text="@string/message_outgoing" />
         <Button android:id="@+id/refresh_button" android:layout_width="match_parent" android:layout_height="wrap_content"
             android:enabled="false" android:text="@string/refresh" />
+        <Button android:id="@+id/export_button" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:enabled="false" android:text="@string/export_csv" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/export_copy_notice" android:paddingTop="8dp" android:textSize="14sp" />
         <TextView android:id="@+id/history_title" android:layout_width="match_parent" android:layout_height="wrap_content"
             android:text="@string/history_title" android:textStyle="bold" android:textSize="20sp" android:paddingTop="20dp" />
         <TextView android:id="@+id/history_empty" android:layout_width="match_parent" android:layout_height="wrap_content"

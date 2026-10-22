@@ -4,7 +4,7 @@ import android.content.ContentValues
 import android.database.Cursor
 import com.auditlab.domain.*
 
-class SQLiteEventRepository(private val database: AuditDatabase) : EventRepository {
+class SQLiteEventRepository(private val database: AuditDatabase) : EventRepository, EventSnapshotSource {
     override fun insertIfBelowCapacity(event: Event, capacity: Int): InsertResult {
         require(capacity > 0)
         requireWorkerThread()
@@ -41,6 +41,15 @@ class SQLiteEventRepository(private val database: AuditDatabase) : EventReposito
         return storageOperation {
             val db = database.writableDatabase
             db.independentTransaction { db.delete("events", null, null) }
+        }
+    }
+
+    override fun snapshot(): List<Event> {
+        requireWorkerThread()
+        return storageOperation {
+            database.readableDatabase.query("events", COLUMNS, null, null, null, null,
+                "timestamp_ms DESC, event_id ASC", (AuditLimits.MAX_STORED_EVENTS + 1).toString())
+                .use { cursor -> buildList { while (cursor.moveToNext()) add(decode(cursor)) } }
         }
     }
 

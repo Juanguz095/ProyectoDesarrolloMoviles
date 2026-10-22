@@ -20,6 +20,8 @@ enum class AuditError {
     NO_REVOKED_ACCEPTANCE,
     REVOCATION_NOT_CONFIRMED,
     CLEANUP_REQUIRED,
+    EXPORT_EXPIRED,
+    EXPORT_WRITE_FAILED,
 }
 
 sealed interface AuditResult<out T> {

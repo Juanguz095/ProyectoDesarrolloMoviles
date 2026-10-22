@@ -36,4 +36,11 @@
     <string name="error_revocation">No se pudo guardar la revocación. Las acciones siguen bloqueadas en esta sesión; reintenta guardar la revocación.</string>
     <string name="error_no_revocation">No hay una revocación pendiente que reintentar.</string>
     <string name="event_row">SIMULADO · %1$s\n%2$s (%3$s)\nID: %4$s</string>
+    <string name="export_csv">Exportar CSV · Todos los eventos</string>
+    <string name="export_choose">Elige dónde guardar el CSV. No se envía automáticamente.</string>
+    <string name="export_cancelled">Exportación cancelada. No se han escrito datos.</string>
+    <string name="export_success">Exportación completada. Registros exportados: %1$d.</string>
+    <string name="export_expired">La exportación ya no es válida. Iníciala de nuevo con aceptación vigente.</string>
+    <string name="export_failed">No se pudo guardar el CSV. El proveedor puede conservar un archivo vacío o parcial; compruébalo antes de reintentar.</string>
+    <string name="export_copy_notice">Las copias exportadas quedan bajo tu control y el del proveedor elegido. Borrar o revocar en AuditLab no elimina esas copias.</string>
 </resources>

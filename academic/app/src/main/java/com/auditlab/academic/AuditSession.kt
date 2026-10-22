@@ -3,11 +3,15 @@ package com.auditlab.academic
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import android.net.Uri
+import android.provider.DocumentsContract
+import java.io.IOException
 import com.auditlab.academic.storage.*
 import com.auditlab.domain.*
 import java.util.UUID
 
-data class ScreenData(val acceptance: Acceptance? = null, val events: List<Event> = emptyList(), val message: String = "", val busy: Boolean = false)
+data class ExportRequest(val id: String, val permit: ExportPermit)
+data class ScreenData(val acceptance: Acceptance? = null, val events: List<Event> = emptyList(), val message: String = "", val busy: Boolean = false, val exportRequest: ExportRequest? = null)
 
 /** Process-owned dependencies. Only observers reference Views and they detach in onStop. */
 class AuditSession(context: Context, databaseName: String = "auditlab-events.db") {
@@ -21,13 +25,19 @@ class AuditSession(context: Context, databaseName: String = "auditlab-events.db"
     private val clock = EpochClock { System.currentTimeMillis() }
     private val ids = EventIdGenerator { UUID.randomUUID() }
     private val decisions = AcceptanceService(store, clock, ids, "1.0", coordinator)
-    private val audit = AuditService(SQLiteEventRepository(database), store, clock, ids, "1.0", coordinator)
+    private val repository = SQLiteEventRepository(database)
+    private val audit = AuditService(repository, store, clock, ids, "1.0", coordinator)
+    private val exporter = ExportService(audit, repository, coordinator)
+    @Volatile private var pendingExport: ExportRequest? = null
     var state = ScreenData()
         private set
 
     fun observe(observer: (ScreenData) -> Unit) { requireMain(); observers += observer; observer(state) }
     fun removeObserver(observer: (ScreenData) -> Unit) { requireMain(); observers -= observer }
-    fun refresh() = perform { readScreen() }
+    fun refresh(preserveMessage: Boolean = false): Boolean {
+        val message = if (preserveMessage) state.message else ""
+        return perform { readScreen(message) }
+    }
     fun accept() = perform {
         val result = decisions.accept()
         readScreen(if (result is AuditResult.Success) text(R.string.accepted) else errorText((result as AuditResult.Rejected).reason))
@@ -35,6 +45,51 @@ class AuditSession(context: Context, databaseName: String = "auditlab-events.db"
     fun record(kind: EventKind, direction: EventDirection) = perform {
         val result = audit.record(kind, direction)
         readScreen(if (result is AuditResult.Success) text(R.string.event_saved) else errorText((result as AuditResult.Rejected).reason))
+    }
+
+    fun prepareExport(): Boolean {
+        requireMain()
+        if (pendingExport != null) return false
+        return perform {
+            when (val prepared = exporter.prepare()) {
+                is AuditResult.Rejected -> readScreen(errorText(prepared.reason))
+                is AuditResult.Success -> {
+                    val loaded = readScreen(text(R.string.export_choose))
+                    if (loaded.acceptance is Acceptance.Granted) pendingExport = ExportRequest(UUID.randomUUID().toString(), prepared.value)
+                    loaded
+                }
+            }
+        }
+    }
+
+    fun receiveExportResult(requestId: String, uri: Uri?, cancelled: Boolean) {
+        requireMain()
+        if (state.busy) {
+            queue.afterPending { main.post { receiveExportResult(requestId, uri, cancelled) } }
+            return
+        }
+        val request = pendingExport
+        if (request?.id == requestId) pendingExport = null
+        perform {
+            when {
+                request == null || request.id != requestId -> readScreen(text(R.string.export_expired))
+                cancelled -> readScreen(text(R.string.export_cancelled))
+                uri == null -> readScreen(text(R.string.export_failed))
+                else -> {
+                    var opened = false
+                    val result = exporter.write(request.permit, CsvDestination { bytes ->
+                        opened = true
+                        val stream = context.contentResolver.openOutputStream(uri, "wt") ?: throw IOException("No document stream")
+                        stream.use { it.write(bytes); it.flush() }
+                    })
+                    if (result is AuditResult.Rejected && opened) {
+                        try { DocumentsContract.deleteDocument(context.contentResolver, uri) } catch (_: Exception) { /* Provider may refuse cleanup. */ }
+                    }
+                    readScreen(if (result is AuditResult.Success) context.getString(R.string.export_success, result.value.eventCount)
+                        else errorText((result as AuditResult.Rejected).reason))
+                }
+            }
+        }
     }
 
     private fun perform(action: () -> ScreenData): Boolean {
@@ -60,7 +115,7 @@ class AuditSession(context: Context, databaseName: String = "auditlab-events.db"
         }
     }
 
-    private fun publish(value: ScreenData) { requireMain(); state = value; observers.toList().forEach { it(value) } }
+    private fun publish(value: ScreenData) { requireMain(); state = value.copy(exportRequest = pendingExport); observers.toList().forEach { it(state) } }
     private fun requireMain() { check(Looper.myLooper() == Looper.getMainLooper()) }
     private fun text(id: Int) = context.getString(id)
     private fun errorText(reason: AuditError): String = text(when (reason) {
@@ -75,6 +130,8 @@ class AuditSession(context: Context, databaseName: String = "auditlab-events.db"
         AuditError.REVOCATION_NOT_CONFIRMED -> R.string.error_revocation
         AuditError.NO_REVOKED_ACCEPTANCE -> R.string.error_no_revocation
         AuditError.STORAGE_UNAVAILABLE, AuditError.INVALID_STORAGE_RESPONSE -> R.string.error_storage
+        AuditError.EXPORT_EXPIRED -> R.string.export_expired
+        AuditError.EXPORT_WRITE_FAILED -> R.string.export_failed
     })
 
     fun closeDatabaseWhenIdle() { queue.afterPending { database.close() } }

@@ -7,11 +7,11 @@ Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inicial: [PLAN_I01.md](P
 ## Estado actual
 
 - Última solicitud: «Completalo hasta la 10 pero asegúrate de que todo funcione bien»; autoriza I07–I10 en orden y sus pruebas. No autoriza I11 o fase 2.
-- Estado actual: código implementado hasta I08. I05/I06 y pantalla/ciclo de vida se ejecutaron en Android API28, con un defecto de creación concurrente corregido y repetido satisfactoriamente.
+- Estado actual: código implementado hasta I09. Exportación de todos los eventos con selector, UTF-8 y revalidación de aceptación. I10 autorizado a continuación.
 - Artefactos: APK principal y de instrumentación compilados; lint 0. La pantalla ya tiene consentimiento, cuatro botones e historial, conectados a SQLite. [Evidencia I08](evidencias/academico/I08-2026-10-22.md).
-- Verificación actual: **80 JVM + 15 SQL host + 33 instrumentadas Android aprobadas**, sin fallos finales. La primera ejecución Android tuvo un fallo documentado y corregido. Sync IDE, API36 y muerte de proceso siguen pendientes.
+- Verificación actual: **93 JVM y 15 SQL host aprobadas**. En Android API28: 33 casos base aprobados en la completa anterior y 6 de exportación aprobados en repetición seleccionada, después de corregir fixtures/permisos. La suite completa de 39 se repetirá integrada en I10. Sync IDE, API36 y muerte de proceso siguen pendientes.
 - Cierres aprobados tras revisión: **0/12**; la autorización de ejecución no equivale a aprobación de sus resultados.
-- Próximo paso: I09 y después I10, ya autorizados. I11 requiere otra autorización.
+- Próximo paso: I10 y validación integrada, ya autorizados. I11 requiere otra autorización.
 - Pendiente documental: PDF/prompt específico I01; el contexto textual ya fija versiones, límites y obligación de aprobación.
 - Fase 2: fuera de autorización. El [avance previo](AVANCE.md) conserva el trabajo histórico del sistema ampliado y no acredita los incrementos de esta app.
 - Entorno Android: ADB resuelto y emulador propio API28 operativo con TCG/SwiftShader; el bloqueo anterior se conserva como histórico en sus evidencias.
@@ -28,10 +28,15 @@ Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inicial: [PLAN_I01.md](P
 | I06 | Aceptación persistida. | 17 JVM y 15 Android aprobados; reapertura/migración/fallos verificados en I08. | Ejecución autorizada; revisión pendiente. | [I06](evidencias/academico/I06-2026-10-22.md), [validación I08](evidencias/academico/I08-2026-10-22.md). |
 | I07 | Cuatro botones de eventos, ScrollView y marca SIMULADO. | Implementado; casos UI aprobados en I08. | Ejecución autorizada; revisión pendiente. | [I07](evidencias/academico/I07-2026-10-22.md), [validación I08](evidencias/academico/I08-2026-10-22.md). |
 | I08 | Cola compartida, busy, ciclo de vida, cierre BD y WindowInsets. | 5 JVM nuevas y 6 UI Android nuevas aprobadas. | Ejecución autorizada; revisión pendiente. | [Evidencia](evidencias/academico/I08-2026-10-22.md). |
-| I09 | Exportación manual elegida y controlada. | Pendiente. | Ejecución autorizada. | Continuación hasta I10. |
+| I09 | Exportación manual elegida y controlada. | 13 JVM y 6 ExportUiTests Android nuevas aprobadas; réplica completa pendiente en I10. | Ejecución autorizada; revisión pendiente. | [Evidencia](evidencias/academico/I09-2026-10-22.md). |
 | I10 | Borrado y revocación persistente aun con fallo de borrado. | Pendiente. | Ejecución autorizada. | Continuación hasta I10. |
 | I11 | Revisión de seguridad/SSDF. | Pendiente. | Pendiente. | I10 verificado y aprobación explícita para I11. |
 | I12 | Evidencias y cierre de fase 1. | Pendiente. | Pendiente. | I11 verificado y aprobación explícita para I12. |
+
+## Ejecución I09 del 22 de octubre de 2026
+
+- CSV completo/UTF-8 con selector y tickets ligados a aceptación; no abre destino con aceptación obsoleta. Cancelación, fallo y éxito distintos; limpieza parcial a cargo del proveedor.
+- 93 JVM y 6 pruebas Android de exportación aprobadas; la completa previa pasó los 33 base y detectó fallos de fixtures documentados/corregidos. [Evidencia](evidencias/academico/I09-2026-10-22.md). Sigue I10; API36 en preparación.
 
 ## Ejecución I08 del 22 de octubre de 2026
 

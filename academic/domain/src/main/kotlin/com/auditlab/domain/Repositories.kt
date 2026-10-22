@@ -36,7 +36,10 @@ interface AcceptanceStore {
 fun interface EpochClock { fun nowEpochMillis(): Long }
 fun interface EventIdGenerator { fun nextId(): java.util.UUID }
 
-/** Shared by services using the same stores; it serializes business operations, not Android UI work. */
+/** Full, consistent snapshot for explicit export; never the truncated visible history. */
+fun interface EventSnapshotSource { fun snapshot(): List<Event> }
+
+/** Shared by services using the same stores; supports reentrant calls on the same thread. Not an Android UI queue. */
 interface AuditCoordinator {
     fun <T> exclusive(action: () -> T): T
 }

@@ -58,6 +58,11 @@ Todos los IDs remiten a tareas definidas en el plan maestro. Al comenzar una tar
 
 ## Bitácora de sesiones
 
+### 22 de octubre de 2026 — Ejecución I09 académica
+
+- Exportación explícita por SAF, UTF-8, snapshot completo y revalidación de contexto. 93 JVM y 6 pruebas Android de exportación aprobadas; 33 base aprobadas en la completa previa. Fallos de fixtures de proveedor/permisos corregidos y registrados sin atribuir éxito a sus intentos fallidos. [Evidencia](evidencias/academico/I09-2026-10-22.md).
+- I10 repetirá la suite integrada. Imagen/AVD API36 preparados, pruebas aún pendientes. Commit local separado; sin push o publicación.
+
 ### 22 de octubre de 2026 — Ejecución I08 académica
 
 - Sesión/cola compartidas y WindowInsets implementados; 80 JVM, 15 SQL host y 33 Android aprobadas. Primer intento 27 Android detectó creación concurrente de tablas; corregida con DDL idempotente, sin omitir pruebas ni cambiar versiones. [Evidencia](evidencias/academico/I08-2026-10-22.md).

@@ -10,16 +10,23 @@ import java.io.StringWriter
 
 /** Uses the framework runner protocol; no new test library or production dependency. */
 class AuditLabTestRunner : Instrumentation() {
+    private var selectedGroup: String? = null
     override fun newApplication(cl: ClassLoader, className: String, context: Context): Application =
         super.newApplication(javaClass.classLoader, TestApplication::class.java.name, context)
 
     override fun onCreate(arguments: Bundle?) {
         super.onCreate(arguments)
+        selectedGroup = arguments?.getString("testGroup")
         start()
     }
 
     override fun onStart() {
-        val cases = SQLiteEventTests.cases(targetContext) + SQLiteAcceptanceTests.cases(targetContext) + SimulationUiTests.cases(this)
+        val all = SQLiteEventTests.cases(targetContext) + SQLiteAcceptanceTests.cases(targetContext) + SimulationUiTests.cases(this) + ExportUiTests.cases(this)
+        val cases = all.filter { selectedGroup == null || it.group == selectedGroup }
+        if (cases.isEmpty()) {
+            finish(Activity.RESULT_CANCELED, Bundle().apply { putString("shortMsg", "No matching instrumented tests") })
+            return
+        }
         var failures = 0
         cases.forEachIndexed { index, case ->
             val status = Bundle().apply {
