@@ -7,11 +7,11 @@ Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inmediata: [PLAN_I01.md]
 ## Estado actual
 
 - Última solicitud: «Avanza 3 fases más»; autoriza I04, I05 e I06 en orden. No autoriza I07 o fase 2.
-- Incremento actual: I04 verificado en JVM; siguiente I05 ya autorizado. I01 conserva sus pendientes IDE/Android.
+- Incremento actual: I05 implementado y compilado; 7 pruebas SQLite host aprobadas y 12 instrumentadas compiladas sin ejecutar por bloqueo Android. Siguiente I06 autorizado; no se considera cerrado I05 en Android.
 - Artefacto: APK debug de `academic/app`, firma verificada, lint con 0 incidencias; la Activity sigue siendo la base de I01, sin botones conectados al dominio. [Evidencia I03](evidencias/academico/I03-2026-10-22.md).
 - Incrementos con alcance JVM verificado: **3/12 (I02, I03 e I04)**; I01 conserva las comprobaciones CLI y los pendientes IDE/Android. Suite acumulada: **58 pruebas satisfactorias**.
 - Cierres aprobados tras revisión: **0/12**; la autorización de ejecución no equivale a aprobación de sus resultados.
-- Próximo paso: implementar I05 y después I06 según la autorización actual, conservando los pendientes de pruebas Android.
+- Próximo paso: implementar I06 según la autorización actual, conservando los pendientes de pruebas Android de I01/I05.
 - Pendiente documental: PDF/prompt específico I01; el contexto textual ya fija versiones, límites y obligación de aprobación.
 - Fase 2: fuera de autorización. El [avance previo](AVANCE.md) conserva el trabajo histórico del sistema ampliado y no acredita los incrementos de esta app.
 - Última comprobación solicitada: suite renovada **48/48**, build y lint sin incidencias; APK y firma verificados. Prueba Android bloqueada por disponibilidad de dispositivo/emulador y fallo ADB. [Informe de verificación](evidencias/academico/VERIFICACION-I01-I03-2026-10-22.md).
@@ -24,7 +24,7 @@ Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inmediata: [PLAN_I01.md]
 | I02 | Modelo y contratos Kotlin puros. | Verificado JVM: 15 pruebas. | Ejecución autorizada; revisión pendiente. | Continuación explícita hasta I03; I01 conserva pendientes IDE/Android. [Evidencia](evidencias/academico/I02-2026-10-22.md). |
 | I03 | AuditService, DI, límites 1000/100 y reglas. | Verificado JVM: 33 nuevas; 48 acumuladas. | Ejecución autorizada; revisión pendiente. | I02 verificado; continuación autorizada. [Evidencia](evidencias/academico/I03-2026-10-22.md). |
 | I04 | CSV con CRLF, timestamps numéricos y protección de fórmulas. | Verificado JVM: 10 pruebas nuevas; 58 acumuladas. | Ejecución autorizada; revisión pendiente. | [Evidencia](evidencias/academico/I04-2026-10-22.md). |
-| I05 | SQLite y pruebas instrumentadas. | Pendiente de ejecución. | Ejecución autorizada; revisión pendiente. | I04 verificado; continuación autorizada. |
+| I05 | SQLite y pruebas instrumentadas. | Implementado/compilado; 7 host aprobadas; 12 Android sin ejecutar. | Ejecución autorizada; cierre Android pendiente. | [Evidencia](evidencias/academico/I05-2026-10-22.md). |
 | I06 | Aceptación persistida. | Pendiente de ejecución. | Ejecución autorizada; revisión pendiente. | Después de I05; continuación autorizada. |
 | I07 | Cuatro botones de eventos, ScrollView y marca SIMULADO. | Pendiente. | Pendiente. | I06 verificado y aprobación explícita para I07. |
 | I08 | Cola compartida, busy, ciclo de vida, cierre BD y WindowInsets. | Pendiente. | Pendiente. | I07 verificado y aprobación explícita para I08. |
@@ -32,6 +32,11 @@ Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inmediata: [PLAN_I01.md]
 | I10 | Borrado y revocación persistente aun con fallo de borrado. | Pendiente. | Pendiente. | I09 verificado y aprobación explícita para I10. |
 | I11 | Revisión de seguridad/SSDF. | Pendiente. | Pendiente. | I10 verificado y aprobación explícita para I11. |
 | I12 | Evidencias y cierre de fase 1. | Pendiente. | Pendiente. | I11 verificado y aprobación explícita para I12. |
+
+## Ejecución I05 del 22 de octubre de 2026
+
+- SQLiteOpenHelper/repositorio y 12 casos instrumentados implementados; APKs principal/pruebas y lint satisfactorios. Siete pruebas host del SQL aprobadas, sin atribuirles validación del adaptador Android.
+- Dispositivo/emulador no disponible y ADB falla por ruta protegida. Pruebas instrumentadas sin ejecutar; cierre pendiente. [Evidencia](evidencias/academico/I05-2026-10-22.md). Commit local separado; continuación I06 autorizada.
 
 ## Ejecución I04 del 22 de octubre de 2026
 

@@ -10,6 +10,7 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "0.1.0-i01"
+        testInstrumentationRunner = "com.auditlab.academic.tests.AuditLabTestRunner"
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
