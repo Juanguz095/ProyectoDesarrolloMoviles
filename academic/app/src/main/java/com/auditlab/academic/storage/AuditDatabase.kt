@@ -13,9 +13,9 @@ class AuditDatabase(context: Context, name: String = "auditlab-events.db") :
     SQLiteOpenHelper(context.applicationContext, name, null, VERSION) {
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL(CREATE_EVENTS)
-        db.execSQL("CREATE INDEX events_history_order ON events(timestamp_ms DESC, event_id ASC)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS events_history_order ON events(timestamp_ms DESC, event_id ASC)")
         db.execSQL("""
-            CREATE TRIGGER events_capacity BEFORE INSERT ON events
+            CREATE TRIGGER IF NOT EXISTS events_capacity BEFORE INSERT ON events
             WHEN (SELECT COUNT(*) FROM events) >= 1000
             BEGIN SELECT RAISE(ABORT, 'event capacity reached'); END
         """.trimIndent())
@@ -34,7 +34,7 @@ class AuditDatabase(context: Context, name: String = "auditlab-events.db") :
     companion object {
         const val VERSION = 2
         internal val CREATE_ACCEPTANCE = """
-            CREATE TABLE acceptance (
+            CREATE TABLE IF NOT EXISTS acceptance (
                 singleton INTEGER NOT NULL PRIMARY KEY CHECK(singleton = 1),
                 state TEXT NOT NULL CHECK(state IN ('PENDING', 'GRANTED', 'REVOKED')),
                 consent_id TEXT CHECK(consent_id IS NULL OR (${uuidCheck("consent_id")})),
@@ -54,7 +54,7 @@ class AuditDatabase(context: Context, name: String = "auditlab-events.db") :
             )
         """.trimIndent()
         internal val CREATE_EVENTS = """
-            CREATE TABLE events (
+            CREATE TABLE IF NOT EXISTS events (
                 event_id TEXT NOT NULL PRIMARY KEY CHECK(${uuidCheck("event_id")}),
                 timestamp_ms INTEGER NOT NULL CHECK(typeof(timestamp_ms) = 'integer' AND timestamp_ms >= accepted_at_ms),
                 kind TEXT NOT NULL CHECK(kind IN ('CALL', 'MESSAGE')),

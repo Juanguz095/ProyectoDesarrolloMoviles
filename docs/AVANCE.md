@@ -8,7 +8,7 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
 
 El 22 de octubre el usuario aportó un beta y después un contexto vinculante para la fase 1 académica local. Se prepararon [plan académico](PLAN_ACADEMICO.md), [propuesta I01](PLAN_I01.md) y [avance independiente](AVANCE_ACADEMICO.md). La implementación llega a I06: modelos/reglas, CSV, repositorio SQLite y aceptación persistente. La Activity conserva la pantalla base. Hay 75 pruebas JVM y 15 del SQL host aprobadas; 27 instrumentadas compiladas pero no ejecutadas en Android. Siguen pendientes Sync IDE/apertura Android de I01, validación Android de I05/I06 y revisión de cierre. El contexto exige versiones concretas, aprobación entre incrementos y excluye fase 2/red/transmisión.
 
-Nueva solicitud: «Completalo hasta la 10 pero asegúrate de que todo funcione bien» autoriza I07–I10 en orden. I07 implementa la pantalla conectada; build/lint satisfactorios. Se resolvió ADB y se prepara un emulador API28 para pruebas reales. Resultados actualizados en el avance académico, sin atribuir éxito a pruebas aún no ejecutadas. I11 y fase 2 no autorizados.
+Nueva solicitud: «Completalo hasta la 10 pero asegúrate de que todo funcione bien» autoriza I07–I10 en orden. Implementado hasta I08; ADB resuelto y Android API28 operativo. Resultados integrados: 80 JVM, 15 SQL host y 33 instrumentadas aprobadas, tras corregir un fallo real de creación concurrente del esquema. Resultados actualizados en el avance académico; I09/I10 continúan autorizados. I11 y fase 2 no autorizados.
 
 El estado siguiente documenta el sistema ampliado anterior y se conserva como histórico. Su tarea P3.2 no es la siguiente acción de esta ruta académica.
 
@@ -57,6 +57,11 @@ Todos los IDs remiten a tareas definidas en el plan maestro. Al comenzar una tar
 | P3.2 | pendiente | Contrato y tablas de códigos/dispositivos/consentimientos preparados. | Implementar consumo atómico de código, consentimiento versionado y credencial revocable; probar doble inscripción concurrente y roles. |
 
 ## Bitácora de sesiones
+
+### 22 de octubre de 2026 — Ejecución I08 académica
+
+- Sesión/cola compartidas y WindowInsets implementados; 80 JVM, 15 SQL host y 33 Android aprobadas. Primer intento 27 Android detectó creación concurrente de tablas; corregida con DDL idempotente, sin omitir pruebas ni cambiar versiones. [Evidencia](evidencias/academico/I08-2026-10-22.md).
+- Verificados botones, consentimiento, pulsaciones rápidas, recreación, reapertura y recuperación de error. Muerte de proceso pendiente. Commit local separado, continúa I09 autorizado.
 
 ### 22 de octubre de 2026 — Ejecución I07 académica
 

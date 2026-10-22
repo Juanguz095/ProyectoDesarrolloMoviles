@@ -7,14 +7,14 @@ Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inicial: [PLAN_I01.md](P
 ## Estado actual
 
 - Última solicitud: «Completalo hasta la 10 pero asegúrate de que todo funcione bien»; autoriza I07–I10 en orden y sus pruebas. No autoriza I11 o fase 2.
-- Estado de esta continuación: I04 verificado JVM; I05/I06 implementados y compilados, con validación de sus adaptadores en Android pendiente. No se consideran cerrados por las pruebas host.
-- Artefactos: APK principal y de instrumentación, firmas verificadas, lint con 0 incidencias; la Activity sigue siendo la base de I01. [Evidencia I06](evidencias/academico/I06-2026-10-22.md).
-- Incrementos con alcance completo JVM verificado: **3/12 (I02, I03 e I04)**. I06 tiene reglas JVM verificadas, pero su persistencia Android sigue pendiente junto a I05 y la ejecución de I01. Suite actual: **75 pruebas JVM + 15 SQL host aprobadas; 27 instrumentadas compiladas, 0 ejecutadas**.
+- Estado actual: código implementado hasta I08. I05/I06 y pantalla/ciclo de vida se ejecutaron en Android API28, con un defecto de creación concurrente corregido y repetido satisfactoriamente.
+- Artefactos: APK principal y de instrumentación compilados; lint 0. La pantalla ya tiene consentimiento, cuatro botones e historial, conectados a SQLite. [Evidencia I08](evidencias/academico/I08-2026-10-22.md).
+- Verificación actual: **80 JVM + 15 SQL host + 33 instrumentadas Android aprobadas**, sin fallos finales. La primera ejecución Android tuvo un fallo documentado y corregido. Sync IDE, API36 y muerte de proceso siguen pendientes.
 - Cierres aprobados tras revisión: **0/12**; la autorización de ejecución no equivale a aprobación de sus resultados.
-- Próximo paso: I08, después I09/I10, todos autorizados. I07 ya implementa pantalla conectada. ADB resuelto y emulador API28 en arranque; no se da por ejecutada instrumentación todavía.
+- Próximo paso: I09 y después I10, ya autorizados. I11 requiere otra autorización.
 - Pendiente documental: PDF/prompt específico I01; el contexto textual ya fija versiones, límites y obligación de aprobación.
 - Fase 2: fuera de autorización. El [avance previo](AVANCE.md) conserva el trabajo histórico del sistema ampliado y no acredita los incrementos de esta app.
-- Comprobaciones actuales: suite renovada **75/75**, SQL host **15/15**, build de ambos APKs y lint satisfactorios. Android bloqueado por falta de dispositivo/emulador y fallo ADB. El [informe previo de I01–I03](evidencias/academico/VERIFICACION-I01-I03-2026-10-22.md) conserva sus resultados históricos.
+- Entorno Android: ADB resuelto y emulador propio API28 operativo con TCG/SwiftShader; el bloqueo anterior se conserva como histórico en sus evidencias.
 
 ## Seguimiento
 
@@ -24,14 +24,19 @@ Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inicial: [PLAN_I01.md](P
 | I02 | Modelo y contratos Kotlin puros. | Verificado JVM: 15 pruebas. | Ejecución autorizada; revisión pendiente. | Continuación explícita hasta I03; I01 conserva pendientes IDE/Android. [Evidencia](evidencias/academico/I02-2026-10-22.md). |
 | I03 | AuditService, DI, límites 1000/100 y reglas. | Verificado JVM: 33 nuevas; 48 acumuladas. | Ejecución autorizada; revisión pendiente. | I02 verificado; continuación autorizada. [Evidencia](evidencias/academico/I03-2026-10-22.md). |
 | I04 | CSV con CRLF, timestamps numéricos y protección de fórmulas. | Verificado JVM: 10 pruebas nuevas; 58 acumuladas. | Ejecución autorizada; revisión pendiente. | [Evidencia](evidencias/academico/I04-2026-10-22.md). |
-| I05 | SQLite y pruebas instrumentadas. | Implementado/compilado; 7 host aprobadas; 12 Android sin ejecutar. | Ejecución autorizada; cierre Android pendiente. | [Evidencia](evidencias/academico/I05-2026-10-22.md). |
-| I06 | Aceptación persistida. | Implementado/compilado; 17 JVM y 8 host nuevas; 15 Android sin ejecutar. | Ejecución autorizada; cierre Android pendiente. | [Evidencia](evidencias/academico/I06-2026-10-22.md); I05 mantiene pendiente Android. |
-| I07 | Cuatro botones de eventos, ScrollView y marca SIMULADO. | Implementado/compilado; lint 0; Android pendiente. | Ejecución autorizada; revisión pendiente. | [Evidencia](evidencias/academico/I07-2026-10-22.md). |
-| I08 | Cola compartida, busy, ciclo de vida, cierre BD y WindowInsets. | Pendiente. | Ejecución autorizada. | Continuación hasta I10. |
+| I05 | SQLite y pruebas instrumentadas. | 12 casos Android aprobados en versión integrada I08, tras corregir creación concurrente. | Ejecución autorizada; revisión pendiente. | [I05](evidencias/academico/I05-2026-10-22.md), [validación I08](evidencias/academico/I08-2026-10-22.md). |
+| I06 | Aceptación persistida. | 17 JVM y 15 Android aprobados; reapertura/migración/fallos verificados en I08. | Ejecución autorizada; revisión pendiente. | [I06](evidencias/academico/I06-2026-10-22.md), [validación I08](evidencias/academico/I08-2026-10-22.md). |
+| I07 | Cuatro botones de eventos, ScrollView y marca SIMULADO. | Implementado; casos UI aprobados en I08. | Ejecución autorizada; revisión pendiente. | [I07](evidencias/academico/I07-2026-10-22.md), [validación I08](evidencias/academico/I08-2026-10-22.md). |
+| I08 | Cola compartida, busy, ciclo de vida, cierre BD y WindowInsets. | 5 JVM nuevas y 6 UI Android nuevas aprobadas. | Ejecución autorizada; revisión pendiente. | [Evidencia](evidencias/academico/I08-2026-10-22.md). |
 | I09 | Exportación manual elegida y controlada. | Pendiente. | Ejecución autorizada. | Continuación hasta I10. |
 | I10 | Borrado y revocación persistente aun con fallo de borrado. | Pendiente. | Ejecución autorizada. | Continuación hasta I10. |
 | I11 | Revisión de seguridad/SSDF. | Pendiente. | Pendiente. | I10 verificado y aprobación explícita para I11. |
 | I12 | Evidencias y cierre de fase 1. | Pendiente. | Pendiente. | I11 verificado y aprobación explícita para I12. |
+
+## Ejecución I08 del 22 de octubre de 2026
+
+- Cola/sesión de proceso e insets implementados. Primeras 27 Android: 1 fallo de creación concurrente; corregido sin omitir el caso. Repetición completa: 33/33 Android aprobadas, más 80 JVM y 15 SQL host.
+- Los nuevos casos prueban consentimiento, cuatro botones, doble clic, recreación, reapertura y errores. [Evidencia](evidencias/academico/I08-2026-10-22.md). Continúa I09 autorizado; muerte de proceso pendiente.
 
 ## Ejecución I07 del 22 de octubre de 2026
 

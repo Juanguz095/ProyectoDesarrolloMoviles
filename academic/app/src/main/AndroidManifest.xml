@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
+        android:name=".AuditApplication"
         android:label="@string/app_name"
         android:icon="@drawable/ic_auditlab"
         android:allowBackup="false"

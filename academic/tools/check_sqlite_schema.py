@@ -30,8 +30,8 @@ def constant(name):
 
 
 EVENTS = constant('CREATE_EVENTS')
-INDEX = re.search(r'db.execSQL\("(CREATE INDEX events_history_order[^"\n]+)"\)', SOURCE).group(1)
-CAPACITY = re.search(r'db.execSQL\("""\s*(CREATE TRIGGER events_capacity.*?)"""', SOURCE, re.S).group(1)
+INDEX = re.search(r'db.execSQL\("(CREATE INDEX IF NOT EXISTS events_history_order[^"\n]+)"\)', SOURCE).group(1)
+CAPACITY = re.search(r'db.execSQL\("""\s*(CREATE TRIGGER IF NOT EXISTS events_capacity.*?)"""', SOURCE, re.S).group(1)
 INSERT = 'INSERT INTO events VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
 
 
