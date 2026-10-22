@@ -6,12 +6,12 @@ Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inicial: [PLAN_I01.md](P
 
 ## Estado actual
 
-- Última solicitud: «Avanza 3 fases más»; autoriza I04, I05 e I06 en orden. No autoriza I07 o fase 2.
+- Última solicitud: «Completalo hasta la 10 pero asegúrate de que todo funcione bien»; autoriza I07–I10 en orden y sus pruebas. No autoriza I11 o fase 2.
 - Estado de esta continuación: I04 verificado JVM; I05/I06 implementados y compilados, con validación de sus adaptadores en Android pendiente. No se consideran cerrados por las pruebas host.
 - Artefactos: APK principal y de instrumentación, firmas verificadas, lint con 0 incidencias; la Activity sigue siendo la base de I01. [Evidencia I06](evidencias/academico/I06-2026-10-22.md).
 - Incrementos con alcance completo JVM verificado: **3/12 (I02, I03 e I04)**. I06 tiene reglas JVM verificadas, pero su persistencia Android sigue pendiente junto a I05 y la ejecución de I01. Suite actual: **75 pruebas JVM + 15 SQL host aprobadas; 27 instrumentadas compiladas, 0 ejecutadas**.
 - Cierres aprobados tras revisión: **0/12**; la autorización de ejecución no equivale a aprobación de sus resultados.
-- Próximo paso: revisar I04–I06 y ejecutar los 27 casos instrumentados en Android, además de Sync/apertura de I01. Siguiente incremento de código: I07 (pantalla funcional), pendiente de autorización.
+- Próximo paso: I08, después I09/I10, todos autorizados. I07 ya implementa pantalla conectada. ADB resuelto y emulador API28 en arranque; no se da por ejecutada instrumentación todavía.
 - Pendiente documental: PDF/prompt específico I01; el contexto textual ya fija versiones, límites y obligación de aprobación.
 - Fase 2: fuera de autorización. El [avance previo](AVANCE.md) conserva el trabajo histórico del sistema ampliado y no acredita los incrementos de esta app.
 - Comprobaciones actuales: suite renovada **75/75**, SQL host **15/15**, build de ambos APKs y lint satisfactorios. Android bloqueado por falta de dispositivo/emulador y fallo ADB. El [informe previo de I01–I03](evidencias/academico/VERIFICACION-I01-I03-2026-10-22.md) conserva sus resultados históricos.
@@ -26,12 +26,17 @@ Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inicial: [PLAN_I01.md](P
 | I04 | CSV con CRLF, timestamps numéricos y protección de fórmulas. | Verificado JVM: 10 pruebas nuevas; 58 acumuladas. | Ejecución autorizada; revisión pendiente. | [Evidencia](evidencias/academico/I04-2026-10-22.md). |
 | I05 | SQLite y pruebas instrumentadas. | Implementado/compilado; 7 host aprobadas; 12 Android sin ejecutar. | Ejecución autorizada; cierre Android pendiente. | [Evidencia](evidencias/academico/I05-2026-10-22.md). |
 | I06 | Aceptación persistida. | Implementado/compilado; 17 JVM y 8 host nuevas; 15 Android sin ejecutar. | Ejecución autorizada; cierre Android pendiente. | [Evidencia](evidencias/academico/I06-2026-10-22.md); I05 mantiene pendiente Android. |
-| I07 | Cuatro botones de eventos, ScrollView y marca SIMULADO. | Pendiente. | Pendiente. | I06 verificado y aprobación explícita para I07. |
-| I08 | Cola compartida, busy, ciclo de vida, cierre BD y WindowInsets. | Pendiente. | Pendiente. | I07 verificado y aprobación explícita para I08. |
-| I09 | Exportación manual elegida y controlada. | Pendiente. | Pendiente. | I08 verificado y aprobación explícita para I09. |
-| I10 | Borrado y revocación persistente aun con fallo de borrado. | Pendiente. | Pendiente. | I09 verificado y aprobación explícita para I10. |
+| I07 | Cuatro botones de eventos, ScrollView y marca SIMULADO. | Implementado/compilado; lint 0; Android pendiente. | Ejecución autorizada; revisión pendiente. | [Evidencia](evidencias/academico/I07-2026-10-22.md). |
+| I08 | Cola compartida, busy, ciclo de vida, cierre BD y WindowInsets. | Pendiente. | Ejecución autorizada. | Continuación hasta I10. |
+| I09 | Exportación manual elegida y controlada. | Pendiente. | Ejecución autorizada. | Continuación hasta I10. |
+| I10 | Borrado y revocación persistente aun con fallo de borrado. | Pendiente. | Ejecución autorizada. | Continuación hasta I10. |
 | I11 | Revisión de seguridad/SSDF. | Pendiente. | Pendiente. | I10 verificado y aprobación explícita para I11. |
 | I12 | Evidencias y cierre de fase 1. | Pendiente. | Pendiente. | I11 verificado y aprobación explícita para I12. |
+
+## Ejecución I07 del 22 de octubre de 2026
+
+- Pantalla de consentimiento/simulación conectada al dominio y SQLite, con cuatro botones y lista limitada a 100. Build y lint 0 tras corregir Overdraw. [Evidencia](evidencias/academico/I07-2026-10-22.md).
+- ADB arranca tras crear su directorio interno con permiso específico; emulador oficial API28 en arranque por software. Ejecución Android aún pendiente al commit. I08 autorizado a continuación.
 
 ## Ejecución I06 del 22 de octubre de 2026
 
