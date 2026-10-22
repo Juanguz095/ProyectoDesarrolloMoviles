@@ -2,19 +2,19 @@
 
 Fecha de actualización: 22 de octubre de 2026, America/Lima.
 
-Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inmediata: [PLAN_I01.md](PLAN_I01.md). Fuente de requisitos: [contexto del usuario](referencias/contexto-auditlab-2026-10-22.txt).
+Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inicial: [PLAN_I01.md](PLAN_I01.md). Fuente de requisitos: [contexto del usuario](referencias/contexto-auditlab-2026-10-22.txt).
 
 ## Estado actual
 
 - Última solicitud: «Avanza 3 fases más»; autoriza I04, I05 e I06 en orden. No autoriza I07 o fase 2.
-- Incremento actual: I05 implementado y compilado; 7 pruebas SQLite host aprobadas y 12 instrumentadas compiladas sin ejecutar por bloqueo Android. Siguiente I06 autorizado; no se considera cerrado I05 en Android.
-- Artefacto: APK debug de `academic/app`, firma verificada, lint con 0 incidencias; la Activity sigue siendo la base de I01, sin botones conectados al dominio. [Evidencia I03](evidencias/academico/I03-2026-10-22.md).
-- Incrementos con alcance JVM verificado: **3/12 (I02, I03 e I04)**; I01 conserva las comprobaciones CLI y los pendientes IDE/Android. Suite acumulada: **58 pruebas satisfactorias**.
+- Estado de esta continuación: I04 verificado JVM; I05/I06 implementados y compilados, con validación de sus adaptadores en Android pendiente. No se consideran cerrados por las pruebas host.
+- Artefactos: APK principal y de instrumentación, firmas verificadas, lint con 0 incidencias; la Activity sigue siendo la base de I01. [Evidencia I06](evidencias/academico/I06-2026-10-22.md).
+- Incrementos con alcance completo JVM verificado: **3/12 (I02, I03 e I04)**. I06 tiene reglas JVM verificadas, pero su persistencia Android sigue pendiente junto a I05 y la ejecución de I01. Suite actual: **75 pruebas JVM + 15 SQL host aprobadas; 27 instrumentadas compiladas, 0 ejecutadas**.
 - Cierres aprobados tras revisión: **0/12**; la autorización de ejecución no equivale a aprobación de sus resultados.
-- Próximo paso: implementar I06 según la autorización actual, conservando los pendientes de pruebas Android de I01/I05.
+- Próximo paso: revisar I04–I06 y ejecutar los 27 casos instrumentados en Android, además de Sync/apertura de I01. Siguiente incremento de código: I07 (pantalla funcional), pendiente de autorización.
 - Pendiente documental: PDF/prompt específico I01; el contexto textual ya fija versiones, límites y obligación de aprobación.
 - Fase 2: fuera de autorización. El [avance previo](AVANCE.md) conserva el trabajo histórico del sistema ampliado y no acredita los incrementos de esta app.
-- Última comprobación solicitada: suite renovada **48/48**, build y lint sin incidencias; APK y firma verificados. Prueba Android bloqueada por disponibilidad de dispositivo/emulador y fallo ADB. [Informe de verificación](evidencias/academico/VERIFICACION-I01-I03-2026-10-22.md).
+- Comprobaciones actuales: suite renovada **75/75**, SQL host **15/15**, build de ambos APKs y lint satisfactorios. Android bloqueado por falta de dispositivo/emulador y fallo ADB. El [informe previo de I01–I03](evidencias/academico/VERIFICACION-I01-I03-2026-10-22.md) conserva sus resultados históricos.
 
 ## Seguimiento
 
@@ -25,13 +25,19 @@ Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inmediata: [PLAN_I01.md]
 | I03 | AuditService, DI, límites 1000/100 y reglas. | Verificado JVM: 33 nuevas; 48 acumuladas. | Ejecución autorizada; revisión pendiente. | I02 verificado; continuación autorizada. [Evidencia](evidencias/academico/I03-2026-10-22.md). |
 | I04 | CSV con CRLF, timestamps numéricos y protección de fórmulas. | Verificado JVM: 10 pruebas nuevas; 58 acumuladas. | Ejecución autorizada; revisión pendiente. | [Evidencia](evidencias/academico/I04-2026-10-22.md). |
 | I05 | SQLite y pruebas instrumentadas. | Implementado/compilado; 7 host aprobadas; 12 Android sin ejecutar. | Ejecución autorizada; cierre Android pendiente. | [Evidencia](evidencias/academico/I05-2026-10-22.md). |
-| I06 | Aceptación persistida. | Pendiente de ejecución. | Ejecución autorizada; revisión pendiente. | Después de I05; continuación autorizada. |
+| I06 | Aceptación persistida. | Implementado/compilado; 17 JVM y 8 host nuevas; 15 Android sin ejecutar. | Ejecución autorizada; cierre Android pendiente. | [Evidencia](evidencias/academico/I06-2026-10-22.md); I05 mantiene pendiente Android. |
 | I07 | Cuatro botones de eventos, ScrollView y marca SIMULADO. | Pendiente. | Pendiente. | I06 verificado y aprobación explícita para I07. |
 | I08 | Cola compartida, busy, ciclo de vida, cierre BD y WindowInsets. | Pendiente. | Pendiente. | I07 verificado y aprobación explícita para I08. |
 | I09 | Exportación manual elegida y controlada. | Pendiente. | Pendiente. | I08 verificado y aprobación explícita para I09. |
 | I10 | Borrado y revocación persistente aun con fallo de borrado. | Pendiente. | Pendiente. | I09 verificado y aprobación explícita para I10. |
 | I11 | Revisión de seguridad/SSDF. | Pendiente. | Pendiente. | I10 verificado y aprobación explícita para I11. |
 | I12 | Evidencias y cierre de fase 1. | Pendiente. | Pendiente. | I11 verificado y aprobación explícita para I12. |
+
+## Ejecución I06 del 22 de octubre de 2026
+
+- AcceptanceService y SQLiteAcceptanceStore implementados, con migración 1→2 sin perder eventos y retirada guardada antes del borrado. No hay aceptación automática ni UI nueva. [Guía](PERSISTENCIA_ACADEMICA.md).
+- 75/75 JVM y 15/15 SQL host aprobadas; ambos APKs y lint correctos. Quince pruebas Android nuevas, 27 totales compiladas; ninguna ejecutada por bloqueo del entorno. No se declara persistencia Android verificada.
+- [Evidencia](evidencias/academico/I06-2026-10-22.md). Commit local separado; borrador de arranque de nube actualizado, pendiente de publicación. Detención antes de I07.
 
 ## Ejecución I05 del 22 de octubre de 2026
 

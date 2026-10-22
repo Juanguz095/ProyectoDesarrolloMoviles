@@ -13,7 +13,7 @@ No hay números de teléfono, textos de mensajes ni datos de terceros en estos m
 
 ## Contratos y responsabilidades
 
-| Contrato | Responsabilidad del adaptador futuro |
+| Contrato | Responsabilidad del adaptador |
 | --- | --- |
 | `EventRepository.insertIfBelowCapacity` | Contar e insertar atómicamente; rechazar capacidad/ID duplicado sin cambiar datos. |
 | `EventRepository.latest` | Acotar el resultado y ordenar timestamp descendente e ID canónico ascendente para empates. |
@@ -24,7 +24,7 @@ No hay números de teléfono, textos de mensajes ni datos de terceros en estos m
 
 `StorageException` transmite un fallo esperado sin texto sensible del almacenamiento. Un bug del adaptador no se oculta como una escritura satisfactoria. La revocación debe guardarse antes de intentar borrar eventos: no se revierte si falla DELETE.
 
-Los dobles en `src/test` solo almacenan datos en memoria. Sus tests verifican modelos y el contrato de esos dobles; **no demuestran SQLite ni aceptación persistida**, pendientes de I05/I06.
+Los dobles en `src/test` solo almacenan datos en memoria. Sus tests verifican modelos y reglas, pero **no demuestran SQLite ni aceptación persistida**. Los adaptadores de I05/I06 están implementados y compilados en `app`; su ejecución instrumentada sigue pendiente. Consulta [persistencia y pruebas](PERSISTENCIA_ACADEMICA.md).
 
 ## AuditService — I03
 
@@ -64,4 +64,14 @@ python3 .tooling/academic-setup/run-gradle.py :domain:test :domain:build --no-da
 
 JUnit XML: `academic/domain/build/test-results/test`; HTML: `academic/domain/build/reports/tests/test`. Verificar número real de casos y fallos; no dar por probada la app Android por tener tests JVM satisfactorios.
 
-Suite actual: **48 casos, 0 fallos/errores/omitidos**: ModelTest (9), RepositoryContractTest (6), AuditServiceTest (30) y AuditConcurrencyTest (3). Los casos concurrentes incluyen 1100 intentos de inserción sobre dos servicios y carreras entre registro/revocación; esas iteraciones no se cuentan como 1100 tests. Evidencias de ejecución: [I02](evidencias/academico/I02-2026-10-22.md) e [I03](evidencias/academico/I03-2026-10-22.md).
+Suite actual: **75 casos, 0 fallos/errores/omitidos**: ModelTest (9), RepositoryContractTest (6), AuditServiceTest (30), AuditConcurrencyTest (3), CsvReportTest (10) y AcceptanceServiceTest (17). Los casos concurrentes incluyen 1100 intentos de inserción sobre dos servicios y carreras entre registro/revocación; esas iteraciones no se cuentan como 1100 tests. Evidencias [I02](evidencias/academico/I02-2026-10-22.md), [I03](evidencias/academico/I03-2026-10-22.md), [I04](evidencias/academico/I04-2026-10-22.md) e [I06](evidencias/academico/I06-2026-10-22.md).
+
+## CSV — I04
+
+`CsvReport.render(snapshot)` no consulta la BD ni escribe archivos. Recibe una copia de eventos, ordena timestamp descendente/UUID ascendente y devuelve cabecera fija y filas con CRLF. No limita la exportación a los 100 visibles; una instantánea de 1000 conserva los 1000 IDs. El contexto de cada fila sigue siendo el de su generación. Las pruebas sintéticas de escape/fórmulas no amplían el modelo a texto libre. La escritura UTF-8 y el selector de destino corresponden a I09.
+
+## Decisión del usuario — I06
+
+`AcceptanceService` comparte coordinador con AuditService y el almacén. Su constructor no acepta; `load()` solo recupera la decisión, y un fallo o una política antigua devuelve un rechazo. `accept()` debe invocarse únicamente por una acción explícita de la futura UI: lee primero, bloquea limpieza pendiente (`CLEANUP_REQUIRED`), obtiene reloj/ID y devuelve éxito después de guardar. No crea eventos. Repetir la aceptación de una política vigente conserva su contexto; una nueva política exige un contexto nuevo. Un reloj anterior a la decisión previa o un generador que reutiliza el ID conocido se rechaza.
+
+La lectura inicial de la futura pantalla debe comenzar bloqueada y habilitar acciones únicamente tras resultado confirmado; I06 no conecta aún esa pantalla. La persistencia real la proporciona SQLiteAcceptanceStore, con guardado de revocación y borrado en transacciones separadas. Su verificación Android sigue pendiente, como se detalla en la guía de persistencia.

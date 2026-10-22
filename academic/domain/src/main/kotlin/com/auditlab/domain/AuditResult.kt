@@ -19,6 +19,7 @@ enum class AuditError {
     INVALID_STORAGE_RESPONSE,
     NO_REVOKED_ACCEPTANCE,
     REVOCATION_NOT_CONFIRMED,
+    CLEANUP_REQUIRED,
 }
 
 sealed interface AuditResult<out T> {

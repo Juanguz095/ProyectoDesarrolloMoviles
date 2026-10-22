@@ -5,6 +5,7 @@ Uses only the Python standard library and temporary databases. Run from any cwd.
 The Android instrumentation APK exercises the actual repository separately.
 """
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import closing
 from pathlib import Path
 import re
 import sqlite3
@@ -38,7 +39,7 @@ def row(number=1, timestamp=2000):
     return (str(uuid.UUID(int=number)), timestamp, 'CALL', 'INCOMING', 1, str(uuid.UUID(int=1)), '1.0', 1000)
 
 
-class EventSchemaTests(unittest.TestCase):
+class TemporaryDatabase(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix='auditlab-schema-')
         self.addCleanup(self.temp.cleanup)
@@ -47,9 +48,11 @@ class EventSchemaTests(unittest.TestCase):
         self.addCleanup(self.db.close)
         self.db.executescript(EVENTS + ';' + INDEX + ';' + CAPACITY)
 
+
+class EventSchemaTests(TemporaryDatabase):
     def test_rows_survive_reopen(self):
         self.db.execute(INSERT, row())
-        with sqlite3.connect(self.path) as reopened:
+        with closing(sqlite3.connect(self.path)) as reopened:
             self.assertEqual([row()], reopened.execute('SELECT * FROM events').fetchall())
 
     def test_duplicate_id_does_not_overwrite(self):
@@ -93,7 +96,7 @@ class EventSchemaTests(unittest.TestCase):
 
     def test_independent_connections_count_and_insert_in_one_transaction(self):
         def insert_batch(worker):
-            with sqlite3.connect(self.path, isolation_level=None, timeout=10) as db:
+            with closing(sqlite3.connect(self.path, isolation_level=None, timeout=10)) as db:
                 results = []
                 for i in range(15):
                     db.execute('BEGIN IMMEDIATE')
@@ -108,6 +111,96 @@ class EventSchemaTests(unittest.TestCase):
         self.assertEqual(20, results.count(True))
         self.assertEqual(10, results.count(False))
         self.assertEqual(20, self.db.execute('SELECT COUNT(*) FROM events').fetchone()[0])
+
+
+ACCEPTANCE = constant('CREATE_ACCEPTANCE')
+INSERT_ACCEPTANCE = 'INSERT INTO acceptance VALUES (1, ?, ?, ?, ?, ?, ?)'
+GRANTED = ('GRANTED', str(uuid.UUID(int=10)), '1.0', 1000, None, 0)
+REVOKE = """UPDATE acceptance SET state = 'REVOKED', consent_id = NULL,
+    policy_version = NULL, accepted_at_ms = NULL, revoked_at_ms = 3000, deletion_pending = 1"""
+
+
+class AcceptanceSchemaTests(TemporaryDatabase):
+    def setUp(self):
+        super().setUp()
+        self.db.executescript(ACCEPTANCE)
+
+    def test_complete_decision_shapes_are_valid(self):
+        for decision in [('PENDING', None, None, None, None, 0), GRANTED,
+                         ('REVOKED', None, None, None, None, 1), ('REVOKED', None, None, None, 3000, 0)]:
+            self.db.execute('DELETE FROM acceptance')
+            self.db.execute(INSERT_ACCEPTANCE, decision)
+            self.assertEqual((1, *decision), self.db.execute('SELECT * FROM acceptance').fetchone())
+
+    def test_incoherent_decisions_are_rejected(self):
+        invalid = [('GRANTED', None, '1.0', 1000, None, 0), ('GRANTED', GRANTED[1], '1.0', 1000, None, 1),
+                   ('GRANTED', GRANTED[1], '1.0', 1000, 3000, 0), ('REVOKED', GRANTED[1], '1.0', 1000, 3000, 1),
+                   ('PENDING', None, None, None, None, 1), ('UNKNOWN', None, None, None, None, 0),
+                   ('REVOKED', None, None, None, -1, 1)]
+        for decision in invalid:
+            with self.subTest(decision=decision), self.assertRaises(sqlite3.IntegrityError):
+                self.db.execute(INSERT_ACCEPTANCE, decision)
+        self.assertEqual(0, self.db.execute('SELECT COUNT(*) FROM acceptance').fetchone()[0])
+
+    def test_granted_context_survives_reopen(self):
+        self.db.execute(INSERT_ACCEPTANCE, GRANTED)
+        with closing(sqlite3.connect(self.path)) as reopened:
+            self.assertEqual((1, *GRANTED), reopened.execute('SELECT * FROM acceptance').fetchone())
+
+    def test_migration_ddl_preserves_legacy_events_and_index(self):
+        self.db.execute('DROP TABLE acceptance')
+        self.db.executemany(INSERT, [row(i) for i in range(5)])
+        self.db.execute('PRAGMA user_version = 1')
+        self.db.execute('BEGIN IMMEDIATE')
+        self.db.execute(ACCEPTANCE)
+        self.db.execute('PRAGMA user_version = 2')
+        self.db.commit()
+        with closing(sqlite3.connect(self.path)) as reopened:
+            self.assertEqual(2, reopened.execute('PRAGMA user_version').fetchone()[0])
+            self.assertEqual([row(i) for i in range(5)], reopened.execute('SELECT * FROM events ORDER BY event_id').fetchall())
+            self.assertEqual(0, reopened.execute('SELECT COUNT(*) FROM acceptance').fetchone()[0])
+            self.assertIsNotNone(reopened.execute("SELECT name FROM sqlite_master WHERE name = 'events_history_order'").fetchone())
+
+    def test_delete_rollback_does_not_undo_prior_withdrawal_commit(self):
+        self.db.execute(INSERT_ACCEPTANCE, GRANTED)
+        self.db.execute(INSERT, row())
+        self.db.execute('BEGIN IMMEDIATE'); self.db.execute(REVOKE); self.db.commit()
+        self.db.executescript("CREATE TRIGGER fail_delete BEFORE DELETE ON events BEGIN SELECT RAISE(ABORT, 'test'); END")
+        self.db.execute('BEGIN IMMEDIATE')
+        with self.assertRaises(sqlite3.IntegrityError):
+            self.db.execute('DELETE FROM events')
+        self.db.rollback()
+        with closing(sqlite3.connect(self.path)) as reopened:
+            self.assertEqual(('REVOKED', 1), reopened.execute('SELECT state, deletion_pending FROM acceptance').fetchone())
+            self.assertEqual(1, reopened.execute('SELECT COUNT(*) FROM events').fetchone()[0])
+
+    def test_failed_withdrawal_write_preserves_old_decision(self):
+        self.db.execute(INSERT_ACCEPTANCE, GRANTED)
+        self.db.executescript("CREATE TRIGGER fail_write BEFORE UPDATE ON acceptance BEGIN SELECT RAISE(ABORT, 'test'); END")
+        self.db.execute('BEGIN IMMEDIATE')
+        with self.assertRaises(sqlite3.IntegrityError):
+            self.db.execute(REVOKE)
+        self.db.rollback()
+        self.assertEqual((1, *GRANTED), self.db.execute('SELECT * FROM acceptance').fetchone())
+
+    def test_failed_cleanup_confirmation_keeps_withdrawal(self):
+        self.db.execute(INSERT_ACCEPTANCE, GRANTED)
+        self.db.execute(INSERT, row())
+        self.db.execute(REVOKE)
+        self.db.execute('DELETE FROM events')
+        self.db.executescript("CREATE TRIGGER fail_confirmation BEFORE UPDATE ON acceptance WHEN NEW.deletion_pending = 0 BEGIN SELECT RAISE(ABORT, 'test'); END")
+        with self.assertRaises(sqlite3.IntegrityError):
+            self.db.execute('UPDATE acceptance SET deletion_pending = 0')
+        with closing(sqlite3.connect(self.path)) as reopened:
+            self.assertEqual(('REVOKED', 1), reopened.execute('SELECT state, deletion_pending FROM acceptance').fetchone())
+            self.assertEqual(0, reopened.execute('SELECT COUNT(*) FROM events').fetchone()[0])
+
+    def test_decision_singleton_cannot_be_duplicated_or_renumbered(self):
+        self.db.execute(INSERT_ACCEPTANCE, GRANTED)
+        with self.assertRaises(sqlite3.IntegrityError):
+            self.db.execute(INSERT_ACCEPTANCE, GRANTED)
+        with self.assertRaises(sqlite3.IntegrityError):
+            self.db.execute('UPDATE acceptance SET singleton = 2')
 
 
 if __name__ == '__main__':

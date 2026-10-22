@@ -14,7 +14,7 @@ class AuditLabTestRunner : Instrumentation() {
     }
 
     override fun onStart() {
-        val cases = SQLiteEventTests.cases(targetContext)
+        val cases = SQLiteEventTests.cases(targetContext) + SQLiteAcceptanceTests.cases(targetContext)
         var failures = 0
         cases.forEachIndexed { index, case ->
             val status = Bundle().apply {

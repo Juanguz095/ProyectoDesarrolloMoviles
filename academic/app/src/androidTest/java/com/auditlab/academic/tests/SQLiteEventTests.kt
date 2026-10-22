@@ -128,7 +128,11 @@ internal class DatabaseFixture(private val context: Context) : AutoCloseable {
     fun ids(): Set<String> = database.readableDatabase.rawQuery("SELECT event_id FROM events", null).use { cursor ->
         buildSet { while (cursor.moveToNext()) add(cursor.getString(0)) }
     }
-    override fun close() { database.close(); check(context.deleteDatabase(name)) }
+    override fun close() {
+        database.close()
+        // A main-thread rejection can happen before SQLite ever creates the test file.
+        if (context.getDatabasePath(name).exists()) check(context.deleteDatabase(name))
+    }
 }
 
 internal fun event(

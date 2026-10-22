@@ -1,7 +1,7 @@
 # AuditLab — Plan de la primera entrega académica
 
 **Versión:** 1.0 · **Fecha:** 22 de octubre de 2026, America/Lima.
-**Estado:** plan mejorado a partir del [beta recibido](referencias/plan-beta-original-2026-10-22.txt) y del [contexto vinculante del usuario](referencias/contexto-auditlab-2026-10-22.txt). El contexto más reciente prevalece ante diferencias. Incluye el mapa de I01–I12 como referencia. Después de I01, el usuario autorizó expresamente continuar hasta I03: I02 e I03 se ejecutaron en orden y cuentan con 48 pruebas JVM satisfactorias. Build/lint CLI están verificados y la validación IDE/Android de I01 sigue pendiente. **I04 no está autorizado.** El PDF y sus prompts específicos aún no se han recibido; falta contrastar su lista exacta de archivos y rúbrica. El [avance](AVANCE_ACADEMICO.md) registra resultados y límites.
+**Estado:** plan mejorado a partir del [beta recibido](referencias/plan-beta-original-2026-10-22.txt) y del [contexto vinculante del usuario](referencias/contexto-auditlab-2026-10-22.txt). El contexto más reciente prevalece ante diferencias. Incluye el mapa I01–I12 como referencia. La nueva solicitud autorizó I04–I06 en orden: CSV verificado JVM y adaptadores SQLite/aceptación implementados y compilados. Suite actual: 75 JVM + 15 SQL host aprobadas; 27 instrumentadas compiladas, sin ejecutar en Android. Sigue pendiente la validación IDE/Android, sin atribuirle resultados host. **I07 no está autorizado.** El PDF y sus prompts aún no se han recibido; falta contrastar archivos y rúbrica. El [avance](AVANCE_ACADEMICO.md) registra resultados y límites.
 
 **Seguimiento de esta entrega:** [AVANCE_ACADEMICO.md](AVANCE_ACADEMICO.md).
 **Referencia histórica del sistema ampliado, fuera de la fase autorizada:** [plan maestro](PLAN_MAESTRO.md) y [avance previo](AVANCE.md).
@@ -103,7 +103,7 @@ Las exigencias explícitas del contexto se mantienen. Los campos concretos, las 
 
 No almacenar números telefónicos, remitentes, destinatarios o cuerpos de mensajes. Los textos de demostración proceden de etiquetas fijas de la app. Este modelo local no se envía a la API ni modifica su contrato de eventos.
 
-El estado de aceptación incluye ID, decisión, versión de política y fecha de decisión. Propuesta SQLite: tabla `events` para eventos y un almacén persistente de aceptación con ID, política y decisión. Como propuesta a revisar en I06, usar SharedPreferences con `commit()` fuera del hilo principal y una marca de borrado pendiente; no atribuir esa elección al PDF. Cada evento conserva su contexto, sin una FK que dependa de una fila de aceptación mutable.
+El estado de aceptación incluye ID, decisión, versión de política y fecha de decisión. Implementación I05/I06: tabla `events` y tabla singleton `acceptance` en SQLite. Se eligió SQLite en lugar de la propuesta inicial de SharedPreferences para confirmar toda la decisión de forma atómica y evitar estados en memoria tras un commit fallido; no añade dependencias ni se atribuye esa elección al PDF. Cada evento conserva su contexto, sin una FK que dependa de una fila de aceptación mutable. Detalles, migración y límites de validación en [persistencia académica](PERSISTENCIA_ACADEMICA.md).
 
 ### Aceptación y privacidad
 
@@ -322,6 +322,6 @@ La fase 2 y cualquier integración, cliente de red o transmisión permanecen fue
 
 ## 10. Estado y siguiente paso concreto
 
-**I01 implementado; I02 e I03 implementados y verificados en JVM.** La propuesta y las instrucciones de uso de la base están en [PLAN_I01.md](PLAN_I01.md). Resultados en evidencias [I01](evidencias/academico/I01-2026-10-22.md), [I02](evidencias/academico/I02-2026-10-22.md) e [I03](evidencias/academico/I03-2026-10-22.md). Las versiones exigidas compilan en CLI y la suite acumula 48 pruebas. La pantalla sigue siendo la base; no se ha implementado SQLite ni persistencia de aceptación.
+**Código implementado hasta I06.** La base se documenta en [PLAN_I01.md](PLAN_I01.md); los resultados por incremento están en [AVANCE_ACADEMICO.md](AVANCE_ACADEMICO.md). Las versiones exigidas compilan en CLI, con 75 pruebas JVM y 15 del SQL host aprobadas. I04 genera CSV puro; I05/I06 implementan SQLite y aceptación persistente con 27 casos instrumentados compilados. No se han ejecutado en Android y no se declara cerrado ese alcance. La pantalla sigue siendo la base de I01.
 
-Revisar los resultados de I02/I03 y completar Sync en Android Studio y apertura en Android de I01. **Detenerse antes de I04 (CSV), pendiente de autorización.** La solicitud de continuar hasta I03 permitió esos dos incrementos en orden; no autoriza ejecutar el resto del mapa ni la fase 2.
+Revisar I04–I06, completar Sync/apertura de I01 y ejecutar la instrumentación real de I05/I06. **Detenerse antes de I07 (pantalla funcional), pendiente de autorización.** La solicitud actual permitió tres incrementos en orden y no autoriza el resto del mapa ni la fase 2.

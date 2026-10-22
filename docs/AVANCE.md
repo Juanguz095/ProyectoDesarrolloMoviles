@@ -6,9 +6,9 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
 
 ## Alcance actual de la solicitud
 
-El 22 de octubre el usuario aportó un beta y después un contexto vinculante para la fase 1 académica local. Se prepararon [plan académico](PLAN_ACADEMICO.md), [propuesta I01](PLAN_I01.md) y [avance independiente](AVANCE_ACADEMICO.md). Tras ejecutar I01, el usuario autorizó continuar hasta I03. I02 e I03 están implementados y verificados con 48 pruebas JVM; build Android y lint satisfactorios. La Activity conserva la pantalla base; SQLite y aceptación persistida no están implementados en esta ruta. Siguen pendientes Sync IDE/apertura Android de I01 y la revisión de cierre. Se detiene antes de I04. El contexto exige versiones concretas, aprobación entre incrementos y excluye fase 2/red/transmisión.
+El 22 de octubre el usuario aportó un beta y después un contexto vinculante para la fase 1 académica local. Se prepararon [plan académico](PLAN_ACADEMICO.md), [propuesta I01](PLAN_I01.md) y [avance independiente](AVANCE_ACADEMICO.md). La implementación llega a I06: modelos/reglas, CSV, repositorio SQLite y aceptación persistente. La Activity conserva la pantalla base. Hay 75 pruebas JVM y 15 del SQL host aprobadas; 27 instrumentadas compiladas pero no ejecutadas en Android. Siguen pendientes Sync IDE/apertura Android de I01, validación Android de I05/I06 y revisión de cierre. El contexto exige versiones concretas, aprobación entre incrementos y excluye fase 2/red/transmisión.
 
-Nueva solicitud: «Avanza 3 fases más» autoriza I04–I06 en orden. I04 (CSV puro) está verificado con 58 pruebas JVM acumuladas. I05 implementado/compilado, 7 pruebas SQLite host aprobadas y 12 instrumentadas pendientes de ejecutar; I06 autorizado a continuación. No se autoriza I07. Estado actual detallado en el avance académico.
+Solicitud atendida: «Avanza 3 fases más» autoriza I04–I06 en orden; cada incremento se conserva en su commit local y evidencia. I04 está verificado JVM; I05/I06 no se declaran cerrados en Android por haber compilado o probado SQL host. No se inició I07, que requiere nueva autorización.
 
 El estado siguiente documenta el sistema ampliado anterior y se conserva como histórico. Su tarea P3.2 no es la siguiente acción de esta ruta académica.
 
@@ -57,6 +57,12 @@ Todos los IDs remiten a tareas definidas en el plan maestro. Al comenzar una tar
 | P3.2 | pendiente | Contrato y tablas de códigos/dispositivos/consentimientos preparados. | Implementar consumo atómico de código, consentimiento versionado y credencial revocable; probar doble inscripción concurrente y roles. |
 
 ## Bitácora de sesiones
+
+### 22 de octubre de 2026 — Ejecución I06 académica
+
+- Aceptación persistente en SQLite, migración 1→2 conservando eventos y servicio de decisión explícita con dependencias inyectadas. Sin dependencias nuevas ni cambios de herramientas; UI base conservada.
+- Suite renovada: 75 JVM y 15 SQLite host aprobadas. APK principal/pruebas, firmas y lint (0 incidencias) verificados. 27 casos instrumentados compilados y sin ejecutar por falta de Android operativo; persistencia Android no acreditada. [Evidencia I06](evidencias/academico/I06-2026-10-22.md), [guía](PERSISTENCIA_ACADEMICA.md).
+- Commit local separado; borrador de arranque actualizado, sin publicación. Se detiene antes de I07. Sin push, despliegue, cambios del sistema ampliado o fase 2.
 
 ### 22 de octubre de 2026 — Ejecución I05 académica
 

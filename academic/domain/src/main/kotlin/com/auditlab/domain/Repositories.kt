@@ -27,7 +27,7 @@ interface AcceptanceStore {
     /**
      * Return only after a durable write. Revoked is saved before attempting event deletion.
      * A caller must not grant new acceptance over a pending cleanup; all writes share the coordinator.
-     * Actual durable storage is implemented in I06, not by the in-memory test doubles.
+     * I06 provides a SQLite adapter; in-memory test doubles do not prove its durability.
      */
     @Throws(StorageException::class)
     fun save(acceptance: Acceptance)

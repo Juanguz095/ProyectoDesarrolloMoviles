@@ -19,15 +19,40 @@ class AuditDatabase(context: Context, name: String = "auditlab-events.db") :
             WHEN (SELECT COUNT(*) FROM events) >= 1000
             BEGIN SELECT RAISE(ABORT, 'event capacity reached'); END
         """.trimIndent())
+        db.execSQL(CREATE_ACCEPTANCE)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        // An unsupported version must fail without dropping the user's records.
-        throw SQLiteException("Unsupported database migration")
+        if (oldVersion == 1 && newVersion == 2) {
+            // Add only the decision table. Existing event IDs/context and indexes stay intact.
+            db.execSQL(CREATE_ACCEPTANCE)
+        } else {
+            throw SQLiteException("Unsupported database migration")
+        }
     }
 
     companion object {
-        const val VERSION = 1
+        const val VERSION = 2
+        internal val CREATE_ACCEPTANCE = """
+            CREATE TABLE acceptance (
+                singleton INTEGER NOT NULL PRIMARY KEY CHECK(singleton = 1),
+                state TEXT NOT NULL CHECK(state IN ('PENDING', 'GRANTED', 'REVOKED')),
+                consent_id TEXT CHECK(consent_id IS NULL OR (${uuidCheck("consent_id")})),
+                policy_version TEXT CHECK(policy_version IS NULL OR (length(policy_version) BETWEEN 1 AND 40
+                    AND substr(policy_version, 1, 1) GLOB '[A-Za-z0-9]'
+                    AND policy_version NOT GLOB '*[^A-Za-z0-9_.-]*')),
+                accepted_at_ms INTEGER CHECK(accepted_at_ms IS NULL OR (typeof(accepted_at_ms) = 'integer' AND accepted_at_ms >= 0)),
+                revoked_at_ms INTEGER CHECK(revoked_at_ms IS NULL OR (typeof(revoked_at_ms) = 'integer' AND revoked_at_ms >= 0)),
+                deletion_pending INTEGER NOT NULL CHECK(deletion_pending IN (0, 1)),
+                CHECK(
+                    (state = 'PENDING' AND consent_id IS NULL AND policy_version IS NULL
+                        AND accepted_at_ms IS NULL AND revoked_at_ms IS NULL AND deletion_pending = 0)
+                    OR (state = 'GRANTED' AND consent_id IS NOT NULL AND policy_version IS NOT NULL
+                        AND accepted_at_ms IS NOT NULL AND revoked_at_ms IS NULL AND deletion_pending = 0)
+                    OR (state = 'REVOKED' AND consent_id IS NULL AND policy_version IS NULL AND accepted_at_ms IS NULL)
+                )
+            )
+        """.trimIndent()
         internal val CREATE_EVENTS = """
             CREATE TABLE events (
                 event_id TEXT NOT NULL PRIMARY KEY CHECK(${uuidCheck("event_id")}),
