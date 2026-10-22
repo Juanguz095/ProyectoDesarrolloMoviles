@@ -8,7 +8,9 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
 
 El 22 de octubre el usuario aportó un beta y después un contexto vinculante para la fase 1 académica local. Se prepararon [plan académico](PLAN_ACADEMICO.md), [propuesta I01](PLAN_I01.md) y [avance independiente](AVANCE_ACADEMICO.md). Tras ejecutar I01, el usuario autorizó continuar hasta I03. I02 e I03 están implementados y verificados con 48 pruebas JVM; build Android y lint satisfactorios. La Activity conserva la pantalla base; SQLite y aceptación persistida no están implementados en esta ruta. Siguen pendientes Sync IDE/apertura Android de I01 y la revisión de cierre. Se detiene antes de I04. El contexto exige versiones concretas, aprobación entre incrementos y excluye fase 2/red/transmisión.
 
-El estado siguiente documenta el sistema ampliado anterior y se conserva como histórico. Su tarea P3.2 no es la siguiente acción de esta ruta académica; el siguiente incremento local es I04, pendiente de autorización.
+Nueva solicitud: «Avanza 3 fases más» autoriza I04–I06 en orden. I04 (CSV puro) está verificado con 58 pruebas JVM acumuladas; I05/I06 se ejecutarán después. No se autoriza I07. Estado actual detallado en el avance académico.
+
+El estado siguiente documenta el sistema ampliado anterior y se conserva como histórico. Su tarea P3.2 no es la siguiente acción de esta ruta académica.
 
 ## Estado del sistema ampliado previo
 
@@ -55,6 +57,11 @@ Todos los IDs remiten a tareas definidas en el plan maestro. Al comenzar una tar
 | P3.2 | pendiente | Contrato y tablas de códigos/dispositivos/consentimientos preparados. | Implementar consumo atómico de código, consentimiento versionado y credencial revocable; probar doble inscripción concurrente y roles. |
 
 ## Bitácora de sesiones
+
+### 22 de octubre de 2026 — Ejecución I04 académica
+
+- Autorizada continuación I04–I06. CSV puro implementado, sin dependencias nuevas; 10 casos nuevos y 58/58 JVM aprobados. [Evidencia I04](evidencias/academico/I04-2026-10-22.md).
+- Commit local separado; I05 es el siguiente incremento autorizado. No se implementó exportación Android, I07 ni fase 2.
 
 ### 22 de octubre de 2026 — Pruebas académicas solicitadas
 

@@ -6,12 +6,12 @@ Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inmediata: [PLAN_I01.md]
 
 ## Estado actual
 
-- Última solicitud: «continua con las otras fasese hasta la 3»; se interpreta como autorización de I02 e I03 de esta ruta. Se ejecutan en orden; no se autoriza I04 o fase 2.
-- Incrementos ejecutados en esta continuación: I02 e I03, verificados en JVM. I01 conserva sus pendientes IDE/Android.
+- Última solicitud: «Avanza 3 fases más»; autoriza I04, I05 e I06 en orden. No autoriza I07 o fase 2.
+- Incremento actual: I04 verificado en JVM; siguiente I05 ya autorizado. I01 conserva sus pendientes IDE/Android.
 - Artefacto: APK debug de `academic/app`, firma verificada, lint con 0 incidencias; la Activity sigue siendo la base de I01, sin botones conectados al dominio. [Evidencia I03](evidencias/academico/I03-2026-10-22.md).
-- Incrementos con alcance JVM verificado: **2/12 (I02 e I03)**; I01 conserva las comprobaciones CLI y los pendientes IDE/Android. Suite acumulada: **48 pruebas satisfactorias**.
+- Incrementos con alcance JVM verificado: **3/12 (I02, I03 e I04)**; I01 conserva las comprobaciones CLI y los pendientes IDE/Android. Suite acumulada: **58 pruebas satisfactorias**.
 - Cierres aprobados tras revisión: **0/12**; la autorización de ejecución no equivale a aprobación de sus resultados.
-- Próximo paso: revisar I02/I03 y completar Sync/apertura Android de I01. El siguiente incremento de código es I04 (CSV), pendiente de autorización; no se ha iniciado.
+- Próximo paso: implementar I05 y después I06 según la autorización actual, conservando los pendientes de pruebas Android.
 - Pendiente documental: PDF/prompt específico I01; el contexto textual ya fija versiones, límites y obligación de aprobación.
 - Fase 2: fuera de autorización. El [avance previo](AVANCE.md) conserva el trabajo histórico del sistema ampliado y no acredita los incrementos de esta app.
 - Última comprobación solicitada: suite renovada **48/48**, build y lint sin incidencias; APK y firma verificados. Prueba Android bloqueada por disponibilidad de dispositivo/emulador y fallo ADB. [Informe de verificación](evidencias/academico/VERIFICACION-I01-I03-2026-10-22.md).
@@ -23,15 +23,20 @@ Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inmediata: [PLAN_I01.md]
 | I01 | Base app/domain y herramientas exigidas. | Implementado; CLI/lint verificados, IDE/Android pendientes. | Ejecución autorizada; cierre pendiente. | [Evidencia](evidencias/academico/I01-2026-10-22.md). |
 | I02 | Modelo y contratos Kotlin puros. | Verificado JVM: 15 pruebas. | Ejecución autorizada; revisión pendiente. | Continuación explícita hasta I03; I01 conserva pendientes IDE/Android. [Evidencia](evidencias/academico/I02-2026-10-22.md). |
 | I03 | AuditService, DI, límites 1000/100 y reglas. | Verificado JVM: 33 nuevas; 48 acumuladas. | Ejecución autorizada; revisión pendiente. | I02 verificado; continuación autorizada. [Evidencia](evidencias/academico/I03-2026-10-22.md). |
-| I04 | CSV con CRLF, timestamps numéricos y protección de fórmulas. | Pendiente. | Pendiente. | I03 verificado y aprobación explícita para I04. |
-| I05 | SQLite y pruebas instrumentadas. | Pendiente. | Pendiente. | I04 verificado y aprobación explícita para I05. |
-| I06 | Aceptación persistida. | Pendiente. | Pendiente. | I05 verificado y aprobación explícita para I06. |
+| I04 | CSV con CRLF, timestamps numéricos y protección de fórmulas. | Verificado JVM: 10 pruebas nuevas; 58 acumuladas. | Ejecución autorizada; revisión pendiente. | [Evidencia](evidencias/academico/I04-2026-10-22.md). |
+| I05 | SQLite y pruebas instrumentadas. | Pendiente de ejecución. | Ejecución autorizada; revisión pendiente. | I04 verificado; continuación autorizada. |
+| I06 | Aceptación persistida. | Pendiente de ejecución. | Ejecución autorizada; revisión pendiente. | Después de I05; continuación autorizada. |
 | I07 | Cuatro botones de eventos, ScrollView y marca SIMULADO. | Pendiente. | Pendiente. | I06 verificado y aprobación explícita para I07. |
 | I08 | Cola compartida, busy, ciclo de vida, cierre BD y WindowInsets. | Pendiente. | Pendiente. | I07 verificado y aprobación explícita para I08. |
 | I09 | Exportación manual elegida y controlada. | Pendiente. | Pendiente. | I08 verificado y aprobación explícita para I09. |
 | I10 | Borrado y revocación persistente aun con fallo de borrado. | Pendiente. | Pendiente. | I09 verificado y aprobación explícita para I10. |
 | I11 | Revisión de seguridad/SSDF. | Pendiente. | Pendiente. | I10 verificado y aprobación explícita para I11. |
 | I12 | Evidencias y cierre de fase 1. | Pendiente. | Pendiente. | I11 verificado y aprobación explícita para I12. |
+
+## Ejecución I04 del 22 de octubre de 2026
+
+- CSV puro implementado y probado sin nuevas dependencias. Diez casos nuevos; 58/58 JVM aprobados. [Evidencia](evidencias/academico/I04-2026-10-22.md).
+- No implementa guardado Android. Commit local separado; siguiente I05 ya autorizado y después I06.
 
 ## Verificación solicitada del 22 de octubre de 2026
 
