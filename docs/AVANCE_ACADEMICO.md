@@ -14,6 +14,7 @@ Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inmediata: [PLAN_I01.md]
 - Próximo paso: revisar I02/I03 y completar Sync/apertura Android de I01. El siguiente incremento de código es I04 (CSV), pendiente de autorización; no se ha iniciado.
 - Pendiente documental: PDF/prompt específico I01; el contexto textual ya fija versiones, límites y obligación de aprobación.
 - Fase 2: fuera de autorización. El [avance previo](AVANCE.md) conserva el trabajo histórico del sistema ampliado y no acredita los incrementos de esta app.
+- Última comprobación solicitada: suite renovada **48/48**, build y lint sin incidencias; APK y firma verificados. Prueba Android bloqueada por disponibilidad de dispositivo/emulador y fallo ADB. [Informe de verificación](evidencias/academico/VERIFICACION-I01-I03-2026-10-22.md).
 
 ## Seguimiento
 
@@ -31,6 +32,12 @@ Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inmediata: [PLAN_I01.md]
 | I10 | Borrado y revocación persistente aun con fallo de borrado. | Pendiente. | Pendiente. | I09 verificado y aprobación explícita para I10. |
 | I11 | Revisión de seguridad/SSDF. | Pendiente. | Pendiente. | I10 verificado y aprobación explícita para I11. |
 | I12 | Evidencias y cierre de fase 1. | Pendiente. | Pendiente. | I11 verificado y aprobación explícita para I12. |
+
+## Verificación solicitada del 22 de octubre de 2026
+
+- Nueva ejecución forzada de tests/build/lint sobre `c67e4c9`: salida 0, 48 pruebas sin fallos/errores/omitidas, lint 0 incidencias. Inspección del APK empaquetado y firma correctas.
+- Sin USB/KVM/emulador/imágenes Android; ADB vuelve a fallar por directorio personal de solo lectura. Instalación/apertura y Sync siguen sin ejecutar; no se contabilizan como aprobados.
+- [Informe y comandos](evidencias/academico/VERIFICACION-I01-I03-2026-10-22.md). Sin cambios de código, dependencias o configuración de nube; sin comenzar I04.
 
 ## Ejecución I03 del 22 de octubre de 2026
 
