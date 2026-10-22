@@ -6,10 +6,10 @@ Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inmediata: [PLAN_I01.md]
 
 ## Estado actual
 
-- Última solicitud: «ok cominesa la primra entrega»; autoriza ejecutar la propuesta I01.
-- Incremento actual: I01 implementado; comprobaciones CLI satisfactorias, cierre pendiente de Sync IDE y apertura en Android.
-- Artefacto: APK debug de `academic/app`, firma verificada, lint sin incidencias; I02 no está autorizado. [Evidencia I01](evidencias/academico/I01-2026-10-22.md).
-- Incrementos con verificación integral cerrada: **0/12**; I01 tiene compilación/CLI verificados y comprobaciones externas pendientes.
+- Última solicitud: «continua con las otras fasese hasta la 3»; se interpreta como autorización de I02 e I03 de esta ruta. Se ejecutan en orden; no se autoriza I04 o fase 2.
+- Incremento actual: I02 verificado en JVM; siguiente I03, ya autorizado. I01 conserva sus pendientes IDE/Android.
+- Artefacto: APK debug de `academic/app`, firma verificada, lint sin incidencias; I02/I03 autorizados por la nueva solicitud; no se asume validación IDE/Android. [Evidencia I01](evidencias/academico/I01-2026-10-22.md).
+- Incrementos con verificación integral cerrada: **1/12 (I02 JVM)**; I01 conserva las comprobaciones CLI y los pendientes IDE/Android.
 - Incrementos aprobados: **0/12**.
 - Próximo paso: abrir `academic/` con Android Studio/JDK17, registrar Sync y ejecución en Android, revisar I01 y autorizar explícitamente I02 cuando corresponda.
 - Pendiente documental: PDF/prompt específico I01; el contexto textual ya fija versiones, límites y obligación de aprobación.
@@ -20,8 +20,8 @@ Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inmediata: [PLAN_I01.md]
 | Incremento | Entregable | Estado técnico | Aprobación | Entrada principal |
 | --- | --- | --- | --- | --- |
 | I01 | Base app/domain y herramientas exigidas. | Implementado; CLI/lint verificados, IDE/Android pendientes. | Ejecución autorizada; cierre pendiente. | [Evidencia](evidencias/academico/I01-2026-10-22.md). |
-| I02 | Modelo y contratos Kotlin puros. | Pendiente. | Pendiente. | I01 verificado y aprobación explícita para I02. |
-| I03 | AuditService, DI, límites 1000/100 y reglas. | Pendiente. | Pendiente. | I02 verificado y aprobación explícita para I03. |
+| I02 | Modelo y contratos Kotlin puros. | Verificado JVM: 15 pruebas. | Ejecución autorizada; revisión pendiente. | I01 verificado y aprobación explícita para I02. |
+| I03 | AuditService, DI, límites 1000/100 y reglas. | Pendiente de I02. | Ejecución autorizada; revisión pendiente. | I02 verificado y aprobación explícita para I03. |
 | I04 | CSV con CRLF, timestamps numéricos y protección de fórmulas. | Pendiente. | Pendiente. | I03 verificado y aprobación explícita para I04. |
 | I05 | SQLite y pruebas instrumentadas. | Pendiente. | Pendiente. | I04 verificado y aprobación explícita para I05. |
 | I06 | Aceptación persistida. | Pendiente. | Pendiente. | I05 verificado y aprobación explícita para I06. |
@@ -31,6 +31,12 @@ Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inmediata: [PLAN_I01.md]
 | I10 | Borrado y revocación persistente aun con fallo de borrado. | Pendiente. | Pendiente. | I09 verificado y aprobación explícita para I10. |
 | I11 | Revisión de seguridad/SSDF. | Pendiente. | Pendiente. | I10 verificado y aprobación explícita para I11. |
 | I12 | Evidencias y cierre de fase 1. | Pendiente. | Pendiente. | I11 verificado y aprobación explícita para I12. |
+
+## Ejecución I02 del 22 de octubre de 2026
+
+- Nueva solicitud autoriza continuar I02/I03 en orden. Aprobación expresa de kotlin.test2.2.10/JUnit4 recibida antes de añadirla.
+- Modelos/contratos implementados; 15 tests JVM aprobados tras corregir inferencia de tipos de una aserción. Sin imports Android ni adaptador persistente.
+- [Evidencia I02](evidencias/academico/I02-2026-10-22.md). Commit local; siguiente I03 ya autorizado. Se mantienen los pendientes IDE/Android de I01.
 
 ## Ejecución I01 del 22 de octubre de 2026
 
