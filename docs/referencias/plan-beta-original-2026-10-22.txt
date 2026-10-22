@@ -1,0 +1,253 @@
+# Plan de desarrollo — AuditLab
+
+Proyecto académico · Desarrollo de Aplicaciones Móviles · Sesión 6
+
+Vamos a organizar el desarrollo de AuditLab desde cero, siguiendo los 12 incrementos del PDF. El objetivo es que puedas construir la aplicación, comprender cómo funciona y demostrarle al profesor que cada etapa cumple sus requisitos.
+
+Te propongo un cronograma de 10 días de trabajo, con sesiones aproximadas de 2 a 3 horas. Este tiempo es una estimación mía, no un plazo establecido por el documento.
+
+## 1. Resultado final del proyecto
+
+Al terminar, tendrás una aplicación Android en Kotlin que permite generar eventos ficticios de llamadas y mensajes, consultar su historial, almacenar información localmente, eliminar registros, revocar la aceptación y exportar datos a CSV.
+
+La aplicación tendrá dos módulos principales:
+
+AuditLab
+
+Aplicación Android
+
+app
+
+Interfaz, SQLite y funciones Android
+
+domain
+
+Modelos, reglas, CSV y pruebas Kotlin
+
+## 2. Cronograma de desarrollo
+
+## 1
+
+Preparación y fundamentos
+
+Días 1–2
+
+Crear el proyecto, configurar Gradle y desarrollar los modelos y reglas.
+
+I01 · I02 · I03
+
+## 2
+
+Datos y almacenamiento
+
+Días 3–4
+
+Implementar CSV, SQLite y persistencia de la aceptación.
+
+I04 · I05 · I06
+
+## 3
+
+Interfaz y funcionamiento
+
+Días 5–7
+
+Construir la pantalla, gestionar operaciones y exportar CSV.
+
+I07 · I08 · I09
+
+## 4
+
+Controles y seguridad
+
+Días 8–9
+
+Implementar borrado, revocación y revisión de seguridad.
+
+I10 · I11
+
+## 5
+
+Pruebas y entrega
+
+Día 10
+
+Ejecutar verificaciones finales y preparar las evidencias.
+
+I12
+
+## 3. Tareas específicas de los 12 incrementos
+
+Puedes marcar cada incremento después de aprobar sus pruebas. Las tareas están organizadas en el mismo orden que establece el PDF.
+
+Avance del proyecto
+
+0 de 12 incrementos
+
+I01 — Preparación
+
+Crear proyecto Android, configurar app y domain, comprobar Gradle y JDK.
+
+Entrega: Proyecto vacío compilable.
+
+I02 — Modelo
+
+Definir eventos y contratos de repositorio y aceptación.
+
+Entrega: Modelos Kotlin independientes de Android.
+
+I03 — Reglas
+
+Crear AuditService, validaciones, límite de eventos y pruebas.
+
+Entrega: Reglas verificadas con tests.
+
+I04 — CSV
+
+Generar CSV con cabecera, comillas y protección de texto especial.
+
+Entrega: Reporte CSV probado.
+
+I05 — SQLite
+
+Implementar almacenamiento y consulta de eventos.
+
+Entrega: Persistencia local comprobada.
+
+I06 — Aceptación
+
+Guardar y recuperar la decisión del usuario.
+
+Entrega: Aceptación persistida.
+
+I07 — Pantalla
+
+Crear cuatro botones, marca SIMULADO e historial de eventos.
+
+Entrega: Interfaz funcional.
+
+I08 — Ciclo de vida
+
+Gestionar operaciones fuera del hilo principal, pulsaciones y rotación.
+
+Entrega: Interfaz estable.
+
+I09 — Exportación
+
+Añadir selector de archivo para exportar CSV en UTF-8.
+
+Entrega: CSV guardado por el usuario.
+
+I10 — Control
+
+Implementar borrar historial, revocar aceptación y gestionar errores.
+
+Entrega: Controles de privacidad probados.
+
+I11 — Seguridad
+
+Revisar permisos, cambios y controles SSDF.
+
+Entrega: Revisión de seguridad documentada.
+
+I12 — Cierre
+
+Ejecutar pruebas finales y registrar resultados y pendientes.
+
+Entrega: Fase 1 verificada.
+
+## 4. Herramientas y configuración
+
+Según el contrato maestro incluido en el PDF, debes mantener esta configuración inicialmente:
+
+| Componente                 | Versión           |
+| -------------------------- | ----------------- |
+| Android Studio             | IDE de desarrollo |
+| Lenguaje                   | Kotlin            |
+| Android Gradle Plugin      | 9.1.1             |
+| Gradle                     | 9.3.1             |
+| JDK                        | 17                |
+| compileSdk / targetSdk     | 36                |
+| minSdk                     | 26                |
+| Kotlin JVM plugin (domain) | 2.2.10            |
+
+El PDF advierte de una posible limitación de compatibilidad entre el plugin Kotlin JVM 2.2.10 y Gradle 9.3.1. Por eso, no deberías cambiar versiones automáticamente: primero verifica la compilación y documenta cualquier problema.
+
+También te recomiendo crear un repositorio Git para conservar cada incremento aprobado.
+
+## 5. Cómo vamos a organizar los archivos
+
+Esta es una estructura inicial orientativa, que se irá completando según los archivos autorizados en cada incremento.
+
+AuditLab/
+
+&#x20;app/
+
+&#x20;MainActivity.kt
+
+&#x20;AndroidManifest.xml
+
+&#x20;build.gradle.kts
+
+&#x20;domain/
+
+&#x20;Event.kt
+
+&#x20;AuditService.kt
+
+&#x20;CsvReport.kt
+
+&#x20;test/
+
+&#x20;evidencias/
+
+&#x20;settings.gradle.kts
+
+&#x20;gradlew\.bat
+
+## 6. Cómo verificar cada avance
+
+El PDF establece que no debes continuar al siguiente incremento hasta revisar y aprobar el actual.
+
+Para cada incremento conserva:
+
+- El código y los archivos modificados.
+- El `git diff` para revisar los cambios.
+- El resultado real de compilación.
+- Las pruebas automatizadas y manuales aplicables.
+- Los errores y las correcciones realizadas.
+- Una captura o informe que demuestre el funcionamiento.
+
+En Windows, algunos comandos útiles serán:
+
+```
+.\gradlew.bat --version
+.\gradlew.bat :domain:test
+.\gradlew.bat :app:assembleDebug
+```
+
+Es importante distinguir entre una prueba propuesta y una prueba realmente ejecutada.
+
+## 7. Qué debes hacer hoy: comenzar I01
+
+Para el primer día, céntrate exclusivamente en preparar una base compilable.
+
+Lista de preparación
+
+0/6
+
+Instalar o abrir Android Studio.
+
+Comprobar que JDK 17 está disponible.
+
+Crear la carpeta del proyecto AuditLab.
+
+Crear una Activity Kotlin básica y el módulo domain.
+
+Configurar y sincronizar Gradle con las versiones indicadas.
+
+Compilar la aplicación vacía y guardar evidencias.
+
+Cuando termines I01, tendrás un proyecto Android que abre y compila, aunque todavía no tenga los botones de simulación. Eso es exactamente lo esperado para esta primera etapa.
+
+Mi recomendación es desarrollar AuditLab utilizando Android Studio y un asistente de IA, pero sin pedirle que implemente los 12 incrementos de golpe. El documento está diseñado para que construyas, revises y comprendas cada parte antes de avanzar.

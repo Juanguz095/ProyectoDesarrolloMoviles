@@ -1,10 +1,16 @@
 # AuditLab — Registro de avance
 
-Fecha de actualización: 18 de octubre de 2026.
+Fecha de actualización: 22 de octubre de 2026.
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
-## Estado actual
+## Alcance actual de la solicitud
+
+El 22 de octubre el usuario aportó un beta y después un contexto vinculante para la fase 1 académica local. Se prepararon [plan académico](PLAN_ACADEMICO.md), [propuesta I01](PLAN_I01.md) y [avance independiente](AVANCE_ACADEMICO.md). Después de aprobar la propuesta, el usuario autorizó ejecutar I01: base implementada y Build/lint CLI verificados; pendiente Sync IDE/apertura Android y revisión de cierre. I02 no está autorizado. El contexto exige versiones concretas, aprobación entre incrementos y excluye fase 2/red/transmisión.
+
+El estado siguiente documenta el sistema ampliado anterior y se conserva como histórico. Su tarea P3.2 no es la siguiente acción autorizada para esta ruta académica; la siguiente propuesta local es I01.
+
+## Estado del sistema ampliado previo
 
 - Etapa: **fase 3 en curso; P3.1 verificada**. Autenticación HTTP lista; inscripción, eventos, consultas y revocación de dispositivos pendientes.
 - Tarea siguiente: **P3.2 — inscripción con código de un uso y consentimiento**.
@@ -49,6 +55,20 @@ Todos los IDs remiten a tareas definidas en el plan maestro. Al comenzar una tar
 | P3.2 | pendiente | Contrato y tablas de códigos/dispositivos/consentimientos preparados. | Implementar consumo atómico de código, consentimiento versionado y credencial revocable; probar doble inscripción concurrente y roles. |
 
 ## Bitácora de sesiones
+
+### 22 de octubre de 2026 — Ejecución I01 académica
+
+- Base `academic/app` y `academic/domain` creada sin modificar fuentes/configuración de apps/backend anteriores.
+- Versiones exigidas preservadas; Build/lint y probe de compilación JVM satisfactorios, APK debug firmado y manifiesto sin permisos. Evidencia y límites en [I01](evidencias/academico/I01-2026-10-22.md).
+- Sin pruebas funcionales todavía: domain vacío/NO-SOURCE. Sync IDE y ejecución en Android pendientes por falta de sesión IDE y fallo ADB en ruta personal de solo lectura; no se acredita una aceptación completa.
+- Preparación de nube repetible guardada en borrador; commit local para revisión, sin push ni despliegue. Se detiene antes de I02 por la regla explícita del contexto del usuario.
+
+### 22 de octubre de 2026 — Plan académico y propuesta I01
+
+- Leídos ambos textos aportados; el contexto posterior determina requisitos y proceso de aprobación.
+- Entregados plan académico, inventario/propuesta limitada a I01 y registro independiente de doce incrementos pendientes.
+- Corregidas diferencias del primer beta: cuatro botones de eventos, Views/ScrollView, límites 1000/100, CSV numérico/CRLF y revocación persistente aunque falle el borrado.
+- No se modificó código, configuración Gradle ni contratos del sistema anterior. Sin instalación de herramientas, Build, Sync, pruebas de aplicación, commit o push. No se ejecutó P3.2 ni se autorizó fase 2.
 
 ### 18 de octubre de 2026 — Publicación inicial en GitHub
 

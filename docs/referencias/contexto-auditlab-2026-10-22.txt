@@ -1,0 +1,264 @@
+# CONTEXTO DEL PROYECTO AUDITLAB PARA CODEX
+
+## 1. Descripción general
+
+AuditLab es un proyecto académico de desarrollo de aplicaciones móviles Android utilizando Kotlin y Android Studio.
+
+El propósito es desarrollar una aplicación educativa que simule eventos de llamadas y mensajes, almacene un historial local y permita administrar y exportar esos registros.
+
+El proyecto debe realizarse mediante **12 incrementos (I01–I12)**, siguiendo un proceso de implementación, revisión, pruebas y aprobación.
+
+El objetivo también es aprender a utilizar asistentes de IA para desarrollar software sin perder el control sobre los cambios realizados.
+
+## 2. Funcionalidades de la aplicación
+
+La fase 1 de AuditLab debe incluir:
+
+- Cuatro botones para generar eventos ficticios:
+  - Llamada entrante.
+  - Llamada saliente.
+  - Mensaje entrante.
+  - Mensaje saliente.
+- Historial local de eventos.
+- Almacenamiento mediante SQLite.
+- Aceptación explícita del usuario.
+- Eliminación del historial.
+- Revocación de la aceptación.
+- Exportación manual de eventos a CSV.
+- Pruebas automatizadas y controles de seguridad.
+
+**Restricciones:** No capturar SMS, llamadas, notificaciones ni comunicaciones reales. No implementar vigilancia oculta, servicios encubiertos, arranque automático, AccessibilityService, clientes de red ni transmisión a otro dispositivo. La fase 2 no está autorizada.
+
+## 3. Tecnologías y versiones establecidas
+
+| Componente | Configuración |
+|---|---|
+| Lenguaje | Kotlin |
+| IDE | Android Studio |
+| Android Gradle Plugin | 9.1.1 |
+| Gradle | 9.3.1 |
+| JDK | 17 |
+| compileSdk | 36 |
+| targetSdk | 36 |
+| minSdk | 26 |
+| Módulo app | Kotlin integrado en AGP |
+| Módulo domain | kotlin.jvm 2.2.10 |
+| Persistencia | SQLite |
+| Pruebas | JVM e instrumentadas Android |
+
+No modificar las versiones establecidas sin justificar la compatibilidad y solicitar aprobación.
+
+El documento advierte que la combinación de Kotlin JVM Plugin 2.2.10 con Gradle 9.3.1 necesita verificación de compatibilidad.
+
+## 4. Arquitectura del proyecto
+
+El proyecto utiliza dos módulos principales:
+
+**app:** Contiene la interfaz de Android, MainActivity, almacenamiento SQLite, controles de usuario y funcionalidades específicas de Android.
+
+**domain:** Contiene modelos, contratos, reglas de negocio, generación de CSV y pruebas independientes de Android.
+
+La lógica de negocio debe mantenerse separada de la interfaz.
+
+## 5. Los 12 incrementos del proyecto
+
+### I01 — Inventario y preparación
+
+- Inspeccionar el proyecto y las herramientas.
+- Configurar Gradle, AGP, JDK y SDK.
+- Crear una Activity Kotlin inicial.
+- Preparar los módulos app y domain.
+- Comprobar Sync y Build.
+
+**Resultado:** Proyecto Android vacío y compilable.
+
+### I02 — Modelo Kotlin puro
+
+- Crear el modelo de eventos ficticios.
+- Definir los contratos de repositorio y aceptación.
+- Implementar las validaciones correspondientes.
+- Mantener el modelo independiente de Android.
+- Crear pruebas de dominio.
+
+**Resultado:** Modelo de datos verificable.
+
+### I03 — Reglas con dependencias inyectadas
+
+- Implementar AuditService.
+- Inyectar repositorio, aceptación, reloj e identificadores.
+- Exigir aceptación antes de generar eventos.
+- Limitar el almacenamiento a 1000 eventos.
+- Limitar el historial consultable a 100 eventos.
+- Implementar las reglas de borrado y revocación.
+- Verificar mediante pruebas.
+
+**Resultado:** Reglas de negocio funcionales y probadas.
+
+### I04 — CSV resistente a texto especial
+
+- Implementar CsvReport.
+- Generar una cabecera fija.
+- Manejar correctamente comas, comillas y saltos de línea.
+- Utilizar terminadores CRLF.
+- Proteger valores que puedan interpretarse como fórmulas.
+- Utilizar timestamps numéricos.
+- Implementar pruebas de serialización.
+
+**Resultado:** Generador CSV validado.
+
+### I05 — Persistencia SQLite
+
+- Implementar el repositorio SQLite.
+- Almacenar eventos ficticios.
+- Recuperar registros.
+- Integrar el modelo de dominio.
+- Implementar pruebas instrumentadas.
+
+**Resultado:** Almacenamiento local persistente.
+
+### I06 — Decisión persistida del usuario
+
+- Implementar el almacenamiento de la aceptación.
+- Recuperar la decisión previamente registrada.
+- Controlar el comportamiento cuando no exista aceptación.
+- Verificar que el estado persista correctamente.
+
+**Resultado:** Gestión persistente de la aceptación.
+
+### I07 — Pantalla de simulación
+
+- Implementar los cuatro botones de eventos.
+- Conectar los botones con AuditService.
+- Mostrar el historial de hasta 100 registros.
+- Mostrar claramente la etiqueta SIMULADO.
+- Utilizar ScrollView.
+- Mostrar mensajes cuando el historial esté vacío.
+- Utilizar textos claros en español.
+
+**Resultado:** Pantalla funcional de simulación.
+
+### I08 — Cola y ciclo de vida
+
+- Ejecutar operaciones de entrada/salida fuera del hilo principal.
+- Utilizar una cola serial compartida.
+- Evitar pulsaciones repetidas durante operaciones.
+- Controlar el estado busy.
+- Respetar el ciclo de vida de MainActivity.
+- Gestionar correctamente el cierre de SQLite.
+- Adaptar la interfaz mediante WindowInsets.
+
+**Resultado:** Aplicación estable durante rotación, operaciones rápidas y cambios de estado.
+
+### I09 — Exportación elegida por el usuario
+
+- Utilizar el selector de documentos de Android.
+- Permitir que el usuario elija el destino.
+- Generar y escribir CSV en UTF-8.
+- Comprobar la aceptación vigente.
+- Gestionar cancelaciones y fallos.
+- Evitar transmisiones automáticas.
+
+**Resultado:** Exportación CSV controlada por el usuario.
+
+### I10 — Control de borrado y revocación
+
+- Implementar la eliminación del historial local.
+- Implementar la revocación de la aceptación.
+- Bloquear las funciones protegidas cuando se revoque.
+- Mantener la revocación aunque falle el borrado.
+- Permitir reintentar una eliminación fallida.
+- Gestionar confirmaciones, cancelaciones y errores.
+
+**Resultado:** Controles de usuario y privacidad verificados.
+
+### I11 — Revisión de seguridad y SSDF
+
+- Revisar los permisos utilizados.
+- Comprobar que no existan capacidades fuera del alcance.
+- Inspeccionar los cambios de código.
+- Aplicar controles seleccionados del Secure Software Development Framework (SSDF).
+- Revisar pruebas, configuración y posibles errores.
+
+**Resultado:** Revisión documentada de seguridad.
+
+### I12 — Cierre verificable de fase 1
+
+- Ejecutar las comprobaciones finales.
+- Revisar las pruebas de dominio.
+- Revisar las pruebas instrumentadas disponibles.
+- Verificar la compilación.
+- Comprobar las funcionalidades implementadas.
+- Registrar los resultados y las pruebas pendientes.
+- Preparar las evidencias de entrega.
+
+**Resultado:** Fase 1 terminada y verificada.
+
+## 6. Método obligatorio de trabajo
+
+El proyecto debe desarrollarse incremento por incremento.
+
+Para cada incremento:
+
+1. Inspeccionar el estado actual del proyecto.
+2. Revisar las instrucciones específicas del incremento.
+3. Identificar los archivos autorizados.
+4. Proponer los cambios necesarios.
+5. Implementar únicamente el trabajo autorizado.
+6. Revisar el diff.
+7. Ejecutar Sync, Build y pruebas aplicables.
+8. Corregir errores antes de continuar.
+9. Registrar evidencias y resultados.
+10. Detenerse y solicitar aprobación antes del siguiente incremento.
+
+No implementar varios incrementos simultáneamente ni anticipar funcionalidades posteriores.
+
+## 7. Evidencias necesarias
+
+Cada incremento debe registrar:
+
+- ID del incremento.
+- Archivos modificados.
+- Objetivo de cada modificación.
+- Diff del código.
+- Comandos ejecutados realmente.
+- Resultado de compilación.
+- Pruebas realizadas y resultados.
+- Errores encontrados.
+- Comprobaciones pendientes.
+- Estado de aprobación.
+
+Una propuesta de prueba no equivale a una prueba ejecutada.
+
+## 8. Instrucciones para Codex
+
+Actúa como asistente de desarrollo Android especializado en Kotlin.
+
+Tu responsabilidad es ayudarme a construir AuditLab respetando el contenido de este documento.
+
+Reglas:
+
+1. No implementar funcionalidades fuera del alcance educativo.
+2. Trabajar únicamente en el incremento autorizado.
+3. Mantener la separación entre app y domain.
+4. Respetar los contratos e interfaces existentes.
+5. No modificar dependencias o versiones sin aprobación.
+6. Proponer cambios pequeños, comprensibles y verificables.
+7. Antes de modificar archivos, inspeccionar el proyecto.
+8. Mostrar los archivos modificados y el diff.
+9. Ejecutar compilación y pruebas cuando el entorno lo permita.
+10. No inventar resultados de pruebas.
+11. Corregir errores antes de solicitar aprobación.
+12. No avanzar automáticamente al siguiente incremento.
+13. Conservar una versión funcional mediante commits.
+14. No introducir datos reales ni funcionalidades ocultas.
+15. Utilizar el prompt específico del incremento del PDF como referencia principal para sus archivos autorizados y criterios de aceptación.
+
+## 9. Estado inicial
+
+El proyecto se desarrollará desde cero mediante la ruta de construcción.
+
+**Incremento inicial: I01 — Inventario y preparación.**
+
+Primero inspecciona el entorno y propone un plan limitado a I01.
+
+No implementes I02 ni incrementos posteriores hasta recibir aprobación explícita.

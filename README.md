@@ -4,6 +4,12 @@ AuditLab es un sistema de monitoreo autorizado para dispositivos Android propios
 
 Para continuar el desarrollo, sigue el [plan maestro por fases](docs/PLAN_MAESTRO.md) y el [registro de avance](docs/AVANCE.md). Las instrucciones para el agente están en [AGENTS.md](AGENTS.md). El registro distingue el código existente de las capacidades comprobadas.
 
+## Primera entrega académica
+
+La solicitud del 22 de octubre define una app local con `app`/`domain` y doce incrementos. Consulta el [plan académico mejorado](docs/PLAN_ACADEMICO.md), la [propuesta limitada a I01](docs/PLAN_I01.md) y su [registro propio](docs/AVANCE_ACADEMICO.md). Esta ruta solo simula eventos y requiere aprobación entre incrementos; la fase 2 y la transmisión quedan fuera de autorización. I01 ya tiene módulos y Activity base compilables, APK debug y lint sin incidencias. Faltan Sync en Android Studio y prueba en Android para cerrar su validación; I02 no está autorizado.
+
+El plan maestro de dos apps/API que sigue pertenece al trabajo previo; sus módulos se conservan como referencia y no forman parte de la implementación autorizada de esta entrega local.
+
 ## Producto objetivo
 
 - **Agente Android:** consentimiento revocable, notificación visible y eventos simulados/locales.
@@ -26,7 +32,7 @@ Los requisitos, estados e historias del producto están definidos en [requisitos
 - Las operaciones de consulta y administración requieren autenticación y generan auditoría.
 - No se incluyen permisos de SMS, llamadas, contactos, micrófono ni accesibilidad.
 
-## Próximo hito
+## Próximo hito del sistema ampliado (fuera de la entrega actual)
 
 Implementar inscripción con código de un uso y consentimiento (P3.2), según el [contrato 0.2](docs/contrato.md), sobre el [modelo y migraciones PostgreSQL](docs/base-datos.md). Después, recepción/consulta/revocación y conexión de ambas apps. El estado de publicación y las comprobaciones se registran en [AVANCE.md](docs/AVANCE.md).
 
