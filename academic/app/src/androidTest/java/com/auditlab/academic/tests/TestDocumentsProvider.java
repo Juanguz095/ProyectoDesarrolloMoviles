@@ -57,6 +57,8 @@ public final class TestDocumentsProvider extends DocumentsProvider {
     }
     @Override public ParcelFileDescriptor openDocument(String id, String mode, CancellationSignal signal) throws FileNotFoundException {
         if (id.startsWith("fail-")) throw new FileNotFoundException("Synthetic provider failure");
+        // Seed through "w", then refuse the application's "wt" before touching existing bytes.
+        if (id.startsWith("refuse-") && mode.equals("wt")) throw new FileNotFoundException("Synthetic write refusal");
         File target = file(id);
         if (mode.contains("w")) {
             if (id.startsWith("partial-")) {

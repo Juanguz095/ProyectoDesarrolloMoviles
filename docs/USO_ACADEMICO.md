@@ -1,4 +1,4 @@
-# AuditLab académico — uso hasta I10
+# AuditLab académico — uso hasta I11
 
 Aplicación local para **simular** llamadas/mensajes. No lee comunicaciones ni usa backend, login, claves API o un segundo dispositivo. La fase 2 sigue fuera de alcance.
 
@@ -12,7 +12,7 @@ Desde `academic/`:
 ./gradlew :domain:test :app:assembleDebug :app:assembleDebugAndroidTest :app:lintDebug
 ```
 
-APK principal: `academic/app/build/outputs/apk/debug/app-debug.apk`. Paquete `com.auditlab.academic`, versión `0.1.0-i10`/10. Es una compilación debug para desarrollo académico; se instala junto a las apps históricas porque usa otro identificador. Con un dispositivo propio/emulador autorizado conectado:
+APK principal: `academic/app/build/outputs/apk/debug/app-debug.apk`. Paquete `com.auditlab.academic`, versión `0.1.0-i11`/11. Es una compilación debug para desarrollo académico; se instala junto a las apps históricas porque usa otro identificador. Con un dispositivo propio/emulador autorizado conectado:
 
 ```bash
 adb devices -l
@@ -41,7 +41,8 @@ Los comandos de instalación anteriores parten de `academic/`. El botón Run de 
 | Revocada, borrado pendiente | La retirada sí está guardada. No se permite nueva aceptación hasta completar la limpieza. Usar Reintentar borrado pendiente. |
 | Retirada guardada, confirmación de limpieza pendiente | Los eventos se borraron, pero falta guardar esa confirmación. Reintentar; el borrado es idempotente. |
 | Revocación no confirmada | Falló guardar la retirada. Las acciones protegidas quedan bloqueadas en esta sesión. Usar Reintentar guardar revocación. No se promete retirada tras reiniciar mientras no se confirme la escritura. |
-| Fallo al exportar | No se informa éxito. Se intenta borrar la salida parcial; si el proveedor lo rechaza puede quedar un archivo vacío/parcial. Revisar el destino antes de reintentar. |
+| Selector ausente/restringido | Se informa error, se libera la operación y se permite reintentar. |
+| Fallo al exportar | No se informa éxito. Si el destino llegó a abrirse, se intenta borrar la salida parcial; una apertura rechazada no elimina el documento anterior. si el proveedor lo rechaza puede quedar un archivo vacío/parcial. Revisar el destino antes de reintentar. |
 
 Rotar no debe crear registros ni duplicar una operación. Un selector pendiente conserva su ID durante recreación; si se pierde el proceso, no se recupera un permiso de exportación obsoleto. Borrar/revocar invalidan el selector pendiente. Las confirmaciones abiertas se descartan al dejar la Activity; no se confirman por sí solas al volver.
 
@@ -65,4 +66,4 @@ Sin `-e testGroup ...` ejecuta la suite completa. Filtros disponibles: SQLiteEve
 
 La nube conserva un helper en `.tooling/academic-setup/run-gradle.py` para seleccionar herramientas/proxy/CA correctos. No usar el helper del build raíz anterior para esta app. Los emuladores por software deben ejecutarse de uno en uno; procesos y permisos del entorno no se presumen restaurados automáticamente. API28 completó la suite; API36 sufrió ANR de componentes del emulador y sigue sin validación completa. Para repetir esa comprobación, usar una instancia estable con aceleración KVM o un dispositivo propio compatible. No subir timeouts ni ocultar errores para declarar la suite aprobada.
 
-Resultados observados, límites y siguiente incremento: [avance académico](AVANCE_ACADEMICO.md). Diseño del almacenamiento: [persistencia](PERSISTENCIA_ACADEMICA.md). El código hasta I10 no completa todavía la revisión SSDF de I11 ni el cierre/rúbrica de I12.
+Resultados observados, límites y siguiente incremento: [avance académico](AVANCE_ACADEMICO.md). Diseño del almacenamiento: [persistencia](PERSISTENCIA_ACADEMICA.md). I11 documenta la [revisión SSDF](SEGURIDAD_ACADEMICA.md); I12 ya está autorizado para la verificación/entrega final.

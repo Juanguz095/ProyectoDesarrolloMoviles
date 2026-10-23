@@ -108,6 +108,9 @@ class MainActivity : Activity() {
         } catch (_: android.content.ActivityNotFoundException) {
             exportRequestId = null
             session.receiveExportResult(request.id, null, false)
+        } catch (_: SecurityException) {
+            exportRequestId = null
+            session.receiveExportResult(request.id, null, false)
         }
     }
 

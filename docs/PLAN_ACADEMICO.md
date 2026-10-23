@@ -1,7 +1,7 @@
 # AuditLab — Plan de la primera entrega académica
 
 **Versión:** 1.0 · **Fecha:** 22 de octubre de 2026, America/Lima.
-**Estado:** ruta académica implementada hasta I10 por solicitud explícita del usuario. Modelos/reglas, persistencia, pantalla, cola, exportación y privacidad están conectados. Verificación: 93 JVM, 15 SQL host y 49 Android API28 aprobadas, además de selector real y persistencia tras detener/abrir el proceso. API36 sin validación completa por ANR del emulador: resultados y límites en [AVANCE_ACADEMICO.md](AVANCE_ACADEMICO.md). I11/I12 requieren nueva autorización. El [contexto vinculante](referencias/contexto-auditlab-2026-10-22.txt) prevalece sobre el [beta](referencias/plan-beta-original-2026-10-22.txt); PDF/prompts/rúbrica aún pendientes de contraste.
+**Estado:** I11 verificado técnicamente en API28; I12 autorizado por «Continúa hasta acabarlo». Se revisan también los errores de incrementos anteriores. 93 JVM, 15 SQL host, 14 políticas y 54 Android aprobadas; [seguridad/SSDF](SEGURIDAD_ACADEMICA.md), [avance](AVANCE_ACADEMICO.md). I12 repetirá la versión final y documentará la entrega. El [contexto vinculante](referencias/contexto-auditlab-2026-10-22.txt) prevalece sobre el beta. PDF/prompts/rúbrica aún pendientes de contraste; Android16, IDE y teléfono físico sin acreditación completa.
 
 **Seguimiento de esta entrega:** [AVANCE_ACADEMICO.md](AVANCE_ACADEMICO.md).
 **Referencia histórica del sistema ampliado, fuera de la fase autorizada:** [plan maestro](PLAN_MAESTRO.md) y [avance previo](AVANCE.md).
@@ -322,6 +322,6 @@ La fase 2 y cualquier integración, cliente de red o transmisión permanecen fue
 
 ## 10. Estado y siguiente paso concreto
 
-**Código implementado hasta I10.** La pantalla local conecta consentimiento, simulación, SQLite, CSV manual, borrado y revocación con sus errores/reintentos. Pruebas y artefactos exactos en [evidencia I10](evidencias/academico/I10-2026-10-22.md), uso en [manual académico](USO_ACADEMICO.md). No se trata de la fase 2 ni de una integración con los módulos históricos.
+**Código implementado hasta I11.** La pantalla local conecta consentimiento, simulación, SQLite, CSV manual, borrado y revocación con sus errores/reintentos. Pruebas y artefactos exactos en [evidencia I10](evidencias/academico/I10-2026-10-22.md), uso en [manual académico](USO_ACADEMICO.md). No se trata de la fase 2 ni de una integración con los módulos históricos.
 
-**Detenerse antes de I11**, que necesita nueva autorización. I11 revisará seguridad/SSDF y I12 consolidará evidencias/rúbrica/entrega. Siguen pendientes Sync en Android Studio, dispositivo físico y contraste del PDF; no se dan por hechos por compilar o aprobar pruebas en un emulador.
+**Continuar I12**, ya autorizado tras verificar I11. I11 documenta seguridad/SSDF y correcciones; I12 consolida evidencias y entrega técnica. Siguen pendientes Sync en Android Studio, dispositivo físico y contraste del PDF; no se dan por hechos por compilar o aprobar pruebas en un emulador.

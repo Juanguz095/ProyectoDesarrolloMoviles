@@ -6,9 +6,9 @@ Para continuar el desarrollo, sigue el [plan maestro por fases](docs/PLAN_MAESTR
 
 ## Primera entrega académica
 
-La ruta académica está implementada hasta **I10**: consentimiento, cuatro botones de eventos SIMULADOS, historial SQLite, cola estable durante rotación, exportación manual CSV, borrado y revocación con recuperación de fallos. Versión `0.1.0-i10`. **93 pruebas JVM, 15 del SQL y 49 Android API28 aprobadas**, más recorrido con selector real y detención/relanzamiento del proceso. Lint sin incidencias. **API36 sigue sin validación completa**: dos intentos encontraron ANR de componentes del emulador, sin KVM. Resultados y límites en el [avance](docs/AVANCE_ACADEMICO.md) y la [evidencia I10](docs/evidencias/academico/I10-2026-10-22.md).
+La ruta académica local está implementada hasta **I11**: consentimiento, cuatro eventos SIMULADOS, historial SQLite, cola/rotación, CSV manual y borrado/revocación con reintentos. La revisión corrigió tres defectos previos y el selector restringido. **93 JVM, 15 SQL host, 14 de política y 54 Android API28 aprobadas**; lint debug/release sin incidencias. [Resultados I11](docs/evidencias/academico/I11-2026-10-23.md), [seguridad/SSDF](docs/SEGURIDAD_ACADEMICA.md).
 
-Para instalar y usar, sigue el [manual académico](docs/USO_ACADEMICO.md); el [dominio](docs/DOMINIO_ACADEMICO.md) y la [persistencia](docs/PERSISTENCIA_ACADEMICA.md) explican el diseño. **Quedan I11 (revisión de seguridad) e I12 (cierre/evidencias del curso)**, pendientes de autorización. Sync en Android Studio, dispositivo físico y contraste de la rúbrica siguen pendientes. La fase 2 sigue fuera del alcance actual.
+**I12 ya está autorizado** y prepara la verificación/entrega final. [Manual académico](docs/USO_ACADEMICO.md), [plan](docs/PLAN_ACADEMICO.md), [avance](docs/AVANCE_ACADEMICO.md). Android16 sin validación completa por ANR del emulador; Sync IDE, teléfono físico y rúbrica siguen pendientes. La fase 2 sigue fuera del alcance.
 
 El plan maestro de dos apps/API que sigue pertenece al trabajo previo; sus módulos se conservan como referencia y no forman parte de la implementación autorizada de esta entrega local.
 

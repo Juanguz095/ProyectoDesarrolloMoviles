@@ -1,6 +1,7 @@
 package com.auditlab.academic.storage
 
 import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
 import android.database.sqlite.SQLiteOpenHelper
@@ -8,7 +9,7 @@ import android.os.Looper
 import com.auditlab.domain.StorageException
 import java.util.UUID
 
-/** Owned by the future shared I/O scope. Never close while an operation is in flight. */
+/** Owned by AuditSession's shared I/O scope. Never close while an operation is in flight. */
 class AuditDatabase(context: Context, name: String = "auditlab-events.db") :
     SQLiteOpenHelper(context.applicationContext, name, null, VERSION) {
     override fun onCreate(db: SQLiteDatabase) {
@@ -83,6 +84,17 @@ internal fun requireWorkerThread() {
 
 internal fun canonicalUuid(value: String): UUID = UUID.fromString(value).also {
     require(it.toString() == value) { "Noncanonical stored UUID" }
+}
+
+/** Cursor getters coerce malformed text/REAL values and truncate getInt; reject damaged storage. */
+internal fun Cursor.requiredLong(index: Int): Long {
+    check(getType(index) == Cursor.FIELD_TYPE_INTEGER) { "Stored integer required" }
+    return getLong(index)
+}
+
+internal fun Cursor.requiredText(index: Int): String {
+    check(getType(index) == Cursor.FIELD_TYPE_STRING) { "Stored text required" }
+    return getString(index)
 }
 
 /** Map expected platform/decode failures; never return an empty success on failure. */

@@ -1,17 +1,17 @@
 # AuditLab — Avance de la fase 1 académica
 
-Fecha de actualización: 22 de octubre de 2026, America/Lima; comprobaciones de cierre el 23 de octubre UTC.
+Fecha de actualización: 23 de octubre de 2026, UTC.
 
 Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inicial: [PLAN_I01.md](PLAN_I01.md). Fuente de requisitos: [contexto del usuario](referencias/contexto-auditlab-2026-10-22.txt).
 
 ## Estado actual
 
-- Última solicitud: «Completalo hasta la 10 pero asegúrate de que todo funcione bien»; autoriza I07–I10 en orden y sus pruebas. No autoriza I11 o fase 2.
-- Estado actual: **implementado hasta I10**, con consentimiento, cuatro botones, historial, exportación, borrado y revocación funcionales. I11/I12 pendientes de autorización.
-- Artefactos: APK principal y de instrumentación, versión 0.1.0-i10/10; lint 0. [Manual](USO_ACADEMICO.md), [evidencia I10](evidencias/academico/I10-2026-10-22.md).
-- Verificación actual: **93 JVM, 15 SQL host y 49 Android API28 aprobadas** en el candidato final. Siete comprobaciones del recorrido real también aprobadas: selector/CSV, cancelación, borrado/revocación y persistencia tras detener/abrir el proceso. Se corrigieron fondo/contraste observados al revisar capturas y se repitió la suite completa.
+- Última solicitud: «Continúa hasta acabarlo» y revisión/pruebas de fases anteriores. Autoriza I11/I12 en orden y correcciones necesarias de la app académica; fase 2 sigue fuera del alcance.
+- Estado actual: **I11 verificado en API28; sigue I12 autorizado**. Correcciones de exportación y decodificación SQLite, política de seguridad reproducible y revisión SSDF documentadas.
+- Artefactos: APK principal y de instrumentación, versión 0.1.0-i11/11; lint debug/release 0. [Manual](USO_ACADEMICO.md), [evidencia I10](evidencias/academico/I10-2026-10-22.md).
+- Verificación actual: **93 JVM, 15 SQL host, 14 de política y 54 Android API28 aprobadas** en I11. El intento previo reprodujo tres defectos nuevos con 52 pruebas/3 fallos y los 49 casos anteriores aprobados. Siete comprobaciones del recorrido real aprobadas sobre I10; I12 las repetirá en la versión final: selector/CSV, cancelación, borrado/revocación y persistencia tras detener/abrir el proceso. Se corrigieron fondo/contraste observados al revisar capturas y se repitió la suite completa.
 - Revisión del usuario/profesor y conformidad de la rúbrica pendientes; la ejecución autorizada no equivale a esa revisión.
-- Próximo paso de código: I11, con nueva autorización. API36 sin validación completa por ANR del emulador en dos intentos; Sync IDE y dispositivo físico pendientes.
+- Próximo paso: I12, ya autorizado; repetir versión final y preparar entrega. API36 sin validación completa por ANR del emulador en dos intentos; Sync IDE y dispositivo físico pendientes.
 - Pendiente documental: PDF/prompt específico I01; el contexto textual ya fija versiones, límites y obligación de aprobación.
 - Fase 2: fuera de autorización. El [avance previo](AVANCE.md) conserva el trabajo histórico del sistema ampliado y no acredita los incrementos de esta app.
 - Entorno Android: ADB resuelto e imágenes/AVDs API28/API36 instalados. API28 estable ejecutado aisladamente. API36 sufrió ANR de componentes del sistema incluso aislado y con otro renderizador/un vCPU. Los procesos de prueba se detuvieron y sus AVDs se conservaron. La próxima comprobación de API36 requiere una instancia estable, preferiblemente con KVM, o un dispositivo compatible.
@@ -30,8 +30,14 @@ Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inicial: [PLAN_I01.md](P
 | I08 | Cola compartida, busy, ciclo de vida, cierre BD y WindowInsets. | 5 JVM nuevas y 6 UI Android nuevas aprobadas. | Ejecución autorizada; revisión pendiente. | [Evidencia](evidencias/academico/I08-2026-10-22.md). |
 | I09 | Exportación manual elegida y controlada. | 13 JVM, 7 casos Android y selector real/CSV verificados en I10. | Ejecución autorizada; revisión pendiente. | [I09](evidencias/academico/I09-2026-10-22.md), [validación I10](evidencias/academico/I10-2026-10-22.md). |
 | I10 | Borrado y revocación persistente aun con fallo de borrado. | 9 PrivacyUiTests y recorrido real aprobados; completa 49/49 API28. | Ejecución autorizada; revisión pendiente. | [Evidencia](evidencias/academico/I10-2026-10-22.md). |
-| I11 | Revisión de seguridad/SSDF. | Pendiente. | Pendiente. | I10 verificado y aprobación explícita para I11. |
-| I12 | Evidencias y cierre de fase 1. | Pendiente. | Pendiente. | I11 verificado y aprobación explícita para I12. |
+| I11 | Seguridad/SSDF y correcciones SEC-01–SEC-03. | Verificado: build, 54 Android, políticas y regresiones. | Ejecución autorizada; revisión pendiente. | [Evidencia](evidencias/academico/I11-2026-10-23.md), [revisión](SEGURIDAD_ACADEMICA.md). |
+| I12 | Evidencias y cierre de fase 1. | Siguiente incremento. | Ejecución autorizada; revisión pendiente. | I11 verificado; PDF/rúbrica aún ausente. |
+
+## Ejecución I11 del 23 de octubre de 2026 UTC
+
+- Tres fallos reproducidos sobre I10 y corregidos: documento existente eliminado tras apertura rechazada y dos decodificaciones SQLite permisivas. Selector restringido también manejado sin crash.
+- Repetición completa 54/54 Android API28, 93 JVM/15 SQL/14 políticas y lint debug/release 0. Revisión efectiva de recursos de backup incluso en release optimizado. [Evidencia I11](evidencias/academico/I11-2026-10-23.md), [seguridad/SSDF](SEGURIDAD_ACADEMICA.md).
+- Commit local; I12 autorizado es el siguiente. Los pendientes de Android16/IDE/dispositivo/rúbrica se mantienen separados.
 
 ## Ejecución I10 del 22 de octubre de 2026
 

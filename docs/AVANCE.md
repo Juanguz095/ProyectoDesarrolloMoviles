@@ -6,9 +6,9 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
 
 ## Alcance actual de la solicitud
 
-La ruta académica local está implementada hasta I10: aceptación, cuatro eventos simulados, historial SQLite, cola/ciclo de vida, exportación manual CSV y controles de borrado/revocación con recuperación de fallos. Plan y estado en [plan académico](PLAN_ACADEMICO.md) y [avance independiente](AVANCE_ACADEMICO.md); uso en el [manual](USO_ACADEMICO.md). Se mantienen las versiones exigidas y se conservan los módulos históricos.
+La solicitud actual autoriza terminar I11/I12 de la app académica y revisar/pruebas de incrementos anteriores. **I11 verificado en API28**: tres defectos reproducidos y corregidos, manejo del selector restringido, SQLite estricto y revisión SSDF/políticas efectivas. Resultado: 93 JVM, 15 SQL host, 14 de política y 54 Android API28 aprobadas; lint debug/release 0. Sigue I12 autorizado. Detalles en [avance académico](AVANCE_ACADEMICO.md), [seguridad](SEGURIDAD_ACADEMICA.md) y [evidencia I11](evidencias/academico/I11-2026-10-23.md).
 
-La solicitud «Completalo hasta la 10 pero asegúrate de que todo funcione bien» se ejecutó en orden. Validación: 93 JVM, 15 SQL host y 49 Android API28 aprobadas, más recorrido real de selector/CSV/cancelación/borrado/revocación y detención/relanzamiento del proceso. Se corrigieron defectos y fixtures documentados y se repitieron los casos. API36 quedó sin validación completa: dos intentos encontraron ANR de componentes del emulador sin KVM. Sync IDE, dispositivo físico y rúbrica pendientes. No se inicia I11/I12 ni fase 2 sin nueva autorización.
+Android16 sufrió ANR del emulador sin KVM en I10; se retomará en el cierre. Sync IDE, teléfono físico y rúbrica requieren evidencia propia. La fase 2 y el sistema ampliado previo siguen fuera de esta entrega.
 
 El estado siguiente documenta el sistema ampliado anterior y se conserva como histórico. Su tarea P3.2 no es la siguiente acción de esta ruta académica.
 
@@ -57,6 +57,11 @@ Todos los IDs remiten a tareas definidas en el plan maestro. Al comenzar una tar
 | P3.2 | pendiente | Contrato y tablas de códigos/dispositivos/consentimientos preparados. | Implementar consumo atómico de código, consentimiento versionado y credencial revocable; probar doble inscripción concurrente y roles. |
 
 ## Bitácora de sesiones
+
+### 23 de octubre de 2026 UTC — I11 académico
+
+- Revisión SSDF y políticas de manifiestos/backup/transferencia/Dex en debug y release, sin dependencias nuevas. Tres fallos reproducidos (52 casos/3 fallos) y corregidos; luego 54/54 Android API28, 93 JVM, 15 SQL y 14 políticas aprobadas. Lint debug/release 0.
+- [Evidencia I11](evidencias/academico/I11-2026-10-23.md), [seguridad](SEGURIDAD_ACADEMICA.md). Commit local y continuación I12 autorizada; sin push/publicación.
 
 ### 22 de octubre de 2026 — Ejecución I10 académica
 

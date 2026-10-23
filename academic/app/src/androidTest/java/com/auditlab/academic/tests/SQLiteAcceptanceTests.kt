@@ -122,6 +122,31 @@ internal object SQLiteAcceptanceTests {
                 check(accepted is AuditResult.Success && accepted.value.consentId != old.consentId)
                 check(audit(f, c).record(EventKind.MESSAGE, EventDirection.INCOMING) is AuditResult.Success)
             },
+            case("damagedNumericDecisionFailsClosedAndStillAllowsWithdrawal") { f, c ->
+                store(f, c).save(Acceptance.Granted(consent()))
+                val db = f.database.writableDatabase
+                db.execSQL("PRAGMA ignore_check_constraints = ON")
+                try {
+                    listOf(
+                        Triple("accepted_at_ms", "1000broken", 1000L),
+                        Triple("deletion_pending", "0broken", 0L),
+                        Triple("deletion_pending", "4294967296", 0L),
+                        Triple("deletion_pending", "0.25", 0L),
+                    ).forEach { (column, bad, restored) ->
+                        db.execSQL("UPDATE acceptance SET $column = ?", arrayOf(bad))
+                        expectStorage { store(f, c).read() }
+                        check(decisions(f, c).load() == AuditResult.Rejected(AuditError.ACCEPTANCE_READ_FAILED))
+                        check(audit(f, c).record(EventKind.CALL, EventDirection.INCOMING) == AuditResult.Rejected(AuditError.ACCEPTANCE_READ_FAILED))
+                        db.execSQL("UPDATE acceptance SET $column = ?", arrayOf(restored))
+                    }
+                    store(f, c).save(Acceptance.Revoked(3000, true))
+                    db.execSQL("UPDATE acceptance SET revoked_at_ms = ?", arrayOf("3000broken"))
+                    expectStorage { store(f, c).read() }
+                    check(audit(f, c).revokeAcceptance() is AuditResult.Success)
+                } finally { db.execSQL("PRAGMA ignore_check_constraints = OFF") }
+                check(store(f, c).read() is Acceptance.Revoked)
+                check(f.ids().isEmpty())
+            },
             case("migrationOneToTwoPreservesEveryEventIdAndStartsPending") { f, c ->
                 repeat(3) { f.repository.insertIfBelowCapacity(event(), 1000) }
                 val before = f.ids()

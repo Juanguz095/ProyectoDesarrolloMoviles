@@ -41,21 +41,21 @@ class SQLiteAcceptanceStore(
     private fun readFrom(db: SQLiteDatabase): Acceptance = db.query("acceptance", COLUMNS, "singleton = ?",
         arrayOf("1"), null, null, null).use { cursor ->
         if (!cursor.moveToFirst()) return@use Acceptance.Pending
-        val state = cursor.getString(0)
-        val pending = cursor.getInt(5)
-        check(pending == 0 || pending == 1)
+        val state = cursor.requiredText(0)
+        val pending = cursor.requiredLong(5)
+        check(pending == 0L || pending == 1L)
         when (state) {
             "PENDING" -> {
-                check((1..4).all { cursor.isNull(it) } && pending == 0)
+                check((1..4).all { cursor.isNull(it) } && pending == 0L)
                 Acceptance.Pending
             }
             "GRANTED" -> {
-                check((1..3).none { cursor.isNull(it) } && cursor.isNull(4) && pending == 0)
-                Acceptance.Granted(ConsentContext(canonicalUuid(cursor.getString(1)), cursor.getString(2), cursor.getLong(3)))
+                check((1..3).none { cursor.isNull(it) } && cursor.isNull(4) && pending == 0L)
+                Acceptance.Granted(ConsentContext(canonicalUuid(cursor.requiredText(1)), cursor.requiredText(2), cursor.requiredLong(3)))
             }
             "REVOKED" -> {
                 check((1..3).all { cursor.isNull(it) })
-                Acceptance.Revoked(if (cursor.isNull(4)) null else cursor.getLong(4), pending == 1)
+                Acceptance.Revoked(if (cursor.isNull(4)) null else cursor.requiredLong(4), pending == 1L)
             }
             else -> throw StorageException()
         }

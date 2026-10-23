@@ -110,6 +110,27 @@ internal object SQLiteEventTests {
                 f.database.writableDatabase.execSQL("ALTER TABLE events RENAME TO unavailable_events")
                 expectStorage { f.repository.latest(100) }
             },
+            case("damagedNumericCellsCannotBeCoercedIntoValidEvents") { f ->
+                f.repository.insertIfBelowCapacity(event(), 1000)
+                val db = f.database.writableDatabase
+                val invalid = listOf(
+                    Triple("timestamp_ms", "2000broken", 2000L),
+                    Triple("accepted_at_ms", "1000broken", 1000L),
+                    Triple("is_simulated", "1broken", 1L),
+                    Triple("is_simulated", "4294967297", 1L),
+                    Triple("is_simulated", "1.25", 1L),
+                )
+                db.execSQL("PRAGMA ignore_check_constraints = ON")
+                try {
+                    invalid.forEach { (column, bad, restored) ->
+                        db.execSQL("UPDATE events SET $column = ?", arrayOf(bad))
+                        expectStorage { f.repository.latest(100) }
+                        expectStorage { f.repository.snapshot() }
+                        db.execSQL("UPDATE events SET $column = ?", arrayOf(restored))
+                    }
+                } finally { db.execSQL("PRAGMA ignore_check_constraints = OFF") }
+                check(f.repository.snapshot().size == 1)
+            },
             case("schemaVersionAndIndexExist") { f ->
                 val db = f.database.readableDatabase
                 check(db.version == AuditDatabase.VERSION)

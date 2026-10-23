@@ -52,6 +52,24 @@ internal object ExportUiTests {
             case("providerOpenFailureReportsError") { f ->
                 pick(f, Activity.RESULT_OK, document("fail-"), "No se pudo guardar el CSV")
             },
+            case("missingDocumentPickerReportsErrorWithoutCrash") { f ->
+                failedLaunch(f, android.content.ActivityNotFoundException("Synthetic missing picker"))
+            },
+            case("restrictedDocumentPickerReportsErrorWithoutCrash") { f ->
+                failedLaunch(f, SecurityException("Synthetic restricted picker"))
+            },
+            case("refusedOpenPreservesTheExistingDocument") { f ->
+                val uri = document("refuse-")
+                val original = "existing synthetic document".toByteArray(Charsets.UTF_8)
+                grantTestDocument(instrumentation, uri)
+                try {
+                    checkNotNull(instrumentation.targetContext.contentResolver.openOutputStream(uri, "w")).use { it.write(original) }
+                    pick(f, Activity.RESULT_OK, uri, "No se pudo guardar el CSV")
+                    grantTestDocument(instrumentation, uri)
+                    val actual = checkNotNull(instrumentation.targetContext.contentResolver.openInputStream(uri)).use { it.readBytes() }
+                    check(actual.contentEquals(original))
+                } finally { runCatching { DocumentsContract.deleteDocument(instrumentation.targetContext.contentResolver, uri) } }
+            },
             case("fileUriIsRejectedWithoutOverwritingAnInternalFixture") { f ->
                 val target = File(instrumentation.targetContext.cacheDir, "auditlab-untouched-${UUID.randomUUID()}")
                 try {
@@ -76,6 +94,30 @@ internal object ExportUiTests {
 
     private fun document(prefix: String = "ok-"): Uri = DocumentsContract.buildDocumentUri(
         "com.auditlab.academic.test.documents", prefix + UUID.randomUUID())
+
+    private fun failedLaunch(f: UiFixture, failure: RuntimeException) {
+        var attempted = false
+        val monitor = object : Instrumentation.ActivityMonitor() {
+            override fun onStartActivity(intent: Intent): Instrumentation.ActivityResult? {
+                if (intent.action != Intent.ACTION_CREATE_DOCUMENT) return null
+                attempted = true
+                throw failure
+            }
+        }
+        f.instrumentation.addMonitor(monitor)
+        try {
+            f.main { f.button(R.id.export_button).performClick() }
+            f.await {
+                var finished = false
+                f.main { finished = !f.session.state.busy && f.session.state.message.contains("No se pudo guardar el CSV") }
+                finished
+            }
+            f.main {
+                check(attempted && f.session.state.exportRequest == null)
+                check(f.button(R.id.export_button).isEnabled)
+            }
+        } finally { f.instrumentation.removeMonitor(monitor) }
+    }
 
     private fun pick(f: UiFixture, code: Int, uri: Uri?, expectedMessage: String) {
         if (uri?.authority == "com.auditlab.academic.test.documents") grantTestDocument(f.instrumentation, uri)

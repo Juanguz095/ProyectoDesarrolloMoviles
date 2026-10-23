@@ -6,6 +6,7 @@
         android:icon="@drawable/ic_auditlab"
         android:allowBackup="false"
         android:fullBackupContent="false"
+        android:usesCleartextTraffic="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:theme="@style/AuditLabTheme">
         <activity android:name=".MainActivity" android:exported="true">

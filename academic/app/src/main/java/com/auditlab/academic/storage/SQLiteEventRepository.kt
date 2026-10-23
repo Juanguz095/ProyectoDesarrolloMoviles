@@ -65,10 +65,10 @@ class SQLiteEventRepository(private val database: AuditDatabase) : EventReposito
     }
 
     private fun decode(cursor: Cursor): Event {
-        check(cursor.getInt(4) == 1)
-        val consent = ConsentContext(canonicalUuid(cursor.getString(5)), cursor.getString(6), cursor.getLong(7))
-        return Event(canonicalUuid(cursor.getString(0)), cursor.getLong(1), EventKind.valueOf(cursor.getString(2)),
-            EventDirection.valueOf(cursor.getString(3)), consent)
+        check(cursor.requiredLong(4) == 1L)
+        val consent = ConsentContext(canonicalUuid(cursor.requiredText(5)), cursor.requiredText(6), cursor.requiredLong(7))
+        return Event(canonicalUuid(cursor.requiredText(0)), cursor.requiredLong(1), EventKind.valueOf(cursor.requiredText(2)),
+            EventDirection.valueOf(cursor.requiredText(3)), consent)
     }
 
     companion object {

@@ -83,8 +83,9 @@ class AuditSession(context: Context, databaseName: String = "auditlab-events.db"
                 else -> {
                     var opened = false
                     val result = exporter.write(request.permit, CsvDestination { bytes ->
-                        opened = true
                         val stream = context.contentResolver.openOutputStream(uri, "wt") ?: throw IOException("No document stream")
+                        // A refused open has not touched the document: never delete its old contents.
+                        opened = true
                         stream.use { it.write(bytes); it.flush() }
                     })
                     if (result is AuditResult.Rejected && opened) {

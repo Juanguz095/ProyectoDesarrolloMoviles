@@ -8,8 +8,8 @@ android {
         applicationId = "com.auditlab.academic"
         minSdk = 26
         targetSdk = 36
-        versionCode = 10
-        versionName = "0.1.0-i10"
+        versionCode = 11
+        versionName = "0.1.0-i11"
         testInstrumentationRunner = "com.auditlab.academic.tests.AuditLabTestRunner"
     }
     compileOptions {
