@@ -43,7 +43,7 @@ El verificador:
 
 ## Matriz de aceptación
 
-La evidencia exacta de la versión final, dispositivo/API, hashes y límites está en [I12](evidencias/academico/I12-2026-10-23.md). La siguiente tabla indica dónde repetir cada conducta; no sustituye los resultados del informe.
+La evidencia exacta de la versión final, dispositivo/API, hashes y límites está en [I12](evidencias/academico/I12-2026-10-23.md). La [comprobación adicional en dos emuladores](evidencias/academico/DOS-EMULADORES-2026-10-23.md) aprobó 55/55 casos en API26 y 55/55 en API28 con la misma APK. La siguiente tabla indica dónde repetir cada conducta; no sustituye los resultados del informe.
 
 | Criterio | Evidencia reproducible |
 | --- | --- |

@@ -3,6 +3,8 @@
 **Versión:** 1.1 · **Fecha:** 23 de octubre de 2026, UTC.
 **Estado:** implementación I01–I12 completada por autorización de terminar y revisar fases anteriores. Entrega técnica verificada sobre API28: 93 JVM, 15 SQL host, 23 herramientas, 55 Android y nueve comprobaciones reales aprobadas; lint debug/release 0. [Informe I12](evidencias/academico/I12-2026-10-23.md), [entrega](ENTREGA_ACADEMICA.md), [seguridad/SSDF](SEGURIDAD_ACADEMICA.md). El [contexto vinculante](referencias/contexto-auditlab-2026-10-22.txt) prevalece sobre el beta. PDF/rúbrica, Sync IDE y teléfono físico requieren evidencia propia; API36 sin validación completa tras un tercer intento bloqueado por ANR del sistema del emulador. No se declara conformidad académica sin la rúbrica.
 
+**Comprobación posterior en dos emuladores:** 55/55 casos API26 y 55/55 API28 con la misma APK I12; apertura normal API26 sin aceptación ni eventos automáticos. [Evidencia adicional](evidencias/academico/DOS-EMULADORES-2026-10-23.md). El cuarto intento API36 se interrumpió durante instalación después de inestabilidad observada al arrancar; no llegó a ejecutar Instrumentation. La fase 1 mantiene sus límites de entrega.
+
 **Seguimiento de esta entrega:** [AVANCE_ACADEMICO.md](AVANCE_ACADEMICO.md).
 **Referencia histórica del sistema ampliado, fuera de la fase autorizada:** [plan maestro](PLAN_MAESTRO.md) y [avance previo](AVANCE.md).
 

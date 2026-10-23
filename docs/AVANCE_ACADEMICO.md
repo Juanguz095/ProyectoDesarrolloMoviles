@@ -6,15 +6,16 @@ Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inicial: [PLAN_I01.md](P
 
 ## Estado actual
 
-- Última solicitud: «Continúa hasta acabarlo» y revisión/pruebas de fases anteriores. Autoriza I11/I12 en orden y correcciones necesarias de la app académica; fase 2 sigue fuera del alcance.
+- Última solicitud: «Pruébalo con dos emuladores». Se completaron los 55 casos en API26 y API28 con los artefactos finales I12; fase 2 sigue fuera del alcance.
 - Estado actual: **implementación I01–I12 y entrega técnica completadas sobre API28**. Se corrigieron y repitieron errores de fases anteriores; no quedan defectos reproducidos de la app abiertos en esa versión comprobada.
 - Artefactos: debug firmado y APK de tests, versión **0.1.0-i12/12**; release sin firmar revisado, lint debug/release 0. [Entrega](ENTREGA_ACADEMICA.md), [manual](USO_ACADEMICO.md), [informe I12/hashes](evidencias/academico/I12-2026-10-23.md).
 - Verificación final: **93 JVM, 15 SQL host, 23 herramientas y 55 Android API28 aprobadas**, sin fallos/errores/omitidas. **Nueve comprobaciones reales aprobadas** con selector/rotación, CSV exacto, cancelación, muerte de proceso, revocación con fallo de DELETE y reintento. Fixture original vacía/revocada restaurada y comparada; CSVs anteriores conservados.
+- Comprobación posterior: **55/55 Android8/API26 y repetición 55/55 Android9/API28**, misma APK y aserciones, cero fallos/errores/omitidos. [Informe de dos emuladores](evidencias/academico/DOS-EMULADORES-2026-10-23.md). No se atribuye a esta repetición una nueva ejecución JVM/host/lint.
 - Revisión del usuario/profesor y conformidad de la rúbrica pendientes; la ejecución autorizada no equivale a esa revisión.
-- Próximo paso: revisión de la entrega y evidencia externa de IDE/teléfono/rúbrica. API36 sigue sin validación completa tras tres intentos con ANR del sistema del emulador. No se inicia fase 2.
+- Próximo paso: revisión de la entrega y evidencia externa de IDE/teléfono/rúbrica. API36 sigue sin validación completa tras los tres intentos históricos y otro intento con AVD nuevo interrumpido durante instalación por inestabilidad observada al arrancar. No se inicia fase 2.
 - Pendiente documental: PDF/prompts/rúbrica del curso; el contexto textual ya fija versiones, límites y obligación de aprobación.
 - Fase 2: fuera de autorización. El [avance previo](AVANCE.md) conserva el trabajo histórico del sistema ampliado y no acredita los incrementos de esta app.
-- Entorno Android: ADB resuelto e imágenes/AVDs API28/API36 instalados. API28 estable ejecutado aisladamente. API36 sufrió ANR de componentes del sistema en tres intentos. SwANGLE/4 GiB/pantalla reducida recuperó el almacenamiento, pero la prueba de privacidad volvió a bloquearse ante un ANR del sistema. Los procesos de prueba se detuvieron y sus AVDs se conservaron. La próxima comprobación de API36 requiere una instancia estable, preferiblemente con KVM, o un dispositivo compatible.
+- Entorno Android: ADB resuelto e imágenes/AVDs API26/API28/API36 instalados. API26/API28 completaron la suite aisladamente. API36 sufrió ANR de componentes del sistema en los tres intentos históricos; el intento adicional con AVD nuevo registró watchdog durante el arranque y se interrumpió antes de Instrumentation. Sus datos y registros se conservaron. La próxima comprobación de API36 requiere una instancia estable, preferiblemente con KVM, o un dispositivo compatible.
 
 ## Seguimiento
 

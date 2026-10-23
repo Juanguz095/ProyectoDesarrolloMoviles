@@ -6,6 +6,8 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
 
 ## Alcance actual de la solicitud
 
+**Comprobación adicional solicitada con dos emuladores:** la misma APK I12 aprobó **55/55 casos en Android8/API26 y 55/55 en Android9/API28**. Se conservaron los datos normales existentes de API28. [Informe adicional](evidencias/academico/DOS-EMULADORES-2026-10-23.md). Otro intento API36 se interrumpió durante instalación tras inestabilidad del sistema al arrancar; no ejecutó Instrumentation ni se contó como aprobado.
+
 **Implementación I01–I12 y entrega técnica de la fase 1 académica completadas sobre API28.** Se revisaron errores anteriores y se corrigieron exportación, datos SQLite dañados, selector restringido y herramientas de prueba. Resultado final: 93 JVM, 15 SQL host, 23 herramientas y 55 Android aprobadas; nueve comprobaciones reales de selector/rotación/CSV/reinicio/revocación fallida y reintento; lint debug/release 0. Versión 0.1.0-i12/12.
 
 [Entrega y matriz](ENTREGA_ACADEMICA.md), [informe I12/hashes](evidencias/academico/I12-2026-10-23.md), [avance académico](AVANCE_ACADEMICO.md), [seguridad/SSDF](SEGURIDAD_ACADEMICA.md). Android16 sigue sin validación completa tras tres intentos: el último registró 46 casos aprobados, 4 timeouts de UI y 5 sin resultado completo por ANR del sistema del emulador. Sync IDE, teléfono físico y PDF/rúbrica requieren evidencia propia. No se declara conformidad académica sin contrastarlos; fase 2 fuera del alcance.
@@ -57,6 +59,11 @@ Todos los IDs remiten a tareas definidas en el plan maestro. Al comenzar una tar
 | P3.2 | pendiente | Contrato y tablas de códigos/dispositivos/consentimientos preparados. | Implementar consumo atómico de código, consentimiento versionado y credencial revocable; probar doble inscripción concurrente y roles. |
 
 ## Bitácora de sesiones
+
+### 23 de octubre de 2026 UTC — comprobación en dos emuladores
+
+- Solicitud «Pruébalo con dos emuladores»: 55/55 Android8/API26 y repetición 55/55 Android9/API28; cero fallos, errores u omitidos. Misma APK y árbol fuente que I12, sin cambios de dependencias ni aserciones. Volcado normal API28 idéntico antes/después; API26 AVD nuevo. [Evidencia](evidencias/academico/DOS-EMULADORES-2026-10-23.md).
+- Intentos preparatorios y cuarto intento API36 conservados con sus límites: watchdog del sistema antes de instalar la app; interrupción deliberada durante instalación, sin pruebas de la app ejecutadas. Pendientes API36 estable, teléfono físico, IDE y rúbrica. Fase 2 no iniciada.
 
 ### 23 de octubre de 2026 UTC — I12 académico
 
