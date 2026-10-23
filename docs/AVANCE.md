@@ -1,14 +1,14 @@
 # AuditLab — Registro de avance
 
-Fecha de actualización: 22 de octubre de 2026.
+Fecha de actualización: 22 de octubre de 2026, America/Lima; cierre de comprobaciones el 23 de octubre UTC.
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
 ## Alcance actual de la solicitud
 
-El 22 de octubre el usuario aportó un beta y después un contexto vinculante para la fase 1 académica local. Se prepararon [plan académico](PLAN_ACADEMICO.md), [propuesta I01](PLAN_I01.md) y [avance independiente](AVANCE_ACADEMICO.md). La implementación llega a I06: modelos/reglas, CSV, repositorio SQLite y aceptación persistente. La Activity conserva la pantalla base. Hay 75 pruebas JVM y 15 del SQL host aprobadas; 27 instrumentadas compiladas pero no ejecutadas en Android. Siguen pendientes Sync IDE/apertura Android de I01, validación Android de I05/I06 y revisión de cierre. El contexto exige versiones concretas, aprobación entre incrementos y excluye fase 2/red/transmisión.
+La ruta académica local está implementada hasta I10: aceptación, cuatro eventos simulados, historial SQLite, cola/ciclo de vida, exportación manual CSV y controles de borrado/revocación con recuperación de fallos. Plan y estado en [plan académico](PLAN_ACADEMICO.md) y [avance independiente](AVANCE_ACADEMICO.md); uso en el [manual](USO_ACADEMICO.md). Se mantienen las versiones exigidas y se conservan los módulos históricos.
 
-Nueva solicitud: «Completalo hasta la 10 pero asegúrate de que todo funcione bien» autoriza I07–I10 en orden. Implementado hasta I08; ADB resuelto y Android API28 operativo. Resultados integrados: 80 JVM, 15 SQL host y 33 instrumentadas aprobadas, tras corregir un fallo real de creación concurrente del esquema. Resultados actualizados en el avance académico; I09/I10 continúan autorizados. I11 y fase 2 no autorizados.
+La solicitud «Completalo hasta la 10 pero asegúrate de que todo funcione bien» se ejecutó en orden. Validación: 93 JVM, 15 SQL host y 49 Android API28 aprobadas, más recorrido real de selector/CSV/cancelación/borrado/revocación y detención/relanzamiento del proceso. Se corrigieron defectos y fixtures documentados y se repitieron los casos. API36 quedó sin validación completa: dos intentos encontraron ANR de componentes del emulador sin KVM. Sync IDE, dispositivo físico y rúbrica pendientes. No se inicia I11/I12 ni fase 2 sin nueva autorización.
 
 El estado siguiente documenta el sistema ampliado anterior y se conserva como histórico. Su tarea P3.2 no es la siguiente acción de esta ruta académica.
 
@@ -57,6 +57,12 @@ Todos los IDs remiten a tareas definidas en el plan maestro. Al comenzar una tar
 | P3.2 | pendiente | Contrato y tablas de códigos/dispositivos/consentimientos preparados. | Implementar consumo atómico de código, consentimiento versionado y credencial revocable; probar doble inscripción concurrente y roles. |
 
 ## Bitácora de sesiones
+
+### 22 de octubre de 2026 — Ejecución I10 académica
+
+- Controles de borrado/revocación con confirmación, errores/reintentos y bloqueo inmediato de exportaciones pendientes; app 0.1.0-i10. Sin nuevas dependencias de producción o cambios de herramientas.
+- 93 JVM, 15 SQL host y completa final 49/49 Android API28 aprobadas. Siete comprobaciones del recorrido real y proceso detenido/relanzado aprobadas, con CSV externo comparado por IDs. Ajuste de fondo/contraste revisado en capturas y repetido en tests; respaldo manual corregido para incluir WAL.
+- API36: intento conectado fallido (44 casos, 4 fallos de UI); repetición con otro renderizador/un vCPU también bloqueada por ANR de Quickstep/System UI (4 terminados, 3 fallos). Capturas y XML preservados; no se declara aprobada. Repetir en una instancia estable con KVM o dispositivo compatible. [Evidencia I10](evidencias/academico/I10-2026-10-22.md), [manual](USO_ACADEMICO.md). Commit local de cierre y documentación; sin push/despliegue ni fase 2. I11 es el siguiente incremento, pendiente de autorización.
 
 ### 22 de octubre de 2026 — Ejecución I09 académica
 

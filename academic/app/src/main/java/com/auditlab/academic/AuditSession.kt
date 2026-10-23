@@ -11,7 +11,7 @@ import com.auditlab.domain.*
 import java.util.UUID
 
 data class ExportRequest(val id: String, val permit: ExportPermit)
-data class ScreenData(val acceptance: Acceptance? = null, val events: List<Event> = emptyList(), val message: String = "", val busy: Boolean = false, val exportRequest: ExportRequest? = null)
+data class ScreenData(val acceptance: Acceptance? = null, val events: List<Event> = emptyList(), val message: String = "", val busy: Boolean = false, val exportRequest: ExportRequest? = null, val privacyBlocked: Boolean = false)
 
 /** Process-owned dependencies. Only observers reference Views and they detach in onStop. */
 class AuditSession(context: Context, databaseName: String = "auditlab-events.db") {
@@ -29,6 +29,7 @@ class AuditSession(context: Context, databaseName: String = "auditlab-events.db"
     private val audit = AuditService(repository, store, clock, ids, "1.0", coordinator)
     private val exporter = ExportService(audit, repository, coordinator)
     @Volatile private var pendingExport: ExportRequest? = null
+    @Volatile private var withdrawalUnconfirmed = false
     var state = ScreenData()
         private set
 
@@ -38,9 +39,13 @@ class AuditSession(context: Context, databaseName: String = "auditlab-events.db"
         val message = if (preserveMessage) state.message else ""
         return perform { readScreen(message) }
     }
-    fun accept() = perform {
-        val result = decisions.accept()
-        readScreen(if (result is AuditResult.Success) text(R.string.accepted) else errorText((result as AuditResult.Rejected).reason))
+    fun accept(): Boolean {
+        requireMain()
+        if (withdrawalUnconfirmed) return false
+        return perform {
+            val result = decisions.accept()
+            readScreen(if (result is AuditResult.Success) text(R.string.accepted) else errorText((result as AuditResult.Rejected).reason))
+        }
     }
     fun record(kind: EventKind, direction: EventDirection) = perform {
         val result = audit.record(kind, direction)
@@ -49,7 +54,7 @@ class AuditSession(context: Context, databaseName: String = "auditlab-events.db"
 
     fun prepareExport(): Boolean {
         requireMain()
-        if (pendingExport != null) return false
+        if (pendingExport != null || withdrawalUnconfirmed) return false
         return perform {
             when (val prepared = exporter.prepare()) {
                 is AuditResult.Rejected -> readScreen(errorText(prepared.reason))
@@ -72,9 +77,9 @@ class AuditSession(context: Context, databaseName: String = "auditlab-events.db"
         if (request?.id == requestId) pendingExport = null
         perform {
             when {
-                request == null || request.id != requestId -> readScreen(text(R.string.export_expired))
                 cancelled -> readScreen(text(R.string.export_cancelled))
-                uri == null -> readScreen(text(R.string.export_failed))
+                request == null || request.id != requestId -> readScreen(text(R.string.export_expired))
+                uri == null || uri.scheme != "content" || uri.authority.isNullOrBlank() -> readScreen(text(R.string.export_failed))
                 else -> {
                     var opened = false
                     val result = exporter.write(request.permit, CsvDestination { bytes ->
@@ -92,6 +97,46 @@ class AuditSession(context: Context, databaseName: String = "auditlab-events.db"
         }
     }
 
+    fun clearHistory(): Boolean {
+        requireMain()
+        if (state.busy) return false
+        pendingExport = null
+        return perform {
+            when (val result = audit.clearHistory()) {
+                is AuditResult.Success -> readScreen(context.getString(R.string.clear_success, result.value))
+                is AuditResult.Rejected -> readScreen(errorText(result.reason))
+            }
+        }
+    }
+
+    fun revoke(): Boolean {
+        requireMain()
+        if (state.busy) return false
+        // Invalidate the picker and block protected controls immediately on confirmed intent.
+        pendingExport = null
+        withdrawalUnconfirmed = true
+        return perform {
+            val result = audit.revokeAcceptance()
+            if (result is AuditResult.Success) withdrawalUnconfirmed = false
+            readScreen(revocationMessage(result))
+        }
+    }
+
+    fun retryPrivacy(): Boolean {
+        requireMain()
+        if (withdrawalUnconfirmed) return revoke()
+        return perform { readScreen(revocationMessage(audit.retryRevokedDeletion())) }
+    }
+
+    private fun revocationMessage(result: AuditResult<RevocationReport>): String = when (result) {
+        is AuditResult.Rejected -> errorText(result.reason)
+        is AuditResult.Success -> when (result.value.deletionStatus) {
+            DeletionStatus.PENDING -> text(R.string.revoked_delete_pending)
+            DeletionStatus.CLEARED_CONFIRMATION_PENDING -> text(R.string.revoked_confirmation_pending)
+            DeletionStatus.CLEARED -> context.getString(R.string.revoked_success, result.value.deletedEvents ?: 0)
+        }
+    }
+
     private fun perform(action: () -> ScreenData): Boolean {
         requireMain()
         if (state.busy) return false
@@ -106,16 +151,17 @@ class AuditSession(context: Context, databaseName: String = "auditlab-events.db"
     private fun readScreen(message: String = ""): ScreenData {
         val loaded = decisions.load()
         if (loaded is AuditResult.Rejected) return ScreenData(
-            if (loaded.reason == AuditError.POLICY_CHANGED) Acceptance.Pending else null, message = errorText(loaded.reason))
+            if (loaded.reason == AuditError.POLICY_CHANGED) Acceptance.Pending else null, message = combine(message, errorText(loaded.reason)))
         val decision = (loaded as AuditResult.Success).value
         if (decision !is Acceptance.Granted) return ScreenData(decision, message = message)
         return when (val history = audit.history()) {
             is AuditResult.Success -> ScreenData(decision, history.value, message)
-            is AuditResult.Rejected -> ScreenData(message = errorText(history.reason))
+            is AuditResult.Rejected -> ScreenData(message = combine(message, errorText(history.reason)))
         }
     }
 
-    private fun publish(value: ScreenData) { requireMain(); state = value.copy(exportRequest = pendingExport); observers.toList().forEach { it(state) } }
+    private fun combine(first: String, second: String) = listOf(first, second).filter { it.isNotBlank() }.distinct().joinToString("\n")
+    private fun publish(value: ScreenData) { requireMain(); state = value.copy(exportRequest = pendingExport, privacyBlocked = withdrawalUnconfirmed); observers.toList().forEach { it(state) } }
     private fun requireMain() { check(Looper.myLooper() == Looper.getMainLooper()) }
     private fun text(id: Int) = context.getString(id)
     private fun errorText(reason: AuditError): String = text(when (reason) {

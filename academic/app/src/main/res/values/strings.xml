@@ -43,4 +43,18 @@
     <string name="export_expired">La exportación ya no es válida. Iníciala de nuevo con aceptación vigente.</string>
     <string name="export_failed">No se pudo guardar el CSV. El proveedor puede conservar un archivo vacío o parcial; compruébalo antes de reintentar.</string>
     <string name="export_copy_notice">Las copias exportadas quedan bajo tu control y el del proveedor elegido. Borrar o revocar en AuditLab no elimina esas copias.</string>
+    <string name="privacy_title">Control de tus datos</string>
+    <string name="clear_history">Borrar historial</string>
+    <string name="revoke">Revocar aceptación</string>
+    <string name="cancel">Cancelar</string>
+    <string name="clear_confirm">Borrar</string>
+    <string name="clear_explanation">Se eliminarán los eventos locales. Tu aceptación seguirá igual y podrás simular nuevos eventos. Las copias CSV externas no se eliminan.</string>
+    <string name="revoke_explanation">Se guardará la retirada de tu aceptación y se bloquearán simulación y exportación. Después se intentará borrar el historial. Si falla el borrado, la retirada se conservará y podrás reintentar. Las copias CSV externas no se eliminan.</string>
+    <string name="clear_success">Historial borrado. Registros eliminados: %1$d. La aceptación no ha cambiado.</string>
+    <string name="revoked_success">Aceptación revocada y guardada. Registros eliminados: %1$d.</string>
+    <string name="revoked_delete_pending">Aceptación revocada y guardada. No se pudo borrar el historial; el borrado sigue pendiente. Las acciones protegidas están bloqueadas.</string>
+    <string name="revoked_confirmation_pending">Aceptación revocada y guardada. Los eventos se borraron, pero falta confirmar el fin de limpieza. Reintenta para confirmarlo.</string>
+    <string name="retry_delete">Reintentar borrado pendiente</string>
+    <string name="retry_revoke">Reintentar guardar revocación</string>
+    <string name="status_revocation_unsaved">Revocación no confirmada · Acciones bloqueadas</string>
 </resources>

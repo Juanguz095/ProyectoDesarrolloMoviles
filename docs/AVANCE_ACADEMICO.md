@@ -1,26 +1,26 @@
 # AuditLab — Avance de la fase 1 académica
 
-Fecha de actualización: 22 de octubre de 2026, America/Lima.
+Fecha de actualización: 22 de octubre de 2026, America/Lima; comprobaciones de cierre el 23 de octubre UTC.
 
 Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inicial: [PLAN_I01.md](PLAN_I01.md). Fuente de requisitos: [contexto del usuario](referencias/contexto-auditlab-2026-10-22.txt).
 
 ## Estado actual
 
 - Última solicitud: «Completalo hasta la 10 pero asegúrate de que todo funcione bien»; autoriza I07–I10 en orden y sus pruebas. No autoriza I11 o fase 2.
-- Estado actual: código implementado hasta I09. Exportación de todos los eventos con selector, UTF-8 y revalidación de aceptación. I10 autorizado a continuación.
-- Artefactos: APK principal y de instrumentación compilados; lint 0. La pantalla ya tiene consentimiento, cuatro botones e historial, conectados a SQLite. [Evidencia I08](evidencias/academico/I08-2026-10-22.md).
-- Verificación actual: **93 JVM y 15 SQL host aprobadas**. En Android API28: 33 casos base aprobados en la completa anterior y 6 de exportación aprobados en repetición seleccionada, después de corregir fixtures/permisos. La suite completa de 39 se repetirá integrada en I10. Sync IDE, API36 y muerte de proceso siguen pendientes.
-- Cierres aprobados tras revisión: **0/12**; la autorización de ejecución no equivale a aprobación de sus resultados.
-- Próximo paso: I10 y validación integrada, ya autorizados. I11 requiere otra autorización.
+- Estado actual: **implementado hasta I10**, con consentimiento, cuatro botones, historial, exportación, borrado y revocación funcionales. I11/I12 pendientes de autorización.
+- Artefactos: APK principal y de instrumentación, versión 0.1.0-i10/10; lint 0. [Manual](USO_ACADEMICO.md), [evidencia I10](evidencias/academico/I10-2026-10-22.md).
+- Verificación actual: **93 JVM, 15 SQL host y 49 Android API28 aprobadas** en el candidato final. Siete comprobaciones del recorrido real también aprobadas: selector/CSV, cancelación, borrado/revocación y persistencia tras detener/abrir el proceso. Se corrigieron fondo/contraste observados al revisar capturas y se repitió la suite completa.
+- Revisión del usuario/profesor y conformidad de la rúbrica pendientes; la ejecución autorizada no equivale a esa revisión.
+- Próximo paso de código: I11, con nueva autorización. API36 sin validación completa por ANR del emulador en dos intentos; Sync IDE y dispositivo físico pendientes.
 - Pendiente documental: PDF/prompt específico I01; el contexto textual ya fija versiones, límites y obligación de aprobación.
 - Fase 2: fuera de autorización. El [avance previo](AVANCE.md) conserva el trabajo histórico del sistema ampliado y no acredita los incrementos de esta app.
-- Entorno Android: ADB resuelto y emulador propio API28 operativo con TCG/SwiftShader; el bloqueo anterior se conserva como histórico en sus evidencias.
+- Entorno Android: ADB resuelto e imágenes/AVDs API28/API36 instalados. API28 estable ejecutado aisladamente. API36 sufrió ANR de componentes del sistema incluso aislado y con otro renderizador/un vCPU. Los procesos de prueba se detuvieron y sus AVDs se conservaron. La próxima comprobación de API36 requiere una instancia estable, preferiblemente con KVM, o un dispositivo compatible.
 
 ## Seguimiento
 
 | Incremento | Entregable | Estado técnico | Aprobación | Entrada principal |
 | --- | --- | --- | --- | --- |
-| I01 | Base app/domain y herramientas exigidas. | Implementado; CLI/lint verificados, IDE/Android pendientes. | Ejecución autorizada; cierre pendiente. | [Evidencia](evidencias/academico/I01-2026-10-22.md). |
+| I01 | Base app/domain y herramientas exigidas. | CLI/lint y apertura real Android comprobados; Sync IDE pendiente. | Ejecución autorizada; revisión pendiente. | [I01](evidencias/academico/I01-2026-10-22.md), [validación integrada I10](evidencias/academico/I10-2026-10-22.md). |
 | I02 | Modelo y contratos Kotlin puros. | Verificado JVM: 15 pruebas. | Ejecución autorizada; revisión pendiente. | Continuación explícita hasta I03; I01 conserva pendientes IDE/Android. [Evidencia](evidencias/academico/I02-2026-10-22.md). |
 | I03 | AuditService, DI, límites 1000/100 y reglas. | Verificado JVM: 33 nuevas; 48 acumuladas. | Ejecución autorizada; revisión pendiente. | I02 verificado; continuación autorizada. [Evidencia](evidencias/academico/I03-2026-10-22.md). |
 | I04 | CSV con CRLF, timestamps numéricos y protección de fórmulas. | Verificado JVM: 10 pruebas nuevas; 58 acumuladas. | Ejecución autorizada; revisión pendiente. | [Evidencia](evidencias/academico/I04-2026-10-22.md). |
@@ -28,10 +28,17 @@ Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inicial: [PLAN_I01.md](P
 | I06 | Aceptación persistida. | 17 JVM y 15 Android aprobados; reapertura/migración/fallos verificados en I08. | Ejecución autorizada; revisión pendiente. | [I06](evidencias/academico/I06-2026-10-22.md), [validación I08](evidencias/academico/I08-2026-10-22.md). |
 | I07 | Cuatro botones de eventos, ScrollView y marca SIMULADO. | Implementado; casos UI aprobados en I08. | Ejecución autorizada; revisión pendiente. | [I07](evidencias/academico/I07-2026-10-22.md), [validación I08](evidencias/academico/I08-2026-10-22.md). |
 | I08 | Cola compartida, busy, ciclo de vida, cierre BD y WindowInsets. | 5 JVM nuevas y 6 UI Android nuevas aprobadas. | Ejecución autorizada; revisión pendiente. | [Evidencia](evidencias/academico/I08-2026-10-22.md). |
-| I09 | Exportación manual elegida y controlada. | 13 JVM y 6 ExportUiTests Android nuevas aprobadas; réplica completa pendiente en I10. | Ejecución autorizada; revisión pendiente. | [Evidencia](evidencias/academico/I09-2026-10-22.md). |
-| I10 | Borrado y revocación persistente aun con fallo de borrado. | Pendiente. | Ejecución autorizada. | Continuación hasta I10. |
+| I09 | Exportación manual elegida y controlada. | 13 JVM, 7 casos Android y selector real/CSV verificados en I10. | Ejecución autorizada; revisión pendiente. | [I09](evidencias/academico/I09-2026-10-22.md), [validación I10](evidencias/academico/I10-2026-10-22.md). |
+| I10 | Borrado y revocación persistente aun con fallo de borrado. | 9 PrivacyUiTests y recorrido real aprobados; completa 49/49 API28. | Ejecución autorizada; revisión pendiente. | [Evidencia](evidencias/academico/I10-2026-10-22.md). |
 | I11 | Revisión de seguridad/SSDF. | Pendiente. | Pendiente. | I10 verificado y aprobación explícita para I11. |
 | I12 | Evidencias y cierre de fase 1. | Pendiente. | Pendiente. | I11 verificado y aprobación explícita para I12. |
+
+## Ejecución I10 del 22 de octubre de 2026
+
+- Confirmaciones, reintentos, bloqueo por retirada no guardada y cancelación de selectores obsoletos implementados. URI file rechazada sin sobrescribir datos internos.
+- 93 JVM/15 SQL host aprobadas; suite final de 49 Android API28 aprobada después del ajuste visual. Selector real generó CSV con cuatro IDs exactos; detener/abrir el proceso conservó eventos/aceptación y posteriormente la revocación sin datos. Copia CSV externa conservada según la política.
+- Pruebas de fallos separadas y capturas revisadas. El conductor de respaldo se corrigió para incluir WAL, sin borrar datos ni atribuir un respaldo incompleto a pérdida del almacenamiento.
+- API36 adicional no aprobada: 44 casos/4 fallos en el intento conectado y 4 terminados/3 fallos en la repetición de privacidad, con ANR de System UI/Quickstep/Process system delante de los diálogos. Capturas, logs y XML conservados; casos incompletos no contados como aprobados. [Evidencia](evidencias/academico/I10-2026-10-22.md), [manual](USO_ACADEMICO.md). Detención antes de I11; sin push/publicación.
 
 ## Ejecución I09 del 22 de octubre de 2026
 

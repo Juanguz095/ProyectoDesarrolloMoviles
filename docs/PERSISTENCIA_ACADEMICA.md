@@ -1,6 +1,6 @@
 # Persistencia académica — I05 e I06
 
-Solo para el build `academic/`. Esta implementación local usa APIs Android y ninguna biblioteca nueva. Su estado real: compila y tiene pruebas instrumentadas, pero todavía no se ha ejecutado en Android.
+Solo para el build `academic/`. Implementación conectada a la pantalla I07–I10, sin bibliotecas nuevas. SQLite y sus transiciones cuentan con ejecución instrumentada en Android; dispositivos, revisiones y resultados exactos se registran en [I10](evidencias/academico/I10-2026-10-22.md).
 
 ## Esquema y conservación
 
@@ -15,7 +15,7 @@ Solo para el build `academic/`. Esta implementación local usa APIs Android y ni
 
 La propuesta inicial contemplaba SharedPreferences con commit. Se eligió SQLite también para la decisión: permite guardar todos sus campos de forma atómica, sin depender de un valor en memoria que pudiera quedar actualizado tras un commit fallido de preferencias. Esto no añade dependencias ni modifica herramientas; se mantiene el contrato AcceptanceStore.
 
-No hay retención temporal automática. Los eventos permanecen hasta borrado o revocación. El repositorio y el trigger SQL impiden superar 1000; una petición de cupo mayor no amplía ese máximo. Historial devuelve como máximo 100 sin eliminar los anteriores. La consulta completa para exportación se resolverá en I09.
+No hay retención temporal automática. Los eventos permanecen hasta borrado o revocación. El repositorio y el trigger SQL impiden superar 1000; una petición de cupo mayor no amplía ese máximo. Historial devuelve como máximo 100 sin eliminar los anteriores. I09 implementa una instantánea completa para exportación, independiente del límite de visualización.
 
 ## Transacciones y fallos
 
@@ -25,9 +25,9 @@ No hay retención temporal automática. Los eventos permanecen hasta borrado o r
 - Si falla guardar la retirada inicial, se informa error y la instancia de AuditService bloquea sus operaciones protegidas. No se promete retirada tras reiniciar ni en otra instancia si esa escritura no llegó a confirmarse.
 - Los adaptadores traducen fallos esperados de SQLite/decodificación a StorageException, sin exponer detalles internos ni devolver éxitos vacíos. Ninguno puede ejecutarse en el hilo principal. No se permite anidar una escritura en una transacción ajena que pudiera deshacerla.
 
-## Integración futura
+## Integración actual
 
-Compartir una instancia de AuditDatabase y un coordinador por almacenes; crear las dependencias fuera de la Activity recreable. Ejemplo de composición, **aún no conectado a la UI**:
+AuditApplication conserva AuditSession fuera de la Activity recreable. Comparte una instancia de AuditDatabase y un coordinador entre servicios/almacenes. Composición equivalente a la utilizada:
 
 ```kotlin
 val coordinator = SynchronizedAuditCoordinator()
@@ -40,16 +40,21 @@ val decisions = AcceptanceService(acceptance, clock, ids, "1.0", coordinator)
 val audit = AuditService(events, acceptance, clock, ids, "1.0", coordinator)
 ```
 
-Ejecutar métodos en un worker compartido, mantener la UI bloqueada durante la lectura inicial y no llamar a accept automáticamente. La cola Android, busy y cierre después de operaciones pendientes se implementarán en I08. La instancia de SQLiteOpenHelper se cierra al terminar su dueño, nunca durante una operación. La exclusión del dominio no coordina procesos distintos; esta app no declara procesos adicionales.
+Los métodos se ejecutan en un worker compartido, con UI bloqueada durante la lectura inicial y sin aceptación automática. I08 implementa cola/busy/observadores/cierre detrás de operaciones pendientes. El helper puede reabrirse después de cerrar; la rotación conserva la misma sesión. La exclusión del dominio no coordina procesos distintos; la app principal no los declara.
+
+La creación de tablas/índice/trigger usa IF NOT EXISTS para dos conexiones que abren simultáneamente una base nueva; se corrigió tras un fallo Android real. No sustituye las restricciones ni recrea tablas con pérdida. snapshot() consulta hasta 1001 filas para detectar un almacenamiento inválido; ExportService rechaza más de 1000 antes de escribir, sin exportar un subconjunto silencioso.
 
 ## Pruebas y reproducción
 
 | Suite actual | Ejecutadas | Resultado y alcance |
 | --- | --- | --- |
-| Kotlin/JUnit del dominio | 75 | Todas aprobadas; modelos, reglas, CSV y aceptación con dobles en memoria. |
+| Kotlin/JUnit del dominio | 93 | Aprobadas; modelos, reglas, CSV, aceptación, cola y exportación con dobles en memoria. |
 | SQLite host/Python | 15 | Todas aprobadas; DDL extraído de Kotlin, restricciones, reapertura, transacciones y migración SQL en esta máquina. No ejecutan APIs Android. |
-| SQLiteEventTests | 0 de 12 | Compiladas dentro del APK de instrumentación; ejecución Android pendiente. |
-| SQLiteAcceptanceTests | 0 de 15 | Compiladas; incluyen reapertura, migración, fallos de escritura/borrado, decisión corrupta, políticas y rechazo en hilo principal. |
+| SQLiteEventTests | 12 | Aprobadas en Android; cupo, orden, transacciones, concurrencia y reapertura. |
+| SQLiteAcceptanceTests | 15 | Aprobadas en Android; migración, decisiones, fallos y guardado independiente de retirada. |
+| SimulationUiTests | 6 | Consentimiento, cuatro botones, busy, recreación, reapertura y recuperación de error. |
+| ExportUiTests | 7 | Destino/streams, todos los IDs, cero eventos, cancelación, errores y URI file rechazada. |
+| PrivacyUiTests | 9 | Confirmaciones, fallos de cada etapa, reintentos y callbacks tardíos frente a borrado/revocación. |
 
 Desde la raíz de esta nube:
 
@@ -65,6 +70,8 @@ En Android Studio, abrir `academic/`, seleccionar JDK17/SDK36 y conectar Android
 ./gradlew :app:connectedDebugAndroidTest
 ```
 
-El runner `com.auditlab.academic.tests.AuditLabTestRunner` usa Instrumentation del framework, emite estados estándar por caso y ejecuta los 27 casos completos; no implementa filtros. No necesita nuevas dependencias. Los errores de un caso se reportan como fallos, no se omiten. Informes del comando conectado bajo `academic/app/build/reports/androidTests/connected` y `outputs/androidTest-results/connected`; verificar que sean nuevos y que indiquen **27 ejecutados**, no solo APK compilado. En esta nube la falta de dispositivo/emulador y el fallo ADB impiden esa ejecución.
+El runner `com.auditlab.academic.tests.AuditLabTestRunner` utiliza Instrumentation del framework y emite estados estándar para los **49 casos**. Opcionalmente acepta `-e testGroup PrivacyUiTests` u otro grupo del manual, y rechaza un filtro sin casos. No necesita nuevas dependencias. Los errores se reportan como fallos, no se omiten. Informes del comando conectado en `academic/app/build/reports/androidTests/connected` y `outputs/androidTest-results/connected`; verificar que sean nuevos y ejecuten casos reales, no solo compilen el APK.
 
-La Activity continúa mostrando el título de I01. Estos tests no prueban la futura UI ni equivalen a una prueba después de matar el proceso/reeniciar el dispositivo: cierran y reabren el helper sobre el mismo archivo. Registrar esas pruebas adicionales al disponer de Android. Evidencias [I05](evidencias/academico/I05-2026-10-22.md) e [I06](evidencias/academico/I06-2026-10-22.md).
+La Activity es funcional hasta I10. Los tests de solo SQLite cierran/reabren el helper; no equivalen a detener el proceso. I10 añade un recorrido separado con detención/relanzamiento real, selector del sistema y comparación de IDs, documentado en su evidencia. Android puede mantener cambios confirmados en WAL: una copia fuera del proceso debe incluir DB y su archivo -wal, no copiar únicamente el DB principal y declarar pérdida de datos. No se borra WAL para conseguir un test satisfactorio.
+
+Manual de la app y recuperación de errores: [USO_ACADEMICO.md](USO_ACADEMICO.md). Evidencias históricas [I05](evidencias/academico/I05-2026-10-22.md), [I06](evidencias/academico/I06-2026-10-22.md) y verificación integrada [I10](evidencias/academico/I10-2026-10-22.md).

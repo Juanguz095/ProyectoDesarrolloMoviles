@@ -1,7 +1,7 @@
 # AuditLab — Plan de la primera entrega académica
 
 **Versión:** 1.0 · **Fecha:** 22 de octubre de 2026, America/Lima.
-**Estado:** plan mejorado a partir del [beta recibido](referencias/plan-beta-original-2026-10-22.txt) y del [contexto vinculante del usuario](referencias/contexto-auditlab-2026-10-22.txt). El contexto más reciente prevalece ante diferencias. Incluye el mapa I01–I12 como referencia. La nueva solicitud autorizó I04–I06 en orden: CSV verificado JVM y adaptadores SQLite/aceptación implementados y compilados. Suite actual: 75 JVM + 15 SQL host aprobadas; 27 instrumentadas compiladas, sin ejecutar en Android. Sigue pendiente la validación IDE/Android, sin atribuirle resultados host. **I07 no está autorizado.** El PDF y sus prompts aún no se han recibido; falta contrastar archivos y rúbrica. El [avance](AVANCE_ACADEMICO.md) registra resultados y límites.
+**Estado:** ruta académica implementada hasta I10 por solicitud explícita del usuario. Modelos/reglas, persistencia, pantalla, cola, exportación y privacidad están conectados. Verificación: 93 JVM, 15 SQL host y 49 Android API28 aprobadas, además de selector real y persistencia tras detener/abrir el proceso. API36 sin validación completa por ANR del emulador: resultados y límites en [AVANCE_ACADEMICO.md](AVANCE_ACADEMICO.md). I11/I12 requieren nueva autorización. El [contexto vinculante](referencias/contexto-auditlab-2026-10-22.txt) prevalece sobre el [beta](referencias/plan-beta-original-2026-10-22.txt); PDF/prompts/rúbrica aún pendientes de contraste.
 
 **Seguimiento de esta entrega:** [AVANCE_ACADEMICO.md](AVANCE_ACADEMICO.md).
 **Referencia histórica del sistema ampliado, fuera de la fase autorizada:** [plan maestro](PLAN_MAESTRO.md) y [avance previo](AVANCE.md).
@@ -322,6 +322,6 @@ La fase 2 y cualquier integración, cliente de red o transmisión permanecen fue
 
 ## 10. Estado y siguiente paso concreto
 
-**Código implementado hasta I06.** La base se documenta en [PLAN_I01.md](PLAN_I01.md); los resultados por incremento están en [AVANCE_ACADEMICO.md](AVANCE_ACADEMICO.md). Las versiones exigidas compilan en CLI, con 75 pruebas JVM y 15 del SQL host aprobadas. I04 genera CSV puro; I05/I06 implementan SQLite y aceptación persistente con 27 casos instrumentados compilados. No se han ejecutado en Android y no se declara cerrado ese alcance. La pantalla sigue siendo la base de I01.
+**Código implementado hasta I10.** La pantalla local conecta consentimiento, simulación, SQLite, CSV manual, borrado y revocación con sus errores/reintentos. Pruebas y artefactos exactos en [evidencia I10](evidencias/academico/I10-2026-10-22.md), uso en [manual académico](USO_ACADEMICO.md). No se trata de la fase 2 ni de una integración con los módulos históricos.
 
-Revisar I04–I06, completar Sync/apertura de I01 y ejecutar la instrumentación real de I05/I06. **Detenerse antes de I07 (pantalla funcional), pendiente de autorización.** La solicitud actual permitió tres incrementos en orden y no autoriza el resto del mapa ni la fase 2.
+**Detenerse antes de I11**, que necesita nueva autorización. I11 revisará seguridad/SSDF y I12 consolidará evidencias/rúbrica/entrega. Siguen pendientes Sync en Android Studio, dispositivo físico y contraste del PDF; no se dan por hechos por compilar o aprobar pruebas en un emulador.

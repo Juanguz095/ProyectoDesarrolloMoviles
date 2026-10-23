@@ -21,7 +21,7 @@ class AuditLabTestRunner : Instrumentation() {
     }
 
     override fun onStart() {
-        val all = SQLiteEventTests.cases(targetContext) + SQLiteAcceptanceTests.cases(targetContext) + SimulationUiTests.cases(this) + ExportUiTests.cases(this)
+        val all = SQLiteEventTests.cases(targetContext) + SQLiteAcceptanceTests.cases(targetContext) + SimulationUiTests.cases(this) + ExportUiTests.cases(this) + PrivacyUiTests.cases(this)
         val cases = all.filter { selectedGroup == null || it.group == selectedGroup }
         if (cases.isEmpty()) {
             finish(Activity.RESULT_CANCELED, Bundle().apply { putString("shortMsg", "No matching instrumented tests") })

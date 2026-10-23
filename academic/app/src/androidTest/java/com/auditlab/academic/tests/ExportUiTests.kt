@@ -10,6 +10,7 @@ import com.auditlab.academic.*
 import com.auditlab.academic.storage.*
 import com.auditlab.domain.CsvReport
 import java.io.FileNotFoundException
+import java.io.File
 import java.util.UUID
 
 internal object ExportUiTests {
@@ -51,6 +52,14 @@ internal object ExportUiTests {
             case("providerOpenFailureReportsError") { f ->
                 pick(f, Activity.RESULT_OK, document("fail-"), "No se pudo guardar el CSV")
             },
+            case("fileUriIsRejectedWithoutOverwritingAnInternalFixture") { f ->
+                val target = File(instrumentation.targetContext.cacheDir, "auditlab-untouched-${UUID.randomUUID()}")
+                try {
+                    target.writeText("keep fixture")
+                    pick(f, Activity.RESULT_OK, Uri.fromFile(target), "No se pudo guardar el CSV")
+                    check(target.readText() == "keep fixture")
+                } finally { target.delete() }
+            },
             case("failedWriteAttemptsRemovalOfItsPartialDocument") { f ->
                 val uri = document("partial-")
                 pick(f, Activity.RESULT_OK, uri, "No se pudo guardar el CSV")
@@ -69,7 +78,7 @@ internal object ExportUiTests {
         "com.auditlab.academic.test.documents", prefix + UUID.randomUUID())
 
     private fun pick(f: UiFixture, code: Int, uri: Uri?, expectedMessage: String) {
-        if (uri != null) grantTestDocument(f.instrumentation, uri)
+        if (uri?.authority == "com.auditlab.academic.test.documents") grantTestDocument(f.instrumentation, uri)
         val filter = IntentFilter(Intent.ACTION_CREATE_DOCUMENT).apply { addCategory(Intent.CATEGORY_OPENABLE); addDataType("text/csv") }
         val monitor = f.instrumentation.addMonitor(filter, Instrumentation.ActivityResult(code, Intent().setData(uri)), true)
         try {

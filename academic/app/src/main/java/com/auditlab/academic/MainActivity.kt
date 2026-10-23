@@ -1,9 +1,11 @@
 package com.auditlab.academic
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.os.Bundle
 import android.os.Build
 import android.view.WindowInsets
+import android.view.WindowInsetsController
 import android.view.View
 import android.content.Intent
 import android.widget.*
@@ -20,6 +22,7 @@ class MainActivity : Activity() {
     private var exportRequestCode = 100
     private var nextExportCode = 101
     private var resumed = false
+    private var confirmation: AlertDialog? = null
     private val eventButtons = listOf(R.id.call_incoming, R.id.call_outgoing, R.id.message_incoming, R.id.message_outgoing)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,6 +47,13 @@ class MainActivity : Activity() {
         } }
         findViewById<Button>(R.id.refresh_button).setOnClickListener { session.refresh() }
         findViewById<Button>(R.id.export_button).setOnClickListener { session.prepareExport() }
+        findViewById<Button>(R.id.clear_button).setOnClickListener {
+            confirm(R.string.clear_history, R.string.clear_explanation, R.string.clear_confirm) { session.clearHistory() }
+        }
+        findViewById<Button>(R.id.revoke_button).setOnClickListener {
+            confirm(R.string.revoke, R.string.revoke_explanation, R.string.revoke) { session.revoke() }
+        }
+        findViewById<Button>(R.id.retry_privacy_button).setOnClickListener { session.retryPrivacy() }
     }
 
     override fun onStart() {
@@ -58,8 +68,19 @@ class MainActivity : Activity() {
     }
 
     override fun onStop() {
+        confirmation?.dismiss()
         session.removeObserver(observer)
         super.onStop()
+    }
+
+    private fun confirm(title: Int, explanation: Int, positive: Int, action: () -> Unit) {
+        if (screen.busy) return
+        confirmation?.dismiss()
+        val dialog = AlertDialog.Builder(this).setTitle(title).setMessage(explanation)
+            .setNegativeButton(R.string.cancel, null).setPositiveButton(positive) { _, _ -> action() }.create()
+        confirmation = dialog
+        dialog.setOnDismissListener { if (confirmation === dialog) confirmation = null }
+        dialog.show()
     }
 
     override fun onPostResume() { super.onPostResume(); resumed = true; launchPendingExport() }
@@ -103,7 +124,9 @@ class MainActivity : Activity() {
     @Suppress("DEPRECATION")
     private fun applyInsets() {
         if (Build.VERSION.SDK_INT >= 30) window.setDecorFitsSystemWindows(false)
-        else window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        else window.decorView.systemUiVisibility = window.decorView.systemUiVisibility or
+            View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+            View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
         findViewById<View>(R.id.screen_root).setOnApplyWindowInsetsListener { view, insets ->
             if (Build.VERSION.SDK_INT >= 30) {
                 val bars = insets.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
@@ -113,18 +136,24 @@ class MainActivity : Activity() {
             insets
         }
         findViewById<View>(R.id.screen_root).requestApplyInsets()
+        if (Build.VERSION.SDK_INT >= 30) findViewById<View>(R.id.screen_root).post {
+            val appearance = WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+            window.insetsController?.setSystemBarsAppearance(appearance, appearance)
+        }
     }
 
     private fun render() {
-        findViewById<TextView>(R.id.acceptance_status).setText(if (screen.busy && screen.acceptance == null) R.string.loading else when (val state = screen.acceptance) {
+        findViewById<TextView>(R.id.acceptance_status).setText(if (screen.privacyBlocked) R.string.status_revocation_unsaved else if (screen.busy && screen.acceptance == null) R.string.loading else when (val state = screen.acceptance) {
             Acceptance.Pending -> R.string.status_pending
             is Acceptance.Granted -> R.string.status_active
             is Acceptance.Revoked -> if (state.deletionPending) R.string.status_cleanup else R.string.status_revoked
             null -> R.string.status_error
         })
         findViewById<TextView>(R.id.operation_message).text = screen.message
+        findViewById<CheckBox>(R.id.consent_checkbox).isChecked = screen.acceptance is Acceptance.Granted && !screen.privacyBlocked
         val rows = findViewById<LinearLayout>(R.id.history_rows); rows.removeAllViews()
-        screen.events.forEach { event ->
+        val visibleEvents = if (screen.privacyBlocked) emptyList() else screen.events
+        visibleEvents.forEach { event ->
             val label = when (event.kind to event.direction) {
                 EventKind.CALL to EventDirection.INCOMING -> R.string.call_incoming
                 EventKind.CALL to EventDirection.OUTGOING -> R.string.call_outgoing
@@ -138,8 +167,8 @@ class MainActivity : Activity() {
             })
         }
         findViewById<TextView>(R.id.history_empty).apply {
-            visibility = if (screen.events.isEmpty()) View.VISIBLE else View.GONE
-            setText(if (screen.acceptance is Acceptance.Granted) R.string.history_empty else R.string.history_locked)
+            visibility = if (visibleEvents.isEmpty()) View.VISIBLE else View.GONE
+            setText(if (screen.acceptance is Acceptance.Granted && !screen.privacyBlocked) R.string.history_empty else R.string.history_locked)
         }
         renderControls()
         launchPendingExport()
@@ -147,18 +176,26 @@ class MainActivity : Activity() {
 
     private fun renderControls() {
         val state = screen.acceptance
-        val canAccept = !screen.busy && (state == Acceptance.Pending || state is Acceptance.Revoked && !state.deletionPending)
+        val canAccept = !screen.busy && !screen.privacyBlocked && (state == Acceptance.Pending || state is Acceptance.Revoked && !state.deletionPending)
         findViewById<CheckBox>(R.id.consent_checkbox).isEnabled = canAccept
         findViewById<Button>(R.id.accept_button).isEnabled = canAccept && findViewById<CheckBox>(R.id.consent_checkbox).isChecked
         findViewById<Button>(R.id.decline_button).isEnabled = canAccept
-        eventButtons.forEach { findViewById<Button>(it).isEnabled = !screen.busy && state is Acceptance.Granted }
+        eventButtons.forEach { findViewById<Button>(it).isEnabled = !screen.busy && !screen.privacyBlocked && state is Acceptance.Granted }
         findViewById<Button>(R.id.refresh_button).isEnabled = !screen.busy
-        findViewById<Button>(R.id.export_button).isEnabled = !screen.busy && state is Acceptance.Granted && screen.exportRequest == null
+        findViewById<Button>(R.id.export_button).isEnabled = !screen.busy && !screen.privacyBlocked && state is Acceptance.Granted && screen.exportRequest == null
+        findViewById<Button>(R.id.clear_button).isEnabled = !screen.busy
+        findViewById<Button>(R.id.revoke_button).isEnabled = !screen.busy
+        findViewById<Button>(R.id.retry_privacy_button).apply {
+            val pending = screen.privacyBlocked || state is Acceptance.Revoked && state.deletionPending
+            visibility = if (pending) View.VISIBLE else View.GONE
+            isEnabled = !screen.busy && pending
+            setText(if (screen.privacyBlocked) R.string.retry_revoke else R.string.retry_delete)
+        }
         findViewById<ProgressBar>(R.id.busy_indicator).visibility = if (screen.busy) View.VISIBLE else View.GONE
     }
 
     override fun onDestroy() {
-        if (isFinishing) session.closeDatabaseWhenIdle()
+        if (isFinishing && ::session.isInitialized) session.closeDatabaseWhenIdle()
         super.onDestroy()
     }
 }
