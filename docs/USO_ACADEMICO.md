@@ -1,4 +1,4 @@
-# AuditLab académico — uso hasta I11
+# AuditLab académico — uso de la entrega I12
 
 Aplicación local para **simular** llamadas/mensajes. No lee comunicaciones ni usa backend, login, claves API o un segundo dispositivo. La fase 2 sigue fuera de alcance.
 
@@ -12,7 +12,7 @@ Desde `academic/`:
 ./gradlew :domain:test :app:assembleDebug :app:assembleDebugAndroidTest :app:lintDebug
 ```
 
-APK principal: `academic/app/build/outputs/apk/debug/app-debug.apk`. Paquete `com.auditlab.academic`, versión `0.1.0-i11`/11. Es una compilación debug para desarrollo académico; se instala junto a las apps históricas porque usa otro identificador. Con un dispositivo propio/emulador autorizado conectado:
+APK principal: `academic/app/build/outputs/apk/debug/app-debug.apk`. Paquete `com.auditlab.academic`, versión `0.1.0-i12`/12. Es una compilación debug para desarrollo académico; se instala junto a las apps históricas porque usa otro identificador. Con un dispositivo propio/emulador autorizado conectado:
 
 ```bash
 adb devices -l
@@ -50,13 +50,17 @@ Las copias CSV ya exportadas quedan bajo el control del usuario y su proveedor; 
 
 ## Pruebas reproducibles
 
-Desde `academic/`, con dispositivo/emulador operativo:
+El flujo recomendado conserva los datos: desde la raíz, con JDK17/SDK36 y un Android propio autorizado:
 
 ```bash
-./gradlew :app:connectedDebugAndroidTest
+python3 academic/tools/verify.py --sdk-root /RUTA/SDK --java-home /RUTA/JDK17 --android-serial emulator-5554
 ```
 
-El runner propio utiliza el protocolo Instrumentation y bases temporales diferentes de la aplicación normal. Compruebe el conteo real y los fallos en los XML/reportes de `app/build/outputs/androidTest-results/connected` y `app/build/reports/androidTests/connected`. La prueba no está aprobada si solo compila el APK o ejecuta cero casos. Para diagnóstico, tras instalar ambos APKs:
+Compila y actualiza app/tests con `adb install -r -t`; luego ejecuta Instrumentation directamente. No desinstala la app ni borra sus datos. Si la firma/versión es incompatible, falla sin intentar resolverlo desinstalando. El APK de tests usa bases temporales distintas de la app normal.
+
+El comando `./gradlew :app:connectedDebugAndroidTest`, desde `academic/`, también funciona en un dispositivo dedicado a pruebas, pero en este entorno dejó la app desinstalada al terminar. No usar ese instalador con datos que se quieran conservar. El verificador recomendado guarda resultados en un directorio nuevo de `academic/build/verification/`; consulte `summary.json`, XML y logs, no solo la salida de compilación.
+
+El runner propio utiliza el protocolo Instrumentation y bases temporales diferentes de la aplicación normal. El verificador exige 55 casos completos y sin omisiones. Los informes del comando conectado están en `app/build/outputs/androidTest-results/connected` y `app/build/reports/androidTests/connected`. La prueba no está aprobada si solo compila el APK o ejecuta cero casos. Para diagnóstico, tras instalar ambos APKs:
 
 ```bash
 adb shell am instrument -w -r -e testGroup PrivacyUiTests com.auditlab.academic.test/com.auditlab.academic.tests.AuditLabTestRunner
@@ -66,4 +70,4 @@ Sin `-e testGroup ...` ejecuta la suite completa. Filtros disponibles: SQLiteEve
 
 La nube conserva un helper en `.tooling/academic-setup/run-gradle.py` para seleccionar herramientas/proxy/CA correctos. No usar el helper del build raíz anterior para esta app. Los emuladores por software deben ejecutarse de uno en uno; procesos y permisos del entorno no se presumen restaurados automáticamente. API28 completó la suite; API36 sufrió ANR de componentes del emulador y sigue sin validación completa. Para repetir esa comprobación, usar una instancia estable con aceleración KVM o un dispositivo propio compatible. No subir timeouts ni ocultar errores para declarar la suite aprobada.
 
-Resultados observados, límites y siguiente incremento: [avance académico](AVANCE_ACADEMICO.md). Diseño del almacenamiento: [persistencia](PERSISTENCIA_ACADEMICA.md). I11 documenta la [revisión SSDF](SEGURIDAD_ACADEMICA.md); I12 ya está autorizado para la verificación/entrega final.
+Resultados observados, límites y siguiente incremento: [avance académico](AVANCE_ACADEMICO.md). Diseño del almacenamiento: [persistencia](PERSISTENCIA_ACADEMICA.md). I11 documenta la [revisión SSDF](SEGURIDAD_ACADEMICA.md); la [guía de entrega I12](ENTREGA_ACADEMICA.md) y su [informe](evidencias/academico/I12-2026-10-23.md) identifican versión, comprobaciones y límites.

@@ -26,7 +26,7 @@ El proveedor de documentos es externo: puede cancelar, denegar, fallar o conserv
 | SEC-02 | SecurityException al iniciar un selector restringido no se traducía a error visible. | Capturar la denegación, consumir el ticket y permitir reintentar. Casos de selector ausente y acceso denegado, sin cierre de la app ni éxito falso. |
 | SEC-03 | Cursor.getLong/getInt podían convertir texto dañado, decimales o enteros truncados en valores aparentemente válidos. | Verificar tipos INTEGER/TEXT y comparar booleanos como Long antes de crear modelos. Datos malformados provocan StorageException: bloquean generación/exportación; todavía se puede intentar revocar. Las pruebas dañan solo bases con UUID de test y restauran sus restricciones. |
 
-Las tres regresiones de SEC-01/SEC-03 se ejecutaron primero sobre el código de I10: 52 casos, 3 fallos nuevos y 49 anteriores aprobados. Se conserva ese intento; no se presenta como satisfactorio. SEC-02 se verifica con dos pruebas adicionales después de corregirlo. Resultados y hashes en [evidencia I11](evidencias/academico/I11-2026-10-23.md); la versión final se identificará al cerrar I12 en el [avance académico](AVANCE_ACADEMICO.md).
+Las tres regresiones de SEC-01/SEC-03 se ejecutaron primero sobre el código de I10: 52 casos, 3 fallos nuevos y 49 anteriores aprobados. Se conserva ese intento; no se presenta como satisfactorio. SEC-02 se verifica con dos pruebas adicionales después de corregirlo. Resultados y hashes en [evidencia I11](evidencias/academico/I11-2026-10-23.md); la versión final se identifica en [I12](evidencias/academico/I12-2026-10-23.md).
 
 ## Controles revisados
 
@@ -57,7 +57,7 @@ El checker es una política específica del proyecto, no un analizador completo 
 
 ## Prácticas SSDF seleccionadas
 
-Referencia: NIST SP 800-218, SSDF 1.1. Esta tabla relaciona prácticas con trabajo concreto; no declara certificación ni cumplimiento de una rúbrica aún no recibida.
+Referencia: [NIST SP 800-218, SSDF 1.1](https://doi.org/10.6028/NIST.SP.800-218). Esta tabla relaciona prácticas con trabajo concreto; no declara certificación ni cumplimiento de una rúbrica aún no recibida.
 
 | Práctica | Aplicación en este proyecto |
 | --- | --- |

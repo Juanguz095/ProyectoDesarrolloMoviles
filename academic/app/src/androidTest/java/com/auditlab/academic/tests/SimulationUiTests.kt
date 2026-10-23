@@ -15,6 +15,24 @@ internal object SimulationUiTests {
             UiFixture(instrumentation).use(action)
         }
         return listOf(
+            case("externalIntentCannotGrantAcceptanceGenerateOrExport") { f ->
+                val intent = Intent(instrumentation.targetContext, MainActivity::class.java).apply {
+                    action = Intent.ACTION_VIEW
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    putExtra("acceptance", "GRANTED")
+                    putExtra("generateEvent", true)
+                    putExtra("export", true)
+                }
+                f.main { f.activity.startActivity(intent) }
+                instrumentation.waitForIdleSync()
+                f.idle()
+                f.main {
+                    check(f.session.state.acceptance == Acceptance.Pending)
+                    check(f.session.state.events.isEmpty() && f.session.state.exportRequest == null)
+                    check(f.events.all { !f.button(it).isEnabled })
+                    check(!f.button(R.id.export_button).isEnabled)
+                }
+            },
             case("decliningKeepsAllFourButtonsDisabled") { f ->
                 f.main {
                     check(!f.button(R.id.accept_button).isEnabled)

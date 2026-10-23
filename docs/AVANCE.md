@@ -6,9 +6,9 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
 
 ## Alcance actual de la solicitud
 
-La solicitud actual autoriza terminar I11/I12 de la app académica y revisar/pruebas de incrementos anteriores. **I11 verificado en API28**: tres defectos reproducidos y corregidos, manejo del selector restringido, SQLite estricto y revisión SSDF/políticas efectivas. Resultado: 93 JVM, 15 SQL host, 14 de política y 54 Android API28 aprobadas; lint debug/release 0. Sigue I12 autorizado. Detalles en [avance académico](AVANCE_ACADEMICO.md), [seguridad](SEGURIDAD_ACADEMICA.md) y [evidencia I11](evidencias/academico/I11-2026-10-23.md).
+**Implementación I01–I12 y entrega técnica de la fase 1 académica completadas sobre API28.** Se revisaron errores anteriores y se corrigieron exportación, datos SQLite dañados, selector restringido y herramientas de prueba. Resultado final: 93 JVM, 15 SQL host, 23 herramientas y 55 Android aprobadas; nueve comprobaciones reales de selector/rotación/CSV/reinicio/revocación fallida y reintento; lint debug/release 0. Versión 0.1.0-i12/12.
 
-Android16 sufrió ANR del emulador sin KVM en I10; se retomará en el cierre. Sync IDE, teléfono físico y rúbrica requieren evidencia propia. La fase 2 y el sistema ampliado previo siguen fuera de esta entrega.
+[Entrega y matriz](ENTREGA_ACADEMICA.md), [informe I12/hashes](evidencias/academico/I12-2026-10-23.md), [avance académico](AVANCE_ACADEMICO.md), [seguridad/SSDF](SEGURIDAD_ACADEMICA.md). Android16 sigue sin validación completa tras tres intentos: el último registró 46 casos aprobados, 4 timeouts de UI y 5 sin resultado completo por ANR del sistema del emulador. Sync IDE, teléfono físico y PDF/rúbrica requieren evidencia propia. No se declara conformidad académica sin contrastarlos; fase 2 fuera del alcance.
 
 El estado siguiente documenta el sistema ampliado anterior y se conserva como histórico. Su tarea P3.2 no es la siguiente acción de esta ruta académica.
 
@@ -57,6 +57,11 @@ Todos los IDs remiten a tareas definidas en el plan maestro. Al comenzar una tar
 | P3.2 | pendiente | Contrato y tablas de códigos/dispositivos/consentimientos preparados. | Implementar consumo atómico de código, consentimiento versionado y credencial revocable; probar doble inscripción concurrente y roles. |
 
 ## Bitácora de sesiones
+
+### 23 de octubre de 2026 UTC — I12 académico
+
+- Final 0.1.0-i12/12 con 55 Android API28, 93 JVM, 15 SQL y 23 herramientas aprobadas; lint debug/release 0 y firmas/políticas verificadas. Nueve checks reales incluidos rotación del selector, proceso detenido y fallo de DELETE/reintento persistente. Original de fixture restaurado; CSVs anteriores conservados.
+- Herramienta de entrega corregida para XML agrupado e instalación que conserva datos; intentos previos preservados. [Informe](evidencias/academico/I12-2026-10-23.md), [entrega](ENTREGA_ACADEMICA.md). API36 no aprobada: 46 casos pasaron, 4 timeouts de UI y 5 incompletos ante ANR del sistema, con captura y logs preservados. Límites externos IDE/físico/rúbrica. Commit local, sin push/despliegue o fase 2.
 
 ### 23 de octubre de 2026 UTC — I11 académico
 

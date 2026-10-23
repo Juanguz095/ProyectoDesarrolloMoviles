@@ -6,9 +6,15 @@ Para continuar el desarrollo, sigue el [plan maestro por fases](docs/PLAN_MAESTR
 
 ## Primera entrega académica
 
-La ruta académica local está implementada hasta **I11**: consentimiento, cuatro eventos SIMULADOS, historial SQLite, cola/rotación, CSV manual y borrado/revocación con reintentos. La revisión corrigió tres defectos previos y el selector restringido. **93 JVM, 15 SQL host, 14 de política y 54 Android API28 aprobadas**; lint debug/release sin incidencias. [Resultados I11](docs/evidencias/academico/I11-2026-10-23.md), [seguridad/SSDF](docs/SEGURIDAD_ACADEMICA.md).
+**Implementación I01–I12 completada y entrega técnica verificada en Android 9 (API28).** La app local permite aceptación explícita, cuatro eventos SIMULADOS, historial SQLite, rotación, exportación CSV, borrado y revocación con recuperación de fallos. Versión **0.1.0-i12/12**.
 
-**I12 ya está autorizado** y prepara la verificación/entrega final. [Manual académico](docs/USO_ACADEMICO.md), [plan](docs/PLAN_ACADEMICO.md), [avance](docs/AVANCE_ACADEMICO.md). Android16 sin validación completa por ANR del emulador; Sync IDE, teléfono físico y rúbrica siguen pendientes. La fase 2 sigue fuera del alcance.
+Resultado final: **93 JVM, 15 SQL host, 23 de herramientas y 55 Android aprobadas**, sin fallos/errores/omitidas; lint debug/release 0. Nueve comprobaciones reales adicionales verifican selector/rotación/CSV, muerte de proceso, borrado y revocación con DELETE fallido/reintento. Se corrigieron errores de incrementos anteriores y se repitieron sus regresiones.
+
+- [Entrega e instalación](docs/ENTREGA_ACADEMICA.md), [manual de uso](docs/USO_ACADEMICO.md).
+- [Informe final I12 y hashes](docs/evidencias/academico/I12-2026-10-23.md), [seguridad/SSDF](docs/SEGURIDAD_ACADEMICA.md).
+- [Plan académico](docs/PLAN_ACADEMICO.md), [avance y límites](docs/AVANCE_ACADEMICO.md).
+
+**Android16 sigue sin validación completa:** un tercer intento también quedó bloqueado por un ANR del sistema del emulador; requiere una instancia estable con KVM o un teléfono compatible. Sync de Android Studio, teléfono físico y PDF/rúbrica siguen pendientes de evidencia propia. El APK entregado es debug firmado; release se compila/revisa sin firma de distribución. La fase 2 sigue fuera del alcance.
 
 El plan maestro de dos apps/API que sigue pertenece al trabajo previo; sus módulos se conservan como referencia y no forman parte de la implementación autorizada de esta entrega local.
 

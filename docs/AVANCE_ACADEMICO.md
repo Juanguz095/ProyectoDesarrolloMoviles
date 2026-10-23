@@ -7,14 +7,14 @@ Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inicial: [PLAN_I01.md](P
 ## Estado actual
 
 - Última solicitud: «Continúa hasta acabarlo» y revisión/pruebas de fases anteriores. Autoriza I11/I12 en orden y correcciones necesarias de la app académica; fase 2 sigue fuera del alcance.
-- Estado actual: **I11 verificado en API28; sigue I12 autorizado**. Correcciones de exportación y decodificación SQLite, política de seguridad reproducible y revisión SSDF documentadas.
-- Artefactos: APK principal y de instrumentación, versión 0.1.0-i11/11; lint debug/release 0. [Manual](USO_ACADEMICO.md), [evidencia I10](evidencias/academico/I10-2026-10-22.md).
-- Verificación actual: **93 JVM, 15 SQL host, 14 de política y 54 Android API28 aprobadas** en I11. El intento previo reprodujo tres defectos nuevos con 52 pruebas/3 fallos y los 49 casos anteriores aprobados. Siete comprobaciones del recorrido real aprobadas sobre I10; I12 las repetirá en la versión final: selector/CSV, cancelación, borrado/revocación y persistencia tras detener/abrir el proceso. Se corrigieron fondo/contraste observados al revisar capturas y se repitió la suite completa.
+- Estado actual: **implementación I01–I12 y entrega técnica completadas sobre API28**. Se corrigieron y repitieron errores de fases anteriores; no quedan defectos reproducidos de la app abiertos en esa versión comprobada.
+- Artefactos: debug firmado y APK de tests, versión **0.1.0-i12/12**; release sin firmar revisado, lint debug/release 0. [Entrega](ENTREGA_ACADEMICA.md), [manual](USO_ACADEMICO.md), [informe I12/hashes](evidencias/academico/I12-2026-10-23.md).
+- Verificación final: **93 JVM, 15 SQL host, 23 herramientas y 55 Android API28 aprobadas**, sin fallos/errores/omitidas. **Nueve comprobaciones reales aprobadas** con selector/rotación, CSV exacto, cancelación, muerte de proceso, revocación con fallo de DELETE y reintento. Fixture original vacía/revocada restaurada y comparada; CSVs anteriores conservados.
 - Revisión del usuario/profesor y conformidad de la rúbrica pendientes; la ejecución autorizada no equivale a esa revisión.
-- Próximo paso: I12, ya autorizado; repetir versión final y preparar entrega. API36 sin validación completa por ANR del emulador en dos intentos; Sync IDE y dispositivo físico pendientes.
-- Pendiente documental: PDF/prompt específico I01; el contexto textual ya fija versiones, límites y obligación de aprobación.
+- Próximo paso: revisión de la entrega y evidencia externa de IDE/teléfono/rúbrica. API36 sigue sin validación completa tras tres intentos con ANR del sistema del emulador. No se inicia fase 2.
+- Pendiente documental: PDF/prompts/rúbrica del curso; el contexto textual ya fija versiones, límites y obligación de aprobación.
 - Fase 2: fuera de autorización. El [avance previo](AVANCE.md) conserva el trabajo histórico del sistema ampliado y no acredita los incrementos de esta app.
-- Entorno Android: ADB resuelto e imágenes/AVDs API28/API36 instalados. API28 estable ejecutado aisladamente. API36 sufrió ANR de componentes del sistema incluso aislado y con otro renderizador/un vCPU. Los procesos de prueba se detuvieron y sus AVDs se conservaron. La próxima comprobación de API36 requiere una instancia estable, preferiblemente con KVM, o un dispositivo compatible.
+- Entorno Android: ADB resuelto e imágenes/AVDs API28/API36 instalados. API28 estable ejecutado aisladamente. API36 sufrió ANR de componentes del sistema en tres intentos. SwANGLE/4 GiB/pantalla reducida recuperó el almacenamiento, pero la prueba de privacidad volvió a bloquearse ante un ANR del sistema. Los procesos de prueba se detuvieron y sus AVDs se conservaron. La próxima comprobación de API36 requiere una instancia estable, preferiblemente con KVM, o un dispositivo compatible.
 
 ## Seguimiento
 
@@ -31,7 +31,13 @@ Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inicial: [PLAN_I01.md](P
 | I09 | Exportación manual elegida y controlada. | 13 JVM, 7 casos Android y selector real/CSV verificados en I10. | Ejecución autorizada; revisión pendiente. | [I09](evidencias/academico/I09-2026-10-22.md), [validación I10](evidencias/academico/I10-2026-10-22.md). |
 | I10 | Borrado y revocación persistente aun con fallo de borrado. | 9 PrivacyUiTests y recorrido real aprobados; completa 49/49 API28. | Ejecución autorizada; revisión pendiente. | [Evidencia](evidencias/academico/I10-2026-10-22.md). |
 | I11 | Seguridad/SSDF y correcciones SEC-01–SEC-03. | Verificado: build, 54 Android, políticas y regresiones. | Ejecución autorizada; revisión pendiente. | [Evidencia](evidencias/academico/I11-2026-10-23.md), [revisión](SEGURIDAD_ACADEMICA.md). |
-| I12 | Evidencias y cierre de fase 1. | Siguiente incremento. | Ejecución autorizada; revisión pendiente. | I11 verificado; PDF/rúbrica aún ausente. |
+| I12 | Verificación y entrega técnica. | 55 Android API28, 93 JVM, 15 SQL, 23 herramientas y nueve checks reales aprobados; límites explícitos. | Ejecución autorizada; revisión/rúbrica pendientes. | [Informe](evidencias/academico/I12-2026-10-23.md), [entrega](ENTREGA_ACADEMICA.md). |
+
+## Ejecución I12 del 23 de octubre de 2026 UTC
+
+- App 0.1.0-i12/12; fuente congelada, 55 Android y recorrido real de nueve comprobaciones aprobados. Build/lint/firmas/políticas y 93 JVM/15 SQL/23 herramientas aprobados. [Informe y hashes](evidencias/academico/I12-2026-10-23.md).
+- Colector agrupado y flujo de instalación corregidos: verify.py instala con actualización y ejecuta Instrumentation directamente, conservando datos. Intentos previos y recuperación de la fixture se documentan; no se borran evidencias fallidas.
+- [Manual de entrega/matriz](ENTREGA_ACADEMICA.md), [uso](USO_ACADEMICO.md), [seguridad/SSDF](SEGURIDAD_ACADEMICA.md). Tercer intento API36 no aprobado: 46 pasaron, 4 fallos de UI y 5 sin resultado completo ante ANR del sistema. IDE/físico/rúbrica externos. Commit local de cierre, sin push/publicación ni fase 2.
 
 ## Ejecución I11 del 23 de octubre de 2026 UTC
 

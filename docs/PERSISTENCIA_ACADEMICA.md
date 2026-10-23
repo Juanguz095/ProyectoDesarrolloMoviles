@@ -52,7 +52,7 @@ La creación de tablas/índice/trigger usa IF NOT EXISTS para dos conexiones que
 | SQLite host/Python | 15 | Todas aprobadas; DDL extraído de Kotlin, restricciones, reapertura, transacciones y migración SQL en esta máquina. No ejecutan APIs Android. |
 | SQLiteEventTests | 13 | Aprobadas en Android; cupo, orden, transacciones, concurrencia y reapertura. |
 | SQLiteAcceptanceTests | 16 | Aprobadas en Android; migración, decisiones, fallos y guardado independiente de retirada. |
-| SimulationUiTests | 6 | Consentimiento, cuatro botones, busy, recreación, reapertura y recuperación de error. |
+| SimulationUiTests | 7 | Consentimiento, cuatro botones, busy, recreación, reapertura y recuperación de error. |
 | ExportUiTests | 10 | Destino/streams, todos los IDs, cero eventos, cancelación, errores y URI file rechazada. |
 | PrivacyUiTests | 9 | Confirmaciones, fallos de cada etapa, reintentos y callbacks tardíos frente a borrado/revocación. |
 
@@ -67,13 +67,16 @@ En Android Studio, abrir `academic/`, seleccionar JDK17/SDK36 y conectar Android
 
 ```bash
 ./gradlew :domain:test :app:assembleDebug :app:assembleDebugAndroidTest :app:lintDebug
+# Alternativa solo en dispositivo dedicado: puede desinstalar la app al terminar.
 ./gradlew :app:connectedDebugAndroidTest
 ```
 
-El runner `com.auditlab.academic.tests.AuditLabTestRunner` utiliza Instrumentation del framework y emite estados estándar para los **54 casos**. Opcionalmente acepta `-e testGroup PrivacyUiTests` u otro grupo del manual, y rechaza un filtro sin casos. No necesita nuevas dependencias. Los errores se reportan como fallos, no se omiten. Informes del comando conectado en `academic/app/build/reports/androidTests/connected` y `outputs/androidTest-results/connected`; verificar que sean nuevos y ejecuten casos reales, no solo compilen el APK.
+El runner `com.auditlab.academic.tests.AuditLabTestRunner` utiliza Instrumentation del framework y emite estados estándar para los **55 casos**. Opcionalmente acepta `-e testGroup PrivacyUiTests` u otro grupo del manual, y rechaza un filtro sin casos. No necesita nuevas dependencias. Los errores se reportan como fallos, no se omiten. Informes del comando conectado en `academic/app/build/reports/androidTests/connected` y `outputs/androidTest-results/connected`; verificar que sean nuevos y ejecuten casos reales, no solo compilen el APK.
 
 La Activity es funcional hasta I10. Los tests de solo SQLite cierran/reabren el helper; no equivalen a detener el proceso. I10 añade un recorrido separado con detención/relanzamiento real, selector del sistema y comparación de IDs, documentado en su evidencia. Android puede mantener cambios confirmados en WAL: una copia fuera del proceso debe incluir DB y su archivo -wal, no copiar únicamente el DB principal y declarar pérdida de datos. No se borra WAL para conseguir un test satisfactorio.
 
 Manual de la app y recuperación de errores: [USO_ACADEMICO.md](USO_ACADEMICO.md). Evidencias históricas [I05](evidencias/academico/I05-2026-10-22.md), [I06](evidencias/academico/I06-2026-10-22.md) y verificación integrada [I10](evidencias/academico/I10-2026-10-22.md).
 
 I11 añade decodificación estricta de tipos INTEGER/TEXT: ni texto numérico malformado, ni REAL, ni un entero truncado pueden convertirse en un evento o aceptación válidos. Las pruebas de filas dañadas rechazan la lectura y siguen permitiendo intentar guardar una revocación nueva. [Revisión y resultados](evidencias/academico/I11-2026-10-23.md).
+
+Para conservar datos durante la verificación, usar el [flujo I12](ENTREGA_ACADEMICA.md): instala con actualización `-r`, ejecuta Instrumentation directamente y valida 55 casos. El intento externo con extras tampoco concede aceptación ni genera eventos.

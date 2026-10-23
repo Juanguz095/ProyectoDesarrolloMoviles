@@ -1,7 +1,7 @@
 # AuditLab — Plan de la primera entrega académica
 
-**Versión:** 1.0 · **Fecha:** 22 de octubre de 2026, America/Lima.
-**Estado:** I11 verificado técnicamente en API28; I12 autorizado por «Continúa hasta acabarlo». Se revisan también los errores de incrementos anteriores. 93 JVM, 15 SQL host, 14 políticas y 54 Android aprobadas; [seguridad/SSDF](SEGURIDAD_ACADEMICA.md), [avance](AVANCE_ACADEMICO.md). I12 repetirá la versión final y documentará la entrega. El [contexto vinculante](referencias/contexto-auditlab-2026-10-22.txt) prevalece sobre el beta. PDF/prompts/rúbrica aún pendientes de contraste; Android16, IDE y teléfono físico sin acreditación completa.
+**Versión:** 1.1 · **Fecha:** 23 de octubre de 2026, UTC.
+**Estado:** implementación I01–I12 completada por autorización de terminar y revisar fases anteriores. Entrega técnica verificada sobre API28: 93 JVM, 15 SQL host, 23 herramientas, 55 Android y nueve comprobaciones reales aprobadas; lint debug/release 0. [Informe I12](evidencias/academico/I12-2026-10-23.md), [entrega](ENTREGA_ACADEMICA.md), [seguridad/SSDF](SEGURIDAD_ACADEMICA.md). El [contexto vinculante](referencias/contexto-auditlab-2026-10-22.txt) prevalece sobre el beta. PDF/rúbrica, Sync IDE y teléfono físico requieren evidencia propia; API36 sin validación completa tras un tercer intento bloqueado por ANR del sistema del emulador. No se declara conformidad académica sin la rúbrica.
 
 **Seguimiento de esta entrega:** [AVANCE_ACADEMICO.md](AVANCE_ACADEMICO.md).
 **Referencia histórica del sistema ampliado, fuera de la fase autorizada:** [plan maestro](PLAN_MAESTRO.md) y [avance previo](AVANCE.md).
@@ -322,6 +322,6 @@ La fase 2 y cualquier integración, cliente de red o transmisión permanecen fue
 
 ## 10. Estado y siguiente paso concreto
 
-**Código implementado hasta I11.** La pantalla local conecta consentimiento, simulación, SQLite, CSV manual, borrado y revocación con sus errores/reintentos. Pruebas y artefactos exactos en [evidencia I10](evidencias/academico/I10-2026-10-22.md), uso en [manual académico](USO_ACADEMICO.md). No se trata de la fase 2 ni de una integración con los módulos históricos.
+**Implementación hasta I12 completada.** La app conecta consentimiento, simulación, SQLite, cola, CSV manual, borrado/revocación y reintentos; las regresiones detectadas de fases anteriores se corrigieron. [Resultados y artefactos I12](evidencias/academico/I12-2026-10-23.md), [entrega reproducible](ENTREGA_ACADEMICA.md), [manual](USO_ACADEMICO.md).
 
-**Continuar I12**, ya autorizado tras verificar I11. I11 documenta seguridad/SSDF y correcciones; I12 consolida evidencias y entrega técnica. Siguen pendientes Sync en Android Studio, dispositivo físico y contraste del PDF; no se dan por hechos por compilar o aprobar pruebas en un emulador.
+No queda un incremento de código pendiente dentro de la fase 1 definida. Los siguientes pasos son revisar la entrega y completar la evidencia externa de IDE/dispositivo/rúbrica y la comprobación de API36. La fase 2 requiere alcance nuevo; no se inicia automáticamente al terminar I12.
