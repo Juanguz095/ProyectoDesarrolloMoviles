@@ -1,12 +1,12 @@
 # AuditLab — Avance de la fase 1 académica
 
-Fecha de actualización: 23 de octubre de 2026, UTC.
+Fecha de actualización: 24 de octubre de 2026, UTC.
 
 Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inicial: [PLAN_I01.md](PLAN_I01.md). Fuente de requisitos: [contexto del usuario](referencias/contexto-auditlab-2026-10-22.txt).
 
 ## Estado actual
 
-- Última solicitud: «Pruébalo con dos emuladores». Se completaron los 55 casos en API26 y API28 con los artefactos finales I12; fase 2 sigue fuera del alcance.
+- Última solicitud: «Sube los cambios a github». Los 14 commits académicos pendientes se publicaron en `main`; revisión `652b6988931ad3d191249c749f2b5c53ea08445d` confirmada contra el remoto el 24 de octubre. [Registro de publicación](AVANCE.md). Se conservan los resultados de 55/55 casos en API26 y API28 con los artefactos finales I12; fase 2 sigue fuera del alcance.
 - Estado actual: **implementación I01–I12 y entrega técnica completadas sobre API28**. Se corrigieron y repitieron errores de fases anteriores; no quedan defectos reproducidos de la app abiertos en esa versión comprobada.
 - Artefactos: debug firmado y APK de tests, versión **0.1.0-i12/12**; release sin firmar revisado, lint debug/release 0. [Entrega](ENTREGA_ACADEMICA.md), [manual](USO_ACADEMICO.md), [informe I12/hashes](evidencias/academico/I12-2026-10-23.md).
 - Verificación final: **93 JVM, 15 SQL host, 23 herramientas y 55 Android API28 aprobadas**, sin fallos/errores/omitidas. **Nueve comprobaciones reales aprobadas** con selector/rotación, CSV exacto, cancelación, muerte de proceso, revocación con fallo de DELETE y reintento. Fixture original vacía/revocada restaurada y comparada; CSVs anteriores conservados.

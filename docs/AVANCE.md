@@ -1,10 +1,12 @@
 # AuditLab — Registro de avance
 
-Fecha de actualización: 22 de octubre de 2026, America/Lima; cierre de comprobaciones el 23 de octubre UTC.
+Fecha de actualización: 24 de octubre de 2026, UTC; comprobaciones de la app realizadas el 23 de octubre UTC.
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
 ## Alcance actual de la solicitud
+
+**Publicación autorizada en GitHub:** el 24 de octubre se subieron los 14 commits académicos pendientes a `main` de [Juanguz095/ProyectoDesarrolloMoviles](https://github.com/Juanguz095/ProyectoDesarrolloMoviles). Incluyen I01–I12, correcciones, documentación e informe de los dos emuladores. Se confirmó mediante `git ls-remote` que la revisión publicada coincide con `652b6988931ad3d191249c749f2b5c53ea08445d`.
 
 **Comprobación adicional solicitada con dos emuladores:** la misma APK I12 aprobó **55/55 casos en Android8/API26 y 55/55 en Android9/API28**. Se conservaron los datos normales existentes de API28. [Informe adicional](evidencias/academico/DOS-EMULADORES-2026-10-23.md). Otro intento API36 se interrumpió durante instalación tras inestabilidad del sistema al arrancar; no ejecutó Instrumentation ni se contó como aprobado.
 
@@ -59,6 +61,12 @@ Todos los IDs remiten a tareas definidas en el plan maestro. Al comenzar una tar
 | P3.2 | pendiente | Contrato y tablas de códigos/dispositivos/consentimientos preparados. | Implementar consumo atómico de código, consentimiento versionado y credencial revocable; probar doble inscripción concurrente y roles. |
 
 ## Bitácora de sesiones
+
+### 24 de octubre de 2026 UTC — publicación académica en GitHub
+
+- Solicitud explícita «Sube los cambios a github». Se actualizó la referencia remota y se comprobó que `main` podía avanzar desde `118a738` sin sobrescribir historia.
+- `git push origin main` terminó con código 0: `118a738..652b698 main -> main`. Los 14 commits pendientes incluyen implementación I01–I12 y la comprobación de 55/55 casos en cada uno de los emuladores API26/API28.
+- Verificación independiente con `git ls-remote origin refs/heads/main`: `652b6988931ad3d191249c749f2b5c53ea08445d`, idéntico al HEAD publicado. Este registro se incorpora después de confirmar esa publicación.
 
 ### 23 de octubre de 2026 UTC — comprobación en dos emuladores
 
