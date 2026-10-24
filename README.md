@@ -4,6 +4,12 @@ AuditLab es un sistema de monitoreo autorizado para dispositivos Android propios
 
 Para continuar el desarrollo, sigue el [plan maestro por fases](docs/PLAN_MAESTRO.md) y el [registro de avance](docs/AVANCE.md). Las instrucciones para el agente están en [AGENTS.md](AGENTS.md). El registro distingue el código existente de las capacidades comprobadas.
 
+## Proyecto completo: alcance activo
+
+El usuario ratificó el 24 de octubre que el objetivo es completar **agente Android + API Ktor/PostgreSQL + centro de control Android**. La guía vigente es [PLAN_MAESTRO.md](docs/PLAN_MAESTRO.md), fases 0–8. Estado real: requisitos, contrato y estructura preparados; autenticación del servidor implementada; registro de dispositivos, recepción/consulta de eventos y comunicación entre las dos apps pendientes. La siguiente tarea disponible es **P3.2 — inscripción de dispositivos**. El primer MVP integrado se acredita al cerrar la fase 4 con un evento enviado desde el agente y consultado desde el centro.
+
+Las pruebas de la app académica descritas a continuación acreditan esa app local. La validación del proyecto completo debe demostrar el recorrido agente → API → centro, además de la revocación.
+
 ## Primera entrega académica
 
 **Implementación I01–I12 completada y app verificada en Android 8 (API26) y Android 9 (API28).** La app local permite aceptación explícita, cuatro eventos SIMULADOS, historial SQLite, rotación, exportación CSV, borrado y revocación con recuperación de fallos. Versión **0.1.0-i12/12**.
@@ -15,9 +21,9 @@ Resultado final: **93 JVM, 15 SQL host, 23 de herramientas y 55 Android aprobada
 - [Prueba adicional en dos emuladores](docs/evidencias/academico/DOS-EMULADORES-2026-10-23.md): **55/55 API26 y 55/55 API28**, sin fallos/errores/omitidos, con la misma APK I12.
 - [Plan académico](docs/PLAN_ACADEMICO.md), [avance y límites](docs/AVANCE_ACADEMICO.md).
 
-**Android16 sigue sin validación completa:** los tres intentos históricos registraron ANR del sistema; otro intento con un AVD nuevo se interrumpió durante la instalación tras inestabilidad en el arranque, sin llegar a ejecutar Instrumentation. Requiere una instancia estable con KVM o un teléfono compatible. Sync de Android Studio, teléfono físico y PDF/rúbrica siguen pendientes de evidencia propia. El APK entregado es debug firmado; release se compila/revisa sin firma de distribución. La fase 2 sigue fuera del alcance.
+**Android16 sigue sin validación completa:** los tres intentos históricos registraron ANR del sistema; otro intento con un AVD nuevo se interrumpió durante la instalación tras inestabilidad en el arranque, sin llegar a ejecutar Instrumentation. Requiere una instancia estable con KVM o un teléfono compatible. Sync de Android Studio, teléfono físico y PDF/rúbrica siguen pendientes de evidencia propia. El APK académico entregado es debug firmado; release se compila/revisa sin firma de distribución.
 
-El plan maestro de dos apps/API que sigue pertenece al trabajo previo; sus módulos se conservan como referencia y no forman parte de la implementación autorizada de esta entrega local.
+Los módulos `apps/agent`, `apps/control` y `backend/ktor` forman la ruta activa del proyecto completo. La app `academic/` se conserva como entrega local y fuente de reglas y regresiones útiles.
 
 ## Producto objetivo
 

@@ -6,6 +6,8 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
 
 ## Alcance actual de la solicitud
 
+**Objetivo activo ratificado el 24 de octubre: completar el proyecto original de dos apps y API**, siguiendo [PLAN_MAESTRO.md](PLAN_MAESTRO.md), fases 0–8. La implementación I01–I12 corresponde a una app local; el proyecto completo continúa en fase 3. Siguiente tarea disponible: **P3.2 — inscripción de dispositivos**; después recepción/consulta de eventos y el recorrido real agente → API → centro de la fase 4. La revisión actual del código confirma que Ktor registra rutas de autenticación/salud y que las dos apps contienen pantallas base; no existe todavía el recorrido integrado.
+
 **Publicación autorizada en GitHub:** el 24 de octubre se subieron los 14 commits académicos pendientes a `main` de [Juanguz095/ProyectoDesarrolloMoviles](https://github.com/Juanguz095/ProyectoDesarrolloMoviles). Incluyen I01–I12, correcciones, documentación e informe de los dos emuladores. Se confirmó mediante `git ls-remote` que la revisión publicada coincide con `652b6988931ad3d191249c749f2b5c53ea08445d`.
 
 **Comprobación adicional solicitada con dos emuladores:** la misma APK I12 aprobó **55/55 casos en Android8/API26 y 55/55 en Android9/API28**. Se conservaron los datos normales existentes de API28. [Informe adicional](evidencias/academico/DOS-EMULADORES-2026-10-23.md). Otro intento API36 se interrumpió durante instalación tras inestabilidad del sistema al arrancar; no ejecutó Instrumentation ni se contó como aprobado.
@@ -14,9 +16,9 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
 
 [Entrega y matriz](ENTREGA_ACADEMICA.md), [informe I12/hashes](evidencias/academico/I12-2026-10-23.md), [avance académico](AVANCE_ACADEMICO.md), [seguridad/SSDF](SEGURIDAD_ACADEMICA.md). Android16 sigue sin validación completa tras tres intentos: el último registró 46 casos aprobados, 4 timeouts de UI y 5 sin resultado completo por ANR del sistema del emulador. Sync IDE, teléfono físico y PDF/rúbrica requieren evidencia propia. No se declara conformidad académica sin contrastarlos; fase 2 fuera del alcance.
 
-El estado siguiente documenta el sistema ampliado anterior y se conserva como histórico. Su tarea P3.2 no es la siguiente acción de esta ruta académica.
+El estado siguiente corresponde al proyecto completo y vuelve a ser la ruta activa por la instrucción actual del usuario. Las bitácoras académicas conservan sus resultados y su alcance local.
 
-## Estado del sistema ampliado previo
+## Estado del proyecto completo
 
 - Etapa: **fase 3 en curso; P3.1 verificada**. Autenticación HTTP lista; inscripción, eventos, consultas y revocación de dispositivos pendientes.
 - Tarea siguiente: **P3.2 — inscripción con código de un uso y consentimiento**.
@@ -61,6 +63,12 @@ Todos los IDs remiten a tareas definidas en el plan maestro. Al comenzar una tar
 | P3.2 | pendiente | Contrato y tablas de códigos/dispositivos/consentimientos preparados. | Implementar consumo atómico de código, consentimiento versionado y credencial revocable; probar doble inscripción concurrente y roles. |
 
 ## Bitácora de sesiones
+
+### 24 de octubre de 2026 UTC — aclaración y restitución del alcance completo
+
+- El usuario ratificó que solicita el proyecto original de dos apps conectadas a una API y pidió aclarar sus planes. Se restablece `PLAN_MAESTRO.md` como guía activa; la app local I01–I12 conserva su documentación y evidencias.
+- Revisión de solo lectura del checkout limpio: `Application.kt` conecta autenticación, `/health` y `/ready`; las actividades de agente/centro son pantallas base. Inscripción, eventos y recorrido entre dispositivos siguen pendientes según la tabla del plan.
+- Se aclaró el alcance en README, este registro y las entradas académicas. Siguiente tarea disponible P3.2; no se marca como implementada o verificada por haber revisado el plan. La petición actual de explicar las fases no acredita nuevas funciones ni pruebas de integración.
 
 ### 24 de octubre de 2026 UTC — publicación académica en GitHub
 
