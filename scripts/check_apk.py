@@ -223,11 +223,11 @@ def audit(apk: Path, profile: str) -> None:
         fail(f"firma no verificable: {error}")
     else:
         schemes = re.findall(r"Verified using (v\d+) scheme[^:]*: true", signature)
-        digest = re.search(r"Signer #1 certificate SHA-256 digest: ([0-9a-f]+)", signature)
+        digest = re.search(r"certificate SHA-256 digest:\s*([0-9a-fA-F]+)", signature)
         ok(f"firma verificada ({', '.join(schemes) or 'esquema no informado'}); SHA-256 {digest.group(1)[:16] + '…' if digest else '?'}")
 
     # Clases esperadas presentes en el dex (no basta con que compile el módulo).
-    with tempfile.TemporaryDirectory(dir="/tmp/opencode") as directory:
+    with tempfile.TemporaryDirectory() as directory:
         with zipfile.ZipFile(apk) as archive:
             dex_files = [n for n in archive.namelist() if re.fullmatch(r"classes\d*\.dex", n)]
             if not dex_files:
