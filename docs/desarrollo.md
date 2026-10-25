@@ -50,11 +50,40 @@ Los tests HTTP generan credenciales y datos temporales y no usan la BD local exi
 ## Construcción nativa
 
 ```bash
-python3 scripts/gradle.py :apps:agent:assembleDebug :apps:control:assembleDebug :backend:ktor:installDist --no-daemon
+python3 scripts/gradle.py :apps:common:test :apps:agent:assembleDebug :apps:control:assembleDebug :backend:ktor:installDist --no-daemon
 python3 scripts/gradle.py :apps:agent:lintDebug :apps:control:lintDebug --no-daemon
 ```
 
-Artefactos previstos: `apps/agent/build/outputs/apk/debug/agent-debug.apk`, `apps/control/build/outputs/apk/debug/control-debug.apk` y `backend/ktor/build/install/ktor/`. Las pantallas base son informativas y no capturan datos; login, consentimiento y sincronización se implementan en fases posteriores. Un APK compilado no se considera instalado ni validado en dispositivo.
+Artefactos: `apps/agent/build/outputs/apk/debug/agent-debug.apk`, `apps/control/build/outputs/apk/debug/control-debug.apk` y `backend/ktor/build/install/ktor/`. El módulo `apps/common` concentra el cliente HTTP y la lógica del agente/centro; sus 23 pruebas JVM se ejecutan sin Android SDK ni emulador. Un APK compilado **no** se considera instalado ni validado en dispositivo: sin `/dev/kvm` o un teléfono compatible no se puede ejecutar el recorrido de P4.
+
+Prueba de humo opcional del cliente real contra una API en marcha (mismas clases que usan las apps, sin Keystore ni UI):
+
+```bash
+AUDITLAB_SMOKE_URL=http://127.0.0.1:8081 AUDITLAB_SMOKE_USER=... AUDITLAB_SMOKE_PASSWORD=... \
+  python3 scripts/gradle.py :apps:common:smokeTest --no-daemon
+```
+
+Sin esas variables la tarea no se ejecuta en `check`; se usa solo en la comprobación manual de P4.
+
+## Verificación de artefactos, UI en JVM y contrato en vivo
+
+```bash
+# 1. Audita los APK ya construidos (manifiesto compilado, política de red, firma y dex).
+python3 scripts/check_apk.py
+
+# 2. Ejecuta las pantallas Compose en la JVM con Robolectric (sin emulador).
+python3 scripts/gradle.py :apps:agent:testDebugUnitTest :apps:control:testDebugUnitTest --no-daemon
+
+# 3. Comprueba TLS real, contrato en vivo y cliente JVM por HTTPS.
+#    Requiere installDist, las variables de BD/clave y AUDITLAB_BOOTSTRAP_PASSWORD exportadas.
+bash scripts/check_tls.sh
+```
+
+`check_apk.py` no ejecuta la app: lee el artefacto y falla si aparecen permisos peligrosos, tráfico en claro fuera de loopback, componentes exportados sin justificar, firma inválida o clases propias ausentes del dex. Necesita `ANDROID_HOME` (o `.tooling/android-sdk`).
+
+Las pruebas de UI usan Robolectric con `sdk=34` y una pantalla `w411dp-h891dp`; sustituyen la API por un doble, así que validan composición, estado y pulsaciones, **no** la red ni el Android Keystore. Un fallo real encontrado así: con la pantalla por defecto de Robolectric (320×470 dp) los botones quedaban fuera del área táctil y las pulsaciones no llegaban; se corrigió con un tamaño realista y `performScrollTo()`.
+
+`check_tls.sh` genera un certificado autofirmado de prueba, arranca Ktor solo con TLS y comprueba que el puerto cifrado rechaza HTTP en claro, que sin la CA la verificación falla, que cada respuesta real valida contra [el contrato](../contracts/openapi.yaml) y que el cliente de `apps/common` funciona con un truststore propio. También verifica que ningún valor secreto aparece en el registro del servidor. No sustituye a probar la CA del sistema Android en un dispositivo.
 
 Para arrancar el servicio base, consultar [backend Ktor](../backend/ktor/README.md). Para el recorrido simulado Python, consultar [el prototipo](../backend/api/README.md).
 

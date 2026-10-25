@@ -13,4 +13,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "AuditLab"
-include(":backend:ktor", ":apps:agent", ":apps:control")
+include(":backend:ktor", ":apps:agent", ":apps:control", ":apps:common")

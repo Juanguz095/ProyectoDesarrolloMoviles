@@ -332,20 +332,23 @@ class Handler(BaseHTTPRequestHandler):
                 with connect() as db:
                     self.audit(db, user["sub"], "device_listed")
                     rows = db.execute("SELECT id, status, last_seen_at FROM devices ORDER BY enrolled_at DESC").fetchall()
-                    return self.reply(200, {"items": [
+                    items = [
                         {"deviceId": row["id"], "status": row["status"], "lastSeenAt": row["last_seen_at"]}
                         for row in rows
-                    ]})
+                    ]
+                # Reply only after the audit row is committed.
+                return self.reply(200, {"items": items})
             if path == "/v1/events/export.csv":
                 user = self.user()
                 with connect() as db:
                     purge_expired_events(db)
                     self.audit(db, user["sub"], "report_exported")
                     rows = db.execute("SELECT * FROM events ORDER BY timestamp DESC LIMIT 10000").fetchall()
-                    return self.reply_csv([[
+                    csv_rows = [[
                         row["id"], row["timestamp"], row["category"], row["direction"], row["source_device"],
                         row["consent_id"], row["policy_version"], row["metadata_json"],
-                    ] for row in rows])
+                    ] for row in rows]
+                return self.reply_csv(csv_rows)
             if path == "/v1/events":
                 user = self.user()
                 query = parse_qs(route.query)
@@ -374,7 +377,7 @@ class Handler(BaseHTTPRequestHandler):
                             "consentContext": {"consentId": row["consent_id"], "policyVersion": row["policy_version"], "acceptedAt": row["consent_accepted_at"]},
                             "metadata": json.loads(row["metadata_json"]),
                         })
-                    return self.reply(200, {"items": items, "nextCursor": None})
+                return self.reply(200, {"items": items, "nextCursor": None})
             if path == "/v1/audit-log":
                 user = self.user()
                 query = parse_qs(route.query)
@@ -387,10 +390,11 @@ class Handler(BaseHTTPRequestHandler):
                 with connect() as db:
                     self.audit(db, user["sub"], "audit_log_queried")
                     rows = db.execute(f"SELECT * FROM audit_log{where} ORDER BY occurred_at DESC LIMIT 100", params).fetchall()
-                    return self.reply(200, {"items": [
+                    audit_items = [
                         {"auditId": r["id"], "actorId": r["actor"], "action": r["action"], "resourceId": r["resource_id"], "occurredAt": r["occurred_at"]}
                         for r in rows
-                    ], "nextCursor": None})
+                    ]
+                return self.reply(200, {"items": audit_items, "nextCursor": None})
             return self.error(404, "Not found", "No route matches this path.")
         except ApiError as exc:
             return self.error(exc.status, exc.title, exc.detail)

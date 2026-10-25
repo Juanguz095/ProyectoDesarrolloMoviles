@@ -35,7 +35,7 @@ La BD limita campos/valores de metadatos e impide asociar un consentimiento a ot
 
 1. **Migración:** crea/actualiza `auditlab` y aplica grants/bootstrap; credenciales solo en comandos administrativos, no en el servidor en ejecución.
 2. **Runtime:** consulta usuarios, gestiona sesiones/códigos/estados y contadores de autenticación, y agrega eventos/auditoría. No cambia cuentas, esquema, historial de migraciones ni eventos/auditoría existentes.
-3. **Mantenimiento:** puede consultar/eliminar datos de retención, sin reescribir auditoría ni crear usuarios. La selección de datos vencidos será responsabilidad del job de P3.5.
+3. **Mantenimiento:** puede consultar/eliminar datos de retención y **añadir** su propia fila de auditoría, sin modificar filas existentes ni crear usuarios. La selección de datos vencidos corresponde al job de P3.5, implementado con esta cuenta.
 
 El operador crea roles PostgreSQL dedicados, sin superusuario, CREATEDB, CREATEROLE ni membresías. El comando de grants rechaza roles administrativos, dueños de BD/esquema/tablas o con membresías y no crea roles ni asigna contraseñas de PostgreSQL. En desarrollo `compose.yaml` proporciona un usuario bootstrap privilegiado; no utilizarlo como cuenta runtime.
 
@@ -77,18 +77,33 @@ backend/ktor/build/install/ktor/bin/ktor bootstrap-user
 
 La contraseña debe tener de 12 a 128 caracteres. Se almacena Argon2id con sal aleatoria de 16 bytes, memoria 19456 KiB, 2 iteraciones, paralelismo 1 y salida de 32 bytes. Al verificar se leen los parámetros codificados en el hash. Repetir bootstrap no cambia contraseña ni rol de una cuenta existente; una diferencia de rol falla. La creación y su auditoría se confirman en la misma transacción. No existe contraseña predeterminada, usuario automático al arrancar ni endpoint administrativo de bootstrap expuesto por HTTP.
 
+## Retención programada
+
+La retención usa **solo** la cuenta de mantenimiento, que puede borrar eventos/auditoría y añadir su propia fila `retention_executed`. El rol runtime no tiene `DELETE` sobre esas tablas.
+
+```bash
+AUDITLAB_MAINTENANCE_JDBC_URL=... AUDITLAB_MAINTENANCE_USER=... AUDITLAB_MAINTENANCE_PASSWORD=... \
+  backend/ktor/build/install/ktor/bin/ktor retention
+```
+
+- Una pasada borra eventos con `receivedAt` anterior a `AUDITLAB_RETENTION_DAYS` (1–3650, por defecto 30) y auditoría anterior a `AUDITLAB_AUDIT_RETENTION_DAYS` (1–3650, por defecto 90), en una transacción, y audita la ejecución como actor `system`.
+- El servidor inicia el bucle solo si están configuradas las tres variables `AUDITLAB_MAINTENANCE_*`; ejecuta una pasada al arrancar y después cada `AUDITLAB_RETENTION_INTERVAL_SECONDS` (60–86400, por defecto 3600). No depende de tráfico de consultas.
+- Programar `ktor retention` con cron/systemd es una alternativa válida; no ejecutar dos pasadas simultáneas sobre la misma base sin coordinación.
+
 ## Servidor y disponibilidad
 
 Para usar PostgreSQL en Ktor, suministrar las tres variables `AUDITLAB_DB_JDBC_URL`, `AUDITLAB_DB_USER`, `AUDITLAB_DB_PASSWORD` de la cuenta runtime. Si no se configura ninguna, arranca solo salud de proceso; una configuración parcial falla. El servidor nunca ejecuta migraciones automáticamente con privilegios elevados.
 
-`GET /health` indica proceso vivo. `GET /ready` responde `200 {"status":"ready"}` si la cuenta runtime puede conectar y consultar la tabla requerida, o `503 {"status":"unavailable"}` si no está configurada o falla. No implica que las rutas de negocio ya existan ni sustituye la comprobación completa prevista para P3.6. Hikari usa hasta 5 conexiones y espera de adquisición de 2 segundos.
+`GET /health` indica proceso vivo. `GET /ready` responde `200 {"status":"ready"}` si la cuenta runtime puede conectar y consultar la tabla requerida, o `503 {"status":"unavailable"}` si no está configurada o falla. No sustituye la comprobación de despliegue descrita en [despliegue](despliegue.md). Hikari usa hasta 5 conexiones y espera de adquisición de 2 segundos.
 
-## Reglas para implementar transacciones futuras
+## Reglas de transacción implementadas
+
+Las reglas siguientes se implementaron y probaron en P3.2–P3.5; se conservan como referencia para cambios futuros.
 
 - Inscripción: bloquear código válido, insertar dispositivo y consentimiento, marcar consumo, insertar auditoría y confirmar antes de devolver token. Las FKs circulares son diferidas para permitir esa transacción, pero no permiten confirmar sin la relación completa.
 - Ingesta/revocación: bloquear la misma fila de dispositivo y comprobar estado/consentimiento; persistir el lote atómico o revocación y auditoría, confirmar antes de responder. La estructura no realiza estas operaciones por sí sola.
 - Refresh: bloquear primero sesión y después releer el padre, comprobar vencimiento/consumo, registrar hijo y consumo o invalidar familia ante reutilización, en una transacción. Implementado en P3.1; detalles en [autenticación](autenticacion.md).
-- Retención: usar exclusivamente la cuenta de mantenimiento y borrar primero eventos/referencias vencidas antes de registros padre; comprobar las fechas y política, no solo permisos. No depender del tráfico de consultas.
+- Retención: usar exclusivamente la cuenta de mantenimiento y borrar primero eventos/referencias vencidas antes de registros padre; comprobar las fechas y política, no solo permisos. No depender del tráfico de consultas. Implementado en P3.5: `AUDITLAB_MAINTENANCE_*`, `ktor retention` y bucle del servidor.
 
 ## Verificación aislada
 
