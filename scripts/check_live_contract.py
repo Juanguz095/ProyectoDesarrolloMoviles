@@ -148,9 +148,9 @@ def main() -> int:
     session = requests.Session()
     session.headers["User-Agent"] = "AuditLab-contract-check/1"
     urls: list[str] = []
-    ca = os.environ.get("AUDITLAB_LIVE_CA")
-    if ca:
-        session.verify = ca
+    ca = os.environ.get("AUDITLAB_LIVE_CA") or None
+    # Pass the selected CA on each request. Session.verify alone is overridden
+    # by an inherited REQUESTS_CA_BUNDLE, including in managed cloud runtimes.
     secrets: list[str] = []
 
     def call(method: str, path: str, *, token: str | None = None, json_body=None, params=None, headers=None) -> requests.Response:
@@ -159,7 +159,7 @@ def main() -> int:
             request_headers["Authorization"] = f"Bearer {token}"
         request_headers.update(headers or {})
         response = session.request(method, base + path, json=json_body, params=params,
-                                   headers=request_headers, timeout=20)
+                                   headers=request_headers, timeout=20, verify=ca)
         urls.append(response.request.url)
         # La credencial nunca debe viajar en la URL.
         if token and token in response.request.url:
@@ -170,12 +170,12 @@ def main() -> int:
     now = datetime.now(timezone.utc)
 
     # Salud y disponibilidad no forman parte del contrato de datos; se comprueban aparte.
-    health = session.get(base + "/health", timeout=10)
+    health = session.get(base + "/health", timeout=10, verify=ca)
     if health.status_code == 200 and health.json().get("status") == "ok":
         print("  ok     GET /health · 200 · status ok")
     else:
         fail(f"GET /health devolvió {health.status_code}")
-    ready = session.get(base + "/ready", timeout=10)
+    ready = session.get(base + "/ready", timeout=10, verify=ca)
     if ready.status_code == 200:
         print("  ok     GET /ready · 200")
     else:

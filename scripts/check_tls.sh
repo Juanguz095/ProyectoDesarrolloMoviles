@@ -23,7 +23,7 @@ ROOT=$(cd "$(dirname "$0")/.." && pwd)
 cd "$ROOT"
 
 PORT=${AUDITLAB_TLS_PORT:-18443}
-DIR=${AUDITLAB_TLS_CHECK_DIR:-/tmp/auditlab-tls-check}
+DIR=${AUDITLAB_TLS_CHECK_DIR:-$ROOT/.tooling/tls-check}
 PYTHON=${AUDITLAB_CHECK_PYTHON:-python3}
 BIN=backend/ktor/build/install/ktor/bin/ktor
 USER_NAME=${AUDITLAB_TLS_CHECK_USER:-tls_check_admin}

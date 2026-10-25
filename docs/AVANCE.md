@@ -1,12 +1,12 @@
 # AuditLab — Registro de avance
 
-Fecha de actualización: 25 de octubre de 2026, UTC; comprobaciones anteriores de API y Android realizadas el 24 de octubre UTC.
+Fecha de actualización: 25 de octubre de 2026, UTC; repetición de backend/JVM/TLS e intentos Android reales realizados el 25 de octubre UTC.
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
 ## Alcance actual de la solicitud
 
-**Objetivo activo ratificado el 24 de octubre: completar el proyecto original de dos apps y API**, siguiendo [PLAN_MAESTRO.md](PLAN_MAESTRO.md), fases 0–8. La implementación I01–I12 corresponde a una app local. Los commits remotos hasta `a17dffd` completan P0.1–P0.3 y P3.1–P3.6 según sus evidencias e implementan P4.1–P4.3. Siguiente comprobación: **recorrido real agente → API → centro en emulador**, con fixture persistente fuera de `/tmp`; las 7 pruebas de UI en JVM no acreditan ejecución Android real.
+**Objetivo activo: completar las dos apps y la API**, siguiendo [PLAN_MAESTRO.md](PLAN_MAESTRO.md), fases 0–8. Se integraron los cinco commits remotos hasta `a17dffd` mediante merge `5b263ba`, conservando el commit documental local. P0.1–P0.3 y P3.1–P3.6 mantienen sus cierres; P4 está implementada y sigue sin validación del recorrido real. Fixture/venv/certificados persistentes recuperados fuera de `/tmp`; 8 unitarias, 53 integración PostgreSQL, 23 comunes, 7 UI JVM y 3 humo HTTPS aprobadas. Dos API30 arrancaron, pero apareció ANR de System UI; la repetición aislada también falló. [Evidencia del 25 de octubre](evidencias/P4-2026-10-25.md), [procedimiento](PRUEBAS_INTEGRADAS.md).
 
 **Publicación autorizada en GitHub:** el 24 de octubre se subieron los 14 commits académicos pendientes a `main` de [Juanguz095/ProyectoDesarrolloMoviles](https://github.com/Juanguz095/ProyectoDesarrolloMoviles). Incluyen I01–I12, correcciones, documentación e informe de los dos emuladores. Se confirmó mediante `git ls-remote` que la revisión publicada coincide con `652b6988931ad3d191249c749f2b5c53ea08445d`.
 
@@ -21,7 +21,7 @@ El estado siguiente corresponde al proyecto completo y vuelve a ser la ruta acti
 ## Estado del proyecto completo
 
 - Etapa: **fase 3 verificada; fase 4 implementada, pendiente de ejecución en emulador o dispositivo**.
-- Tarea siguiente: **P4.1–P4.3 — recorrido integrado real en un emulador/dispositivo compatible**. El código existe y compila; no se declara validado sin esa ejecución.
+- Tarea siguiente independiente: **P5.1 — Room y cola persistente**. P4.1–P4.3 esperan una ejecución estable del recorrido real: los API30 de 2 GiB arrancaron, pero la UI quedó bloqueada por ANR del sistema incluso en la repetición aislada. El código compila; no se declara validado por ese arranque.
 - Tarea principal en curso: ninguna al cerrar esta sesión.
 - Tareas verificadas: **P0.1, P0.2, P0.3, P1.1, P1.2, P1.3, P2.1, P2.2, P2.3, P3.1, P3.2, P3.3, P3.4, P3.5 y P3.6**.
 - P0.3 cerrada el 25 de octubre: cambios publicados en `main` y [ejecución alojada 40150599234](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/actions/runs/40150599234) con los tres trabajos en verde.
@@ -70,6 +70,14 @@ Todos los IDs remiten a tareas definidas en el plan maestro. Al comenzar una tar
 | P4.3 | implementada, sin validar en dispositivo | [Evidencia P4](evidencias/P4-2026-10-24.md), [verificación](evidencias/verificacion-2026-10-24.md). | Revocación local y remota con reflejo del estado `DEVICE_REVOKED`; UI y borrado de credencial probados con dobles en JVM, no en dispositivo. |
 
 ## Bitácora de sesiones
+
+### 25 de octubre de 2026 UTC — pull, recuperación del fixture e intento API30
+
+- Pull solicitado por el usuario: incorporados `b3d90b7`…`a17dffd` sin reescribir commits y conservando `9c62c7e`. Conflicto de `docs/AVANCE.md` resuelto con ambos historiales y estado actual; merge `5b263ba`. La API de GitHub Actions devolvió `Forbidden` al reconsultarla.
+- Nuevo `scripts/local_fixture.py`: PostgreSQL con volumen propio y secretos/certificados bajo `.tooling/integration-fixture`, fuera de `/tmp`; venv existente validado contra el lock. API reiniciada sin cambios en dispositivos/eventos. [Guía](PRUEBAS_INTEGRADAS.md).
+- Corregidos configuración de home/proxy/CA de las JVM hijas, selección explícita de CA en Requests, aislamiento de mantenimiento/TLS en el chequeo PostgreSQL y rutas temporales. Resultado: 8 unitarias, 53 integración, 23 comunes, 7 UI JVM, 3 humo HTTPS, contrato 23 respuestas y auditoría de ambos APK aprobados.
+- Imagen API30/AVDs de 2 GiB: ambos completaron boot. El agente abrió detrás de ANR de System UI; la repetición con un solo AVD también mostró el bloqueo. Intentos, rechazos por espacio, recuperación de lock zombie y capturas conservados. P4 no se cierra. [Evidencia](evidencias/P4-2026-10-25.md).
+- AVDs/datos conservados, emuladores propios detenidos; fixture API/BD disponible en loopback. Próximo desarrollo independiente P5.1; ejecución Android, entrega firmada y piloto con sus requisitos pendientes.
 
 ### 24 de octubre de 2026 UTC — verificación de funcionamiento (5 vías)
 

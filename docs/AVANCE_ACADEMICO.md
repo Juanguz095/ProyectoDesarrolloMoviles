@@ -1,6 +1,6 @@
 # AuditLab — Avance de la fase 1 académica
 
-Fecha de actualización: 24 de octubre de 2026, UTC.
+Fecha de actualización: 25 de octubre de 2026, UTC; las comprobaciones académicas conservan sus fechas originales.
 
 Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inicial: [PLAN_I01.md](PLAN_I01.md). Fuente de requisitos: [contexto del usuario](referencias/contexto-auditlab-2026-10-22.txt).
 
@@ -13,10 +13,10 @@ Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inicial: [PLAN_I01.md](P
 - Verificación final: **93 JVM, 15 SQL host, 23 herramientas y 55 Android API28 aprobadas**, sin fallos/errores/omitidas. **Nueve comprobaciones reales aprobadas** con selector/rotación, CSV exacto, cancelación, muerte de proceso, revocación con fallo de DELETE y reintento. Fixture original vacía/revocada restaurada y comparada; CSVs anteriores conservados.
 - Comprobación posterior: **55/55 Android8/API26 y repetición 55/55 Android9/API28**, misma APK y aserciones, cero fallos/errores/omitidos. [Informe de dos emuladores](evidencias/academico/DOS-EMULADORES-2026-10-23.md). No se atribuye a esta repetición una nueva ejecución JVM/host/lint.
 - Revisión del usuario/profesor y conformidad de la rúbrica pendientes; la ejecución autorizada no equivale a esa revisión.
-- Próximo paso del proyecto completo: reconstruir el fixture persistente y ejecutar el recorrido agente → API → centro de P4 en Android real. En la entrega local siguen pendientes revisión/IDE/teléfono/rúbrica y API36 estable; conserva los tres intentos históricos y otro interrumpido durante instalación.
+- Próximo paso del proyecto completo: P5.1 (Room y cola), mientras P4 espera una ejecución Android estable. El fixture ya fue recuperado; los intentos API30 del 25 de octubre mostraron ANR de System UI, también con un solo AVD. En la entrega local siguen pendientes revisión/IDE/teléfono/rúbrica y API36 estable; conserva los tres intentos históricos y otro interrumpido durante instalación.
 - Pendiente documental: PDF/prompts/rúbrica del curso; el contexto textual ya fija versiones, límites y obligación de aprobación.
 - Ruta de continuación actual: el [avance del proyecto completo](AVANCE.md). Sus fases 0–8 tienen criterios propios y no se acreditan por los 12 incrementos de esta app local.
-- Entorno Android: ADB resuelto e imágenes/AVDs API26/API28/API36 instalados. API26/API28 completaron la suite aisladamente. API36 sufrió ANR de componentes del sistema en los tres intentos históricos; el intento adicional con AVD nuevo registró watchdog durante el arranque y se interrumpió antes de Instrumentation. Sus datos y registros se conservaron. La próxima comprobación de API36 requiere una instancia estable, preferiblemente con KVM, o un dispositivo compatible.
+- Entorno al 25 de octubre: imágenes API26/API28/API30 disponibles; AVDs y datos anteriores conservados. Se retiró la imagen de sistema descargable API36 para liberar espacio, por lo que debe reinstalarse antes de arrancar sus AVDs. API26/API28 conservan sus pruebas académicas aprobadas. Los intentos API30 del proyecto completo arrancaron y mostraron ANR de System UI, también aisladamente; [evidencia actual](evidencias/P4-2026-10-25.md). La validación completa de API36 sigue pendiente en un entorno estable.
 
 ## Seguimiento
 

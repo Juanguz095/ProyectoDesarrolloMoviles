@@ -54,7 +54,9 @@ python3 scripts/gradle.py :apps:common:test :apps:agent:assembleDebug :apps:cont
 python3 scripts/gradle.py :apps:agent:lintDebug :apps:control:lintDebug --no-daemon
 ```
 
-Artefactos: `apps/agent/build/outputs/apk/debug/agent-debug.apk`, `apps/control/build/outputs/apk/debug/control-debug.apk` y `backend/ktor/build/install/ktor/`. El módulo `apps/common` concentra el cliente HTTP y la lógica del agente/centro; sus 23 pruebas JVM se ejecutan sin Android SDK ni emulador. Un APK compilado **no** se considera instalado ni validado en dispositivo: sin `/dev/kvm` o un teléfono compatible no se puede ejecutar el recorrido de P4.
+Artefactos: `apps/agent/build/outputs/apk/debug/agent-debug.apk`, `apps/control/build/outputs/apk/debug/control-debug.apk` y `backend/ktor/build/install/ktor/`. El módulo `apps/common` concentra el cliente HTTP y la lógica del agente/centro; sus 23 pruebas JVM se ejecutan sin Android SDK ni emulador. Un APK compilado **no** se considera instalado ni validado en dispositivo: P4 requiere ejecutar de forma estable las apps y el recorrido real con la API en un emulador o dispositivo compatible.
+
+Procedimiento de continuación y recuperación: [PRUEBAS_INTEGRADAS.md](PRUEBAS_INTEGRADAS.md). Describe el fixture persistente fuera de `/tmp`, el venv del checkout, las CA de QA y los límites de la emulación por software. La ejecución estable de las dos apps es el requisito de P4; la ausencia de KVM por sí sola no prueba que ninguna versión Android pueda arrancar.
 
 Prueba de humo opcional del cliente real contra una API en marcha (mismas clases que usan las apps, sin Keystore ni UI):
 

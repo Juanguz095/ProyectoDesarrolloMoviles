@@ -19,8 +19,11 @@ IMAGE = 'postgres:17.6-bookworm@sha256:f3bd19c606e442c3d7bdfa8002e03fe260a102335
 def main():
     environment = os.environ.copy()
     for variable in list(environment):
-        if variable.startswith('AUDITLAB_AUTH_'):
-            environment.pop(variable)  # The fixture must not inherit signing keys or limits.
+        if variable.startswith('AUDITLAB_'):
+            # Every account, key and endpoint below belongs to a new QA fixture.
+            # Inherited maintenance/TLS configuration could touch another DB or
+            # bind another server port, so isolation must cover more than auth.
+            environment.pop(variable)
     for selector in ('DOCKER_HOST','DOCKER_CONTEXT','DOCKER_TLS','DOCKER_TLS_VERIFY','DOCKER_CERT_PATH'):
         environment.pop(selector, None)
     if (ROOT / '.tooling/jdk/bin/java').exists():
@@ -76,7 +79,9 @@ def main():
             client.close()
 
     log_path.write_text('Isolated PostgreSQL migration/CLI checks\n')
-    with tempfile.TemporaryDirectory(prefix='auditlab-schema-') as directory:
+    temporary_root = ROOT / '.tooling/database-check-tmp'
+    temporary_root.mkdir(parents=True, exist_ok=True, mode=0o700)
+    with tempfile.TemporaryDirectory(prefix='auditlab-schema-', dir=temporary_root) as directory:
         settings = Path(directory) / 'postgres.env'
         settings.write_text('POSTGRES_USER=fixture_root\nPOSTGRES_DB=postgres\nPOSTGRES_INITDB_ARGS=--auth-host=scram-sha-256\nPOSTGRES_PASSWORD='+passwords['root']+'\n')
         settings.chmod(0o600)

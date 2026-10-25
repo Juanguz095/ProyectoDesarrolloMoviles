@@ -16,13 +16,23 @@ Path(environment['ANDROID_USER_HOME']).mkdir(parents=True, exist_ok=True)
 if not environment.get('ANDROID_HOME') and (root / '.tooling/android-sdk').is_dir():
     environment['ANDROID_HOME'] = str(root / '.tooling/android-sdk')
 options = shlex.split(environment.get('GRADLE_OPTS', ''))
+# Test workers (including Robolectric) are separate JVMs: GRADLE_OPTS alone does
+# not give them writable user.home or the managed proxy/CA configuration.
+worker_options = shlex.split(environment.get('JAVA_TOOL_OPTIONS', ''))
+writable_java_home = root / '.tooling/user-home'
+writable_java_home.mkdir(parents=True, exist_ok=True)
+worker_options.append('-Duser.home=' + str(writable_java_home))
+network_options = []
 proxy = urlparse(environment.get('HTTPS_PROXY', environment.get('https_proxy', '')))
 if proxy.hostname:
     for protocol in ('http', 'https'):
-        options.extend([f'-D{protocol}.proxyHost={proxy.hostname}', f'-D{protocol}.proxyPort={proxy.port or 8080}'])
-    options.append('-Dhttp.nonProxyHosts=localhost|127.*|[::1]')
+        network_options.extend([f'-D{protocol}.proxyHost={proxy.hostname}', f'-D{protocol}.proxyPort={proxy.port or 8080}'])
+    network_options.append('-Dhttp.nonProxyHosts=localhost|127.*|[::1]')
 truststore = root / '.tooling/java-truststore'
 if truststore.exists():
-    options.append('-Djavax.net.ssl.trustStore=' + str(truststore))
+    network_options.append('-Djavax.net.ssl.trustStore=' + str(truststore))
+options.extend(network_options)
+worker_options.extend(network_options)
 environment['GRADLE_OPTS'] = shlex.join(options)
+environment['JAVA_TOOL_OPTIONS'] = shlex.join(worker_options)
 raise SystemExit(subprocess.call([str(root / 'gradlew'), *sys.argv[1:]], cwd=root, env=environment))
