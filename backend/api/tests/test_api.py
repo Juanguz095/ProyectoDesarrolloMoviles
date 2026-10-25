@@ -234,7 +234,9 @@ class ApiFlow(unittest.TestCase):
         self.assertEqual(self.events_count(), 1)
         with self.module.connect() as db:
             db.execute("UPDATE events SET timestamp = '2000-01-01T00:00:00Z'")
-        self.call('GET', '/v1/events', token=self.admin)
+        status, _, _ = self.call('GET', '/v1/events', token=self.admin)
+        self.assertEqual(status, 200)
+        # The response must arrive only after the purge and its audit row are committed.
         self.assertEqual(self.events_count(), 0)
 
 

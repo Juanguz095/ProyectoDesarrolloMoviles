@@ -71,6 +71,8 @@ object DatabaseTools {
                     sql.execute("GRANT USAGE ON SCHEMA auditlab TO \"$role\"")
                     if (maintenance) {
                         sql.execute("GRANT SELECT, DELETE ON auditlab.events, auditlab.audit_log, auditlab.devices, auditlab.consents, auditlab.enrollment_codes, auditlab.user_sessions, auditlab.refresh_tokens TO \"$role\"")
+                        // The retention pass appends its own audit row; it still cannot update rows.
+                        sql.execute("GRANT INSERT ON auditlab.audit_log TO \"$role\"")
                     } else {
                         sql.execute("GRANT SELECT ON auditlab.users TO \"$role\"")
                         sql.execute("GRANT SELECT, INSERT, UPDATE, DELETE ON auditlab.user_sessions, auditlab.refresh_tokens, auditlab.enrollment_codes TO \"$role\"")

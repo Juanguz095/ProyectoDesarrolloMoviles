@@ -3,7 +3,6 @@ package com.auditlab.api
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.exceptions.JWTVerificationException
-import java.security.MessageDigest
 import java.security.SecureRandom
 import java.sql.Connection
 import java.time.Clock
@@ -47,6 +46,10 @@ class AuthConfig(key: ByteArray, val issuer: String = "auditlab-api", val audien
 }
 
 data class UserIdentity(val userId: UUID, val username: String, val role: String, val sessionId: UUID)
+
+/** Authenticated agent device. The consent row is read under the same device lock as ingestion. */
+data class DeviceIdentity(val deviceId: UUID, val consentId: UUID, val policyVersion: String,
+                          val acceptedAt: java.time.Instant, val revoked: Boolean)
 
 class AccessTokens(private val config: AuthConfig, private val clock: Clock = Clock.systemUTC()) {
     private val algorithm = Algorithm.HMAC256(config.signingKey)
@@ -95,7 +98,7 @@ class AuthService(private val database: Database, private val config: AuthConfig
     private val dummyHash = Passwords.hash(opaque())
     private fun now() = clock.instant().truncatedTo(ChronoUnit.SECONDS)
     private fun opaque(): String = "ar_" + Base64.getUrlEncoder().withoutPadding().encodeToString(ByteArray(32).also(random::nextBytes))
-    private fun hash(token: String) = MessageDigest.getInstance("SHA-256").digest(token.toByteArray(Charsets.UTF_8)).joinToString("") { "%02x".format(it) }
+    private fun hash(token: String) = TokenHash.sha256(token)
     private fun bucketKey(text: String): String = Mac.getInstance("HmacSHA256").run {
         init(SecretKeySpec(config.signingKey, "HmacSHA256")); doFinal(("rate:" + text).toByteArray(Charsets.UTF_8))
     }.joinToString("") { "%02x".format(it) }
@@ -213,6 +216,30 @@ class AuthService(private val database: Database, private val config: AuthConfig
     fun logout(token: String, correlation: UUID) = authorized(token, setOf("admin", "auditor")) { connection, user ->
         revoke(connection, user.sessionId, now())
         audit(connection, user, "session_revoked", user.sessionId, correlation)
+    }
+
+    internal fun cursorCodec(): CursorCodec = CursorCodec(config.signingKey, clock)
+
+    /** Shared transactional entry point for routes that do not act on behalf of a user session. */
+    internal fun <T> transaction(action: (Connection) -> T): T = database.transaction(action)
+
+    /**
+     * Authenticates an opaque device credential and locks its row, so revocation and ingestion are
+     * serialized. A revoked device or consent never authorizes a write.
+     */
+    fun <T> authorizedDevice(token: String, action: (Connection, DeviceIdentity) -> T): T = database.transaction { connection ->
+        val identity = connection.prepareStatement("""SELECT d.id,d.status,c.id,c.policy_version,c.accepted_at,c.revoked_at
+            FROM auditlab.devices d JOIN auditlab.consents c ON c.id=d.consent_id
+            WHERE d.token_hash=? FOR UPDATE OF d""").use {
+            it.setString(1, hash(token))
+            it.executeQuery().use { row ->
+                if (!row.next()) null else DeviceIdentity(
+                    row.getObject(1, UUID::class.java), row.getObject(3, UUID::class.java), row.getString(4),
+                    row.getTimestamp(5).toInstant().truncatedTo(ChronoUnit.MICROS), row.getTimestamp(6) != null || row.getString(2) != "active")
+            }
+        } ?: throw ApiFailure(401, "UNAUTHENTICATED")
+        if (identity.revoked) throw ApiFailure(401, "DEVICE_REVOKED")
+        action(connection, identity)
     }
 
     private fun session(connection: Connection, id: UUID): Triple<UserIdentity?, Instant?, ApiFailure?> =
