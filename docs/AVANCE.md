@@ -21,8 +21,8 @@ El estado siguiente documenta el sistema ampliado anterior y se conserva como hi
 - Etapa: **fase 3 verificada; fase 4 implementada, pendiente de ejecución en emulador o dispositivo**.
 - Tarea siguiente: **P4.1–P4.3 — recorrido integrado real en un emulador/dispositivo compatible**. El código existe y compila; no se declara validado sin esa ejecución.
 - Tarea principal en curso: ninguna al cerrar esta sesión.
-- Tareas verificadas: **P0.1, P0.2, P1.1, P1.2, P1.3, P2.1, P2.2, P2.3, P3.1, P3.2, P3.3, P3.4, P3.5 y P3.6**.
-- Pendiente externo de P0.3: workflow corregido localmente; falta publicar y comprobar el resultado alojado de GitHub Actions. No bloquea el desarrollo local.
+- Tareas verificadas: **P0.1, P0.2, P0.3, P1.1, P1.2, P1.3, P2.1, P2.2, P2.3, P3.1, P3.2, P3.3, P3.4, P3.5 y P3.6**.
+- P0.3 cerrada el 25 de octubre: cambios publicados en `main` y [ejecución alojada 40150599234](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/actions/runs/40150599234) con los tres trabajos en verde.
 - Evidencias: [P0.1](evidencias/P0.1-2026-10-17.md), [P0.2/P2.1](evidencias/P0.2-2026-10-17.md), [P0.3](evidencias/P0.3-2026-10-17.md), [fase 1](evidencias/P1-2026-10-17.md), [P2.2](evidencias/P2.2-2026-10-17.md), [P2.3](evidencias/P2.3-2026-10-17.md), [P3.1](evidencias/P3.1-2026-10-17.md), [P3.2–P3.6](evidencias/P3.2-P3.6-2026-10-24.md), [P4](evidencias/P4-2026-10-24.md) y [verificación de funcionamiento](evidencias/verificacion-2026-10-24.md).
 - Herramientas: JDK completo, Gradle, Android SDK y PostgreSQL comprobados. Guía reproducible en [desarrollo](desarrollo.md).
 
@@ -34,7 +34,7 @@ Todos los IDs remiten a tareas definidas en el plan maestro. Al comenzar una tar
 
 | Fase | Tareas pendientes | Tareas verificadas | Cierre |
 | --- | --- | --- | --- |
-| 0. Base | P0.3 (ejecución alojada) | P0.1, P0.2 | Pendiente de CI remota |
+| 0. Base | Ninguna | P0.1, P0.2, P0.3 | Verificada (CI alojada en verde) |
 | 1. Requisitos | Ninguna | P1.1, P1.2, P1.3 | Verificada como especificación |
 | 2. Contratos y estructura | Ninguna | P2.1, P2.2, P2.3 | Verificada |
 | 3. API | Ninguna | P3.1, P3.2, P3.3, P3.4, P3.5, P3.6 | Verificada |
@@ -50,7 +50,7 @@ Todos los IDs remiten a tareas definidas en el plan maestro. Al comenzar una tar
 | --- | --- | --- | --- |
 | P0.1 | verificada | [Evidencia](evidencias/P0.1-2026-10-17.md) | Fallos reproducidos/corregidos y límites del prototipo registrados. |
 | P0.2 | verificada | [Evidencia](evidencias/P0.2-2026-10-17.md), [desarrollo](desarrollo.md). | Toolchain completo, PostgreSQL y compilación nativa comprobados. |
-| P0.3 | bloqueada | [Evidencia](evidencias/P0.3-2026-10-17.md). | CI configurada y comandos locales probados; código publicado en `main`, ejecución alojada pendiente de comprobar. |
+| P0.3 | verificada | [Evidencia](evidencias/P0.3-2026-10-17.md). | Ejecución alojada [40150599234](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/actions/runs/40150599234): 3 de 3 trabajos en verde, incluida la auditoría de APK. |
 | P1.1 | verificada | [Evidencia fase 1](evidencias/P1-2026-10-17.md), [requisitos](requisitos.md). | Datos, alcance, acceso, retención y límites definidos. |
 | P1.2 | verificada | [Estados](estados.md), [evidencia](evidencias/P1-2026-10-17.md). | Flujos positivos/negativos y revocación offline definidos. |
 | P1.3 | verificada | [Historias](historias.md), [evidencia](evidencias/P1-2026-10-17.md). | 12 historias relacionadas con los 15 criterios, sin declarar aceptación funcional. |
@@ -78,8 +78,9 @@ Todos los IDs remiten a tareas definidas en el plan maestro. Al comenzar una tar
 - **HTTPS real** (`scripts/check_tls.sh`, nuevo): TLS nativo en Ktor con `AUDITLAB_TLS_CERTIFICATE`/`AUDITLAB_TLS_PRIVATE_KEY`; con TLS solo se abre el puerto cifrado. Comprobados HTTPS con CA propia, rechazo de HTTP en claro, rechazo sin CA, contrato en vivo por HTTPS, cliente JVM con truststore propio y ausencia de secretos en el registro.
 - **UI con Robolectric** (`AgentScreenTest` 4, `ControlScreenTest` 3): 7 pruebas, 0 fallos. Cubren consentimiento, inscripción, evento, revocación remota y local, roles admin/auditor y consulta de eventos. Hallazgo: con la pantalla por defecto (320×470 dp) las pulsaciones no llegaban a los botones; corregido con `w411dp-h891dp` y `performScrollTo()`.
 - **Suite completa desde base vacía**: 8 unitarias y 53 de integración PostgreSQL, 0 fallos; 23 pruebas JVM de `apps/common`; lint 0 errores y 7 avisos por app (versiones disponibles y `UseKtx`); contrato 49 pruebas; prototipo 16 pruebas; documentación válida.
-- **Límites**: no se ejecutó el APK en emulador ni dispositivo (sin `/dev/kvm`, imagen ni teléfono), así que P4.1–P4.3 siguen sin validar en dispositivo. No se publicó ni desplegó nada; P0.3 sigue bloqueada por falta de `git push` autorizado. Evidencia: [verificación](evidencias/verificacion-2026-10-24.md).
-- Siguiente tarea: **P4.1–P4.3 en un emulador o dispositivo compatible**. Para cerrar P0.3 hace falta autorización para publicar y leer el resultado de GitHub Actions.
+- **Publicación y CI**: con autorización explícita se publicaron los tres commits en `main` (`b3d90b7`, `c72c367`, `e918fed`) y la CI alojada pasó entera en [40150599234](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/actions/runs/40150599234), cerrando P0.3. Antes hubo dos fallos reales de CI: `sdkmanager` fuera del `PATH`, la prueba de retención del prototipo leyendo antes del commit y `check_apk.py` usando `/tmp/opencode`; los tres se corrigieron.
+- **Límites**: no se ejecutó el APK en emulador ni dispositivo (sin `/dev/kvm`, imagen ni teléfono), así que P4.1–P4.3 siguen sin validar en dispositivo. Evidencia: [verificación](evidencias/verificacion-2026-10-24.md).
+- Siguiente tarea: **P4.1–P4.3 en un emulador o dispositivo compatible**.
 
 ### 24 de octubre de 2026 UTC — fase 3 verificada y fase 4 implementada
 
