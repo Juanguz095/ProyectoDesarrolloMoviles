@@ -1,50 +1,42 @@
 # AuditLab — Registro de avance
 
-Fecha de actualización: 25 de octubre de 2026, UTC; repetición de backend/JVM/TLS e intentos Android reales realizados el 25 de octubre UTC.
+Actualización: 25 de octubre de 2026, hora de Lima (26 de octubre UTC). Los registros técnicos conservan timestamps UTC.
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
 ## Alcance actual de la solicitud
 
-**Objetivo activo: completar las dos apps y la API**, siguiendo [PLAN_MAESTRO.md](PLAN_MAESTRO.md), fases 0–8. Se integraron los cinco commits remotos hasta `a17dffd` mediante merge `5b263ba`, conservando el commit documental local. P0.1–P0.3 y P3.1–P3.6 mantienen sus cierres; P4 está implementada y sigue sin validación del recorrido real. Fixture/venv/certificados persistentes recuperados fuera de `/tmp`; 8 unitarias, 53 integración PostgreSQL, 23 comunes, 7 UI JVM y 3 humo HTTPS aprobadas. Dos API30 arrancaron, pero apareció ANR de System UI; la repetición aislada también falló. [Evidencia del 25 de octubre](evidencias/P4-2026-10-25.md), [procedimiento](PRUEBAS_INTEGRADAS.md).
+**Producto activo: agente Android + centro Android + API Ktor/PostgreSQL.** Candidata **0.2.0-rc1**, código funcional `1dcdf5f` e instrumentación `ed8f3ef`. P4–P6 implementadas y comprobadas con actividades reales: agente API28 y centro API26, Room/Keystore/WorkManager, notificaciones, consulta cruzada, CSV/rotación, auditor y retirada local/remota. La secuencia final de 17 pasos pasó sobre las APKs actuales, con hashes comprobados contra las instaladas. [Resultados/hashes](evidencias/artefactos-0.2.0-rc1.json).
 
-**Publicación autorizada en GitHub:** el 24 de octubre se subieron los 14 commits académicos pendientes a `main` de [Juanguz095/ProyectoDesarrolloMoviles](https://github.com/Juanguz095/ProyectoDesarrolloMoviles). Incluyen I01–I12, correcciones, documentación e informe de los dos emuladores. Se confirmó mediante `git ls-remote` que la revisión publicada coincide con `652b6988931ad3d191249c749f2b5c53ea08445d`.
+Ver [manual del producto](MANUAL_PRODUCTO.md), [informe de pruebas](evidencias/P5-P8-2026-10-25.md), [entorno reproducible](PRUEBAS_INTEGRADAS.md) y [plan maestro](PLAN_MAESTRO.md). El informe distingue pruebas JVM, Android nativo, API y condiciones externas de entrega.
 
-**Comprobación adicional solicitada con dos emuladores:** la misma APK I12 aprobó **55/55 casos en Android8/API26 y 55/55 en Android9/API28**. Se conservaron los datos normales existentes de API28. [Informe adicional](evidencias/academico/DOS-EMULADORES-2026-10-23.md). Otro intento API36 se interrumpió durante instalación tras inestabilidad del sistema al arrancar; no ejecutó Instrumentation ni se contó como aprobado.
-
-**Implementación I01–I12 y entrega técnica de la fase 1 académica completadas sobre API28.** Se revisaron errores anteriores y se corrigieron exportación, datos SQLite dañados, selector restringido y herramientas de prueba. Resultado final: 93 JVM, 15 SQL host, 23 herramientas y 55 Android aprobadas; nueve comprobaciones reales de selector/rotación/CSV/reinicio/revocación fallida y reintento; lint debug/release 0. Versión 0.1.0-i12/12.
-
-[Entrega y matriz](ENTREGA_ACADEMICA.md), [informe I12/hashes](evidencias/academico/I12-2026-10-23.md), [avance académico](AVANCE_ACADEMICO.md), [seguridad/SSDF](SEGURIDAD_ACADEMICA.md). Android16 sigue sin validación completa tras tres intentos: el último registró 46 casos aprobados, 4 timeouts de UI y 5 sin resultado completo por ANR del sistema del emulador. Sync IDE, teléfono físico y PDF/rúbrica requieren evidencia propia. No se declara conformidad académica sin contrastarlos; fase 2 fuera del alcance.
-
-El estado siguiente corresponde al proyecto completo y vuelve a ser la ruta activa por la instrucción actual del usuario. Las bitácoras académicas conservan sus resultados y su alcance local.
+La app `academic/` permanece como entrega local I01–I12, sin cambios en esta ampliación. Sus pruebas y publicaciones históricas no sustituyen las del producto completo. [Entrega académica](ENTREGA_ACADEMICA.md), [avance académico](AVANCE_ACADEMICO.md).
 
 ## Estado del proyecto completo
 
-- Etapa: **fase 3 verificada; fase 4 implementada, pendiente de ejecución en emulador o dispositivo**.
-- Tarea siguiente independiente: **P5.1 — Room y cola persistente**. P4.1–P4.3 esperan una ejecución estable del recorrido real: los API30 de 2 GiB arrancaron, pero la UI quedó bloqueada por ANR del sistema incluso en la repetición aislada. El código compila; no se declara validado por ese arranque.
-- Tarea principal en curso: ninguna al cerrar esta sesión.
-- Tareas verificadas: **P0.1, P0.2, P0.3, P1.1, P1.2, P1.3, P2.1, P2.2, P2.3, P3.1, P3.2, P3.3, P3.4, P3.5 y P3.6**.
-- P0.3 cerrada el 25 de octubre: cambios publicados en `main` y [ejecución alojada 40150599234](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/actions/runs/40150599234) con los tres trabajos en verde.
-- Evidencias: [P0.1](evidencias/P0.1-2026-10-17.md), [P0.2/P2.1](evidencias/P0.2-2026-10-17.md), [P0.3](evidencias/P0.3-2026-10-17.md), [fase 1](evidencias/P1-2026-10-17.md), [P2.2](evidencias/P2.2-2026-10-17.md), [P2.3](evidencias/P2.3-2026-10-17.md), [P3.1](evidencias/P3.1-2026-10-17.md), [P3.2–P3.6](evidencias/P3.2-P3.6-2026-10-24.md), [P4](evidencias/P4-2026-10-24.md) y [verificación de funcionamiento](evidencias/verificacion-2026-10-24.md).
-- Herramientas: JDK completo, Gradle, Android SDK y PostgreSQL comprobados. Guía reproducible en [desarrollo](desarrollo.md).
-
-El prototipo Python/SQLite conserva su contrato 0.1 y la evidencia previa de 16 pruebas HTTP y 2 JavaScript. La API Ktor cubre login/refresh/logout, inscripción con código de un uso, ingesta idempotente, consultas con cursores y CSV, revocación y retención programada; **8 unitarias y 53 pruebas de integración PostgreSQL aprobadas** desde una base vacía, más concurrencia explícita (16 entregas del mismo `eventId` → 1 aceptada; 16 inscripciones con un código → 1), contrato en vivo sobre 23 respuestas reales y TLS nativo comprobado con CA propia. OpenAPI 0.2 pasa 49 pruebas de contrato. Las apps Android incorporan consentimiento explícito, inscripción, credencial cifrada con Android Keystore, evento simulado, login del centro, consultas y revocación en ambos sentidos, con 23 pruebas JVM del módulo común y **7 pruebas de UI Compose ejecutadas con Robolectric**; **no se ejecutaron en emulador ni dispositivo** (sin `/dev/kvm` ni imagen de sistema), por lo que el recorrido integrado no está validado. Sin HTTPS de piloto ni despliegue. Los cinco commits de avance `b3d90b7`…`a17dffd` están publicados en GitHub; P0.3 registra su CI alojada satisfactoria. La publicación del código no acredita el recorrido real Android pendiente.
+- **Implementación funcional del MVP terminada**, con verificación QA y correcciones de errores anteriores. P4.1–P4.3, P5.1–P5.4 y P6.1–P6.4 cuentan con evidencia nativa en las versiones indicadas.
+- Host: **68 comunes + 21 agente + 8 centro + 8 Ktor + 53 integración PostgreSQL + 4 smoke HTTPS**, sin fallos/errores/omitidas. Además, 49 de contrato, 16 Python, 2 Node y 17 de herramientas aprobadas.
+- Carga: 10 000 eventos, 100 páginas, CSV comparado por ID y cinco lectores; p95 **34,68 ms**, objetivo < 2000 ms, sin emuladores activos durante la medición.
+- Restauración: copia nueva idéntica en diez tablas, **20 022 eventos**, grants/rol runtime y API de la copia comprobados. Original y AVDs conservados; hash de los datos académicos sin cambios.
+- Dependencias runtime: Netty **4.1.137.Final**, Logback **1.5.34**, **156 módulos identificados/0 hallazgos** en la base de avisos registrada. No cubre SO/JDK/herramientas ni configuración operacional.
+- Builds debug/release y lint aprobados. Debug firmadas para desarrollo; release auditadas con una copia firmada **solo con identidad QA**. Falta la firma del responsable para distribución.
+- **No está cerrado el piloto:** faltan Android reciente y dos teléfonos propios, URL/infraestructura HTTPS con acceso autorizado, clave externa de distribución y comprobación operativa posterior.
+- Código y documentación se guardan en commits locales. La CI alojada de `a17dffd` sigue siendo evidencia histórica de P0.3; la candidata actual no se ha publicado en GitHub ni ha ejecutado su CI alojada.
+- Nube: instalador y arranque del producto completo guardados en borrador; el instalador se ejecutó con código 0. Guardar no aplica/publica. Para activarlos, revisar y guardar en los ajustes del entorno y después publicar. La restauración en una tarea nueva no está acreditada, especialmente para commits solo locales.
 
 ## Seguimiento por fase
 
-Todos los IDs remiten a tareas definidas en el plan maestro. Al comenzar una tarea, añadir su detalle a la tabla de ejecución; al verificarla, enlazar evidencia y actualizar esta tabla.
-
 | Fase | Tareas pendientes | Tareas verificadas | Cierre |
 | --- | --- | --- | --- |
-| 0. Base | Ninguna | P0.1, P0.2, P0.3 | Verificada (CI alojada en verde) |
-| 1. Requisitos | Ninguna | P1.1, P1.2, P1.3 | Verificada como especificación |
-| 2. Contratos y estructura | Ninguna | P2.1, P2.2, P2.3 | Verificada |
-| 3. API | Ninguna | P3.1, P3.2, P3.3, P3.4, P3.5, P3.6 | Verificada |
-| 4. Primer recorrido Android | P4.1, P4.2, P4.3 (ejecución en dispositivo) | Ninguna | Implementada; falta validación en emulador/dispositivo |
-| 5. Agente | P5.1, P5.2, P5.3, P5.4 | Ninguna | Pendiente |
-| 6. Centro de control | P6.1, P6.2, P6.3, P6.4 | Ninguna | Pendiente |
-| 7. Validación | P7.1, P7.2, P7.3, P7.4 | Ninguna | Pendiente |
-| 8. Entrega | P8.1, P8.2, P8.3, P8.4 | Ninguna | Pendiente |
+| 0. Base | CI de la nueva candidata después de su publicación autorizada | P0.1, P0.2, P0.3 en su revisión histórica | Base reproducible; no atribuir su CI anterior al código nuevo |
+| 1. Requisitos | Ninguna de especificación | P1.1, P1.2, P1.3 | Definidos |
+| 2. Contratos/estructura | Ninguna | P2.1, P2.2, P2.3 | Verificada |
+| 3. API | Ninguna funcional del MVP en QA | P3.1, P3.2, P3.3, P3.4, P3.5, P3.6 | Verificada en PostgreSQL y HTTPS QA |
+| 4. Primer recorrido Android | Ninguna en API26/API28 | P4.1, P4.2, P4.3 | Verificada en dos emuladores |
+| 5. Agente | Matriz Android reciente dentro de P7.1 | P5.1, P5.2, P5.3, P5.4 | Verificada en QA, incluido reintento de retirada por generación |
+| 6. Centro | Validación adicional con lector de pantalla/dispositivos de entrega | P6.1, P6.2, P6.3, P6.4 en QA | Flujos nativos, texto al 150 %, selector y rotación comprobados |
+| 7. Validación | P7.1: Android reciente/físico; completar la evaluación del entorno real de piloto | P7.2/P7.3 y revisión P7.4 en el alcance registrado | QA aprobada; aceptación de entrega pendiente |
+| 8. Entrega | P8.1 HTTPS real; P8.2 firma/dispositivos; P8.3 repetición por tercero; P8.4 piloto | Restauración QA y manual/informe preparados | Condicionada a accesos, clave y dispositivos |
 
 ## Tabla de ejecución
 
@@ -65,11 +57,38 @@ Todos los IDs remiten a tareas definidas en el plan maestro. Al comenzar una tar
 | P3.4 | verificada | [Evidencia P3.2–P3.6](evidencias/P3.2-P3.6-2026-10-24.md). | Filtros, cursores ligados a actor/filtros, detalle, CSV con límite y auditoría de consultas probados. |
 | P3.5 | verificada | [Evidencia P3.2–P3.6](evidencias/P3.2-P3.6-2026-10-24.md). | Revocación remota y local, bloqueo inmediato de escrituras, auditoría y retención programada con cuenta de mantenimiento. |
 | P3.6 | verificada | [Evidencia P3.2–P3.6](evidencias/P3.2-P3.6-2026-10-24.md), [despliegue](despliegue.md). | Reinicio conserva datos, `/ready` 503 sin BD, retención CLI 0, secretos ausentes del registro y guía HTTPS. |
-| P4.1 | implementada, sin validar en dispositivo | [Evidencia P4](evidencias/P4-2026-10-24.md), [verificación](evidencias/verificacion-2026-10-24.md). | Consentimiento obligatorio, inscripción, credencial cifrada con Keystore y evento simulado; compila y pasa 4 pruebas de UI en JVM. |
-| P4.2 | implementada, sin validar en dispositivo | [Evidencia P4](evidencias/P4-2026-10-24.md), [verificación](evidencias/verificacion-2026-10-24.md). | Login, dispositivos y eventos por rol en el centro; 3 pruebas de UI en JVM confirman que el auditor no ve acciones de admin. |
-| P4.3 | implementada, sin validar en dispositivo | [Evidencia P4](evidencias/P4-2026-10-24.md), [verificación](evidencias/verificacion-2026-10-24.md). | Revocación local y remota con reflejo del estado `DEVICE_REVOKED`; UI y borrado de credencial probados con dobles en JVM, no en dispositivo. |
+| P4.1 | verificada en API28 | [Informe](evidencias/P5-P8-2026-10-25.md). | Consentimiento, código, inscripción real, credencial Keystore y evento contrastado en API/PostgreSQL. |
+| P4.2 | verificada con centro API26 | [Informe](evidencias/P5-P8-2026-10-25.md). | Una segunda app consulta el ID enviado por el agente, detalle y auditoría. |
+| P4.3 | verificada en ambos sentidos | [Informe](evidencias/P5-P8-2026-10-25.md). | Revocación remota, rechazo posterior, retirada offline, proceso reiniciado y confirmación al volver red. |
+| P5.1–P5.4 | implementadas y verificadas en QA | [Informe](evidencias/P5-P8-2026-10-25.md). | Room/migración/capacidad/retención, WorkManager real, indicador/ajustes, Keystore, pausa durable y retirada por generación sin intervención manual. |
+| P6.1–P6.4 | implementadas y verificadas en QA | [Informe](evidencias/P5-P8-2026-10-25.md), [manual](MANUAL_PRODUCTO.md). | Login/roles/reinicio, filtros/detalle/auditoría, CSV por URI real, cancelación/rotación y confirmaciones con texto al 150 %. Lector de pantalla no ejecutado. |
+| P7.1/P7.2 | matriz QA aprobada; Android reciente/físico pendiente | [Matriz](evidencias/P5-P8-2026-10-25.md). | Negativos/concurrencia/almacenamiento, contrato, sesiones y recorridos nativos; no aprobación de plataformas no ejecutadas. |
+| P7.3 | verificada en QA local | [Medición](evidencias/P5-P8-2026-10-25.md). | 10 000 eventos; cinco lectores, 100 consultas, p95 34,68 ms; CSV y páginas comparados por ID. |
+| P7.4 | revisada en el alcance QA registrado | [Seguridad](evidencias/P5-P8-2026-10-25.md). | Permisos/artefactos/backup/logs/cifrado/TLS Android; 156 dependencias runtime identificadas, 0 hallazgos. Configuración real, SO/JDK y herramientas fuera de ese scan. |
+| P8.1 | restauración QA verificada; HTTPS de piloto pendiente | [Despliegue](despliegue.md), [informe](evidencias/P5-P8-2026-10-25.md). | Base nueva idéntica en diez tablas/20 022 eventos y API contra la copia. TLS QA validado desde Android con confianza explícita solo en la prueba. |
+| P8.2 | builds/instalación QA comprobados; distribución pendiente | [Manual](MANUAL_PRODUCTO.md). | Debug instaladas en dos emuladores; release no depurables auditadas con firma QA. Falta clave del responsable e instalación en teléfonos de entrega. |
+| P8.3 | manual e informe preparados | [Manual](MANUAL_PRODUCTO.md), [matriz](evidencias/P5-P8-2026-10-25.md). | Procedimientos reproducidos aquí; repetición independiente por un tercero aún no realizada. |
+| P8.4 | pendiente | [Plan](PLAN_MAESTRO.md). | No hay despliegue/piloto acreditado; requiere URL, acceso, autorización y responsable operativo. |
 
 ## Bitácora de sesiones
+
+### 25 de octubre de 2026, Lima (26 UTC) — MVP completo y aceptación QA
+
+- Producto completo: P4–P6 verificadas con agente API28 y centro API26 contra API/PostgreSQL reales. Cola Room/retención, WorkManager, visibilidad, Keystore, revocación offline/remota, roles, historial/filtros/detalle, CSV/auditoría y confirmaciones.
+- **263 pruebas distintas aprobadas**, incluidas 17 etapas nativas completas, más 23 respuestas HTTPS contrastadas con OpenAPI. Se conservaron los fallos previos del reloj Compose, generación de trabajos, firma/auditor release y selector tras rotación, con sus correcciones y repeticiones. No se contabilizan como aprobaciones ni se ocultan las campañas fallidas.
+- Carga final: 10 000 eventos, p95 34,68 ms con cinco lectores; restauración nueva de 20 022 eventos/10 tablas y permisos reales comprobados. Runtime Maven: 156 módulos/0 hallazgos tras corregir Netty/Logback; ámbito y base de avisos documentados.
+- Compilación limpia debug/release/AndroidTest/Ktor y lint 0 errores; firma release QA comprobada, sin clave de distribución del responsable. Las APKs actuales coinciden por SHA256 con las instaladas en la secuencia nativa final.
+- Conservadas fuentes y datos académicos (dump antes/después idéntico), AVDs y volúmenes. Solo se detuvieron procesos propios y se retiraron entradas temporales de las pruebas. API/BD QA listas en loopback.
+- Código en commits locales `1dcdf5f` y `ed8f3ef`; sin push, CI alojada nueva, despliegue o publicación del entorno. Instalador/arranque guardados en borrador y comprobados en esta instancia.
+- **Siguiente tarea:** P7.1 en Android reciente/teléfonos; después P8.1/P8.2/P8.4 con URL/acceso, certificado, firma y autorización del responsable. P8.3 tiene manual/informe; repetición independiente pendiente. [Informe](evidencias/P5-P8-2026-10-25.md), [manual](MANUAL_PRODUCTO.md), [hashes](evidencias/artefactos-0.2.0-rc1.json).
+
+### 25 de octubre de 2026 UTC — implementación P5/P6 y verificaciones P7/P8
+
+- Solicitud de completar el proyecto y realizar todas las pruebas posibles: implementadas las funciones del agente y del centro descritas arriba, manteniendo API/contrato y app académica.
+- Corregidos fallos de cola/ACK, retirada offline/concurrente, sesión con rol renovado, origen de credenciales, errores de cifrado/almacenamiento, exportación fallida y conservación de contraseña en formulario.
+- Nuevas pruebas y regresiones: 63 comunes, 18 agente/7 centro JVM, 53 PostgreSQL; contrato 49, prototipo 16 + 2 Node; HTTPS/contrato real aprobados. Debug/release construidos, lint 0 errores; release sin firma de distribución.
+- P7.3 cumplida en QA local. Restauración real en BD nueva comprobada; corregida propiedad de tablas para aplicar grants. [Evidencia y comandos](evidencias/P5-P8-2026-10-25.md).
+- API28 inicia sin borrar datos; recorrido nativo en curso. P4 y aceptación final siguen pendientes hasta contar con evidencia propia. Sin push/despliegue/publicación en esta sesión.
 
 ### 25 de octubre de 2026 UTC — pull, recuperación del fixture e intento API30
 

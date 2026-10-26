@@ -143,3 +143,16 @@ Con la distribución instalada y PostgreSQL 18.6 local:
 6. El registro del servidor no contenía las contraseñas ni la clave de firma usadas.
 
 Estas comprobaciones son manuales y locales. No sustituyen un despliegue con TLS ni la verificación alojada de CI, y no se declara un entorno de piloto publicado.
+
+## Respaldo, restauración y rollback (P8.1)
+
+1. Identificar revisión de API, migraciones aplicadas y copias externas de configuración y claves. El dump no contiene la clave de JWT ni las claves Android. Esos secretos tienen su propio procedimiento de recuperación.
+2. Para una comparación exacta, detener recepción y mantenimiento en una ventana programada. `pg_dump --no-owner --no-privileges` obtiene un snapshot consistente; proteger el flujo con cifrado del operador y control de acceso. No guardar dumps reales en Git ni en un artefacto público.
+3. Crear una **base vacía nueva**, con propietario migrador. Restaurar con ese propietario (`SET ROLE` si el administrador invoca psql), `ON_ERROR_STOP=1`. Restaurar como superusuario sin cambiar el propietario impide que el migrador aplique grants posteriores; ese fallo fue detectado por la prueba QA.
+4. Ejecutar validación de migraciones y `grant-runtime`/`grant-maintenance` apuntando a la base nueva. Comparar cantidades y contenidos de tablas. Arrancar una instancia aislada con la configuración recuperada; comprobar ready, login, consultas y permisos mínimos antes de cambiar el tráfico.
+5. Cambiar tráfico solo después de comprobar HTTPS desde ambos Android. Conservar la base anterior y el respaldo cifrado hasta cerrar la recuperación.
+6. Ante fallo de una nueva API, volver a la imagen/revisión anterior solo si su esquema es compatible. Ante migración incompatible, detener escrituras y recuperar en otra base desde el respaldo; no ejecutar “down migrations” improvisadas ni sobreescribir la base original. Acordar cómo recuperar las escrituras posteriores al respaldo antes de aceptar pérdida de datos.
+
+Prueba reproducible del fixture propio: `python3 scripts/check_restore.py`. No actúa sobre producción ni borra bases. Detiene solo la API del fixture, restaura en una base nueva, compara todas las tablas, aplica grants y prueba API/login/consulta contra la copia. Deja ambos recursos y el dump **QA con datos ficticios**, modo 600, bajo `.tooling/integration-fixture/restore`; el operador debe gestionar su retención. Un dump QA sin cifrar no acredita una política de respaldos de producción.
+
+Para entrega: `python3 scripts/gradle.py :apps:agent:assembleRelease :apps:control:assembleRelease`. Se generan APK sin firma; `scripts/sign_release.py` exige clave y archivos de contraseña privados fuera del checkout. No generar una nueva identidad de firma para reemplazar la del responsable. Conservar hashes, verificar firma con apksigner e instalar ambos APK en los dispositivos antes de cerrar P8.2.

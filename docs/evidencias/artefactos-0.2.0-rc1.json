@@ -1,0 +1,436 @@
+{
+  "version": "0.2.0-rc1",
+  "recorded_at": "2026-10-25T22:37:41.501421-05:00",
+  "source_revision": "ed8f3eff866ced62c39f918f52d7f86edfece395",
+  "junit_results": {
+    "common": {
+      "tests": 68,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "agent": {
+      "tests": 21,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "control": {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "ktor": {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "postgres": {
+      "tests": 53,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "https_smoke": {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "additional_suite_counts": {
+    "contract": 49,
+    "prototype_python": 16,
+    "prototype_node": 2,
+    "tools": 17
+  },
+  "additional_commands": [
+    {
+      "name": "contract-validation",
+      "exit_code": 0
+    },
+    {
+      "name": "contract",
+      "exit_code": 0
+    },
+    {
+      "name": "prototype-python",
+      "exit_code": 0
+    },
+    {
+      "name": "prototype-node",
+      "exit_code": 0
+    },
+    {
+      "name": "tools",
+      "exit_code": 0
+    }
+  ],
+  "total_distinct_tests_including_native_stages": 263,
+  "live_https_contract_responses": 23,
+  "native": {
+    "run": ".tooling/android-native/bc5c12bbeddd44f9",
+    "verdict": {
+      "approved": true,
+      "expected_stages": 17,
+      "executed_stages": 17,
+      "passed": 17,
+      "failed": 0,
+      "not_executed": 0
+    },
+    "devices": {
+      "agent": {
+        "serial": "emulator-5580",
+        "sdk": 28,
+        "boot_completed": "1"
+      },
+      "control": {
+        "serial": "emulator-5582",
+        "sdk": 26,
+        "boot_completed": "1"
+      }
+    },
+    "artifacts": [
+      {
+        "component": "agent",
+        "file": "agent-debug.apk",
+        "bytes": 9948957,
+        "sha256": "1ca49f5f70bc66b3bd2eeef1e47c417314adb7a693928f878c0d2f00ffe3c787",
+        "path": "apps/agent/build/outputs/apk/debug/agent-debug.apk"
+      },
+      {
+        "component": "agent",
+        "file": "agent-debug-androidTest.apk",
+        "bytes": 1091197,
+        "sha256": "e35cb41922f89454530917a5bcf72cddce8efcbf6d25a40affd1fbbf589f1222",
+        "path": "apps/agent/build/outputs/apk/androidTest/debug/agent-debug-androidTest.apk"
+      },
+      {
+        "component": "control",
+        "file": "control-debug.apk",
+        "bytes": 9401298,
+        "sha256": "acd7a2df26e252077585f1bb829ec71171d95fa199a6d315118947b4c1f236d8",
+        "path": "apps/control/build/outputs/apk/debug/control-debug.apk"
+      },
+      {
+        "component": "control",
+        "file": "control-debug-androidTest.apk",
+        "bytes": 1113236,
+        "sha256": "3c0cf76c837068e92d094a4865eb0856a9600dcdc18cb0cfceec3ab266031f10",
+        "path": "apps/control/build/outputs/apk/androidTest/debug/control-debug-androidTest.apk"
+      }
+    ],
+    "stages": [
+      {
+        "started": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "approved": true,
+        "exit_code": 0,
+        "component": "agent",
+        "stage": "enroll",
+        "serial": "emulator-5580",
+        "seconds": 45.37
+      },
+      {
+        "started": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "approved": true,
+        "exit_code": 0,
+        "component": "control",
+        "stage": "login-read",
+        "serial": "emulator-5582",
+        "seconds": 55.81
+      },
+      {
+        "started": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "approved": true,
+        "exit_code": 0,
+        "component": "control",
+        "stage": "create-code",
+        "serial": "emulator-5582",
+        "seconds": 21.88
+      },
+      {
+        "started": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "approved": true,
+        "exit_code": 0,
+        "component": "control",
+        "stage": "restore-read",
+        "serial": "emulator-5582",
+        "seconds": 35.12
+      },
+      {
+        "started": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "approved": true,
+        "exit_code": 0,
+        "component": "agent",
+        "stage": "restore",
+        "serial": "emulator-5580",
+        "seconds": 25.94
+      },
+      {
+        "started": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "approved": true,
+        "exit_code": 0,
+        "component": "agent",
+        "stage": "offline",
+        "serial": "emulator-5580",
+        "seconds": 29.89
+      },
+      {
+        "started": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "approved": true,
+        "exit_code": 0,
+        "component": "agent",
+        "stage": "recover",
+        "serial": "emulator-5580",
+        "seconds": 33.64
+      },
+      {
+        "started": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "approved": true,
+        "exit_code": 0,
+        "component": "agent",
+        "stage": "permission-denied",
+        "serial": "emulator-5580",
+        "seconds": 37.17
+      },
+      {
+        "started": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "approved": true,
+        "exit_code": 0,
+        "component": "control",
+        "stage": "revoke",
+        "serial": "emulator-5582",
+        "seconds": 40.49
+      },
+      {
+        "started": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "approved": true,
+        "exit_code": 0,
+        "component": "agent",
+        "stage": "remote-revoked",
+        "serial": "emulator-5580",
+        "seconds": 32.24
+      },
+      {
+        "started": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "approved": true,
+        "exit_code": 0,
+        "component": "agent",
+        "stage": "enroll",
+        "serial": "emulator-5580",
+        "seconds": 44.54
+      },
+      {
+        "started": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "approved": true,
+        "exit_code": 0,
+        "component": "agent",
+        "stage": "withdraw-offline",
+        "serial": "emulator-5580",
+        "seconds": 27.59
+      },
+      {
+        "started": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "approved": true,
+        "exit_code": 0,
+        "component": "agent",
+        "stage": "restore-withdrawal",
+        "serial": "emulator-5580",
+        "seconds": 22.72
+      },
+      {
+        "started": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "approved": true,
+        "exit_code": 0,
+        "component": "agent",
+        "stage": "confirm-withdrawal",
+        "serial": "emulator-5580",
+        "seconds": 31.21
+      },
+      {
+        "started": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "approved": true,
+        "exit_code": 0,
+        "component": "control",
+        "stage": "export-rotation",
+        "serial": "emulator-5582",
+        "seconds": 85.44
+      },
+      {
+        "started": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "approved": true,
+        "exit_code": 0,
+        "component": "control",
+        "stage": "auditor",
+        "serial": "emulator-5582",
+        "seconds": 64.82
+      },
+      {
+        "started": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "approved": true,
+        "exit_code": 0,
+        "component": "control",
+        "stage": "tls-client",
+        "serial": "emulator-5582",
+        "seconds": 11.18
+      }
+    ]
+  },
+  "host_initial_campaign_exit_code": 1,
+  "resolved_host_failure": {
+    "check": "release-policy",
+    "original_exit_code": 1,
+    "final_exit_code": 0,
+    "evidence": "Real apksigner plus check_apk completed; QA-only signature; raw failed attempts retained"
+  },
+  "release_qa_audit": {
+    "passed": true,
+    "production_signature": false,
+    "artifacts": [
+      {
+        "component": "agent",
+        "path": ".tooling/full-delivery/final-host/qa-release-20261026T025158Z/agent-release-QA-ONLY.apk",
+        "sha256": "7c442849b1b824e0cc28b25beec46d4ef3eff5c700aad38b7f64a73e6a93c0c1",
+        "bytes": 7319519,
+        "signature": "Existing debug key for QA ONLY; not operator distribution"
+      },
+      {
+        "component": "control",
+        "path": ".tooling/full-delivery/final-host/qa-release-20261026T025158Z/control-release-QA-ONLY.apk",
+        "sha256": "2c16be49de811760a1828e983f3883ebc2792fc326b3e12d1e84890157d7aad3",
+        "bytes": 6900700,
+        "signature": "Existing debug key for QA ONLY; not operator distribution"
+      }
+    ]
+  },
+  "capacity": {
+    "events": 10000,
+    "pages": 100,
+    "concurrency": 5,
+    "queries": 100,
+    "p50_ms": 19.3,
+    "p95_ms": 34.68,
+    "max_ms": 45.27,
+    "target_p95_ms": 2000,
+    "csv_rows": 10000,
+    "passed": true,
+    "host": "Linux-6.18.55-x86_64-with-glibc2.41",
+    "cpu_max": "400000 100000",
+    "memory_max": "34359738368",
+    "emulators_running": 0,
+    "recorded_at": "2026-10-26T02:47:09.774735+00:00"
+  },
+  "restore": {
+    "passed": true,
+    "tables_compared": 10,
+    "all_table_fingerprints_equal": true,
+    "restored_events": 20022,
+    "backup_sha256": "5ec27c815881c3e3ab1803db29dd7e7762e6c2b9b003b71301323fa9d89ceac6",
+    "backup_bytes": 6037743,
+    "source_preserved": true,
+    "runtime_read_confirmed": true,
+    "api_on_restored_database": "ready, login and 100-event page passed",
+    "command_started_at": "2026-10-26T02:47:09.830832+00:00"
+  },
+  "native_retention": {
+    "recorded_at": "2026-10-26T02:35:20.976565+00:00",
+    "serial": "emulator-5580",
+    "sdk": 28,
+    "retention_work_specs": 1,
+    "maximum_completed_periods": 1,
+    "read_only": true,
+    "exit_code": 0
+  },
+  "dependency_review": {
+    "recorded_at": "2026-10-26T02:47:03.767113+00:00",
+    "scanner": "Trivy 0.76.1",
+    "modules_resolved": 156,
+    "packages_identified": 156,
+    "findings": 0,
+    "high_or_critical": 0,
+    "severity_counts": {
+      "CRITICAL": 0,
+      "HIGH": 0,
+      "MEDIUM": 0,
+      "LOW": 0,
+      "UNKNOWN": 0
+    },
+    "database": {
+      "Version": 2,
+      "NextUpdate": "2026-10-26T19:10:35.479132182Z",
+      "UpdatedAt": "2026-10-25T19:10:35.479132794Z",
+      "DownloadedAt": "2026-10-25T23:30:09.610405573Z"
+    },
+    "sbom_sha256": "fd6dceca245062a2435a4d3527cff413e22c4bcc120895dd7375f50e8f96e6a9",
+    "passed": true,
+    "scope": "Resolved production Maven runtime modules; excludes OS/JDK, test tools and operational configuration"
+  },
+  "limits": [
+    "Native agent API28 and control API26; recent Android/physical-device acceptance pending",
+    "No operator distribution signature or authorized public HTTPS pilot",
+    "No hosted CI for this unpublished local candidate; draft save does not publish environment"
+  ],
+  "cleanup": {
+    "academic_data_unchanged": true,
+    "academic_database_dump_sha256": "899045c518edfbf5f5ddbcbb66118d2aa7826a8d3db90dc1a678932b1657b770",
+    "outer_connectivity_probe_stopped": true,
+    "emulator-5580_term_after_synced_shutdown": true,
+    "emulator-5580_stopped": true,
+    "emulator-5582_term_after_synced_shutdown": true,
+    "emulator-5582_stopped": true,
+    "avd_and_databases_deleted": false
+  }
+}

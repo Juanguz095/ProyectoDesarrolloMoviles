@@ -13,7 +13,8 @@
 | SDK / build-tools / CLI | Plataforma 35 / 35.0.0 / 19.0 |
 | Android mínimo / objetivo | 26 / 35 inicial; revisar requisito vigente antes de publicar. |
 | Compose BOM / Activity | 2025.04.01 / 1.10.1 |
-| Ktor | 3.1.2 |
+| Ktor / Netty BOM / Logback | 3.1.2 / 4.1.137.Final / 1.5.34 |
+| Room / WorkManager | 2.7.2 / 2.10.1 |
 | Flyway / PostgreSQL JDBC / Hikari | 11.20.3 / 42.7.14 / 6.3.3 |
 | Auth0 java-jwt / Jackson BOM | 4.6.2 / 2.22.3 |
 | Password4j / JUnit | 1.8.4 / 5.13.4 |
@@ -54,7 +55,7 @@ python3 scripts/gradle.py :apps:common:test :apps:agent:assembleDebug :apps:cont
 python3 scripts/gradle.py :apps:agent:lintDebug :apps:control:lintDebug --no-daemon
 ```
 
-Artefactos: `apps/agent/build/outputs/apk/debug/agent-debug.apk`, `apps/control/build/outputs/apk/debug/control-debug.apk` y `backend/ktor/build/install/ktor/`. El módulo `apps/common` concentra el cliente HTTP y la lógica del agente/centro; sus 23 pruebas JVM se ejecutan sin Android SDK ni emulador. Un APK compilado **no** se considera instalado ni validado en dispositivo: P4 requiere ejecutar de forma estable las apps y el recorrido real con la API en un emulador o dispositivo compatible.
+Artefactos: `apps/agent/build/outputs/apk/debug/agent-debug.apk`, `apps/control/build/outputs/apk/debug/control-debug.apk` y `backend/ktor/build/install/ktor/`. El módulo `apps/common` concentra el cliente HTTP y la lógica del agente/centro; sus 68 pruebas JVM se ejecutan sin Android SDK ni emulador. Un APK compilado **no** se considera instalado ni validado en dispositivo: P4 requiere ejecutar de forma estable las apps y el recorrido real con la API en un emulador o dispositivo compatible.
 
 Procedimiento de continuación y recuperación: [PRUEBAS_INTEGRADAS.md](PRUEBAS_INTEGRADAS.md). Describe el fixture persistente fuera de `/tmp`, el venv del checkout, las CA de QA y los límites de la emulación por software. La ejecución estable de las dos apps es el requisito de P4; la ausencia de KVM por sí sola no prueba que ninguna versión Android pueda arrancar.
 

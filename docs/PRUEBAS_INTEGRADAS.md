@@ -64,3 +64,37 @@ No asumir que `sys.boot_completed=1` acredita una interfaz estable: comprobar ta
 El AVD necesita espacio para su disco además de los 2 GiB de RAM. En el emulador utilizado, el disco inicial se ajusta a 6 GiB y exige unos 7,2 GiB libres para crearlo. Los instaladores descargables pueden retirarse conservando herramientas extraídas, AVDs, datos y evidencias. Un bloqueo residual de `hardware-qemu.ini.lock` solo puede retirarse tras comprobar que su PID pertenece a un lanzamiento propio terminado, incluido el estado zombie; nunca se usa `-wipe-data` como reparación.
 
 La ausencia de KVM limita el rendimiento de la emulación por software. El cierre de P4 depende de una ejecución real y estable. La firma de distribución, dispositivos físicos y piloto publicado tienen sus propios criterios en las fases 7–8.
+
+
+## Aceptación nativa reproducible de ambas apps
+
+Precondiciones: fixture privado listo en `127.0.0.1:8081`, dos emuladores dedicados distintos API26 o posterior, APKs debug/AndroidTest actuales y herramientas ADB/SQLite del emulador. El script requiere los seriales explícitos y rechaza teléfonos físicos para evitar modificar su red/ajustes. El recorrido automático de DocumentsUI usa los nombres del sistema en inglés: mantener los AVD de QA en en-US; la interfaz de AuditLab sigue en español. Para pruebas en teléfono, seguir el recorrido manual con la autorización de su dueño.
+
+```bash
+python3 scripts/gradle.py :apps:agent:assembleDebug :apps:control:assembleDebug :apps:agent:assembleDebugAndroidTest :apps:control:assembleDebugAndroidTest --no-daemon --max-workers=1
+.venv/bin/python scripts/check_android.py --agent-serial emulator-5580 --control-serial emulator-5582
+```
+
+No desinstala, no ejecuta `pm clear` y no borra registros para pasar el preflight. Si ya existe una inscripción o sesión, retirarla/cerrarla desde la app o usar otro AVD dedicado. En el agente, confirmar la retirada y pulsar **Volver a aceptar consentimiento**, dejando la nueva casilla sin marcar; así se vuelve al estado inicial sin un borrado externo de datos. Cada ejecución crea usuarios/códigos/eventos ficticios propios; conserva su trazabilidad y no borra los datos previos.
+
+El orquestador alterna WiFi/datos del **agente** para comprobar desconexión real. Usa un servidor HTTP 204 propio en loopback para validar la conectividad de la red virtual; no elimina las restricciones de WorkManager. Conserva/restaura los ajustes modificados, reduce animaciones y deja de renderizar el agente tras completar sus casos para limitar la carga sin KVM. Los permisos/notificaciones se cambian mediante la pantalla del sistema dentro de la prueba y se restauran en `finally`.
+
+Hay 17 pasos ordenados: inscripción, lectura cruzada, creación de código, sesiones tras muerte de proceso, pérdida/recuperación de red sin duplicados, retirada de notificaciones, revocación remota, nueva inscripción, retirada local offline y reinicio, confirmación posterior, exportación SAF con cancelación/rotación, auditor/texto al 150 % y TLS Android. Cada paso debe iniciar y finalizar una prueba, sin fallos/omisiones. El resultado completo exige también acabar toda la secuencia; un conjunto parcial en verde no aprueba la entrega.
+
+Informes privados en `.tooling/android-native/<id>/`: `summary.json`, `verdict.json`, `environment.json` con versiones/hashes, `TEST-native.xml` y logs por paso. Nunca publicar los logs en bruto: pueden contener datos ficticios privados. Los archivos de entrada con credenciales se crean modo600 en almacenamiento privado de las apps y se retiran al terminar. El script devuelve error ante un paso fallido o protocolo incompleto.
+
+No ejecutar compilaciones pesadas ni otros recorridos sobre los mismos emuladores mientras corre la suite. Un ANR de System UI sigue siendo un intento fallido. API26/API28 cubren las versiones estables disponibles; la aceptación en Android reciente y los dos teléfonos de entrega sigue teniendo evidencia separada.
+
+## Dependencias, carga y restauración
+
+```bash
+python3 scripts/check_dependencies.py --prepare
+python3 scripts/local_fixture.py run -- .venv/bin/python scripts/check_capacity.py
+python3 scripts/check_restore.py
+```
+
+La revisión descarga Trivy 0.76.1 desde su publicación oficial y verifica el SHA256 fijado; obtiene la base de avisos desde GHCR, genera inventarios de las configuraciones runtime efectivamente resueltas y exige que se identifiquen todos sus paquetes. Falla ante avisos HIGH/CRITICAL; no contiene exclusiones de CVE. `--skip-db-update` sirve solo para comparar con la base registrada, no como sustituto de una revisión actual. No examina el SO/JDK, herramientas de prueba ni configuración operacional.
+
+La carga añade 10 000 eventos ficticios por ejecución, compara las 100 páginas y el CSV por ID y mide cinco lectores concurrentes contra el fixture propio. No ejecutar sobre producción. Registrar recursos y ausencia/presencia de emuladores para interpretar la latencia.
+
+Restauración pausa solo la API propia, crea una base nueva sin sobrescribir la original, restaura como migrador, compara las diez tablas y prueba disponibilidad/login/consulta desde otra API. Conserva el dump privado y ambas bases; su retención queda a cargo del operador. La prueba QA no sustituye cifrar y restaurar respaldos reales.
