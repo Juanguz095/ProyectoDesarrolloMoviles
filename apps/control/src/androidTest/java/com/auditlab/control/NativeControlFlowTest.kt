@@ -56,10 +56,18 @@ class NativeControlFlowTest {
         }
         throw AssertionError("Expected system document picker control unavailable")
     }
-    private fun clickExternal(original: android.view.accessibility.AccessibilityNodeInfo) {
-        var node: android.view.accessibility.AccessibilityNodeInfo? = original
-        while (node != null && !node.isClickable) node = node.parent
-        assertTrue(node?.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK) == true)
+    private fun clickExternal(find: () -> android.view.accessibility.AccessibilityNodeInfo) {
+        val deadline = android.os.SystemClock.elapsedRealtime() + 30_000
+        while (android.os.SystemClock.elapsedRealtime() < deadline) {
+            // Rotation can invalidate a node between discovery and ACTION_CLICK.
+            // Reacquire only when the OS did not accept the click; keep the final
+            // saved URI/CSV assertions as proof that the action really completed.
+            var node: android.view.accessibility.AccessibilityNodeInfo? = find()
+            while (node != null && !node.isClickable) node = node.parent
+            if (node?.refresh() == true && node.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK)) return
+            android.os.SystemClock.sleep(100)
+        }
+        throw AssertionError("System document picker did not accept the click")
     }
     private fun cancelPicker() {
         val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
@@ -142,17 +150,17 @@ class NativeControlFlowTest {
                     cancelPicker()
                     waitFor("Exportación cancelada;")
                     tap("Guardar CSV")
-                    val roots = externalNode { it.contentDescription?.toString() in setOf("Show roots", "Open navigation drawer") }
-                    clickExternal(roots)
-                    clickExternal(externalNode { it.text?.toString() == "Downloads" })
+                    clickExternal { externalNode { it.contentDescription?.toString() in setOf("Show roots", "Open navigation drawer") } }
+                    clickExternal { externalNode { it.text?.toString() == "Downloads" } }
                     val title = externalNode { it.className?.toString() == "android.widget.EditText" }
                     val filename = "qa-native-" + java.util.UUID.randomUUID().toString() + ".csv"
                     val text = android.os.Bundle().apply { putCharSequence(android.view.accessibility.AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, filename) }
                     assertTrue(title.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_SET_TEXT, text))
                     shell("settings put system accelerometer_rotation 0")
                     shell("settings put system user_rotation 1")
-                    val save = externalNode { it.isEnabled && (it.viewIdResourceName?.endsWith(":id/button_save") == true || it.text?.toString()?.equals("Save", true) == true) }
-                    clickExternal(save); waitFor("CSV guardado con los filtros seleccionados.")
+                    compose.waitUntil(20_000) { context.resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE }
+                    clickExternal { externalNode { it.isEnabled && (it.viewIdResourceName?.endsWith(":id/button_save") == true || it.text?.toString()?.equals("Save", true) == true) } }
+                    waitFor("CSV guardado con los filtros seleccionados.")
                     val model = androidx.lifecycle.ViewModelProvider(compose.activity)[ControlViewModel::class.java]
                     val uri = model.session.lastReportUri
                     assertNotNull(uri); assertEquals("content", uri!!.scheme)
