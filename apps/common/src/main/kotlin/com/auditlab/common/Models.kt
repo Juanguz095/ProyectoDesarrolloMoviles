@@ -20,7 +20,10 @@ data class Session(
     val userId: String,
     val username: String,
     val role: String,
-)
+    val serverUrl: String? = null,
+) {
+    override fun toString() = "Session(userId=$userId, role=$role, tokens=[redacted])"
+}
 
 data class EnrolledDevice(
     val deviceId: String,
@@ -28,13 +31,13 @@ data class EnrolledDevice(
     val consent: ConsentContext,
     val enrolledAt: String,
     val status: String = "active",
-)
+) { override fun toString() = "EnrolledDevice(deviceId=$deviceId, token=[redacted])" }
 
 data class EnrollmentCode(
     val code: String,
     val expiresIn: Long,
     val expiresAt: String,
-)
+) { override fun toString() = "EnrollmentCode(code=[redacted], expiresAt=$expiresAt)" }
 
 data class DeviceSummary(
     val deviceId: String,
@@ -81,5 +84,21 @@ class ApiException(
     val isNetwork: Boolean get() = status == 0
     val isUnauthenticated: Boolean get() = status == 401 && code == "UNAUTHENTICATED"
     val isDeviceRevoked: Boolean get() = status == 401 && code == "DEVICE_REVOKED"
-    val isRetryable: Boolean get() = status == 429 || status >= 500 || isNetwork
+    val isRetryable: Boolean get() = code !in setOf("TLS_ERROR", "INVALID_RESPONSE", "RESPONSE_TOO_LARGE") &&
+        (status == 429 || status >= 500 || isNetwork)
 }
+
+/** Immutable filters: changing one always starts a fresh server cursor. */
+data class EventQuery(val device: String? = null, val category: String? = null,
+    val from: String? = null, val to: String? = null, val q: String? = null) {
+    init {
+        require(category == null || category in setOf("app_lifecycle", "sync", "device_status"))
+        require(q == null || q.matches(Regex("[A-Za-z0-9_-]{1,64}"))) { "Busca un ID o código de evento (máximo 64 caracteres)." }
+        val start = from?.let(java.time.Instant::parse)
+        val end = to?.let(java.time.Instant::parse)
+        require(start == null || end == null || start < end) { "La fecha inicial debe ser anterior a la final." }
+    }
+}
+data class AuditRecord(val auditId: String, val occurredAt: String, val actor: String,
+    val action: String, val resource: String, val result: String, val filters: String = "{}", val correlationId: String = "")
+data class AuditPage(val items: List<AuditRecord>, val nextCursor: String?)

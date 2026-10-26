@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     kotlin("android")
+    kotlin("kapt")
     id("org.jetbrains.kotlin.plugin.compose")
 }
 android {
@@ -10,8 +11,9 @@ android {
         applicationId = "com.auditlab.agent"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0-dev"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        versionCode = 2
+        versionName = "0.2.0-rc1"
     }
     buildFeatures { compose = true }
     testOptions { unitTests { isIncludeAndroidResources = true } }
@@ -21,6 +23,7 @@ android {
     }
 }
 kotlin { compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17) } }
+kapt { arguments { arg("room.schemaLocation", "$projectDir/schemas") } }
 dependencies {
     implementation(project(":apps:common"))
     implementation(platform("androidx.compose:compose-bom:2025.04.01"))
@@ -28,6 +31,15 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.ui:ui")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1")
+    implementation("androidx.room:room-runtime:2.7.2")
+    kapt("androidx.room:room-compiler:2.7.2")
+    implementation("androidx.work:work-runtime-ktx:2.10.1")
+    testImplementation("androidx.work:work-testing:2.10.1")
+
+    androidTestImplementation("androidx.test:runner:1.6.2")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation(platform("androidx.compose:compose-bom:2025.04.01"))
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
 
     // Pruebas de UI en JVM con Robolectric: ejecutan las pantallas Compose sin emulador.
     testImplementation("junit:junit:4.13.2")

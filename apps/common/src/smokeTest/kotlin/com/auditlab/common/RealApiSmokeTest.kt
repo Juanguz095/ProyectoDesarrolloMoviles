@@ -42,6 +42,21 @@ class RealApiSmokeTest {
         metadata = mapOf("appEventCode" to "agent_started"),
     )
 
+    @Test fun `AgentCore enrolls and queues using the server canonical consent`() {
+        assumeTrue(url.isNotEmpty() && user.isNotEmpty() && password.isNotEmpty(), "Sin configuración de humo")
+        val client = api(); val admin = ControlCore(client)
+        admin.login(user, password)
+        try {
+            val agent = AgentCore(client, InMemoryCredentialStore())
+            val accepted = agent.acceptConsent()
+            val enrolled = agent.enroll(admin.createEnrollmentCode().code)
+            assertEquals(Instant.parse(accepted.acceptedAt), Instant.parse(enrolled.consent.acceptedAt))
+            assertEquals(IngestResult(1, 0), agent.sendSimulatedEvent())
+            assertEquals(1, admin.events(enrolled.deviceId).items.size)
+            assertEquals(AgentCore.RevokeOutcome.NOTIFIED, agent.revokeLocally())
+        } finally { admin.logout() }
+    }
+
     @Test
     fun `el centro inscribe, consulta y revoca contra la API real`() {
         assumeTrue(url.isNotEmpty() && user.isNotEmpty() && password.isNotEmpty(), "Sin configuración de humo")

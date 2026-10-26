@@ -3,9 +3,11 @@ package com.auditlab.common
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
+import java.io.ByteArrayOutputStream
 import java.net.HttpURLConnection
 import java.net.URI
 import java.net.URLEncoder
+import javax.net.ssl.SSLException
 
 /** Un evento que el agente quiere enviar. `isSimulated` es siempre true por diseño. */
 data class EventDraft(
@@ -28,6 +30,15 @@ interface AuditApi {
     fun sendEvents(deviceToken: String, events: List<EventDraft>): IngestResult
     fun listDevices(accessToken: String, status: String? = null, limit: Int = 50): DevicePage
     fun listEvents(accessToken: String, deviceId: String? = null, limit: Int = 50): EventPage
+    fun devicePage(token: String, status: String?, cursor: String?, limit: Int = 50): DevicePage {
+        check(cursor == null); return listDevices(token, status, limit)
+    }
+    fun eventPage(token: String, query: EventQuery, cursor: String?, limit: Int = 50): EventPage {
+        check(cursor == null && query.copy(device = null) == EventQuery()); return listEvents(token, query.device, limit)
+    }
+    fun eventDetail(token: String, device: String, event: String): AuditEvent = throw UnsupportedOperationException()
+    fun exportEvents(token: String, query: EventQuery): String = throw UnsupportedOperationException()
+    fun auditPage(token: String, cursor: String? = null): AuditPage = throw UnsupportedOperationException()
     fun revokeDevice(accessToken: String, deviceId: String)
     fun revokeConsent(deviceToken: String, deviceId: String)
 }
@@ -49,7 +60,10 @@ class ApiClient(
 
     init {
         require(this.baseUrl.isNotEmpty()) { "La URL base es obligatoria" }
-        val scheme = this.baseUrl.substringBefore("://", "").lowercase()
+        val origin = URI.create(this.baseUrl)
+        require(origin.host != null && origin.rawUserInfo == null && origin.rawQuery == null && origin.rawFragment == null &&
+            (origin.rawPath.isNullOrEmpty() || origin.rawPath == "/")) { "Usa una URL de origen sin usuario, ruta, consulta ni fragmento." }
+        val scheme = origin.scheme?.lowercase()
         require(scheme == "https" || (scheme == "http" && isLoopback(this.baseUrl))) {
             "Solo HTTPS fuera de loopback (127.0.0.1, localhost o 10.0.2.2)"
         }
@@ -72,6 +86,7 @@ class ApiClient(
             userId = node.getJSONObject("user").getString("userId"),
             username = node.getJSONObject("user").getString("username"),
             role = node.getJSONObject("user").getString("role"),
+            serverUrl = baseUrl,
         )
     }
 
@@ -133,6 +148,31 @@ class ApiClient(
         return EventPage(node.getJSONArray("items").toEvents(), node.optStringOrNull("nextCursor"))
     }
 
+    override fun devicePage(token: String, status: String?, cursor: String?, limit: Int): DevicePage {
+        val node = JSONObject(request("GET", "/v1/devices" + queryString(mapOf("status" to status, "cursor" to cursor, "limit" to limit.toString())), token))
+        return DevicePage(node.getJSONArray("items").toDevices(), node.optStringOrNull("nextCursor"))
+    }
+    override fun eventPage(token: String, query: EventQuery, cursor: String?, limit: Int): EventPage {
+        val node = JSONObject(request("GET", "/v1/events" + queryString(filters(query) + mapOf("cursor" to cursor, "limit" to limit.toString())), token))
+        return EventPage(node.getJSONArray("items").toEvents(), node.optStringOrNull("nextCursor"))
+    }
+    override fun eventDetail(token: String, device: String, event: String): AuditEvent =
+        JSONArray().put(JSONObject(request("GET", "/v1/devices/${encode(device)}/events/${encode(event)}", token))).toEvents().single()
+    override fun exportEvents(token: String, query: EventQuery): String =
+        request("GET", "/v1/events/export.csv" + queryString(filters(query)), token, accept = "text/csv")
+    override fun auditPage(token: String, cursor: String?): AuditPage {
+        val node = JSONObject(request("GET", "/v1/audit-log" + queryString(mapOf("limit" to "50", "cursor" to cursor)), token))
+        val items = node.getJSONArray("items")
+        return AuditPage((0 until items.length()).map { i -> val n = items.getJSONObject(i)
+            AuditRecord(n.getString("auditId"), n.getString("occurredAt"), n.getJSONObject("actor").toString(),
+                n.getString("action"), n.getJSONObject("resource").toString(), n.getString("result"),
+                n.getJSONObject("filters").toString(), n.getString("correlationId"))
+        }, node.optStringOrNull("nextCursor"))
+    }
+    private fun filters(q: EventQuery) = mapOf("device" to q.device, "category" to q.category, "from" to q.from, "to" to q.to, "q" to q.q)
+    private fun queryString(values: Map<String, String?>): String = values.filterValues { it != null }.entries
+        .joinToString("&", prefix = "?") { (key, value) -> "$key=${encode(value!!)}" }
+
     override fun revokeDevice(accessToken: String, deviceId: String) {
         request("POST", "/v1/devices/${encode(deviceId)}/revoke", token = accessToken)
     }
@@ -147,6 +187,7 @@ class ApiClient(
         token: String? = null,
         headers: Map<String, String> = emptyMap(),
         body: String? = null,
+        accept: String = "application/json",
     ): String {
         val connection = try {
             URI.create(baseUrl + path).toURL().openConnection() as HttpURLConnection
@@ -158,7 +199,7 @@ class ApiClient(
             connection.connectTimeout = connectTimeoutMillis
             connection.readTimeout = readTimeoutMillis
             connection.instanceFollowRedirects = false
-            connection.setRequestProperty("Accept", "application/json")
+            connection.setRequestProperty("Accept", accept)
             connection.setRequestProperty("User-Agent", userAgent)
             if (token != null) connection.setRequestProperty("Authorization", "Bearer $token")
             headers.forEach { (name, value) -> connection.setRequestProperty(name, value) }
@@ -168,12 +209,25 @@ class ApiClient(
                 connection.outputStream.use { it.write(body.toByteArray(Charsets.UTF_8)) }
             }
             val status = connection.responseCode
-            val text = (if (status >= 400) connection.errorStream else connection.inputStream)
-                ?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
-            if (status >= 400) throw problem(status, text)
+            val stream = if (status >= 400) connection.errorStream else connection.inputStream
+            val text = stream?.use { input ->
+                val bytes = ByteArrayOutputStream(); val buffer = ByteArray(8192)
+                while (true) {
+                    val size = input.read(buffer); if (size < 0) break
+                    if (bytes.size() + size > 8 * 1024 * 1024) throw ApiException(0, "RESPONSE_TOO_LARGE", null, "Respuesta superior al límite local.")
+                    bytes.write(buffer, 0, size)
+                }
+                bytes.toString("UTF-8")
+            }.orEmpty()
+            if (status !in 200..299) throw problem(status, text)
+            if (accept == "application/json" && text.isNotBlank()) {
+                try { JSONObject(text) } catch (_: Exception) { throw ApiException(0, "INVALID_RESPONSE", null, "Respuesta JSON inválida.") }
+            }
             return text
         } catch (error: ApiException) {
             throw error
+        } catch (error: SSLException) {
+            throw ApiException(0, "TLS_ERROR", null, "El certificado o la conexión TLS fueron rechazados")
         } catch (error: IOException) {
             throw ApiException(0, "NETWORK_ERROR", null, "Sin respuesta del servicio")
         } finally {

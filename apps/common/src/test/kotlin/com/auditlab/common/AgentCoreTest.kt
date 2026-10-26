@@ -22,18 +22,18 @@ class AgentCoreTest {
     }
 
     @Test
-    fun `la inscripcion guarda la credencial y reutiliza el consentimiento del servidor`() {
+    fun `la inscripcion guarda la credencial y confirma el consentimiento aceptado`() {
         val accepted = core.acceptConsent()
         assertEquals("mvp-1", accepted.policyVersion)
         assertEquals("2026-10-24T10:05:00Z", accepted.acceptedAt)
         val state = core.enroll("  " + "x".repeat(40) + "  ")
-        // El estado y la credencial usan el consentimiento canonicalizado que devolvió el servidor.
-        assertEquals(AgentCore.State.Enrolled("d-1", consent), state)
+        // El servidor debe confirmar el mismo consentimiento aceptado.
+        assertEquals(AgentCore.State.Enrolled("d-1", accepted), state)
         assertEquals("x".repeat(40), api.enrolledCode)
         assertEquals(accepted, api.enrolledConsent)
         assertEquals("d-1", store.load()?.deviceId)
         assertEquals("dev_token", store.load()?.deviceToken)
-        assertEquals(consent, store.load()?.consent)
+        assertEquals(accepted, store.load()?.consent)
     }
 
     @Test
@@ -45,7 +45,7 @@ class AgentCoreTest {
         assertEquals(1, result.accepted)
         val draft = api.sent.single()
         assertEquals("d-1", draft.sourceDevice)
-        assertEquals(consent, draft.consent)
+        assertEquals(api.enrolledConsent, draft.consent)
         assertEquals("app_lifecycle", draft.category)
         assertEquals("occurred", draft.direction)
         assertEquals("agent_started", draft.metadata["appEventCode"])
@@ -79,7 +79,9 @@ class AgentCoreTest {
         val outcome = core.revokeLocally()
         assertEquals(AgentCore.RevokeOutcome.LOCAL_ONLY, outcome)
         assertEquals(AgentCore.State.Revoked("d-1", AgentCore.RevokeReason.LOCAL), core.state)
-        assertNull(store.load())
+        // P5 keeps an encrypted credential exclusively for the pending withdrawal.
+        assertNotNull(store.load())
+        assertTrue(core.revocationPending)
         assertThrows(IllegalStateException::class.java) { core.sendSimulatedEvent() }
         assertEquals("d-1", api.revokedConsentDevice)
     }
@@ -99,6 +101,19 @@ class AgentCoreTest {
         assertNotNull(restored.state)
     }
 
+    @Test fun `inscripcion que cambia el consentimiento se rechaza sin activar la captura`() {
+        core.acceptConsent(); api.canonicalConsent = consent
+        val error = assertThrows(ApiException::class.java) { core.enroll("x".repeat(40)) }
+        assertEquals("INVALID_RESPONSE", error.code); assertNull(store.load())
+        assertThrows(IllegalStateException::class.java) { core.sendSimulatedEvent() }
+    }
+    @Test fun `la normalizacion de precision del mismo instante confirma el consentimiento`() {
+        val accepted = core.acceptConsent()
+        api.canonicalConsent = accepted.copy(acceptedAt = "2026-10-24T10:05:00.000000Z")
+        val enrolled = core.enroll("x".repeat(40))
+        assertEquals(api.canonicalConsent, enrolled.consent)
+        assertEquals(api.canonicalConsent, store.load()?.consent)
+    }
     private class FakeApi : AuditApi {
         val calls = mutableListOf<String>()
         var enrolledCode: String? = null
@@ -110,7 +125,7 @@ class AgentCoreTest {
         var sendResult = IngestResult(0, 0)
         var sendError: ApiException? = null
         var revokeError: ApiException? = null
-        var canonicalConsent = ConsentContext("c-1", "mvp-1", "2026-10-24T10:00:00Z")
+        var canonicalConsent: ConsentContext? = null
 
         override fun login(username: String, password: String): Session = throw UnsupportedOperationException()
         override fun refresh(refreshToken: String): Session = throw UnsupportedOperationException()
@@ -121,8 +136,8 @@ class AgentCoreTest {
             calls += "enroll"
             enrolledCode = code
             enrolledConsent = consent
-            // Simula la canonicalización del servidor: devuelve un contexto distinto del local.
-            return EnrolledDevice("d-1", "dev_token", canonicalConsent, "2026-10-24T10:00:01Z")
+            // A response with a different consent is a protocol failure.
+            return EnrolledDevice("d-1", "dev_token", canonicalConsent ?: consent, "2026-10-24T10:00:01Z")
         }
 
         override fun sendEvents(deviceToken: String, events: List<EventDraft>): IngestResult {

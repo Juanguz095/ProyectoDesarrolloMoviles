@@ -76,6 +76,8 @@ class ControlScreenTest {
         compose.onNodeWithText("Crear código de un uso").assertExists()
 
         tap("Revocar")
+        assertEquals(null, api.revoked)
+        compose.onNodeWithText("Confirmar revocación").performClick()
         waitFor("Dispositivo revocado. Los nuevos lotes serán rechazados.")
         assertEquals("device-1", api.revoked)
     }
@@ -99,7 +101,87 @@ class ControlScreenTest {
         compose.onNodeWithText("Simulado: sí · 2026-10-24T10:00:00Z").assertExists()
     }
 
+    @Test fun `cancelar revocacion no llama a la API y cerrar sesion pide confirmacion`() {
+        val api = signIn()
+        tap("Revocar"); compose.onNodeWithText("Cancelar").performClick()
+        assertEquals(null, api.revoked)
+        tap("Salir"); compose.onNodeWithText("Cancelar").performClick()
+        compose.onNodeWithText("Rol: admin").assertExists()
+        tap("Salir"); compose.onNodeWithText("Confirmar salida").performClick()
+        waitFor("Iniciar sesión")
+        val fields = compose.onAllNodes(hasSetTextAction()).fetchSemanticsNodes()
+        assertEquals("", fields[1].config[androidx.compose.ui.semantics.SemanticsProperties.EditableText].text)
+        assertEquals("", fields[2].config[androidx.compose.ui.semantics.SemanticsProperties.EditableText].text)
+    }
+    @Test fun `historial pagina detalle y auditoria usan los endpoints correspondientes`() {
+        val api = signIn()
+        tap("Ver eventos"); waitFor("Más eventos")
+        tap("Más eventos"); waitFor("Detalle event-2")
+        tap("Detalle event-2"); compose.onNodeWithText("Detalle de evento").assertExists()
+        compose.onNodeWithText("Cerrar detalle").performClick()
+        assertEquals("event-2", api.detailFor)
+        tap("Consultar auditoría"); waitFor("Más auditoría")
+        assertEquals(1, api.auditCalls)
+    }
+    @Test fun `exportar con filtros modificados no abre ni escribe el documento`() {
+        val api = FakeApi("admin")
+        val session = ControlSession(InMemorySessionStore(), { api })
+        val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Main.immediate)
+        try {
+            start(session)
+            compose.runOnIdle { session.login("admin", "secret", scope) }
+            waitFor("Rol: admin")
+            val ticket = session.exportTicket()!!
+            compose.runOnIdle { session.selectDevice("device-1", scope) }
+            waitFor("Historial actualizado: 1 evento(s).")
+            var written = false
+            compose.runOnIdle { session.export(ticket, scope) { written = true } }
+            waitFor("No se pudo completar la operación. Revisa los datos o el archivo y vuelve a intentarlo.")
+            compose.runOnIdle { assertEquals(false, session.busy) }
+            assertEquals(false, written); assertEquals(0, api.exports)
+        } finally { scope.coroutineContext[kotlinx.coroutines.Job]?.cancel() }
+    }
+    @Test fun `fallo de red al exportar no toca el documento y fallo al guardar no confirma exito`() {
+        val api = FakeApi("admin")
+        val session = ControlSession(InMemorySessionStore(), { api })
+        val scope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Main.immediate)
+        try {
+            start(session); compose.runOnIdle { session.login("admin", "secret", scope) }; waitFor("Rol: admin")
+            val ticket = session.exportTicket()!!; var writes = 0
+            api.exportError = true
+            compose.runOnIdle { session.export(ticket, scope) { writes++ } }
+            waitFor("Sin conexión con el servicio. Revisa la URL y la red.")
+            compose.runOnIdle { assertEquals(false, session.busy) }; assertEquals(0, writes)
+            api.exportError = false
+            compose.runOnIdle { session.export(ticket, scope) { writes++; throw java.io.IOException("fixture") } }
+            waitFor("No se pudo completar la operación. Revisa los datos o el archivo y vuelve a intentarlo.")
+            compose.runOnIdle { assertEquals(false, session.busy) }; assertEquals(1, writes)
+            assertEquals(false, session.message?.contains("CSV guardado"))
+        } finally { scope.coroutineContext[kotlinx.coroutines.Job]?.cancel() }
+    }
     private class FakeApi(private val role: String) : AuditApi {
+        var exports = 0
+        var exportError = false
+        override fun exportEvents(token: String, query: com.auditlab.common.EventQuery): String {
+            exports++
+            if (exportError) throw com.auditlab.common.ApiException(0, "NETWORK_ERROR", null, "fixture")
+            return "eventId,timestamp\n"
+        }
+        var detailFor: String? = null
+        var auditCalls = 0
+        override fun eventPage(token: String, query: com.auditlab.common.EventQuery, cursor: String?, limit: Int): EventPage {
+            val page = listEvents(token, query.device, limit)
+            return if (cursor == null) page.copy(nextCursor = "opaque-next-page")
+                else page.copy(items = page.items.map { it.copy(eventId = "event-2") })
+        }
+        override fun eventDetail(token: String, device: String, event: String): com.auditlab.common.AuditEvent {
+            detailFor = event
+            return listEvents(token, device, 50).items.single().copy(eventId = event)
+        }
+        override fun auditPage(token: String, cursor: String?): com.auditlab.common.AuditPage {
+            auditCalls++
+            return com.auditlab.common.AuditPage(emptyList(), "next-audit-page")
+        }
         var revoked: String? = null
         var eventsFor: String? = null
 

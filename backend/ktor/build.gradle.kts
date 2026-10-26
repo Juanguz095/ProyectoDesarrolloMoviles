@@ -9,8 +9,10 @@ java {
 kotlin { compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17) } }
 application { mainClass.set("com.auditlab.api.ApplicationKt") }
 dependencies {
+    // Align Ktor's transport on the patched Netty 4.1 line (see P7 dependency evidence).
+    implementation(platform("io.netty:netty-bom:4.1.137.Final"))
     implementation("io.ktor:ktor-server-netty-jvm:3.1.2")
-    implementation("ch.qos.logback:logback-classic:1.5.18")
+    implementation("ch.qos.logback:logback-classic:1.5.34")
     implementation("org.flywaydb:flyway-core:11.20.3")
     implementation("org.flywaydb:flyway-database-postgresql:11.20.3")
     implementation("org.postgresql:postgresql:42.7.14")

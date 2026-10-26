@@ -95,7 +95,7 @@ def sdk_tool(name: str) -> Path:
         sdk = str(ROOT / ".tooling/android-sdk")
     if not sdk:
         raise SystemExit("Falta ANDROID_HOME o .tooling/android-sdk")
-    versions = sorted((Path(sdk) / "build-tools").iterdir(), key=lambda p: p.name, reverse=True)
+    versions = sorted((Path(sdk) / "build-tools").iterdir(), key=lambda p: (p.name == "35.0.0", p.name), reverse=True)
     for version in versions:
         candidate = version / name
         if candidate.exists():
@@ -105,6 +105,25 @@ def sdk_tool(name: str) -> Path:
 
 def manifest_tree(aapt2: Path, apk: Path) -> list[str]:
     return run([str(aapt2), "dump", "xmltree", "--file", "AndroidManifest.xml", str(apk)]).splitlines()
+
+
+def xml_resource_paths(resources: str, resource_id: str) -> list[str]:
+    """Resolve every compiled variant, including release's shortened filenames."""
+    selected = False
+    paths = []
+    for line in resources.splitlines():
+        entry = re.match(r"\s*resource (0x[0-9a-fA-F]+)\s", line)
+        if entry: selected = int(entry.group(1), 16) == int(resource_id, 16)
+        elif re.match(r"\s*(?:type|package)\s", line): selected = False
+        elif selected:
+            value = re.search(r"\(file\) (\S+) type=XML", line)
+            if value:
+                path = value.group(1)
+                if not path.startswith("res/") or not path.endswith(".xml") or ".." in path.split("/"):
+                    raise RuntimeError("ruta XML compilada no válida")
+                paths.append(path)
+    if not paths: raise RuntimeError("el recurso del manifiesto no resuelve a una política XML")
+    return list(dict.fromkeys(paths))
 
 
 def audit(apk: Path, profile: str) -> None:
@@ -137,6 +156,9 @@ def audit(apk: Path, profile: str) -> None:
     # Permisos declarados en el manifiesto compilado.
     permissions = re.findall(r"uses-permission: name='([^']+)'", badging)
     allowed = {"android.permission.INTERNET", name + DYNAMIC_RECEIVER_SUFFIX}
+    if name == "com.auditlab.agent":
+        allowed.update({"android.permission.ACCESS_NETWORK_STATE", "android.permission.POST_NOTIFICATIONS",
+                        "android.permission.WAKE_LOCK", "android.permission.RECEIVE_BOOT_COMPLETED"})
     unexpected = [p for p in permissions if p not in allowed]
     if unexpected:
         fail(f"permisos no previstos: {', '.join(unexpected)}")
@@ -178,7 +200,14 @@ def audit(apk: Path, profile: str) -> None:
     for index, line in enumerate(tree):
         match = re.match(r"\s+E: (activity|activity-alias|service|receiver|provider) ", line)
         if match:
-            block = "\n".join(tree[index:index + 14])
+            indent = len(line) - len(line.lstrip())
+            end = index + 1
+            while end < len(tree):
+                other = tree[end]
+                if other.strip() and len(other) - len(other.lstrip()) <= indent:
+                    break
+                end += 1
+            block = "\n".join(tree[index:end])
             component_name = re.search(r'name\(0x[0-9a-f]+\)="([^"]+)"', block)
             exported = re.search(r"exported\(0x[0-9a-f]+\)=(true|false)", block)
             permission = re.search(r'permission\(0x[0-9a-f]+\)="([^"]+)"', block)
@@ -192,7 +221,10 @@ def audit(apk: Path, profile: str) -> None:
     exported = [c for c in components if c["exported"]]
     unexpected_exported = [
         c for c in exported
-        if not (c["name"].endswith(".MainActivity") or c["permission"] == "android.permission.DUMP")
+        if not (c["name"] == name + ".MainActivity" or
+                (c["name"] == "androidx.profileinstaller.ProfileInstallReceiver" and c["permission"] == "android.permission.DUMP") or
+                (name == "com.auditlab.agent" and c["name"] == "androidx.work.impl.diagnostics.DiagnosticsReceiver" and c["permission"] == "android.permission.DUMP") or
+                (name == "com.auditlab.agent" and c["name"] == "androidx.work.impl.background.systemjob.SystemJobService" and c["permission"] == "android.permission.BIND_JOB_SERVICE"))
     ]
     if unexpected_exported:
         fail("componentes exportados sin justificar: " + ", ".join(c["name"] for c in unexpected_exported))
@@ -201,19 +233,24 @@ def audit(apk: Path, profile: str) -> None:
 
     # Política de red compilada.
     try:
-        policy = run([str(aapt2), "dump", "xmltree", "--file", "res/xml/network_security_config.xml", str(apk)])
+        resource_id = re.search(r"networkSecurityConfig\(0x[0-9a-f]+\)=@(0x[0-9a-f]+)", joined)
+        if resource_id is None: raise RuntimeError("referencia compilada de política ausente")
+        resources = run([str(aapt2), "dump", "resources", str(apk)])
+        paths = xml_resource_paths(resources, resource_id.group(1))
+        policies = [(path, run([str(aapt2), "dump", "xmltree", "--file", path, str(apk)])) for path in paths]
     except RuntimeError as error:
         fail(f"no se pudo leer la política de red: {error}")
     else:
-        if "cleartextTrafficPermitted=false" not in policy:
-            fail("la política de red permite tráfico en claro por defecto")
-        else:
-            ok("política de red: HTTP solo en dominios de loopback")
-        domains = re.findall(r"T: '([^']+)'", policy)
-        if sorted(domains) != ["10.0.2.2", "127.0.0.1", "localhost"]:
-            fail(f"dominios con HTTP permitido inesperados: {domains}")
-        else:
-            ok("dominios permitidos: 10.0.2.2, 127.0.0.1, localhost")
+        for path, policy in policies:
+            if "cleartextTrafficPermitted=false" not in policy:
+                fail(f"la política {path} permite tráfico en claro por defecto")
+            else:
+                ok(f"política de red {path}: HTTP solo en dominios de loopback")
+            domains = re.findall(r"T: '([^']+)'", policy)
+            if sorted(domains) != ["10.0.2.2", "127.0.0.1", "localhost"]:
+                fail(f"dominios con HTTP permitido inesperados: {domains}")
+            else:
+                ok("dominios permitidos: 10.0.2.2, 127.0.0.1, localhost")
 
     # Firma verificable.
     apksigner = sdk_tool("apksigner")
@@ -239,6 +276,12 @@ def audit(apk: Path, profile: str) -> None:
                 target = Path(directory) / dex
                 target.write_bytes(archive.read(dex))
                 descriptors += run([str(dexdump), "-f", str(target)])
+    test_descriptors = ["Lorg/junit/", "Lorg/robolectric/", "Landroidx/compose/ui/test/",
+                        "Lcom/auditlab/agent/NativeAgentFlowTest;", "Lcom/auditlab/control/NativeControlFlowTest;"]
+    if any(marker in descriptors for marker in test_descriptors):
+        fail("clases de pruebas presentes en el APK de la app")
+    else:
+        ok("sin clases JUnit/Robolectric/instrumentación dentro de la app")
     missing = [c for c in expected["classes"] if c not in descriptors]
     if missing:
         fail("clases ausentes del dex: " + ", ".join(missing))

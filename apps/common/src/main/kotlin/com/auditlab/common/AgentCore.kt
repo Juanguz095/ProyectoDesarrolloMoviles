@@ -4,123 +4,231 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.UUID
 
-/** Credencial que el agente guarda cifrada en el dispositivo (implementación Android con Keystore). */
-data class StoredCredential(
-    val deviceId: String,
-    val deviceToken: String,
-    val consent: ConsentContext,
-)
-
+data class StoredCredential(val deviceId: String, val deviceToken: String, val consent: ConsentContext, val serverUrl: String? = null) {
+    override fun toString() = "StoredCredential(deviceId=$deviceId, token=[redacted])"
+}
 interface CredentialStore {
     fun load(): StoredCredential?
     fun save(credential: StoredCredential)
     fun clear()
 }
 
-/**
- * Lógica del agente independiente de Android y de la UI.
- *
- * Reglas de P4.1/P4.3:
- * - sin consentimiento aceptado no se inscribe ni se generan eventos;
- * - la credencial solo se entrega a la API como cabecera, nunca en URLs ni registros;
- * - una revocación local borra la credencial antes de avisar al servidor, de modo que funcione sin red;
- * - si el servidor responde `DEVICE_REVOKED`, el agente pasa a estado revocado.
- */
+/** Persistent outbox and privacy state; one gate serializes producers, workers and withdrawal. */
 class AgentCore(
     private val api: AuditApi,
     private val credentials: CredentialStore,
     private val clock: () -> Instant = Instant::now,
     private val policyVersion: String = "mvp-1",
-    private val appVersion: String = "0.1.0-dev",
+    private val appVersion: String = "0.2.0",
+    journal: AgentJournal? = null,
+    private val gate: AgentGate = AgentGate(),
+    private val visible: () -> Boolean = { true },
+    private val serverUrl: String = "http://10.0.2.2:8081",
 ) {
+    private val requireBoundCredential = journal != null
     sealed interface State {
         data object ConsentPending : State
         data class Enrolled(val deviceId: String, val consent: ConsentContext) : State
         data class Revoked(val deviceId: String, val reason: RevokeReason) : State
+        data class Blocked(val message: String) : State
     }
-
     enum class RevokeReason { LOCAL, REMOTE }
-
     enum class RevokeOutcome { NOTIFIED, LOCAL_ONLY }
-
+    private val journal: AgentJournal = journal ?: MemoryAgentJournal().also { memory ->
+        runCatching { credentials.load() }.getOrNull()?.let { memory.activate(it, serverUrl) }
+    }
     private var consent: ConsentContext? = null
-
-    var state: State = credentials.load()?.let { State.Enrolled(it.deviceId, it.consent) } ?: State.ConsentPending
+    var state: State = restore()
         private set
-
     val acceptedConsent: ConsentContext? get() = consent
+    val revocationPending: Boolean get() = synchronized(gate) { journal.registration()?.phase == AgentPhase.REVOKING }
+    fun stats(): QueueStats = synchronized(gate) { journal.stats() }
 
-    /** Registra la aceptación explícita. Sin llamarla, `enroll` falla. */
-    fun acceptConsent(): ConsentContext {
-        val accepted = ConsentContext(
-            consentId = UUID.randomUUID().toString(),
-            policyVersion = policyVersion,
-            acceptedAt = clock().truncatedTo(ChronoUnit.SECONDS).toString(),
-        )
-        consent = accepted
-        return accepted
+    private fun restore(): State = try {
+        val row = journal.registration()
+        when (row?.phase) {
+            AgentPhase.REVOKING, AgentPhase.REVOKED, AgentPhase.LOCAL_ONLY -> State.Revoked(row.deviceId, if (row.remoteRevocation) RevokeReason.REMOTE else RevokeReason.LOCAL)
+            AgentPhase.REJECTED -> State.Blocked("Credencial rechazada. Retira la inscripción antes de volver a participar.")
+            AgentPhase.ACTIVE -> {
+                val c = credentials.load()
+                if (gate.withdrawalRequested) State.Blocked("Se está retirando el consentimiento. No se envían eventos.")
+                else if (c == null || c.deviceId != row.deviceId || c.consent != row.consent || row.serverUrl != serverUrl ||
+                    (requireBoundCredential && c.serverUrl != serverUrl))
+                    State.Blocked("La inscripción no coincide con el almacenamiento. Revoca y vuelve a inscribirte.")
+                else State.Enrolled(c.deviceId, c.consent)
+            }
+            null -> if (credentials.load() == null && journal.stats() == QueueStats()) State.ConsentPending
+                else State.Blocked("Inscripción anterior sin cola vinculada. Retírala y acepta de nuevo.")
+        }
+    } catch (_: Exception) { State.Blocked("No se pudo leer el almacenamiento. Las transmisiones están bloqueadas.") }
+
+    fun refresh(): State = synchronized(gate) {
+        (if (gate.storageBlocked) State.Blocked("No se pudo guardar la retirada. Reintenta; no se confirma persistencia.") else restore()).also { state = it }
     }
-
-    fun declineConsent() {
+    fun requestWithdrawal() { gate.withdrawalRequested = true }
+    fun acceptConsent(): ConsentContext = synchronized(gate) {
+        check(state == State.ConsentPending) { "Retira la inscripción anterior antes de aceptar de nuevo." }
+        ConsentContext(UUID.randomUUID().toString(), policyVersion, clock().truncatedTo(ChronoUnit.SECONDS).toString())
+            .also { consent = it }
+    }
+    fun declineConsent() = synchronized(gate) {
+        check(state == State.ConsentPending) { "No se puede retirar el consentimiento desde este estado" }
         consent = null
-        if (state is State.ConsentPending) return
-        throw IllegalStateException("No se puede retirar el consentimiento desde este estado")
     }
-
-    fun enroll(code: String): State.Enrolled {
+    fun enroll(code: String): State.Enrolled = synchronized(gate) {
+        check(state == State.ConsentPending && !gate.storageBlocked) { "Este dispositivo no puede inscribirse en su estado actual." }
         val accepted = consent ?: throw IllegalStateException("Debe aceptar el consentimiento antes de inscribirse")
-        if (state is State.Enrolled) throw IllegalStateException("Este dispositivo ya está inscrito")
         val device = api.enroll(code.trim(), accepted, appVersion)
-        credentials.save(StoredCredential(device.deviceId, device.deviceToken, device.consent))
-        return State.Enrolled(device.deviceId, device.consent).also { state = it }
-    }
-
-    /**
-     * Genera y envía un único evento propio y simulado. Reutiliza el consentimiento canonicalizado
-     * que devolvió la inscripción.
-     */
-    fun sendSimulatedEvent(): IngestResult {
-        val enrolled = state as? State.Enrolled
-            ?: throw IllegalStateException("El dispositivo no está inscrito")
-        val credential = credentials.load()
-            ?: throw IllegalStateException("No hay credencial guardada")
-        val event = EventDraft(
-            eventId = UUID.randomUUID().toString(),
-            timestamp = clock().truncatedTo(ChronoUnit.MICROS).toString(),
-            category = "app_lifecycle",
-            direction = "occurred",
-            sourceDevice = enrolled.deviceId,
-            consent = credential.consent,
-            metadata = mapOf("appEventCode" to "agent_started", "networkState" to "online"),
-        )
-        return try {
-            api.sendEvents(credential.deviceToken, listOf(event))
-        } catch (error: ApiException) {
-            if (error.isDeviceRevoked) revokeState(enrolled.deviceId, RevokeReason.REMOTE)
-            throw error
+        val sameConsent = runCatching {
+            device.consent.consentId == accepted.consentId && device.consent.policyVersion == accepted.policyVersion &&
+                Instant.parse(device.consent.acceptedAt) == Instant.parse(accepted.acceptedAt)
+        }.getOrDefault(false)
+        if (!sameConsent || device.status != "active" || device.deviceToken.isBlank())
+            throw ApiException(0, "INVALID_RESPONSE", null, "La inscripción no confirmó el consentimiento solicitado.")
+        val stored = StoredCredential(device.deviceId, device.deviceToken, device.consent, serverUrl)
+        try {
+            credentials.save(stored)
+            journal.activate(stored, serverUrl)
+        } catch (_: Exception) {
+            gate.storageBlocked = true
+            state = State.Blocked("No se pudo confirmar la inscripción local. Retírala antes de volver a participar.")
+            throw StorageFailure()
         }
+        State.Enrolled(device.deviceId, device.consent).also { state = it }
     }
 
-    /**
-     * Revoca el consentimiento en este dispositivo. Primero borra la credencial, así que ningún
-     * evento nuevo puede salir aunque el aviso al servidor falle.
-     */
-    fun revokeLocally(): RevokeOutcome {
-        val enrolled = state as? State.Enrolled ?: throw IllegalStateException("El dispositivo no está inscrito")
-        val credential = credentials.load()
-        credentials.clear()
-        revokeState(enrolled.deviceId, RevokeReason.LOCAL)
-        if (credential == null) return RevokeOutcome.LOCAL_ONLY
-        return try {
-            api.revokeConsent(credential.deviceToken, enrolled.deviceId)
-            RevokeOutcome.NOTIFIED
-        } catch (_: ApiException) {
-            RevokeOutcome.LOCAL_ONLY
+    fun sendSimulatedEvent(metadata: Map<String, Any?> = mapOf("appEventCode" to "agent_started", "networkState" to "online")): IngestResult = captureAndSend { metadata }
+    fun captureAndSend(metadata: () -> Map<String, Any?>): IngestResult = synchronized(gate) {
+        val active = activeCredential()
+        if (!visible()) throw MonitoringPaused()
+        val now = clock().truncatedTo(ChronoUnit.MICROS)
+        check(!now.isBefore(Instant.parse(active.consent.acceptedAt))) { "La fecha es anterior al consentimiento. Corrige el reloj." }
+        journal.prune(now.minus(7, ChronoUnit.DAYS))
+        val event = EventDraft(UUID.randomUUID().toString(), now.toString(), "app_lifecycle", "occurred", active.deviceId, active.consent, metadata())
+        EventCodec.encode(event)
+        journal.enqueue(event)
+        flushPending(maxBatches = 1)
+    }
+
+    fun flushPending(maxBatches: Int = 10): IngestResult = synchronized(gate) {
+        require(maxBatches in 1..100)
+        val credential = activeCredential()
+        journal.prune(clock().minus(7, ChronoUnit.DAYS))
+        if (!visible()) throw MonitoringPaused()
+        var accepted = 0
+        var duplicates = 0
+        repeat(maxBatches) {
+            if (!visible()) throw MonitoringPaused()
+            check(!gate.withdrawalRequested) { "Hay una retirada de consentimiento en curso." }
+            val batch = journal.pending(100)
+            if (batch.isEmpty()) return@synchronized IngestResult(accepted, duplicates)
+            check(batch.all { it.sourceDevice == credential.deviceId && it.consent == credential.consent }) {
+                "La cola no coincide con la inscripción activa. No se enviaron datos."
+            }
+            if (!visible()) throw MonitoringPaused()
+            try {
+                val result = api.sendEvents(credential.deviceToken, batch)
+                if (result.accepted < 0 || result.duplicates < 0 || result.accepted + result.duplicates != batch.size)
+                    throw ApiException(502, "INVALID_RESPONSE", null, "El servicio no confirmó el lote completo.")
+                journal.acknowledge(batch.map { e -> e.eventId })
+                accepted += result.accepted
+                duplicates += result.duplicates
+            } catch (error: ApiException) {
+                when {
+                    error.isDeviceRevoked -> retireRemote(credential.deviceId)
+                    error.status == 401 || error.status == 403 || error.code in setOf("TLS_ERROR", "INVALID_RESPONSE", "RESPONSE_TOO_LARGE") -> {
+                        try { journal.rejectCredential() }
+                        catch (_: Exception) { gate.storageBlocked = true; runCatching { credentials.clear() }; throw StorageFailure() }
+                        state = State.Blocked("Credencial rechazada. Revoca y vuelve a inscribirte.")
+                    }
+                    !error.isRetryable -> journal.reject(batch.map { e -> e.eventId }, error.code)
+                }
+                throw error
+            }
         }
+        IngestResult(accepted, duplicates)
     }
 
-    private fun revokeState(deviceId: String, reason: RevokeReason) {
+    private fun activeCredential(): StoredCredential {
+        check(!gate.storageBlocked) { "Almacenamiento bloqueado. Reintenta la retirada del consentimiento." }
+        check(!gate.withdrawalRequested) { "Hay una retirada de consentimiento en curso." }
+        refresh()
+        check(state is State.Enrolled) { "El dispositivo no está inscrito o tiene la transmisión bloqueada." }
+        return credentials.load() ?: throw StorageFailure()
+    }
+
+    private inline fun <T> withdrawal(action: () -> T): T {
+        gate.withdrawalRequested = true
+        return synchronized(gate) { action() }
+    }
+    fun revokeLocally(): RevokeOutcome = withdrawal {
+        val row = runCatching { journal.registration() }.getOrNull()
+        val stored = runCatching { credentials.load() }.getOrNull()
+        val id = stored?.deviceId ?: row?.deviceId ?: "local"
+        val target = stored?.serverUrl ?: row?.serverUrl ?: serverUrl
+        try {
+            journal.beginRevocation(id, target, remote = false)
+        } catch (_: Exception) {
+            gate.storageBlocked = true
+            state = State.Blocked("No se pudo guardar la retirada. No se confirma persistencia; reintenta.")
+            runCatching { credentials.clear() }
+            throw StorageFailure()
+        }
+        consent = null
+        state = State.Revoked(id, RevokeReason.LOCAL)
+        retryRevocation()
+    }
+
+    fun retryRevocation(): RevokeOutcome = synchronized(gate) {
+        val row = journal.registration() ?: return@synchronized revokeLocally()
+        check(row.phase in setOf(AgentPhase.REVOKING, AgentPhase.REVOKED, AgentPhase.LOCAL_ONLY)) { "No hay retirada pendiente." }
+        journal.deleteEvents()
+        val credential = runCatching { credentials.load() }.getOrNull()
+        if (row.phase != AgentPhase.REVOKING) {
+            credentials.clear(); gate.storageBlocked = false
+            state = State.Revoked(row.deviceId, if (row.remoteRevocation) RevokeReason.REMOTE else RevokeReason.LOCAL)
+            return@synchronized if (row.phase == AgentPhase.REVOKED) RevokeOutcome.NOTIFIED else RevokeOutcome.LOCAL_ONLY
+        }
+        if (row.phase == AgentPhase.REVOKING && !row.remoteRevocation && credential != null) {
+            if (requireBoundCredential && credential.serverUrl == null) {
+                journal.completeRevocation(false); credentials.clear(); gate.storageBlocked = false
+                return@synchronized RevokeOutcome.LOCAL_ONLY
+            }
+            check(row.serverUrl == serverUrl && (credential.serverUrl == null || credential.serverUrl == serverUrl)) {
+                "El servicio no coincide con la credencial protegida. No se transmitió la credencial."
+            }
+            try { api.revokeConsent(credential.deviceToken, row.deviceId) }
+            catch (e: ApiException) {
+                if (e.isRetryable) return@synchronized RevokeOutcome.LOCAL_ONLY
+                if (!e.isDeviceRevoked) {
+                    journal.completeRevocation(false); credentials.clear(); gate.storageBlocked = false
+                    return@synchronized RevokeOutcome.LOCAL_ONLY
+                }
+            }
+        }
+        val confirmed = row.remoteRevocation || credential != null
+        journal.completeRevocation(confirmed)
         credentials.clear()
-        state = State.Revoked(deviceId, reason)
+        gate.storageBlocked = false
+        state = State.Revoked(row.deviceId, if (row.remoteRevocation) RevokeReason.REMOTE else RevokeReason.LOCAL)
+        if (confirmed) RevokeOutcome.NOTIFIED else RevokeOutcome.LOCAL_ONLY
+    }
+
+    private fun retireRemote(id: String) {
+        gate.withdrawalRequested = true
+        try { journal.beginRevocation(id, serverUrl, remote = true) }
+        catch (_: Exception) {
+            gate.storageBlocked = true
+            state = State.Blocked("No se pudo guardar la retirada remota. Las transmisiones están bloqueadas.")
+            runCatching { credentials.clear() }
+            throw StorageFailure()
+        }
+        state = State.Revoked(id, RevokeReason.REMOTE)
+        retryRevocation()
+    }
+    fun resetAfterRevocation() = synchronized(gate) {
+        check(journal.registration()?.phase in setOf(AgentPhase.REVOKED, AgentPhase.LOCAL_ONLY)) { "Completa la retirada pendiente antes de aceptar de nuevo." }
+        credentials.clear(); journal.deleteEvents(); journal.reset(); gate.storageBlocked = false; gate.withdrawalRequested = false
+        consent = null; state = State.ConsentPending
     }
 }

@@ -77,11 +77,52 @@ class ControlCoreTest {
         assertNull(store.load())
     }
 
+    @Test fun `network error during refresh preserves the session for a later retry`() {
+        core.login("admin", "secret"); api.unauthenticatedOnce = true
+        api.refreshError = ApiException(0, "NETWORK_ERROR", null, "offline")
+        assertThrows(ApiException::class.java) { core.devices() }; assertTrue(core.isSignedIn)
+    }
+    @Test fun `refresh changing the role cannot retry an admin action`() {
+        core.login("admin", "secret"); api.session = api.session.copy(role = "auditor")
+        api.codeExpired = true
+        assertThrows(IllegalStateException::class.java) { core.createEnrollmentCode() }
+        assertEquals(1, api.calls.count { it == "code" }); assertFalse(core.isAdmin)
+    }
+    @Test fun `session cannot be restored against a different origin or legacy unspecified origin`() {
+        store.save(api.session.copy(serverUrl = "https://one.invalid"))
+        assertThrows(StorageFailure::class.java) { ControlCore(api, store, "https://two.invalid") }
+        store.save(api.session)
+        assertThrows(StorageFailure::class.java) { ControlCore(api, store, "https://one.invalid") }
+        assertTrue(api.calls.isEmpty())
+    }
+    @Test fun `refresh returning a different user is never sent on the retried request`() {
+        core.login("admin", "secret"); api.unauthenticatedOnce = true
+        api.session = api.session.copy(userId = "other")
+        assertThrows(StorageFailure::class.java) { core.devices() }
+        assertNull(core.session); assertNull(store.load()); assertEquals(1, api.calls.count { it == "devices" })
+    }
+    @Test fun `trailing slash and surrounding whitespace do not change the protected origin`() {
+        store.save(api.session.copy(serverUrl = "https://one.invalid"))
+        assertTrue(ControlCore(api, store, " https://one.invalid/ ").isSignedIn)
+        assertTrue(api.calls.isEmpty())
+    }
+    @Test fun `logout refreshes an expired access token without restoring the local session`() {
+        core.login("admin", "secret"); api.logoutExpired = true
+        assertEquals(ControlCore.LogoutOutcome.NOTIFIED, core.logout())
+        assertEquals(listOf("login", "logout", "refresh", "logout"), api.calls)
+        assertNull(store.load()); assertNull(core.session)
+    }
+    @Test fun `logout reports missing remote confirmation when offline`() {
+        core.login("admin", "secret"); api.logoutError = ApiException(0, "NETWORK_ERROR", null, "offline")
+        assertEquals(ControlCore.LogoutOutcome.LOCAL_ONLY, core.logout()); assertNull(store.load())
+    }
     private class FakeApi : AuditApi {
         val calls = mutableListOf<String>()
         var session = Session("access-1", "refresh-1", "Bearer", 900, "s-1", "u-1", "admin", "admin")
+        var codeExpired = false
         var unauthenticatedOnce = false
         var refreshError: ApiException? = null
+        var logoutExpired = false
         var logoutError: ApiException? = null
         var revokedDevice: String? = null
         var revokedToken: String? = null
@@ -99,11 +140,13 @@ class ControlCoreTest {
 
         override fun logout(accessToken: String) {
             calls += "logout"
+            if (logoutExpired) { logoutExpired = false; throw ApiException(401, "UNAUTHENTICATED", null, "expired") }
             logoutError?.let { throw it }
         }
 
         override fun createEnrollmentCode(accessToken: String): EnrollmentCode {
             calls += "code"
+            if (codeExpired) { codeExpired = false; throw ApiException(401, "UNAUTHENTICATED", null, "expired") }
             return EnrollmentCode("codigo-de-un-uso", 600, "2026-10-24T10:10:00Z")
         }
 

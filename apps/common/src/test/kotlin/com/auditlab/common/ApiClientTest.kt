@@ -163,6 +163,31 @@ class ApiClientTest {
         metadata = mapOf("appEventCode" to "agent_started"),
     )
 
+    @Test fun `base origin rejects embedded credentials paths query and fragment`() {
+        listOf("https://user:secret@host.invalid", "https://host.invalid/path", "https://host.invalid?x=1", "https://host.invalid#part").forEach {
+            assertThrows(IllegalArgumentException::class.java) { ApiClient(it) }
+        }
+    }
+    @Test fun `filter and pagination query is encoded and CSV uses the same filters`() {
+        val client = ApiClient(server.baseUrl)
+        server.response = """{"items":[],"nextCursor":"opaque-cursor"}"""
+        val query = EventQuery("d-1", "sync", "2026-10-25T10:00:00Z", "2026-10-26T10:00:00Z", "sync_failed")
+        assertEquals("opaque-cursor", client.eventPage("token", query, "cursor+value").nextCursor)
+        assertTrue(server.requests.last().path.contains("cursor=cursor%2Bvalue"))
+        server.response = "eventId,timestamp\n"; server.contentType = "text/csv"
+        assertEquals(server.response, client.exportEvents("token", query))
+        val path = server.requests.last().path
+        assertTrue(path.startsWith("/v1/events/export.csv?device=d-1&category=sync"))
+        assertTrue(path.contains("q=sync_failed")); assertTrue(!path.contains("cursor="))
+    }
+    @Test fun `malformed JSON and oversized responses have permanent errors`() {
+        val client = ApiClient(server.baseUrl)
+        server.response = "not-json"
+        assertEquals("INVALID_RESPONSE", assertThrows(ApiException::class.java) { client.listDevices("token") }.code)
+        server.response = "x".repeat(8 * 1024 * 1024 + 1)
+        val error = assertThrows(ApiException::class.java) { client.listDevices("token") }
+        assertEquals("RESPONSE_TOO_LARGE", error.code); assertTrue(!error.isRetryable)
+    }
     private class TestServer : AutoCloseable {
         data class Recorded(val method: String, val path: String, val headers: Map<String, String>, val body: String)
 

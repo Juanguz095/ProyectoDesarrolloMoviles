@@ -19,6 +19,7 @@ jobs:
       - run: python scripts/check_contract.py
       - run: python -m unittest discover -s contracts/tests -v
       - run: python scripts/check_docs.py
+      - run: python -m unittest discover -s scripts/tests -v
       - run: python -m unittest discover -s backend/api/tests -v
       - run: node --test backend/api/tests/revocation.test.cjs
   native-foundation:
@@ -39,10 +40,12 @@ jobs:
           fi
           command -v sdkmanager
           sdkmanager --install 'platforms;android-35' 'build-tools;35.0.0'
-      - run: python3 scripts/gradle.py :apps:common:test :apps:agent:testDebugUnitTest :apps:control:testDebugUnitTest :apps:agent:assembleDebug :apps:control:assembleDebug :apps:agent:lintDebug :apps:control:lintDebug :backend:ktor:test :backend:ktor:installDist --no-daemon
+      - run: python3 scripts/gradle.py :apps:common:test :apps:agent:testDebugUnitTest :apps:control:testDebugUnitTest :apps:agent:assembleDebug :apps:control:assembleDebug :apps:agent:assembleDebugAndroidTest :apps:control:assembleDebugAndroidTest :apps:agent:lintDebug :apps:control:lintDebug :backend:ktor:test :backend:ktor:installDist --no-daemon
       - name: Audit built APKs
         run: python3 scripts/check_apk.py
       - run: python3 scripts/check_ktor.py
+      - name: Review production runtime advisories
+        run: python3 scripts/check_dependencies.py --prepare
   postgres-tooling:
     runs-on: ubuntu-latest
     steps:

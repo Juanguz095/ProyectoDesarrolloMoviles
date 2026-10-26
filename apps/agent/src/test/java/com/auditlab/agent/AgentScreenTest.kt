@@ -135,14 +135,31 @@ class AgentScreenTest {
         compose.onNodeWithText("Generar evento simulado").assertDoesNotExist()
     }
 
+    @Test fun `un fallo de red al inscribir no anuncia un evento pendiente inexistente`() {
+        val api = FakeApi().apply { enrollError = ApiException(0, "NETWORK_ERROR", null, "fixture offline") }
+        val store = InMemoryCredentialStore()
+        start(AgentSession(store, { api }))
+        compose.onNode(isToggleable()).performScrollTo().performClick()
+        tap("Registrar consentimiento")
+        compose.onAllNodes(hasSetTextAction())[1].performScrollTo().performTextInput("x".repeat(40))
+        tap("Inscribir dispositivo")
+        waitFor("No se pudo confirmar la inscripción. Comprueba el centro y solicita otro código si el anterior fue consumido.")
+        assertNull(store.load())
+        compose.onNodeWithText("Generar evento simulado").assertDoesNotExist()
+        assertEquals(0, api.sentEvents)
+    }
+
     private class FakeApi : AuditApi {
+        var enrollError: ApiException? = null
         var sendError: ApiException? = null
         var sentEvents = 0
         var sentToken: String? = null
         var revokedConsents = 0
 
-        override fun enroll(code: String, consent: ConsentContext, appVersion: String): EnrolledDevice =
-            EnrolledDevice("device-1", "device-token", consent, "2026-10-24T10:00:01Z", "active")
+        override fun enroll(code: String, consent: ConsentContext, appVersion: String): EnrolledDevice {
+            enrollError?.let { throw it }
+            return EnrolledDevice("device-1", "device-token", consent, "2026-10-24T10:00:01Z", "active")
+        }
 
         override fun sendEvents(deviceToken: String, events: List<EventDraft>): IngestResult {
             sendError?.let { throw it }
