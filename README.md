@@ -8,7 +8,7 @@ Sistema de monitoreo autorizado para dispositivos Android propios o administrado
 - **Centro:** login admin/auditor, sesión renovable, dispositivos y última recepción, historial con filtros/páginas, detalle, CSV mediante el selector Android, auditoría y revocación con confirmación.
 - **API:** autenticación, inscripción, recepción idempotente, validación estricta, consultas/exportación, revocación, auditoría, retención y HTTPS. PostgreSQL usa roles separados y migraciones.
 
-La implementación del MVP está presente. Se ejecutaron flujos reales con el agente en Android 9/API28 y el centro en Android 8/API26; la evidencia diferencia los casos individuales de la repetición completa, así como los fallos corregidos. No se declara publicado un piloto ni firmada una distribución del responsable. **Resultado final local: 263 pruebas aprobadas**, incluidas las 17 etapas nativas completas, más 23 respuestas HTTPS validadas. [Resultados y hashes de las APKs probadas](docs/evidencias/artefactos-0.2.0-rc1.json).
+La implementación del MVP está presente. Se ejecutaron flujos reales con el agente en Android 9/API28 y el centro en Android 8/API26; la evidencia diferencia los casos individuales de la repetición completa, así como los fallos corregidos. No se declara publicado un piloto ni firmada una distribución del responsable. **Última repetición local: 278 pruebas aprobadas**, incluidas las 17 etapas nativas completas, más 23 respuestas HTTPS validadas. [Informe de la repetición y entrega](docs/evidencias/P7-P8-2026-10-26.md), [hashes actuales](docs/evidencias/artefactos-0.2.0-rc1-2026-10-26.json); se conserva el [manifiesto anterior](docs/evidencias/artefactos-0.2.0-rc1.json).
 
 ## Documentos de entrada
 
@@ -51,6 +51,12 @@ La suite nativa requiere compilar también `assembleDebugAndroidTest` de ambas a
 ```
 
 No borra datos para poder ejecutarse: rechaza inscripciones/sesiones existentes y exige retirarlas/cerrarlas desde las apps. Comprueba los 17 pasos completos y devuelve error si falla o queda incompleto alguno. [Precondiciones y límites](docs/PRUEBAS_INTEGRADAS.md).
+
+## Entrega para desarrollo local
+
+Después de aprobar la suite nativa, `scripts/package_qa.py` genera un ZIP con las dos APKs instalables, la API compilada, los manuales y el código versionado con wrappers/pruebas. Incluye `LEEME.md`, manifiesto y checksums; exige que los hashes coincidan con las APKs probadas. [Comando y verificación](docs/PRUEBAS_INTEGRADAS.md#paquete-instalable-de-qa).
+
+Para probar localmente se usan dos emuladores y el fixture en loopback; no hace falta dominio. La instalación en teléfonos y el piloto HTTPS siguen los requisitos de entrega del plan. El usuario confirmó que actualmente no dispone de servidor/dominio, clave de distribución ni teléfonos de prueba.
 
 ## Alcance de seguridad y entrega
 

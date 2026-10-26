@@ -1,26 +1,26 @@
 # AuditLab — Registro de avance
 
-Actualización: 25 de octubre de 2026, hora de Lima (26 de octubre UTC). Los registros técnicos conservan timestamps UTC.
+Actualización: 26 de octubre de 2026, UTC. Los registros anteriores conservan su fecha y zona indicadas.
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
 ## Alcance actual de la solicitud
 
-**Producto activo: agente Android + centro Android + API Ktor/PostgreSQL.** Candidata **0.2.0-rc1**, código funcional `1dcdf5f` e instrumentación `ed8f3ef`. P4–P6 implementadas y comprobadas con actividades reales: agente API28 y centro API26, Room/Keystore/WorkManager, notificaciones, consulta cruzada, CSV/rotación, auditor y retirada local/remota. La secuencia final de 17 pasos pasó sobre las APKs actuales, con hashes comprobados contra las instaladas. [Resultados/hashes](evidencias/artefactos-0.2.0-rc1.json).
+**Producto activo: agente Android + centro Android + API Ktor/PostgreSQL.** Candidata **0.2.0-rc1**, código funcional `1dcdf5f` e instrumentación `ed8f3ef`. P4–P6 implementadas y comprobadas con actividades reales: agente API28 y centro API26, Room/Keystore/WorkManager, notificaciones, consulta cruzada, CSV/rotación, auditor y retirada local/remota. La secuencia final de 17 pasos pasó sobre las APKs actuales, con hashes comprobados contra las instaladas. [Resultados/hashes actuales](evidencias/artefactos-0.2.0-rc1-2026-10-26.json).
 
-Ver [manual del producto](MANUAL_PRODUCTO.md), [informe de pruebas](evidencias/P5-P8-2026-10-25.md), [entorno reproducible](PRUEBAS_INTEGRADAS.md) y [plan maestro](PLAN_MAESTRO.md). El informe distingue pruebas JVM, Android nativo, API y condiciones externas de entrega.
+Última repetición: **278 casos aprobados**, incluidos los 17 pasos nativos completos sobre las APKs actuales, tras añadir quince regresiones de recuperación/empaquetado. [Informe del 26 de octubre](evidencias/P7-P8-2026-10-26.md). Ver [manual del producto](MANUAL_PRODUCTO.md), [informe anterior](evidencias/P5-P8-2026-10-25.md), [entorno reproducible y paquete](PRUEBAS_INTEGRADAS.md) y [plan maestro](PLAN_MAESTRO.md).
 
 La app `academic/` permanece como entrega local I01–I12, sin cambios en esta ampliación. Sus pruebas y publicaciones históricas no sustituyen las del producto completo. [Entrega académica](ENTREGA_ACADEMICA.md), [avance académico](AVANCE_ACADEMICO.md).
 
 ## Estado del proyecto completo
 
 - **Implementación funcional del MVP terminada**, con verificación QA y correcciones de errores anteriores. P4.1–P4.3, P5.1–P5.4 y P6.1–P6.4 cuentan con evidencia nativa en las versiones indicadas.
-- Host: **68 comunes + 21 agente + 8 centro + 8 Ktor + 53 integración PostgreSQL + 4 smoke HTTPS**, sin fallos/errores/omitidas. Además, 49 de contrato, 16 Python, 2 Node y 17 de herramientas aprobadas.
-- Carga: 10 000 eventos, 100 páginas, CSV comparado por ID y cinco lectores; p95 **34,68 ms**, objetivo < 2000 ms, sin emuladores activos durante la medición.
-- Restauración: copia nueva idéntica en diez tablas, **20 022 eventos**, grants/rol runtime y API de la copia comprobados. Original y AVDs conservados; hash de los datos académicos sin cambios.
+- Host: **68 comunes + 21 agente + 8 centro + 8 Ktor + 53 integración PostgreSQL + 4 smoke HTTPS**, sin fallos/errores/omitidas. Además, 49 de contrato, 16 Python, 2 Node y **32 de herramientas** aprobadas: 261 host y 17 nativas, 278 en total.
+- Carga repetida: 10 000 eventos, 100 páginas, CSV comparado por ID y cinco lectores; p95 **30,65 ms**, objetivo < 2000 ms, sin emuladores activos durante la medición.
+- Restauración repetida: copia nueva idéntica en diez tablas, **30 032 eventos**, permisos runtime/mantenimiento, consulta por IDs y retención de la copia comprobados. Original y AVDs conservados.
 - Dependencias runtime: Netty **4.1.137.Final**, Logback **1.5.34**, **156 módulos identificados/0 hallazgos** en la base de avisos registrada. No cubre SO/JDK/herramientas ni configuración operacional.
 - Builds debug/release y lint aprobados. Debug firmadas para desarrollo; release auditadas con una copia firmada **solo con identidad QA**. Falta la firma del responsable para distribución.
-- **No está cerrado el piloto:** faltan Android reciente y dos teléfonos propios, URL/infraestructura HTTPS con acceso autorizado, clave externa de distribución y comprobación operativa posterior.
+- **No está cerrado el piloto:** faltan Android reciente y dos teléfonos propios, URL/infraestructura HTTPS con acceso autorizado, clave externa de distribución y comprobación operativa posterior. El usuario confirmó el 26 de octubre que no dispone de esos recursos; la entrega disponible es de desarrollo local con dos emuladores.
 - Código y documentación se guardan en commits locales. La CI alojada de `a17dffd` sigue siendo evidencia histórica de P0.3; la candidata actual no se ha publicado en GitHub ni ha ejecutado su CI alojada.
 - Nube: instalador y arranque del producto completo guardados en borrador; el instalador se ejecutó con código 0. Guardar no aplica/publica. Para activarlos, revisar y guardar en los ajustes del entorno y después publicar. La restauración en una tarea nueva no está acreditada, especialmente para commits solo locales.
 
@@ -71,6 +71,17 @@ La app `academic/` permanece como entrega local I01–I12, sin cambios en esta a
 | P8.4 | pendiente | [Plan](PLAN_MAESTRO.md). | No hay despliegue/piloto acreditado; requiere URL, acceso, autorización y responsable operativo. |
 
 ## Bitácora de sesiones
+
+### 26 de octubre de 2026 UTC — Repetición completa y entrega de desarrollo
+
+- P7/P8: repetidas las 17 etapas nativas en agente API28/centro API26, con protocolos completos y sin fallos/omisiones. Las dos APKs de app conservan sus hashes; la instrumentación recompilada del centro tiene hash nuevo y su ejecución propia.
+- 261 casos host finales y 17 nativos: **278 aprobados**. Build forzado de 279 tareas, debug/release/instrumentación, lint 0 errores; 53 PostgreSQL, HTTPS/contrato, carga p95 30,65 ms y restauración de 30 032 eventos aprobados. Runtime: 156 módulos/0 hallazgos en la base de avisos del 26 de octubre.
+- Corregida la suposición de 100 filas en la restauración y añadidas comprobaciones de permisos/retención recuperados. Nuevo empaquetador con APKs/API/manuales/código, checksums y verificación de los hashes instalados; quince regresiones nuevas aprobadas.
+- Comprobadas restauraciones reales de 0 y 3 eventos. La entrega académica conservada aprobó también sus 131 casos host, builds/políticas y lint 0; su Android no se repitió. Datos académicos intactos y ambos emuladores propios detenidos, sin borrar AVDs/bases.
+- Paquete extraído: checksums y exclusión de credenciales comprobados, API del ZIP probada por HTTPS contra una copia QA y código incluido reconstruido en 52,88 s (80 tareas). El primer verificador se invocó con Python sin Requests; la repetición con el `.venv` fijado pasó. [Manifiesto](evidencias/artefactos-0.2.0-rc1-2026-10-26.json).
+- El usuario confirmó que no tiene servidor/dominio, clave de firma de distribución ni teléfonos. P7.1/P8.1/P8.2/P8.4 conservan sus requisitos externos; no se declara cerrado el piloto. P8.3 mantiene pendiente la repetición independiente por un tercero.
+- Sin push, despliegue ni publicación del entorno. [Informe y comandos](evidencias/P7-P8-2026-10-26.md), [paquete de desarrollo](PRUEBAS_INTEGRADAS.md#paquete-instalable-de-qa).
+- **Siguiente tarea externa:** P7.1 en Android reciente/teléfonos y P8.1/P8.2/P8.4 al disponer de recursos. La entrega local cuenta con las comprobaciones de paquete y recuperación adicionales registradas en el informe.
 
 ### 25 de octubre de 2026, Lima (26 UTC) — MVP completo y aceptación QA
 

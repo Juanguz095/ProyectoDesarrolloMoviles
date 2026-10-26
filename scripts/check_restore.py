@@ -14,6 +14,21 @@ import uuid
 import local_fixture as fixture
 
 
+def server_environment(environment):
+    """Serve the clone without administration credentials or a competing purge loop."""
+    return {key: value for key, value in environment.items()
+        if not key.startswith(('AUDITLAB_MIGRATION_', 'AUDITLAB_BOOTSTRAP_',
+                               'AUDITLAB_TEST_', 'AUDITLAB_MAINTENANCE_'))
+        and key not in ('PGPASSWORD', 'AUDITLAB_TARGET_DB_ROLE')}
+
+
+def validate_restored_page(body, expected):
+    """The restored fixture may have zero, fewer than 100, or many events."""
+    actual = [(item['eventId'], item['sourceDevice']) for item in body['items']]
+    if actual != expected:
+        raise RuntimeError('Restored API page differs from the database snapshot')
+
+
 def main():
     config = fixture.settings()
     owner = fixture.run(config, fixture.DOCKER + ['inspect', '--format',
@@ -54,9 +69,16 @@ def main():
         # Validate actual least-privilege runtime reads on the restored schema.
         restored = dict(config, database=target)
         restored_env = fixture.environment(restored)
-        restored_env['AUDITLAB_TARGET_DB_ROLE'] = 'qa_runtime'
-        grant = subprocess.run([str(fixture.BINARY), 'grant-runtime'], env=restored_env, capture_output=True, timeout=60)
-        assert grant.returncode == 0, 'Restore grants failed'
+        for role in ('runtime', 'maintenance'):
+            restored_env['AUDITLAB_TARGET_DB_ROLE'] = 'qa_' + role
+            grant = subprocess.run([str(fixture.BINARY), 'grant-' + role], env=restored_env, capture_output=True, timeout=60)
+            assert grant.returncode == 0, 'Restore grants failed'
+        # Check the recovered privilege boundary, including the maintenance role.
+        assert sql(target, "SELECT has_table_privilege('qa_runtime','auditlab.events','SELECT'),"
+            "has_table_privilege('qa_runtime','auditlab.events','DELETE'),"
+            "has_table_privilege('qa_maintenance','auditlab.events','DELETE'),"
+            "has_table_privilege('qa_maintenance','auditlab.audit_log','INSERT'),"
+            "has_table_privilege('qa_maintenance','auditlab.events','INSERT');") == 't|f|t|t|f'
         private_env = dict(env, PGPASSWORD=config['passwords']['runtime'])
         probe = subprocess.run(fixture.DOCKER + ['exec', '--env', 'PGPASSWORD', '-i', config['container'], 'psql',
             '-h', '127.0.0.1', '-U', 'qa_runtime', '-d', target, '-At', '-v', 'ON_ERROR_STOP=1'],
@@ -64,11 +86,14 @@ def main():
         assert probe.returncode == 0, 'Runtime cannot read restored events'
         with socket.socket() as port_probe:
             port_probe.bind(('127.0.0.1', 0)); port = port_probe.getsockname()[1]
-        restored_env['AUDITLAB_PORT'] = str(port)
+        api_env = server_environment(restored_env)
+        api_env['AUDITLAB_PORT'] = str(port)
+        expected = [tuple(row.split('|')) for row in sql(target,
+            'SELECT event_id,device_id FROM auditlab.events ORDER BY occurred_at DESC,event_id DESC,device_id DESC LIMIT 100;').splitlines()]
         log_path = directory / (target + '-server.log')
         fd = os.open(log_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
         with os.fdopen(fd, 'wb') as log:
-            process = subprocess.Popen([str(fixture.BINARY)], cwd=fixture.ROOT, env=restored_env, stdout=log, stderr=log)
+            process = subprocess.Popen([str(fixture.BINARY)], cwd=fixture.ROOT, env=api_env, stdout=log, stderr=log)
         try:
             deadline = time.monotonic() + 30
             while True:
@@ -84,14 +109,24 @@ def main():
                            {'Content-Type': 'application/json'})
             response = client.getresponse(); body = json.loads(response.read()); assert response.status == 200
             client.request('GET', '/v1/events?limit=100', headers={'Authorization': 'Bearer ' + body['accessToken']})
-            response = client.getresponse(); body = json.loads(response.read()); assert response.status == 200 and len(body['items']) == 100
+            response = client.getresponse(); body = json.loads(response.read()); assert response.status == 200
+            validate_restored_page(body, expected)
             client.close()
         finally:
             process.terminate(); process.wait(timeout=15)
+        # Exercise retention only on the clone, after exact snapshot/API comparison.
+        previous_runs = set(sql(target, "SELECT id FROM auditlab.audit_log WHERE action='retention_executed';").splitlines())
+        retention = subprocess.run([str(fixture.BINARY), 'retention'], env=restored_env, capture_output=True, timeout=60)
+        assert retention.returncode == 0, 'Restored maintenance command failed'
+        current_runs = set(sql(target, "SELECT id FROM auditlab.audit_log WHERE action='retention_executed';").splitlines())
+        assert len(current_runs - previous_runs) == 1, 'Restored maintenance did not record its own successful pass'
         report = {'passed': True, 'tables_compared': len(before), 'all_table_fingerprints_equal': True,
             'restored_events': int(probe.stdout), 'backup_sha256': hashlib.sha256(snapshot).hexdigest(),
             'backup_bytes': len(snapshot), 'source_preserved': True, 'target_database': target,
-            'runtime_read_confirmed': True, 'api_on_restored_database': 'ready, login and 100-event page passed'}
+            'runtime_read_confirmed': True, 'maintenance_grants_confirmed': True,
+            'maintenance_retention_confirmed': True, 'api_page_rows': len(expected),
+            'api_page_ids_equal': True, 'api_on_restored_database': 'ready, login and exact event page passed'}
+        (directory / (target + '-summary.json')).write_text(json.dumps(report, indent=2) + '\n')
         Path('.tooling/full-delivery/restore.json').write_text(json.dumps(report, indent=2) + '\n')
         print(json.dumps(report, indent=2))
     finally:

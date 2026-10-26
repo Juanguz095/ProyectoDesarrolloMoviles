@@ -66,4 +66,4 @@ La suite `scripts/check_android.py` ejecuta las actividades reales contra el fix
 
 El test TLS primero rechaza el certificado QA por defecto, habilita **solo en su proceso de prueba** la CA exacta conservando validación de hostname y vuelve a comprobar el rechazo al restaurar la confianza original. Eso no instala certificados en el sistema ni cambia la app de producción. El piloto exige su certificado reconocido por Android.
 
-Ver precondiciones, informes y comandos en [pruebas integradas](PRUEBAS_INTEGRADAS.md). Los fallos, reintentos y plataformas aún pendientes se registran en la [evidencia](evidencias/P5-P8-2026-10-25.md).
+Ver precondiciones, informes, comandos y paquete con APKs/API/código en [pruebas integradas](PRUEBAS_INTEGRADAS.md). La [última repetición](evidencias/P7-P8-2026-10-26.md) conserva su resultado y hashes; los fallos corregidos anteriores permanecen en la [evidencia previa](evidencias/P5-P8-2026-10-25.md).

@@ -1,6 +1,6 @@
 # AuditLab — entrega técnica de la fase 1 académica
 
-Ámbito: una app Android local, educativa y sin red, desarrollada mediante I01–I12. Crea eventos ficticios; no captura llamadas, SMS, notificaciones ni datos de otras apps. Los módulos históricos de dos apps/API quedan conservados como referencia. Este documento no declara conformidad con un PDF/rúbrica que todavía no se ha recibido.
+Ámbito: una app Android local, educativa y sin red, desarrollada mediante I01–I12. Crea eventos ficticios; no captura llamadas, SMS, notificaciones ni datos de otras apps. Esta entrega es independiente del [producto actual de dos apps y API](MANUAL_PRODUCTO.md); sus pruebas no sustituyen las del producto completo. Este documento no declara conformidad con un PDF/rúbrica que todavía no se ha recibido.
 
 ## Instalar y demostrar
 

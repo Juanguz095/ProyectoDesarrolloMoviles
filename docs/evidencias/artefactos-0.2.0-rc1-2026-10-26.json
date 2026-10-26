@@ -1,0 +1,251 @@
+{
+  "recorded_at": "2026-10-26T22:23:26.713608+00:00",
+  "version": "0.2.0-rc1",
+  "source_revision_before_session": "8410680",
+  "application_source_revision": "1dcdf5f",
+  "instrumentation_source_revision": "ed8f3ef",
+  "native_run_id": "7efb673fc2ea4d07",
+  "native_acceptance": {
+    "approved": true,
+    "stages": 17,
+    "devices": {
+      "agent": {
+        "serial": "emulator-5580",
+        "sdk": 28,
+        "boot_completed": "1"
+      },
+      "control": {
+        "serial": "emulator-5582",
+        "sdk": 26,
+        "boot_completed": "1"
+      }
+    },
+    "recorded_at": "2026-10-26T22:22:23.106241+00:00",
+    "artifacts": [
+      {
+        "component": "agent",
+        "file": "agent-debug.apk",
+        "bytes": 9948957,
+        "sha256": "1ca49f5f70bc66b3bd2eeef1e47c417314adb7a693928f878c0d2f00ffe3c787"
+      },
+      {
+        "component": "agent",
+        "file": "agent-debug-androidTest.apk",
+        "bytes": 1091197,
+        "sha256": "e35cb41922f89454530917a5bcf72cddce8efcbf6d25a40affd1fbbf589f1222"
+      },
+      {
+        "component": "control",
+        "file": "control-debug.apk",
+        "bytes": 9401298,
+        "sha256": "acd7a2df26e252077585f1bb829ec71171d95fa199a6d315118947b4c1f236d8"
+      },
+      {
+        "component": "control",
+        "file": "control-debug-androidTest.apk",
+        "bytes": 1097321,
+        "sha256": "7af3e2615433bff96b68aea6f372a1d393311d4c867ce03c5e3acc6fab5ca8c9"
+      }
+    ]
+  },
+  "tests": {
+    "host": {
+      "common_jvm": 68,
+      "agent_jvm": 21,
+      "control_jvm": 8,
+      "ktor_unit": 8,
+      "postgres_integration": 53,
+      "https_smoke": 4,
+      "contract": 49,
+      "prototype_python": 16,
+      "prototype_node": 2,
+      "tools": 32
+    },
+    "host_total": 261,
+    "native_stages": 17,
+    "total_distinct": 278,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "host_campaign": {
+    "operations": 16,
+    "all_exit_codes_zero": true,
+    "tools_final_count": 32
+  },
+  "build": {
+    "forced_tasks": 279,
+    "seconds": 172.57,
+    "lint_errors": 0,
+    "agent_lint_warnings_per_variant": 5,
+    "control_lint_warnings_per_variant": 2,
+    "operator_distribution_signature": false
+  },
+  "live_https_contract_responses": 23,
+  "capacity": {
+    "events": 10000,
+    "pages": 100,
+    "concurrency": 5,
+    "queries": 100,
+    "p50_ms": 19.22,
+    "p95_ms": 30.65,
+    "max_ms": 41.06,
+    "target_p95_ms": 2000,
+    "csv_rows": 10000,
+    "passed": true,
+    "host": "Linux-6.18.55-x86_64-with-glibc2.41",
+    "cpu_max": "400000 100000",
+    "memory_max": "34359738368",
+    "emulators_running": 0,
+    "recorded_at": "2026-10-26T22:03:52.156867+00:00"
+  },
+  "restore": {
+    "passed": true,
+    "tables_compared": 10,
+    "all_table_fingerprints_equal": true,
+    "restored_events": 30032,
+    "backup_sha256": "8d5e0d00295b201b11f7da4eaf28bda880bab927d8b7af9edc3b3aaf5484ab41",
+    "backup_bytes": 9039351,
+    "source_preserved": true,
+    "runtime_read_confirmed": true,
+    "maintenance_grants_confirmed": true,
+    "maintenance_retention_confirmed": true,
+    "api_page_rows": 100,
+    "api_page_ids_equal": true,
+    "api_on_restored_database": "ready, login and exact event page passed"
+  },
+  "runtime_dependency_scan": {
+    "recorded_at": "2026-10-26T22:03:46.057792+00:00",
+    "scanner": "Trivy 0.76.1",
+    "modules_resolved": 156,
+    "packages_identified": 156,
+    "findings": 0,
+    "high_or_critical": 0,
+    "severity_counts": {
+      "CRITICAL": 0,
+      "HIGH": 0,
+      "MEDIUM": 0,
+      "LOW": 0,
+      "UNKNOWN": 0
+    },
+    "database": {
+      "Version": 2,
+      "NextUpdate": "2026-10-27T19:14:50.196573697Z",
+      "UpdatedAt": "2026-10-26T19:14:50.196574068Z",
+      "DownloadedAt": "2026-10-26T22:03:45.975902818Z"
+    },
+    "sbom_sha256": "2cc9ea9a4c09eb1eb3430ed283bb41738f85dc1146433a0ce9704fefd916f34d",
+    "passed": true,
+    "scope": "Resolved production Maven runtime modules; excludes OS/JDK, test tools and operational configuration"
+  },
+  "pilot_approved": false,
+  "external_requirements": {
+    "resources_available": false,
+    "user_confirmed_missing": [
+      "server_domain_https",
+      "operator_signing_key",
+      "two_owned_phones"
+    ],
+    "not_verified": [
+      "recent_android",
+      "screen_reader",
+      "independent_pilot",
+      "hosted_ci_for_current_candidate"
+    ]
+  },
+  "additional_restore_cases": [
+    {
+      "passed": true,
+      "tables_compared": 10,
+      "all_table_fingerprints_equal": true,
+      "restored_events": 0,
+      "backup_sha256": "bd84c5aaa292a1f63b4d377e9d936249f0f211f960701cac26010aec02490a54",
+      "backup_bytes": 24323,
+      "source_preserved": true,
+      "runtime_read_confirmed": true,
+      "maintenance_grants_confirmed": true,
+      "maintenance_retention_confirmed": true,
+      "api_page_rows": 0,
+      "api_page_ids_equal": true,
+      "api_on_restored_database": "ready, login and exact event page passed"
+    },
+    {
+      "passed": true,
+      "tables_compared": 10,
+      "all_table_fingerprints_equal": true,
+      "restored_events": 3,
+      "backup_sha256": "b35b0f17121dcef1f2292da03fd738649c29b0d511280dc2565ed9178f59a945",
+      "backup_bytes": 27671,
+      "source_preserved": true,
+      "runtime_read_confirmed": true,
+      "maintenance_grants_confirmed": true,
+      "maintenance_retention_confirmed": true,
+      "api_page_rows": 3,
+      "api_page_ids_equal": true,
+      "api_on_restored_database": "ready, login and exact event page passed"
+    }
+  ],
+  "preserved_academic_host": {
+    "jvm": 93,
+    "tools": 23,
+    "sqlite": 15,
+    "total": 131,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "lint_issues": 0,
+    "android_repeated_this_session": false
+  },
+  "cleanup": {
+    "databases_and_avds_deleted": false,
+    "academic_data_unchanged": true,
+    "academic_dump_sha256": "899045c518edfbf5f5ddbcbb66118d2aa7826a8d3db90dc1a678932b1657b770",
+    "own_private_inputs_removed": true,
+    "emulator-5580_stopped": true,
+    "emulator-5582_stopped": true
+  },
+  "package_validation": {
+    "passed": true,
+    "archive_sha256": "4058e3534cd522c033df4daa2c2661b20ee29342ce641503bfd08b367fa98cbe",
+    "files_checked": 344,
+    "all_checksums_valid": true,
+    "known_fixture_credentials_absent": true,
+    "source_and_executable_wrappers_present": true,
+    "packaged_api_https_login_queries_logout": true,
+    "packaged_api_untrusted_tls_rejected": true,
+    "query_ids_equal_to_restore": true,
+    "source_rebuild": {
+      "exit_code": 0,
+      "seconds": 52.88,
+      "components": [
+        "agent",
+        "control",
+        "ktor"
+      ]
+    },
+    "compiled_source_files_equal_to_checkout": 86
+  },
+  "package_validation_attempts": [
+    {
+      "attempt": 1,
+      "python": "system python3",
+      "exit_code": 1,
+      "phase": "before extraction and API checks",
+      "reason": "ModuleNotFoundError: requests",
+      "remediation": "Use the existing locked .venv interpreter; no dependency added"
+    },
+    {
+      "attempt": 2,
+      "python": "existing locked .venv",
+      "exit_code": 0,
+      "checks": [
+        "extraction",
+        "all checksums",
+        "known credential exclusion",
+        "packaged HTTPS API",
+        "source reconstruction"
+      ],
+      "source_build_seconds": 52.88
+    }
+  ]
+}

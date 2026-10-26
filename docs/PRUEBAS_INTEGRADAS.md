@@ -98,3 +98,17 @@ La revisión descarga Trivy 0.76.1 desde su publicación oficial y verifica el S
 La carga añade 10 000 eventos ficticios por ejecución, compara las 100 páginas y el CSV por ID y mide cinco lectores concurrentes contra el fixture propio. No ejecutar sobre producción. Registrar recursos y ausencia/presencia de emuladores para interpretar la latencia.
 
 Restauración pausa solo la API propia, crea una base nueva sin sobrescribir la original, restaura como migrador, compara las diez tablas y prueba disponibilidad/login/consulta desde otra API. Conserva el dump privado y ambas bases; su retención queda a cargo del operador. La prueba QA no sustituye cifrar y restaurar respaldos reales.
+
+La comparación de la página restaurada usa los IDs y dispositivos esperados, con el mismo orden que la API; funciona también con cero o menos de 100 eventos. Se recuperan y comprueban los permisos runtime/mantenimiento. La API aislada de la copia recibe solo credenciales runtime; la pasada de retención se ejecuta explícitamente sobre la copia después de comparar datos y se exige una entrada nueva de auditoría. Cada restauración conserva su informe propio junto al respaldo.
+
+## Paquete instalable de QA
+
+Después de aprobar los 17 pasos sobre las APKs actuales:
+
+```bash
+python3 scripts/package_qa.py --native-report .tooling/android-native/IDENTIFICADOR --output .tooling/delivery/auditlab-qa.zip
+```
+
+Reemplazar `IDENTIFICADOR` por la ejecución completa recién aprobada. El paquete incluye las dos APKs debug, la distribución Ktor con sus bibliotecas, los manuales públicos y una copia de los archivos versionados en `source/`, incluidos wrappers y pruebas. `LEEME.md`, `manifest.json` y `SHA256SUMS` permiten instalar e identificar los archivos. Al extraer con `unzip`, comprobar `sha256sum -c SHA256SUMS` desde la carpeta extraída; se conservan los permisos de ejecución del servidor y wrappers.
+
+El empaquetador rechaza una ejecución incompleta, un hash diferente en cualquiera de las cuatro APKs (apps e instrumentación), archivos ausentes/enlaces simbólicos y un destino ya existente. Comprueba además los bytes realmente incluidos para detectar una reconstrucción concurrente. No compila, firma, configura cuentas, incluye datos del fixture ni publica servicios. La firma debug permite desarrollo; la entrega del piloto requiere los pasos P8.1/P8.2/P8.4 descritos en el plan.
