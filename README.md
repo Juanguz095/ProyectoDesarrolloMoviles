@@ -1,5 +1,13 @@
 # AuditLab: descargas
 
+## Usar sin USB
+
+Los mismos APK 0.3 admiten HTTPS. Puedes conectar la PC y los dos celulares mediante
+Tailscale, una red privada por Wi-Fi o Internet, conservando la PC como servidor.
+[Pasos para Windows y ambos celulares](PASOS-SIN-USB.md).
+La guia requiere instalar/iniciar sesion en Tailscale en tus tres equipos; no configura
+esos equipos desde el chat. Windows/Tailscale aun no se han ejecutado aqui.
+
 ## Version actual: 0.3.0-rc1
 
 Captura autorizada de metadatos reales de SMS/llamadas, bateria y conexion.
