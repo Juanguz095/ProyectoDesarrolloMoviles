@@ -8,7 +8,25 @@ Tailscale, una red privada por Wi-Fi o Internet, conservando la PC como servidor
 La guia requiere instalar/iniciar sesion en Tailscale en tus tres equipos; no configura
 esos equipos desde el chat. Windows/Tailscale aun no se han ejecutado aqui.
 
-## Version actual: 0.3.0-rc1
+## Version actual: 0.3.1-rc1
+
+Rediseño fiel a los mockups del Agente y Centro de control, conservando la captura
+autorizada de metadatos reales de SMS/llamadas, batería y conexión. Solo tipo/fecha:
+no contenido, números, contactos ni audio. Android 8 o superior.
+
+- [Agente 0.3.1 para el celular A](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.3.1-rc1.apk)
+- [Centro de control 0.3.1 para el celular B](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.3.1-rc1.apk)
+- [Servidor Windows compatible](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.3.0-rc1.zip)
+
+El backend no cambió entre 0.3.0 y 0.3.1, por eso el servidor Windows 0.3.0 sigue
+siendo compatible. Se aprobaron 115 pruebas JVM, 32 pruebas de herramientas, una
+secuencia completa de 17 etapas en dos emuladores y una prueba adicional con cinco
+eventos reales emulados. Son APK debug para desarrollo; no se probaron en teléfonos
+físicos ni tienen la firma de distribución del responsable.
+
+Checksums de esta versión: `SHA256SUMS` y `SHA256SUMS-0.3.1-rc1`.
+
+## Version anterior: 0.3.0-rc1
 
 Captura autorizada de metadatos reales de SMS/llamadas, bateria y conexion.
 Solo tipo/fecha: no contenido, numeros, contactos ni audio. Android 8 o superior.
@@ -32,7 +50,7 @@ deduplicacion y retirada. No se acredita Windows, telefonos fisicos ni Android r
 Firma debug para desarrollo, sin piloto publico ni firma de distribucion del responsable.
 La publicacion de estos archivos no actualiza la rama main; la fuente nueva va en el ZIP.
 
-Checksums de esta version: SHA256SUMS y SHA256SUMS-0.3.0-rc1.
+Checksums de esta versión: `SHA256SUMS-0.3.0-rc1`.
 
 ## Version anterior: 0.2 (historica)
 
