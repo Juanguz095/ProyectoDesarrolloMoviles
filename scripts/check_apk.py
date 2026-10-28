@@ -28,6 +28,8 @@ EXPECTED = {
             "Lcom/auditlab/agent/MainActivity;",
             "Lcom/auditlab/agent/AgentSession;",
             "Lcom/auditlab/agent/KeystoreCredentialStore;",
+            "Lcom/auditlab/agent/RealMonitoringService;",
+            "Lcom/auditlab/agent/PhoneMetadata;",
             "Lcom/auditlab/common/AgentCore;",
             "Lcom/auditlab/common/ApiClient;",
         ],
@@ -45,7 +47,7 @@ EXPECTED = {
     },
 }
 
-# Permisos que jamás deben aparecer: el producto solo envía eventos simulados propios.
+# Scope approved: only the agent may request READ_SMS/READ_CALL_LOG for metadata.
 FORBIDDEN = [
     "android.permission.READ_SMS",
     "android.permission.RECEIVE_SMS",
@@ -158,13 +160,16 @@ def audit(apk: Path, profile: str) -> None:
     allowed = {"android.permission.INTERNET", name + DYNAMIC_RECEIVER_SUFFIX}
     if name == "com.auditlab.agent":
         allowed.update({"android.permission.ACCESS_NETWORK_STATE", "android.permission.POST_NOTIFICATIONS",
-                        "android.permission.WAKE_LOCK", "android.permission.RECEIVE_BOOT_COMPLETED"})
+                        "android.permission.WAKE_LOCK", "android.permission.RECEIVE_BOOT_COMPLETED",
+                        "android.permission.READ_SMS", "android.permission.READ_CALL_LOG",
+                        "android.permission.FOREGROUND_SERVICE", "android.permission.FOREGROUND_SERVICE_SPECIAL_USE"})
     unexpected = [p for p in permissions if p not in allowed]
     if unexpected:
         fail(f"permisos no previstos: {', '.join(unexpected)}")
     else:
         ok(f"permisos: {', '.join(sorted(permissions)) or 'ninguno'}")
-    forbidden = [p for p in permissions if p in FORBIDDEN]
+    metadata_permissions = {"android.permission.READ_SMS", "android.permission.READ_CALL_LOG"} if name == "com.auditlab.agent" else set()
+    forbidden = [p for p in permissions if p in FORBIDDEN and p not in metadata_permissions]
     if forbidden:
         fail(f"permisos prohibidos presentes: {', '.join(forbidden)}")
 
@@ -288,10 +293,10 @@ def audit(apk: Path, profile: str) -> None:
     else:
         ok(f"{len(expected['classes'])} clases propias presentes en el dex")
 
-    # Sin permisos peligrosos declarados en el manifiesto: la app no puede leer contenido ajeno.
-    dangerous = [p for p in permissions if p in FORBIDDEN]
+    # No permissions beyond the approved optional metadata readers and normal runtime needs.
+    dangerous = [p for p in permissions if p in FORBIDDEN and p not in metadata_permissions]
     if not dangerous:
-        ok("sin permisos peligrosos de SMS, llamadas, contactos, audio, cámara, ubicación o accesibilidad")
+        ok("sin permisos fuera del alcance autorizado; lectura opcional de metadatos solo en el agente")
 
 
 def main() -> int:

@@ -26,6 +26,7 @@ private data class NormalizedEvent(
     val consent: ConsentInput,
     val metadataJson: String,
     val payloadHash: String,
+    val simulated: Boolean,
 )
 
 private data class EventFilters(val device: UUID?, val category: String?, val from: Instant?, val to: Instant?, val q: String?) {
@@ -65,10 +66,14 @@ private fun parseEvent(node: JsonNode, clock: Clock): NormalizedEvent {
     val sourceDevice = parseUuid(node.requireText("sourceDevice"))
     val consent = parseConsent(node.requireObject("consentContext"), clock)
     val simulated = node["isSimulated"]
-    if (simulated == null || !simulated.isBoolean || !simulated.booleanValue()) throw ApiFailure(400, "INVALID_REQUEST")
+    if (simulated == null || !simulated.isBoolean) throw ApiFailure(400, "INVALID_REQUEST")
     if (timestamp.isAfter(clock.instant().plusSeconds(300))) throw ApiFailure(400, "INVALID_REQUEST")
     if (timestamp.isBefore(consent.acceptedAt)) throw ApiFailure(400, "INVALID_REQUEST")
     val metadata = parseMetadata(node["metadata"])
+    val code = node["metadata"]?.get("appEventCode")?.textValue()
+    if (!simulated.booleanValue()) {
+        if (realEventCodes[code] != (category to direction)) throw ApiFailure(400, "INVALID_REQUEST")
+    } else if (category in setOf("sms", "call") || code in realEventCodes) throw ApiFailure(400, "INVALID_REQUEST")
     val canonical = json.createObjectNode().apply {
         put("eventId", eventId.toString())
         put("timestamp", wire(timestamp))
@@ -78,10 +83,10 @@ private fun parseEvent(node: JsonNode, clock: Clock): NormalizedEvent {
         put("consentId", consent.id.toString())
         put("policyVersion", consent.policyVersion)
         put("acceptedAt", wire(consent.acceptedAt))
-        put("isSimulated", true)
+        put("isSimulated", simulated.booleanValue())
         set<JsonNode>("metadata", json.readTree(metadata))
     }.toString()
-    return NormalizedEvent(eventId, timestamp, category, direction, sourceDevice, consent, metadata, TokenHash.sha256(canonical))
+    return NormalizedEvent(eventId, timestamp, category, direction, sourceDevice, consent, metadata, TokenHash.sha256(canonical), simulated.booleanValue())
 }
 
 private fun parseEventFilters(query: Map<String, String>): EventFilters {
@@ -168,7 +173,7 @@ fun Route.eventRoutes(auth: AuthService?) {
                             it.setTimestamp(5, java.sql.Timestamp.from(now))
                             it.setString(6, event.category)
                             it.setString(7, event.direction)
-                            it.setBoolean(8, true)
+                            it.setBoolean(8, event.simulated)
                             it.setString(9, event.metadataJson)
                             it.setString(10, event.payloadHash)
                             it.executeUpdate()

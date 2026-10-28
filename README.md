@@ -1,6 +1,6 @@
 # AuditLab
 
-Sistema de monitoreo autorizado para dispositivos Android propios o administrados: **agente Android + centro de control Android + API Ktor/PostgreSQL**. Versión candidata **0.2.0-rc1**. Solo registra eventos simulados, propios de AuditLab y metadatos permitidos de batería/conectividad. Requiere consentimiento y un indicador visible.
+Sistema de monitoreo autorizado para dispositivos Android propios o administrados: **agente Android + centro de control Android + API Ktor/PostgreSQL**. Candidata **0.3.0-rc1**: amplía la 0.2 con metadatos reales de SMS/llamadas cuando Android concede los permisos, además de batería/conexión y eventos de prueba. Requiere consentimiento e indicador visible. [Activación, alcance y límites](docs/CAPTURA_REAL.md).
 
 ## Qué hace el MVP
 
@@ -8,7 +8,11 @@ Sistema de monitoreo autorizado para dispositivos Android propios o administrado
 - **Centro:** login admin/auditor, sesión renovable, dispositivos y última recepción, historial con filtros/páginas, detalle, CSV mediante el selector Android, auditoría y revocación con confirmación.
 - **API:** autenticación, inscripción, recepción idempotente, validación estricta, consultas/exportación, revocación, auditoría, retención y HTTPS. PostgreSQL usa roles separados y migraciones.
 
-La implementación del MVP está presente. Se ejecutaron flujos reales con el agente en Android 9/API28 y el centro en Android 8/API26; la evidencia diferencia los casos individuales de la repetición completa, así como los fallos corregidos. No se declara publicado un piloto ni firmada una distribución del responsable. **Última repetición local: 278 pruebas aprobadas**, incluidas las 17 etapas nativas completas, más 23 respuestas HTTPS validadas. [Informe de la repetición y entrega](docs/evidencias/P7-P8-2026-10-26.md), [hashes actuales](docs/evidencias/artefactos-0.2.0-rc1-2026-10-26.json); se conserva el [manifiesto anterior](docs/evidencias/artefactos-0.2.0-rc1.json).
+La candidata 0.3 requiere sus propias comprobaciones de captura real, registradas en [AVANCE](docs/AVANCE.md).
+La versión anterior **0.2** tuvo 278 casos aprobados, incluidas 17 etapas nativas con agente
+Android 9/API28 y centro Android 8/API26; eso no acredita la ampliación de SMS/llamadas.
+[Informe histórico](docs/evidencias/P7-P8-2026-10-26.md), [hashes históricos 0.2](docs/evidencias/artefactos-0.2.0-rc1-2026-10-26.json).
+No se declara publicado un piloto ni firmada una distribución del responsable.
 
 ## Documentos de entrada
 
@@ -60,7 +64,7 @@ Para probar localmente se usan dos emuladores y el fixture en loopback; no hace 
 
 ## Alcance de seguridad y entrega
 
-Sin permisos de SMS, llamadas, contactos, cámara, micrófono, ubicación ni accesibilidad. No lee contenido de otras apps, no se oculta y permite retirar el consentimiento. HTTPS valida certificado y hostname; HTTP solo se permite en loopback. La revocación remota se conoce en el siguiente contacto del agente; un dispositivo offline no recibe una confirmación inmediata.
+El Agente solicita opcionalmente READ_SMS/READ_CALL_LOG para consultar únicamente tipo y fecha desde la activación. No consulta cuerpos ni números; no solicita contactos, cámara, micrófono, ubicación ni accesibilidad. No se oculta y permite retirar el consentimiento. HTTPS valida certificado y hostname; HTTP solo se permite en loopback. La revocación remota se conoce en el siguiente contacto del agente; un dispositivo offline no recibe una confirmación inmediata.
 
 Quedan como condiciones externas de entrega: validación en Android reciente y teléfonos propios, clave de distribución del responsable y piloto HTTPS con acceso/autorización. Las APKs debug y los certificados QA sirven para desarrollo. El análisis de dependencias se limita al runtime Maven resuelto y a la base de avisos registrada; no acredita la seguridad de todo un despliegue.
 

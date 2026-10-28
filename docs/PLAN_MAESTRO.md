@@ -2,6 +2,13 @@
 
 Versión: 1.0 · Fecha: 17 de octubre de 2026.
 
+**Ampliación vigente del 27 de octubre (America/Lima):** el usuario requiere eventos
+reales de SMS/llamadas. P3.3, P5.3, P6.2 y P7/P8 se amplían según
+[CAPTURA_REAL.md](CAPTURA_REAL.md): permisos opcionales, autorización adicional,
+servicio visible y solo tipo/fecha, sin contenido ni números. Categorías `sms` y `call`,
+eventos reales identificados con `isSimulated=false`. Las restricciones de permisos del
+dispositivo y las evidencias nuevas se registran sin reutilizar el cierre histórico de 0.2.
+
 Este documento guía la construcción del producto. Se utiliza junto con [AVANCE.md](AVANCE.md), donde se registran tareas, resultados y bloqueos. Las fases siguientes son trabajo previsto; una descripción o un archivo existente no demuestra su funcionamiento.
 
 ## 1. Meta y definición de entrega

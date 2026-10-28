@@ -12,8 +12,8 @@ android {
         minSdk = 26
         targetSdk = 35
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        versionCode = 2
-        versionName = "0.2.0-rc1"
+        versionCode = 3
+        versionName = "0.3.0-rc1"
     }
     buildFeatures { compose = true }
     testOptions { unitTests { isIncludeAndroidResources = true } }

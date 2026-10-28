@@ -100,7 +100,7 @@ internal fun ControlScreen(session: ControlSession, onExport: (() -> Unit)? = nu
         text = { Column(Modifier.verticalScroll(rememberScrollState())) {
             Text("ID: ${event.eventId}"); Text("Dispositivo: ${event.sourceDevice}")
             Text("Fecha: ${event.timestamp}"); Text("Recibido: ${event.receivedAt}")
-            Text("${event.category} · ${event.direction}"); Text("Simulado: ${event.isSimulated}")
+            Text(eventTitle(event)); Text(if (event.isSimulated) "Evento simulado" else "Evento real del dispositivo")
             Text("Consentimiento: ${event.consent.consentId} · ${event.consent.policyVersion}")
             Text(event.metadata.entries.joinToString { "${it.key}=${it.value}" })
         } }, confirmButton = { TextButton(onClick = session::closeDetail) { Text("Cerrar detalle") } }) }
@@ -253,9 +253,9 @@ internal fun ControlScreen(session: ControlSession, onExport: (() -> Unit)? = nu
                 session.events.forEach { event ->
                     Card {
                         Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                            Text("${event.category} · ${event.direction}",
+                            Text(eventTitle(event),
                                 style = MaterialTheme.typography.titleSmall)
-                            Text("Simulado: ${if (event.isSimulated) "sí" else "no"} · ${event.timestamp}",
+                            Text("${if (event.isSimulated) "Simulado" else "Real"} · ${event.timestamp}",
                                 style = MaterialTheme.typography.bodySmall)
                             TextButton(onClick = { session.showDetail(event, scope) }, enabled = !session.busy) { Text("Detalle ${event.eventId}") }
                             Text(event.metadata.entries.joinToString { "${it.key}=${it.value}" },
@@ -270,4 +270,15 @@ internal fun ControlScreen(session: ControlSession, onExport: (() -> Unit)? = nu
             Card { Text(it, Modifier.padding(12.dp), style = MaterialTheme.typography.bodyMedium) }
         }
     }
+}
+
+internal fun eventTitle(event: com.auditlab.common.AuditEvent): String = when (event.metadata["appEventCode"]) {
+    "sms_received" -> "SMS recibido"
+    "sms_sent" -> "SMS enviado"
+    "call_received" -> "Llamada recibida"
+    "call_outgoing" -> "Llamada saliente"
+    "call_missed" -> "Llamada perdida"
+    "call_rejected" -> "Llamada rechazada o bloqueada"
+    "device_status_changed" -> "Cambio de batería o conexión"
+    else -> "${event.category} · ${event.direction}"
 }

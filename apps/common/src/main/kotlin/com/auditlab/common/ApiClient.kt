@@ -9,7 +9,7 @@ import java.net.URI
 import java.net.URLEncoder
 import javax.net.ssl.SSLException
 
-/** Un evento que el agente quiere enviar. `isSimulated` es siempre true por diseño. */
+/** Eventos propios, simulados o metadatos autorizados; nunca contenido de comunicaciones. */
 data class EventDraft(
     val eventId: String,
     val timestamp: String,
@@ -18,6 +18,7 @@ data class EventDraft(
     val sourceDevice: String,
     val consent: ConsentContext,
     val metadata: Map<String, Any?>,
+    val isSimulated: Boolean = true,
 )
 
 /** Superficie usada por las apps; permite probar la lógica sin red. */
@@ -257,7 +258,7 @@ class ApiClient(
         .put("direction", direction)
         .put("sourceDevice", sourceDevice)
         .put("consentContext", consent.toJson())
-        .put("isSimulated", true)
+        .put("isSimulated", isSimulated)
         .put("metadata", JSONObject(metadata))
 
     companion object {

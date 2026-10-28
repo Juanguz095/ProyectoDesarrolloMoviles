@@ -4,6 +4,52 @@ Actualización: 26 de octubre de 2026, UTC. Los registros anteriores conservan s
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
+## Ampliación activa — 0.3.0-rc1, captura real
+
+Solicitud del 27 de octubre de 2026 (America/Lima): registrar eventos reales de SMS y
+llamadas. [Alcance y activación](CAPTURA_REAL.md). Esta ampliación reemplaza la
+limitación de simulación para esos metadatos, sin admitir contenido ni números.
+Los cierres y 278 casos de 0.2 que siguen más abajo son históricos.
+
+- P3.3: booleano real/simulado conservado, categorías `sms`/`call`, códigos cerrados,
+  validación de dirección/origen y migración Flyway V3. **54 casos de integración
+  PostgreSQL aprobados**, más 8 unitarios Ktor. La actualización de la base persistente
+  conserva 30 035 eventos y el fingerprint de IDs/contenido.
+- P5.3: servicio visible iniciado por el usuario, autorización adicional, READ_SMS y
+  READ_CALL_LOG opcionales; proyección exclusiva `_id/date/type`, exclusión del historial
+  previo y de borradores/fallidos, deduplicación, pausa/retirada y envío automático con
+  reintento persistente. No hay captura de telefonía al reiniciar o morir el proceso.
+- P6.2: categorías nuevas, nombres legibles de SMS/llamadas y distinción Real/Simulado
+  en historial/detalle; CSV conserva el booleano.
+- P7: **75 comunes + 26 agente + 9 centro**, 49 de contrato y 32 de herramientas
+  aprobados. APKs debug y prueba Android compiladas; lint debug 0 errores (6 avisos agente,
+  2 centro); auditoría de manifiestos/red/firmas/Dex aprobada. Firma debug coincide con 0.2.
+- P7.1: recorrido de telefonía **aprobado sobre el APK final en API28**: cinco eventos
+  reales (SMS recibido/enviado, llamada perdida/saliente, estado del dispositivo),
+  consulta API, CSV, deduplicación y revocación. Se contrastaron los hashes del APK
+  de agente y de instrumentación instalados contra los archivos finales. La nueva
+  prueba de UI del Centro comprueba el título «SMS enviado» y la marca «Real».
+  [Informe y límites](evidencias/CAPTURA-REAL-0.3.0-2026-10-27.md).
+  Primer
+  intento bloqueado por espacio; resuelto con copia de imagen base inicializada sin
+  copiar ni modificar overlays de datos anteriores. Un fallo del orquestador no reconocía
+  el marcador de inicio (`test` no es binario ejecutable por run-as en API28); corregido
+  mediante shell. Ese intento no generó SMS/llamadas y no cuenta como aprobado.
+  Otro intento esperó la llamada saliente sin terminar: se corrigió el driver para
+  esperar al módem y colgar mediante Android; luego hubo dos recorridos completos
+  aprobados. Solo el último corresponde al APK final, con ventana para llamadas largas.
+- P8: nuevos APK/servidor **todavía no publicados**. Los enlaces de GitHub existentes
+  siguen siendo 0.2. Windows/teléfonos reales y Android reciente siguen sin ejecución aquí.
+
+Evidencias privadas: `.tooling/real-events-validation/`. Se conservan los fallos de
+compilación inicial de la prueba, lint/manifiesto y el nombre de constraint corregido
+en V3, junto con las repeticiones satisfactorias. El entorno se desconectó brevemente;
+los cambios se conservaron y se verificó el estado antes de continuar.
+
+Siguiente: empaquetar/publicar la actualización de
+archivos en la rama de descargas ya autorizada. No declarar funciones físicas validadas
+por resultados JVM, API o telefonía emulada.
+
 ## Alcance actual de la solicitud
 
 **Producto activo: agente Android + centro Android + API Ktor/PostgreSQL.** Candidata **0.2.0-rc1**, código funcional `1dcdf5f` e instrumentación `ed8f3ef`. P4–P6 implementadas y comprobadas con actividades reales: agente API28 y centro API26, Room/Keystore/WorkManager, notificaciones, consulta cruzada, CSV/rotación, auditor y retirada local/remota. La secuencia final de 17 pasos pasó sobre las APKs actuales, con hashes comprobados contra las instaladas. [Resultados/hashes actuales](evidencias/artefactos-0.2.0-rc1-2026-10-26.json).
@@ -71,6 +117,13 @@ La app `academic/` permanece como entrega local I01–I12, sin cambios en esta a
 | P8.4 | pendiente | [Plan](PLAN_MAESTRO.md). | No hay despliegue/piloto acreditado; requiere URL, acceso, autorización y responsable operativo. |
 
 ## Bitácora de sesiones
+
+### 27 de octubre de 2026 UTC — Guia Windows para dos celulares por USB
+
+- P8.3: preparada [guia paso a paso para Windows](PRUEBA_WINDOWS_USB.md), con Docker Desktop/Java21, API precompilada y `adb reverse` individual para dos celulares propios. URL local en ambos: `http://127.0.0.1:8081`; no requiere tunel publico ni cambia la politica TLS fuera de loopback.
+- Preparado paquete descargable `AuditLab-Windows-USB.zip` con asistente PowerShell de arranque. Genera configuracion privada, cuentas separadas, contenedor/volumen propios y conserva los datos; exige identidad del recurso antes de reutilizarlo. El usuario elige la contrasena de admin. Las APKs y la distribucion API mantienen los bytes de la entrega anterior.
+- Comprobacion de contenido/CRC/checksums y correspondencia de APKs; sin ejecucion del asistente en Windows, PowerShell disponible o telefonos fisicos en este host Linux. No se suman pruebas ni se cierran P7.1/P8.2/P8.4 por preparar la guia. Sin push, despliegue ni publicacion.
+- Publicacion posterior autorizada por el usuario: subida la rama de descargas [descargas-auditlab](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/tree/descargas-auditlab), commit `e3ab29074781ae9b9fe02cb925d1e2c2f673eaf2`, con las dos APKs, servidor Windows, README y SHA256SUMS. Los tres enlaces HTTPS de descarga devolvieron 200 y los archivos descargados coinciden por SHA256 con los preparados. Se publica la entrega de archivos; el piloto operativo sigue pendiente. Los enlaces internos del chat no funcionaron para el usuario. Evidencia local: `.tooling/download-link-check/summary.json`.
 
 ### 26 de octubre de 2026 UTC — Repetición completa y entrega de desarrollo
 

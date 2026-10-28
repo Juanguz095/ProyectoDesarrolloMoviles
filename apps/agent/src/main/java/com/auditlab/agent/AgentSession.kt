@@ -30,6 +30,8 @@ class AgentSession internal constructor(
         private set
     var visibleAvailable by mutableStateOf(platform == null)
         private set
+    var realMonitoring by mutableStateOf(false); private set
+    var realStatus by mutableStateOf("Captura real detenida."); private set
     var busy by mutableStateOf(false)
         private set
     var revoking by mutableStateOf(false)
@@ -81,7 +83,7 @@ class AgentSession internal constructor(
     fun enroll(code: String, scope: CoroutineScope) = perform(scope, networkHint = "No se pudo confirmar la inscripción. Comprueba el centro y solicita otro código si el anterior fue consumido.") {
         it.enroll(code)
         platform?.indicator?.show()
-        "Dispositivo inscrito. Solo se guardan y envían eventos simulados con indicador visible."
+        "Dispositivo inscrito. Puedes autorizar la captura real o generar un evento de prueba."
     }
     fun sendSimulatedEvent(scope: CoroutineScope) = perform(scope) {
         val result = it.captureAndSend { platform?.metadata() ?: mapOf("appEventCode" to "agent_started", "networkState" to "online") }
@@ -92,6 +94,7 @@ class AgentSession internal constructor(
         if (revoking) return
         engine?.requestWithdrawal()
         platform?.gate?.withdrawalRequested = true
+        platform?.realEvents?.stop()
         revoking = true
         perform(platform?.applicationScope ?: scope, privacy = true) {
             val result = it.revokeLocally()
@@ -116,8 +119,18 @@ class AgentSession internal constructor(
         "Indicador habilitado. La sincronización puede continuar."
     }
     fun pause(scope: CoroutineScope) = perform(scope) {
+        platform?.realEvents?.stop()
         platform?.indicator?.hide()
         "Monitoreo pausado. Los pendientes se conservan; no se generan ni envían eventos."
+    }
+    fun startRealMonitoring(scope: CoroutineScope) = perform(scope) {
+        check(platform != null) { "La captura real necesita un dispositivo Android." }
+        platform.realEvents.start()
+        "Captura solicitada. ${platform.realEvents.permissionsText()}"
+    }
+    fun stopRealMonitoring(scope: CoroutineScope) = perform(scope) {
+        platform?.realEvents?.stop()
+        "Captura real detenida. No se consultan nuevos registros del teléfono."
     }
     private fun core(): AgentCore = engine ?: (platform?.core(serverUrl) ?: AgentCore(apiFactory(serverUrl), store))
         .also { engine = it }
@@ -131,6 +144,9 @@ class AgentSession internal constructor(
     private fun publish(value: Snapshot) {
         state = value.state; consent = value.consent; stats = value.stats; revocationPending = value.pending
         visibleAvailable = value.visible; serverUrl = value.url
+        realMonitoring = platform?.realEvents?.requested == true
+        realStatus = platform?.realEvents?.let { if (it.requested) it.message else "Captura real detenida. ${it.permissionsText()}" }
+            ?: "Captura real no disponible en esta prueba."
     }
     private fun perform(scope: CoroutineScope, privacy: Boolean = false, notify: Boolean = true,
                         success: () -> Unit = {}, networkHint: String? = null, action: (AgentCore) -> String?) {

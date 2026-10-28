@@ -3,6 +3,7 @@ package com.auditlab.agent
 import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -33,18 +34,21 @@ class MonitoringIndicator(private val context: Context) {
         if (!allowed()) return false
         if (!preferences.edit().putBoolean("paused", false).commit()) throw StorageFailure()
         paused = false
-        val open = PendingIntent.getActivity(context, 0, Intent(context, MainActivity::class.java),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         return try {
-            manager.notify(ID, NotificationCompat.Builder(context, CHANNEL).setSmallIcon(com.auditlab.agent.R.drawable.ic_auditlab)
-                .setContentTitle("AuditLab · Monitoreo autorizado")
-                .setContentText("Eventos simulados. Abre para pausar o revocar el consentimiento.")
-                .setContentIntent(open).setOngoing(true).setOnlyAlertOnce(true)
-                .setCategory(NotificationCompat.CATEGORY_SERVICE).build())
+            manager.notify(ID, notification())
             val until = SystemClock.elapsedRealtime() + 1_000
             while (!isVisible() && SystemClock.elapsedRealtime() < until) SystemClock.sleep(20)
             isVisible()
         } catch (_: SecurityException) { false }
+    }
+    fun notification(): Notification {
+        val open = PendingIntent.getActivity(context, 0, Intent(context, MainActivity::class.java),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        return NotificationCompat.Builder(context, CHANNEL).setSmallIcon(com.auditlab.agent.R.drawable.ic_auditlab)
+            .setContentTitle("AuditLab · Monitoreo autorizado")
+            .setContentText("Metadatos autorizados. Abre para pausar o retirar el consentimiento.")
+            .setContentIntent(open).setOngoing(true).setOnlyAlertOnce(true)
+            .setCategory(NotificationCompat.CATEGORY_SERVICE).build()
     }
     fun hide() {
         // Block producers immediately, before waiting for the asynchronous OS cancellation.
@@ -97,6 +101,7 @@ class AgentRuntime private constructor(private val context: android.app.Applicat
     val gate = AgentGate()
     val indicator = MonitoringIndicator(context)
     val scheduler = SyncScheduler(context)
+    val realEvents = RealEventMonitor(context, this)
     val changes = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     fun target(preferred: String = AgentSession.DEFAULT_URL): String =
@@ -106,14 +111,16 @@ class AgentRuntime private constructor(private val context: android.app.Applicat
         val url = target(preferred)
         val version = context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "0.2.0-rc1"
         return AgentCore(ApiClient(url), credentials, journal = journal, gate = gate,
-            visible = indicator::isVisible, serverUrl = url, appVersion = version)
+            visible = indicator::isVisible, serverUrl = url, appVersion = version, policyVersion = "mvp-2-real")
     }
     fun after(core: AgentCore) = synchronized(gate) {
         val state = core.refresh()
         val row = runCatching { journal.registration() }.getOrNull()
         if (state is AgentCore.State.Enrolled && row != null) {
+            if (!indicator.isVisible()) realEvents.stop()
             scheduler.active(row.deviceId, indicator.isVisible() && journal.stats().pending > 0)
         } else {
+            realEvents.stop()
             indicator.hide(); scheduler.stopEvents()
             if (row?.phase == AgentPhase.REVOKING) scheduler.privacy(row.deviceId)
             else if (row?.phase in setOf(AgentPhase.REVOKED, AgentPhase.LOCAL_ONLY)) scheduler.retired()

@@ -38,6 +38,35 @@ class EventIntegrationTest : ApiTestSupport() {
     }
 
     @Test
+    fun `real call and SMS metadata persist with false flag and reject private fields`() = http { _ ->
+        val admin = login("event_admin")
+        val device = enroll(admin)
+        val token = device["deviceToken"].textValue()
+        val expectedKinds = mapOf(
+            "sms_received" to ("sms" to "inbound"), "sms_sent" to ("sms" to "outbound"),
+            "call_received" to ("call" to "inbound"), "call_missed" to ("call" to "inbound"),
+            "call_rejected" to ("call" to "inbound"), "call_outgoing" to ("call" to "outbound"),
+            "device_status_changed" to ("device_status" to "occurred"))
+        val events = expectedKinds.map { (code, pair) ->
+            event(device, category = pair.first, direction = pair.second, metadata = mapOf("appEventCode" to code)) + ("isSimulated" to false)
+        }
+        assertEquals(HttpStatusCode.Accepted, sendEvents(token, *events.toTypedArray()).status)
+        assertEquals(events.size, json(sendEvents(token, *events.toTypedArray()))["duplicates"].intValue())
+        val page = json(client.get("/v1/events?device=${device["deviceId"].textValue()}") { bearerAuth(admin) })
+        assertEquals(events.size, page["items"].size())
+        page["items"].forEach { assertFalse(it["isSimulated"].booleanValue()) }
+        val smsPage = json(client.get("/v1/events?device=${device["deviceId"].textValue()}&category=sms") { bearerAuth(admin) })
+        assertEquals(2, smsPage["items"].size())
+        val valid = events.first()
+        listOf("body", "number", "address").forEach { key ->
+            problem(sendEvents(token, valid + ("metadata" to mapOf("appEventCode" to "sms_received", key to "forbidden"))), 400, "INVALID_REQUEST")
+        }
+        problem(sendEvents(token, valid + ("isSimulated" to true)), 400, "INVALID_REQUEST")
+        problem(sendEvents(token, valid + ("direction" to "occurred")), 400, "INVALID_REQUEST")
+        problem(sendEvents(token, valid + ("isSimulated" to "false")), 400, "INVALID_REQUEST")
+    }
+
+    @Test
     fun `batch is accepted, stored normalized and retried idempotently`() = http { _ ->
         val admin = login("event_admin")
         val device = enroll(admin)

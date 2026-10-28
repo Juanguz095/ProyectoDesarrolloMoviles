@@ -1,9 +1,10 @@
 openapi: 3.1.0
 info:
   title: AuditLab API definitiva
-  version: 0.2.0
+  version: 0.3.0
   description: 'Contrato objetivo Ktor/PostgreSQL. Su definición no implica rutas ya implementadas. El prototipo
-    Python mantiene su contrato separado en prototype-v0.1.yaml. Solo eventos propios, simulados y metadatos permitidos.
+    Python mantiene su contrato separado en prototype-v0.1.yaml. Eventos propios, simulados y metadatos reales autorizados
+    de tipo/fecha de SMS y llamadas, batería y conexión; sin contenido ni números.
     TLS y validación de certificados obligatorios fuera de loopback. Credenciales solo por headers/cuerpos autenticados;
     respuestas con Cache-Control: no-store. Ejemplos y fixtures son ficticios.'
 servers:
@@ -943,6 +944,8 @@ components:
       - app_lifecycle
       - sync
       - device_status
+      - sms
+      - call
     Direction:
       type: string
       enum:
@@ -961,6 +964,13 @@ components:
       - sync_succeeded
       - sync_failed
       - consent_revoked
+      - sms_received
+      - sms_sent
+      - call_received
+      - call_missed
+      - call_rejected
+      - call_outgoing
+      - device_status_changed
     AuditAction:
       type: string
       enum:

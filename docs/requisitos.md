@@ -2,6 +2,10 @@
 
 Fecha: 17 de octubre de 2026. Relación: P1.1 del [plan maestro](PLAN_MAESTRO.md).
 
+**Ampliación 0.3 solicitada el 27 de octubre:** la línea base histórica de este documento
+se amplía con metadatos reales de SMS/llamadas, autorización adicional y permisos opcionales.
+El alcance vigente y sus restricciones están en [Captura real](CAPTURA_REAL.md).
+
 ## Escenario y alcance
 
 Piloto académico sobre dos dispositivos Android propios o administrados con autorización: A ejecuta el agente y B el centro de control. Un único grupo administrado. La persona de A ve qué datos se registran, acepta antes de activar y puede revocar. Solo se admiten eventos simulados, acciones de AuditLab y metadatos de red/batería consultados mediante APIs Android permitidas.

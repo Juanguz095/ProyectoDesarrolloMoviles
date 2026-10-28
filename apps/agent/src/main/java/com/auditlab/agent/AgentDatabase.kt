@@ -35,6 +35,7 @@ interface AgentDao {
     @Query("SELECT COUNT(*) FROM agent_registration WHERE singleton<>1 OR typeof(singleton)<>'integer' OR typeof(remote)<>'integer' OR remote NOT IN (0,1) OR phase NOT IN ('ACTIVE','REVOKING','REVOKED','LOCAL_ONLY','REJECTED')") fun invalidRegistration(): Int
     @Query("SELECT COUNT(*) FROM agent_outbox WHERE typeof(timestamp_ms)<>'integer' OR timestamp_ms<0 OR typeof(attempts)<>'integer' OR attempts<0 OR delivery NOT IN ('PENDING','SENT','FAILED')") fun invalidOutbox(): Int
     @Query("SELECT COUNT(*) FROM agent_outbox") fun total(): Int
+    @Query("SELECT EXISTS(SELECT 1 FROM agent_outbox WHERE event_id=:id)") fun containsEvent(id: String): Boolean
     @Query("SELECT COUNT(*) FROM agent_outbox WHERE delivery=:delivery") fun count(delivery: String): Int
     @Insert(onConflict = OnConflictStrategy.ABORT) fun insertEvent(row: OutboxRow)
     @Query("SELECT * FROM agent_outbox WHERE delivery='PENDING' ORDER BY timestamp_ms,event_id LIMIT :limit") fun pending(limit: Int): List<OutboxRow>

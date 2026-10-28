@@ -1,0 +1,115 @@
+{
+  "generated_at": "2026-10-28T03:53:07.491906+00:00",
+  "user_timezone": "America/Lima",
+  "version": "0.3.0-rc1",
+  "host": {
+    "common": {
+      "tests": 75,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "agent": {
+      "tests": 26,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "control": {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "ktor": {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "postgres": {
+      "tests": 54,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "contract": {
+      "tests": 49,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "tools": {
+      "tests": 32,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "host_total": 253,
+  "native": {
+    "verdict": {
+      "started": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "approved": true,
+      "process_exit": 0
+    },
+    "result": {
+      "eventCount": 5,
+      "realEvents": true,
+      "deduplicated": true,
+      "withdrawalStopped": true,
+      "avd": "auditlab-real-api28",
+      "serial": "emulator-5590",
+      "system_modem_and_apps": true,
+      "physical_phone": false
+    },
+    "actual_installed_hashes": {
+      "native_log_sha256": "86f777ea9eb13f47674c90e6678dd68628c746ef44ee99e76537e20f3805f613",
+      "artifacts": [
+        {
+          "package": "com.auditlab.agent",
+          "local": "apps/agent/build/outputs/apk/debug/agent-debug.apk",
+          "sha256": "bc9b9619c8265b24732c126569baa30eb7490b5b709bc867b6f60bb94067ba60",
+          "installed_match": true
+        },
+        {
+          "package": "com.auditlab.agent.test",
+          "local": "apps/agent/build/outputs/apk/androidTest/debug/agent-debug-androidTest.apk",
+          "sha256": "ec9165d92b2fe74fa45ed539e82b6fb96dc839d6418a580b8befd7d8e31a3bcb",
+          "installed_match": true
+        }
+      ],
+      "approved": true
+    }
+  },
+  "apks": [
+    {
+      "component": "agent",
+      "version": "0.3.0-rc1",
+      "version_code": 3,
+      "bytes": 10059023,
+      "sha256": "bc9b9619c8265b24732c126569baa30eb7490b5b709bc867b6f60bb94067ba60"
+    },
+    {
+      "component": "control",
+      "version": "0.3.0-rc1",
+      "version_code": 3,
+      "bytes": 9401298,
+      "sha256": "c3a0ee3a05fbc7f96d57d2b331cf5aba1447cc9c91de3aceb585d5a8262bb8a4"
+    }
+  ],
+  "migration": {
+    "existing_events_preserved": true,
+    "count_and_hash": "30035|e3d79540c626445d3bd6838d87928cbd",
+    "migration": "V3"
+  },
+  "windows_verified": false,
+  "physical_phones_verified": false,
+  "recent_android_verified": false,
+  "native_control_0_3_verified": false,
+  "public_pilot": false,
+  "operator_signature": false
+}

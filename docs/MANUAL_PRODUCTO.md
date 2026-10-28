@@ -36,7 +36,10 @@ Si una sesión antigua carece de origen protegido o no puede descifrarse, usar *
 1. Leer datos y límites, marcar aceptación y pulsar **Registrar consentimiento**. Sin hacerlo no hay inscripción ni captura.
 2. Introducir el código nuevo generado en B e inscribir. La aceptación se conserva junto a esa inscripción. El código no se guarda en el estado recuperable de Android; si se recrea el formulario antes de inscribir, puede ser necesario introducirlo de nuevo.
 3. Conceder notificaciones y habilitar el canal de monitoreo. El indicador visible permite abrir AuditLab para pausar o revocar. Si está denegado, bloqueado o retirado, el agente permanece pausado: no genera ni transmite eventos.
-4. **Generar evento simulado** crea un evento propio. Solo incluye código de evento y, si están disponibles, batería y conectividad. No solicita SMS, llamadas, micrófono, contactos ni información de otras apps.
+4. **Generar evento simulado** crea un evento de prueba propio. Para SMS/llamadas reales,
+   usar la autorización adicional y seguir [Captura real](CAPTURA_REAL.md). La candidata
+   0.3 solicita opcionalmente lectura de metadatos de SMS/llamadas; no consulta contenido,
+   números, contactos ni audio.
 5. El evento se guarda primero en Room. Ante fallo de red se mantiene pendiente; WorkManager reintenta con red disponible, en lotes de hasta 100 y con los mismos IDs. Android decide cuándo ejecuta el trabajo; no se promete entrega inmediata. También existe trabajo periódico de 15 minutos y limpieza independiente de la red.
 6. **Pausar** retira el indicador y bloquea nuevas capturas/envíos; pendientes válidos permanecen hasta reanudar o revocar. **Habilitar indicador y reanudar** permite reanudar explícitamente.
 7. Retención local: siete días, hasta 10 000 filas. Primero se libera historial ya enviado; nunca se descarta un pendiente vigente para aceptar otro. Si no hay espacio, se informa y se rechaza la nueva captura. Eventos inválidos se separan como fallidos; no se reintentan continuamente.

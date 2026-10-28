@@ -53,6 +53,9 @@ class AgentViewModel(application: Application) : AndroidViewModel(application) {
 
 class MainActivity : ComponentActivity() {
     private lateinit var model: AgentViewModel
+    private val phonePermissions = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+        model.session.startRealMonitoring(model.scope)
+    }
     private val notificationPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted) model.session.resume(model.scope) else model.session.refresh(model.scope)
     }
@@ -68,6 +71,8 @@ class MainActivity : ComponentActivity() {
                         else model.session.resume(model.scope)
                     }, onNotificationSettings = {
                         startActivity(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, packageName))
+                    }, onRequestRealMonitoring = {
+                        phonePermissions.launch(arrayOf(Manifest.permission.READ_SMS, Manifest.permission.READ_CALL_LOG))
                     })
                 }
             }
@@ -81,13 +86,15 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> Unit)? = null,
-                         onNotificationSettings: (() -> Unit)? = null, workScope: CoroutineScope? = null) {
+                         onNotificationSettings: (() -> Unit)? = null, workScope: CoroutineScope? = null,
+                         onRequestRealMonitoring: (() -> Unit)? = null) {
     // Keep IO/publication in the ViewModel scope across recreation, like the control app.
     // A composition's frame clock must not be inherited by background synchronization.
     val composeScope = rememberCoroutineScope()
     val scope = workScope ?: composeScope
     var accepted by rememberSaveable(session.consentEpoch) { mutableStateOf(false) }
     var code by androidx.compose.runtime.remember(session.consentEpoch) { mutableStateOf("") }
+    var realAccepted by rememberSaveable(session.consentEpoch) { mutableStateOf(false) }
 
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
@@ -95,8 +102,8 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
     ) {
         Text("AuditLab · Agente", style = MaterialTheme.typography.headlineMedium)
         Text(
-            "Solo se envían eventos propios y simulados de AuditLab y metadatos permitidos. " +
-                "No se leen SMS, llamadas, chats ni contenido de otras aplicaciones.",
+            "Registra batería, conexión y, si lo autorizas, fecha y tipo de SMS y llamadas reales. " +
+                "No consulta cuerpos de mensajes, números, contactos, audio ni chats de otras aplicaciones.",
             style = MaterialTheme.typography.bodyMedium,
         )
 
@@ -134,7 +141,7 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
             AgentCore.State.ConsentPending -> {
                 Text("Paso 1 · Consentimiento", style = MaterialTheme.typography.titleMedium)
                 Text(
-                    "Al aceptar permites que AuditLab reciba eventos simulados generados por esta app, " +
+                    "Al aceptar permites que AuditLab reciba eventos propios y de prueba generados por esta app, " +
                         "su identificador de dispositivo y el contexto de consentimiento. La retención " +
                         "local es de 7 días y hasta 10000 registros. También se incluyen batería y estado " +
                         "de conexión del propio dispositivo. El servidor aplica la retención informada por tu grupo.",
@@ -171,13 +178,30 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
                 Text("Identificador: ${state.deviceId}", style = MaterialTheme.typography.bodySmall)
                 Text("Política aceptada: ${state.consent.policyVersion}", style = MaterialTheme.typography.bodySmall)
                 Text("Pendientes: ${session.stats.pending} · Enviados: ${session.stats.sent} · Rechazados: ${session.stats.failed}")
+                Text("Eventos reales del teléfono", style = MaterialTheme.typography.titleMedium)
+                Text("SMS enviados/recibidos y llamadas entrantes, salientes o perdidas, cuando Android los registra. " +
+                    "Solo tipo y fecha desde la activación; sin contenido ni números. No incluye WhatsApp, RCS ni llamadas por otras apps. " +
+                    "Android puede restringir los permisos de SMS y llamadas.")
+                Text(session.realStatus)
+                if (!session.realMonitoring) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(checked = realAccepted, onCheckedChange = { realAccepted = it }, enabled = !session.busy)
+                        Text("Autorizo consultar y enviar estos metadatos reales mientras el monitoreo sea visible.")
+                    }
+                    Button(onClick = { onRequestRealMonitoring?.invoke() ?: session.startRealMonitoring(scope) },
+                        enabled = realAccepted && session.visibleAvailable && !session.busy && !session.revoking,
+                        modifier = Modifier.fillMaxWidth()) { Text("Autorizar e iniciar captura real") }
+                } else {
+                    OutlinedButton(onClick = { session.stopRealMonitoring(scope) }, enabled = !session.busy) { Text("Detener captura real") }
+                }
+                HorizontalDivider()
                 Button(
                     onClick = { session.sendSimulatedEvent(scope) },
                     enabled = !session.busy && session.visibleAvailable && !session.revoking,
                     modifier = Modifier.fillMaxWidth(),
                 ) { Text(if (session.busy) "Enviando…" else "Generar evento simulado") }
                 if (!session.visibleAvailable) {
-                    Text("La simulación y el envío están pausados hasta habilitar la notificación visible.")
+                    Text("La captura y el envío están pausados hasta habilitar la notificación visible.")
                     OutlinedButton(onClick = { onRequestNotifications?.invoke() ?: session.resume(scope) }, enabled = !session.busy) {
                         Text("Habilitar indicador y reanudar")
                     }

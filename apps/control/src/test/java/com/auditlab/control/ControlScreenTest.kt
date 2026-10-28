@@ -92,13 +92,24 @@ class ControlScreenTest {
     }
 
     @Test
+    fun `un SMS real muestra nombre legible y marca Real`() {
+        val api = signIn()
+        api.realEvents = true
+        tap("Ver eventos")
+        waitFor("Eventos del dispositivo seleccionado (1)")
+        compose.onNodeWithText("SMS enviado").assertExists()
+        compose.onNodeWithText("Real · 2026-10-24T10:00:00Z").assertExists()
+        compose.onNodeWithText("Simulado · 2026-10-24T10:00:00Z").assertDoesNotExist()
+    }
+
+    @Test
     fun `ver eventos del dispositivo consulta la API`() {
         val api = signIn()
         tap("Ver eventos")
         waitFor("Eventos del dispositivo seleccionado (1)")
         assertEquals("device-1", api.eventsFor)
         compose.onNodeWithText("app_lifecycle · occurred").assertExists()
-        compose.onNodeWithText("Simulado: sí · 2026-10-24T10:00:00Z").assertExists()
+        compose.onNodeWithText("Simulado · 2026-10-24T10:00:00Z").assertExists()
     }
 
     @Test fun `cancelar revocacion no llama a la API y cerrar sesion pide confirmacion`() {
@@ -160,6 +171,7 @@ class ControlScreenTest {
         } finally { scope.coroutineContext[kotlinx.coroutines.Job]?.cancel() }
     }
     private class FakeApi(private val role: String) : AuditApi {
+        var realEvents = false
         var exports = 0
         var exportError = false
         override fun exportEvents(token: String, query: com.auditlab.common.EventQuery): String {
@@ -218,12 +230,12 @@ class ControlScreenTest {
                     com.auditlab.common.AuditEvent(
                         eventId = "event-1",
                         timestamp = "2026-10-24T10:00:00Z",
-                        category = "app_lifecycle",
-                        direction = "occurred",
+                        category = if (realEvents) "sms" else "app_lifecycle",
+                        direction = if (realEvents) "outbound" else "occurred",
                         sourceDevice = "device-1",
                         consent = ConsentContext("c-1", "mvp-1", "2026-10-24T09:58:00Z"),
-                        isSimulated = true,
-                        metadata = mapOf("appEventCode" to "agent_started"),
+                        isSimulated = !realEvents,
+                        metadata = mapOf("appEventCode" to if (realEvents) "sms_sent" else "agent_started"),
                         receivedAt = "2026-10-24T10:00:01Z",
                     ),
                 ),

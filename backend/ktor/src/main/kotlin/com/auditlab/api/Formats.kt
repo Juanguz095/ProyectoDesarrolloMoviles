@@ -37,9 +37,16 @@ internal fun parseUuid(value: String): UUID = try {
 }
 
 internal fun isAllowedAppEventCode(value: String): Boolean =
-    value in setOf("agent_started", "sync_succeeded", "sync_failed", "consent_revoked")
+    value in setOf("agent_started", "sync_succeeded", "sync_failed", "consent_revoked") || value in realEventCodes
 
-internal fun isAllowedCategory(value: String): Boolean = value in setOf("app_lifecycle", "sync", "device_status")
+internal val realEventCodes = mapOf(
+    "sms_received" to ("sms" to "inbound"), "sms_sent" to ("sms" to "outbound"),
+    "call_received" to ("call" to "inbound"), "call_missed" to ("call" to "inbound"),
+    "call_rejected" to ("call" to "inbound"), "call_outgoing" to ("call" to "outbound"),
+    "device_status_changed" to ("device_status" to "occurred"),
+)
+
+internal fun isAllowedCategory(value: String): Boolean = value in setOf("app_lifecycle", "sync", "device_status", "sms", "call")
 internal fun isAllowedDirection(value: String): Boolean = value in setOf("inbound", "outbound", "occurred")
 
 /** Escapes a CSV cell and neutralizes values a spreadsheet could evaluate as a formula. */

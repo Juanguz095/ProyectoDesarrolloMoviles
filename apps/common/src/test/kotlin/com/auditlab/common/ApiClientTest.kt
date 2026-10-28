@@ -76,6 +76,16 @@ class ApiClientTest {
     }
 
     @Test
+    fun `real SMS keeps false on the wire`() {
+        server.response = """{"accepted":1,"duplicates":0}"""
+        val event = draft().copy(category = "sms", direction = "outbound", metadata = mapOf("appEventCode" to "sms_sent"), isSimulated = false)
+        ApiClient(server.baseUrl).sendEvents("fixture-only", listOf(event))
+        val node = JSONObject(server.requests.single().body).getJSONArray("events").getJSONObject(0)
+        assertEquals(false, node.getBoolean("isSimulated"))
+        assertEquals("sms_sent", node.getJSONObject("metadata").getString("appEventCode"))
+    }
+
+    @Test
     fun `envia un lote simulado y lee accepted y duplicates`() {
         server.response = """{"accepted":1,"duplicates":0}"""
         val client = ApiClient(server.baseUrl)
