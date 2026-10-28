@@ -1,0 +1,139 @@
+{
+  "date": "2026-10-28",
+  "timezone": "America/Lima",
+  "scope": [
+    "P5.3",
+    "P6.2",
+    "P6.4",
+    "P7.1 (QA en API26/API28)",
+    "P8.2 (APK debug)",
+    "P8.3"
+  ],
+  "source": {
+    "baseCommit": "0877887a114fbe587a0e267db63c84722286acc3",
+    "workingTreeChangesAtEvidenceGeneration": true,
+    "publicationAuthorized": true,
+    "publishedTo": "origin/main",
+    "fileSha256": {
+      "apps/agent/build.gradle.kts": "15d517fda61991ec1abe785b8e0aaac5ed841b98a5830a1b888a8417440ac475",
+      "apps/agent/src/main/AndroidManifest.xml": "0210a6f2d6aae6801b12ff6f779fa4d5584057cbd99d43f006d0022fbc3e8756",
+      "apps/agent/src/main/java/com/auditlab/agent/AgentDatabase.kt": "1e8d47e8a292dd13c1425fb46b6ca39b272d596af13c10ea96a847fb5dd6f2dd",
+      "apps/agent/src/main/java/com/auditlab/agent/AgentSession.kt": "8a371b46e4cba12eb10cda090cba3059925fe59e7145b2d5b533d6a31a63f7b8",
+      "apps/agent/src/main/java/com/auditlab/agent/MainActivity.kt": "62e6a6fbfc74bdb352eec4a40f2b488e574383a558b1940e61c33fdb73565a86",
+      "apps/agent/src/androidTest/java/com/auditlab/agent/NativeAgentFlowTest.kt": "8818af52a4b9b5231015c8e2574d5773200732f9f47845e846ce49a6bef85842",
+      "apps/agent/src/androidTest/java/com/auditlab/agent/NativeRealEventsTest.kt": "ac211b87c531b3a39b7d11aaa4cc9a443494b624ac9220df3976300f2b2930f1",
+      "apps/agent/src/test/java/com/auditlab/agent/AgentScreenTest.kt": "6a79211db6c6ea9902b32d73f364277ee1b2bcb6a65662f0dfe6034469a6e359",
+      "apps/control/build.gradle.kts": "7e046646066bc393be196972cfa367d202c915a45b018aed444a6a2b7a6a6b43",
+      "apps/control/src/main/AndroidManifest.xml": "e04a5942717fbddb6e5b230221de164aaa51e209db4b896b11969510df593bb1",
+      "apps/control/src/main/java/com/auditlab/control/ControlSession.kt": "cece7fa00da6ae8b6cb891c86742a4010070efbafd0d4e603fb5bccb2f8625a7",
+      "apps/control/src/main/java/com/auditlab/control/ControlViews.kt": "f3a709bc612961f69c9634b6f1e6bf97a279c92d19930627402fc4e9494b64e3",
+      "apps/control/src/main/java/com/auditlab/control/MainActivity.kt": "2d91b9ad773243f4264f4943891eb7ef017fcc1e19c92a8a55dfc3fa38f58e15",
+      "apps/control/src/androidTest/java/com/auditlab/control/NativeControlFlowTest.kt": "3ec5e5afe0e918644f174e77a00aebb63b87c3ebb59a238426c8a51a94dcc263",
+      "apps/control/src/test/java/com/auditlab/control/ControlScreenTest.kt": "fb19e9dc8b932927c4d9143e8256a4fa2654096e4d6e2f1f1f8b2fd402ddc821",
+      "apps/design/src/main/kotlin/com/auditlab/design/AuditUi.kt": "d9f71fb0d2fbd892b0d46a4e2a561aa03166addd5597ff1b99c415555d98cbad",
+      "apps/design/src/main/res/values/styles.xml": "8f44b2e2f616068d213f2d2c31d7530025345cb42fac86a41e86267ca347ad19",
+      "apps/design/src/main/res/values-v27/styles.xml": "642ef7282a6be6d109ec030c74b9063bb3ff9d7ed50261a473b6cc9e49955ccf",
+      "scripts/check_android.py": "b73990342cb64b65b55f140aebd1733f6365adf2ba3bd838a98d76303b4f39d7",
+      "scripts/check_real_events.py": "0235582ee6510a2202b0017b400d49f477515f42607fc66bb035bed2df6d6c7d"
+    }
+  },
+  "versionName": "0.3.1-rc1",
+  "versionCode": 4,
+  "backendChanged": false,
+  "dependenciesAdded": false,
+  "verification": {
+    "jvm": {
+      "common": 75,
+      "agent": 28,
+      "control": 12,
+      "total": 115,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "log": ".tooling/redesign-validation/host-final.log",
+      "logSha256": "640eee45d45a14eb2ae3d097135473545b8700049940bba769eee3afbdf6687d"
+    },
+    "twoEmulatorAcceptance": {
+      "approved": true,
+      "agent": "Android 9 / API28 / emulator-5592",
+      "control": "Android 8 / API26 / emulator-5594",
+      "expectedStages": 17,
+      "executedStages": 17,
+      "passed": 17,
+      "failed": 0,
+      "notExecuted": 0,
+      "evidence": ".tooling/android-native/acf8d27e3be84fe3",
+      "verdictSha256": "f208e422c4524b15197893d87225ccb7e14ddf06967e819fd0f18d54d1cf7f1d",
+      "junitSha256": "ac199ae4189e34bc74858ed3b1bdf87eaa8d2a55ab60efb8adc458249cd4e5b8"
+    },
+    "realEventAgent": {
+      "approved": true,
+      "device": "Android 9 / API28 emulator",
+      "events": 5,
+      "coverage": [
+        "SMS recibido",
+        "SMS enviado",
+        "llamada perdida",
+        "llamada saliente",
+        "estado del dispositivo",
+        "consulta API",
+        "CSV",
+        "deduplicación",
+        "retirada detiene captura"
+      ],
+      "evidence": ".tooling/redesign-validation/real-events",
+      "verdictSha256": "dcd5a7853ee17a40a50373ce1b4a0c5a52df7a4f4e36ae14c826ff704ed4a2da"
+    },
+    "tools": {
+      "tests": 32,
+      "failures": 0,
+      "log": ".tooling/redesign-validation/scripts-final.log",
+      "logSha256": "34736782f8bdafb069b89886eb440a31ea21b904134b68c30c40e023c5947b2d"
+    },
+    "contracts": {
+      "openapi": "0.3.0 / 13 paths / valid",
+      "prototype": "0.1.0 / 9 paths / valid",
+      "log": ".tooling/redesign-validation/contract-final-venv.log",
+      "logSha256": "facc57c2ef36b8dae944ca7620affdaa9a1419724320b3a681c3dba17b815726"
+    },
+    "buildAndLint": {
+      "exitCode": 0,
+      "agentErrors": 0,
+      "agentWarnings": 9,
+      "controlErrors": 0,
+      "controlWarnings": 5,
+      "log": ".tooling/redesign-validation/build-lint-final.log",
+      "logSha256": "d3e7f9daf72f2c009668184c5e7ce26dba109b05adc92f4dd83ed572d9851eda"
+    },
+    "apkAudit": {
+      "approved": true,
+      "log": ".tooling/redesign-validation/apk-final.log",
+      "logSha256": "75825202963acdc496875cf5d94e8f2d7b27bac5e3856c1a73ec10cb4e6f05f2"
+    },
+    "manualPixelReview": false,
+    "physicalPhones": false
+  },
+  "artifacts": {
+    "agent": {
+      "path": ".tooling/delivery/0.3.1-rc1/auditlab-agent-0.3.1-rc1.apk",
+      "bytes": 10442248,
+      "sha256": "83940f71630c70608213fb0e3e78eaea127baf8fa00f2d426b406bd70d7dd4fa",
+      "signatureVerified": true,
+      "signerSha256": "970a74d96448bdf8f1efdb65396d88ac1bba6126acac4f2e40508390574cd853"
+    },
+    "control": {
+      "path": ".tooling/delivery/0.3.1-rc1/auditlab-control-0.3.1-rc1.apk",
+      "bytes": 9877401,
+      "sha256": "6179f4955ec6e83f5309d19cee5751dc3170c37fb887f2f84457442e3ef3f901",
+      "signatureVerified": true,
+      "signerSha256": "970a74d96448bdf8f1efdb65396d88ac1bba6126acac4f2e40508390574cd853"
+    }
+  },
+  "limits": [
+    "Los dos AVD se ejecutaron con TCG porque el host no dispone de KVM; el AVD inactivo se pausó durante instalaciones y etapas aisladas.",
+    "No se ejecutó una revisión visual píxel a píxel ni un lector de pantalla.",
+    "No se probaron teléfonos físicos, Android reciente, Windows, HTTPS operativo ni la conexión sin USB.",
+    "La firma es de desarrollo; falta la clave de distribución del responsable.",
+    "Los intentos fallidos del arnés se conservan y no cuentan como aprobaciones."
+  ]
+}

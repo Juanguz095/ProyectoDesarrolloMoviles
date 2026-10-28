@@ -114,11 +114,16 @@ class Run:
             'databases/auditlab-outbox.db', text]).stdout.decode().strip()
 
     def install(self, component):
-        for path in [ROOT / f'apps/{component}/build/outputs/apk/debug/{component}-debug.apk',
-                     ROOT / f'apps/{component}/build/outputs/apk/androidTest/debug/{component}-debug-androidTest.apk']:
-            if not path.is_file(): raise RuntimeError('Build debug and androidTest APKs first')
-            self.adb(component, ['install', '-r', '-t', str(path)], timeout=120)
-            self.artifacts.append({'component': component, 'file': path.name, 'bytes': path.stat().st_size, 'sha256': hashlib.sha256(path.read_bytes()).hexdigest()})
+        inactive = 'control' if component == 'agent' else 'agent'
+        self.adb(inactive, ['emu', 'avd', 'pause'])
+        try:
+            for path in [ROOT / f'apps/{component}/build/outputs/apk/debug/{component}-debug.apk',
+                         ROOT / f'apps/{component}/build/outputs/apk/androidTest/debug/{component}-debug-androidTest.apk']:
+                if not path.is_file(): raise RuntimeError('Build debug and androidTest APKs first')
+                self.adb(component, ['install', '-r', '-t', str(path)], timeout=300)
+                self.artifacts.append({'component': component, 'file': path.name, 'bytes': path.stat().st_size, 'sha256': hashlib.sha256(path.read_bytes()).hexdigest()})
+        finally:
+            self.adb(inactive, ['emu', 'avd', 'start'], required=False)
         if component == 'agent' and int(self.shell(component, ['getprop', 'ro.build.version.sdk']).stdout) >= 33:
             self.shell(component, ['pm', 'grant', 'com.auditlab.agent', 'android.permission.POST_NOTIFICATIONS'])
 
@@ -132,19 +137,28 @@ class Run:
 
     def stage(self, component, name):
         package = 'com.auditlab.' + component
+        inactive = 'control' if component == 'agent' else 'agent'
+        # Software-only emulation can starve System UI when both AVDs render at
+        # once. Keep both device states, but pause the inactive display/CPU for
+        # the duration of each isolated UI stage.
+        self.adb(inactive, ['emu', 'avd', 'pause'])
         self.shell(component, ['am', 'force-stop', package])
         start = time.monotonic()
         try:
-            response = self.adb(component, ['shell', 'am', 'instrument', '-w', '-r', '-e', 'fixture', self.name,
-                '-e', 'stage', name, '-e', 'class', package + '.Native' + component.title() + 'FlowTest',
-                package + '.test/androidx.test.runner.AndroidJUnitRunner'], timeout=210, required=False)
-            raw = response.stdout + response.stderr
-            result = protocol(raw.decode(errors='replace')) | {'exit_code': response.returncode}
-            result['approved'] = result['approved'] and response.returncode == 0
-        except subprocess.TimeoutExpired:
-            self.shell(component, ['am', 'force-stop', package])
-            raw = b'Host deadline exceeded; target process stopped.'
-            result = {'passed': 0, 'failed': 0, 'skipped': 0, 'exit_code': 'timeout', 'approved': False}
+            try:
+                response = self.adb(component, ['shell', 'am', 'instrument', '-w', '-r', '-e', 'fixture', self.name,
+                    '-e', 'stage', name, '-e', 'class', package + '.Native' + component.title() + 'FlowTest',
+                    package + '.test/androidx.test.runner.AndroidJUnitRunner'],
+                    timeout=420 if name == 'auditor' else 210, required=False)
+                raw = response.stdout + response.stderr
+                result = protocol(raw.decode(errors='replace')) | {'exit_code': response.returncode}
+                result['approved'] = result['approved'] and response.returncode == 0
+            except subprocess.TimeoutExpired:
+                self.shell(component, ['am', 'force-stop', package])
+                raw = b'Host deadline exceeded; target process stopped.'
+                result = {'passed': 0, 'failed': 0, 'skipped': 0, 'exit_code': 'timeout', 'approved': False}
+        finally:
+            self.adb(inactive, ['emu', 'avd', 'start'], required=False)
         filename = f'{len(self.results):02d}-{component}-{name}'
         fixture.private_write(self.output / (filename + '.log'), raw.decode(errors='replace'))
         result.update(component=component, stage=name, serial=self.serials[component], seconds=round(time.monotonic() - start, 2))

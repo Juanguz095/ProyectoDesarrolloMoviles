@@ -1,47 +1,31 @@
 package com.auditlab.agent
 
-import android.os.Bundle
-import android.os.Build
 import android.Manifest
 import android.app.Application
+import android.os.Build
+import android.os.Bundle
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.provider.Settings
 import androidx.activity.ComponentActivity
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import com.auditlab.common.AgentCore
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.auditlab.common.AgentCore
+import com.auditlab.design.*
 import kotlinx.coroutines.*
 
 class AgentViewModel(application: Application) : AndroidViewModel(application) {
@@ -61,9 +45,13 @@ class MainActivity : ComponentActivity() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.light(0xFFDAD7C0.toInt(), 0xFFDAD7C0.toInt()),
+            navigationBarStyle = SystemBarStyle.light(0xFFDAD7C0.toInt(), 0xFFDAD7C0.toInt()),
+        )
         model = ViewModelProvider(this)[AgentViewModel::class.java]
         setContent {
-            MaterialTheme {
+            AuditTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     AgentScreen(model.session, workScope = model.scope, onRequestNotifications = {
                         if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
@@ -88,178 +76,249 @@ class MainActivity : ComponentActivity() {
 internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> Unit)? = null,
                          onNotificationSettings: (() -> Unit)? = null, workScope: CoroutineScope? = null,
                          onRequestRealMonitoring: (() -> Unit)? = null) {
-    // Keep IO/publication in the ViewModel scope across recreation, like the control app.
-    // A composition's frame clock must not be inherited by background synchronization.
     val composeScope = rememberCoroutineScope()
     val scope = workScope ?: composeScope
-    var accepted by rememberSaveable(session.consentEpoch) { mutableStateOf(false) }
-    var code by androidx.compose.runtime.remember(session.consentEpoch) { mutableStateOf("") }
+    var policy by rememberSaveable { mutableStateOf(false) }
+    var history by rememberSaveable(session.consentEpoch) { mutableStateOf(false) }
+    var confirmWithdrawal by remember { mutableStateOf(false) }
+    // Enrollment secrets never enter saved instance state.
+    var code by remember(session.consentEpoch) { mutableStateOf("") }
+    var serverDraft by remember(session.serverUrl) { mutableStateOf(session.serverUrl) }
+    var configureServer by remember { mutableStateOf(false) }
+    var serverError by remember { mutableStateOf<String?>(null) }
     var realAccepted by rememberSaveable(session.consentEpoch) { mutableStateOf(false) }
-
-    Column(
-        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp),
-    ) {
-        Text("AuditLab · Agente", style = MaterialTheme.typography.headlineMedium)
-        Text(
-            "Registra batería, conexión y, si lo autorizas, fecha y tipo de SMS y llamadas reales. " +
-                "No consulta cuerpos de mensajes, números, contactos, audio ni chats de otras aplicaciones.",
-            style = MaterialTheme.typography.bodyMedium,
-        )
-
-        // Indicador de monitoreo siempre visible.
-        Card {
-            Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(
-                    when (session.state) {
-                        is AgentCore.State.Enrolled -> if (session.visibleAvailable && !session.revoking) "Monitoreo visible: ACTIVO" else "Monitoreo visible: PAUSADO"
-                        is AgentCore.State.Revoked -> "Monitoreo visible: DETENIDO"
-                        is AgentCore.State.Blocked -> "Monitoreo visible: DETENIDO"
-                        AgentCore.State.ConsentPending -> "Monitoreo visible: DESACTIVADO"
-                    },
-                    style = MaterialTheme.typography.titleMedium,
-                )
-                Text("Puedes revocar el consentimiento desde esta pantalla en cualquier momento.",
-                    style = MaterialTheme.typography.bodySmall)
-            }
+    var selectedEvent by remember { mutableStateOf<AgentSession.LocalEvent?>(null) }
+    androidx.compose.runtime.LaunchedEffect(session.state) {
+        if (session.state !is AgentCore.State.Enrolled) { history = false; selectedEvent = null; realAccepted = false }
+        if (session.state is AgentCore.State.Enrolled) code = ""
+    }
+    BackHandler(policy || history) { policy = false; history = false }
+    fun saveServer() {
+        try {
+            val normalized = com.auditlab.common.ApiClient(serverDraft.trim()).baseUrl
+            if (normalized != session.serverUrl) session.updateServerUrl(normalized)
+            serverError = null; configureServer = false
+        } catch (_: IllegalArgumentException) {
+            serverError = "Usa una dirección HTTPS sin rutas, usuario ni contraseña. HTTP solo se admite para las direcciones locales permitidas."
         }
+    }
+    if (configureServer) AlertDialog(onDismissRequest = { configureServer = false },
+        title = { Text("CONEXIÓN CON EL CENTRO", style = MaterialTheme.typography.titleLarge) },
+        text = { Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            AuditField("URL del servicio", serverDraft, { serverDraft = it; serverError = null }, !session.busy,
+                placeholder = "https://tu-servidor")
+            Text("El administrador te proporciona esta dirección. Al cambiarla debes aceptar de nuevo el consentimiento.")
+            serverError?.let { Text(it, color = AuditColors.Red) }
+        } },
+        confirmButton = { AuditLink("Guardar dirección", ::saveServer, !session.busy && serverDraft.isNotBlank()) },
+        dismissButton = { AuditLink("Cancelar", { configureServer = false }) })
 
-        OutlinedTextField(
-            value = session.serverUrl,
-            onValueChange = session::updateServerUrl,
-            label = { Text("URL del servicio") },
-            singleLine = true,
-            enabled = session.state is AgentCore.State.ConsentPending && !session.busy,
-            modifier = Modifier.fillMaxWidth(),
-        )
-        Text("En el emulador, 10.0.2.2 apunta al equipo anfitrión. Fuera de loopback solo se admite HTTPS.",
-            style = MaterialTheme.typography.bodySmall)
+    if (confirmWithdrawal) AlertDialog(onDismissRequest = { confirmWithdrawal = false },
+        title = { Text("Retirar consentimiento", style = MaterialTheme.typography.titleLarge) },
+        text = { Text("Se detendrán la captura y los envíos. Se eliminará la cola local. Si no hay conexión, el aviso al servidor quedará pendiente.") },
+        confirmButton = { AuditLink("Confirmar retirada", { confirmWithdrawal = false; session.revoke(scope) }) },
+        dismissButton = { AuditLink("Cancelar", { confirmWithdrawal = false }) })
+    selectedEvent?.let { row -> AlertDialog(onDismissRequest = { selectedEvent = null },
+        title = { Text(metadataTitle(row.event.metadata), style = MaterialTheme.typography.titleLarge) },
+        text = { Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text(if (row.event.isSimulated) "Simulado" else "Real")
+            Text(displayTime(row.event.timestamp))
+            Text(deliveryLabel(row.delivery))
+            Text(metadataDescription(row.event.metadata))
+            Text("ID: ${row.event.eventId}")
+            Text("Dispositivo: ${row.event.sourceDevice}")
+            Text("Política: ${row.event.consent.policyVersion}")
+            row.errorCode?.let { Text("Error: $it") }
+        } }, confirmButton = { AuditLink("Cerrar detalle", { selectedEvent = null }) }) }
 
-        HorizontalDivider()
-
-        when (val state = session.state) {
+    val page = when {
+        policy -> "policy"
+        history && session.state is AgentCore.State.Enrolled -> "history"
+        else -> session.state::class.simpleName + (session.consent != null)
+    }
+    AuditPage(key = page, feedback = session.message, working = session.busy) {
+        if (!session.ready) {
+            AuditHeader("AUDITLAB", "AGENTE")
+            Text("Cargando el estado guardado…")
+        } else if (policy) {
+            AuditHeader("POLÍTICA DE DATOS", "CONSENTIMIENTO INFORMADO")
+            AuditRule()
+            AuditPanel {
+                Text("Tú decides cuándo monitorear.", style = MaterialTheme.typography.titleMedium)
+                Text("AuditLab registra eventos propios, eventos de prueba identificados como simulados y metadatos autorizados de este dispositivo.")
+            }
+            SectionLabel("Datos permitidos")
+            Text("Batería y conexión. Si das una autorización adicional y Android concede los permisos: tipo y fecha de SMS y llamadas. Las llamadas aparecen al finalizar.")
+            SectionLabel("Datos que no se recopilan")
+            Text("Contenido de mensajes, números telefónicos, contactos, audio, chats, WhatsApp o RCS.")
+            SectionLabel("Destino y conservación")
+            Text("Servidor configurado: ${session.serverUrl}")
+            Text("Los eventos se envían al servidor configurado y los consultan administradores y auditores autorizados de tu grupo. Se conserva el contexto de consentimiento y se registran los accesos.")
+            Text("La cola local conserva hasta 7 días y 10 000 registros. La política predeterminada del servidor conserva eventos 30 días y auditoría 90 días; el responsable puede configurar estos plazos.")
+            SectionLabel("Pausa y retirada")
+            Text("La captura es visible. Puedes pausar o retirar tu consentimiento. La retirada detiene nuevos envíos y elimina la cola local; si estás sin red, el aviso al servidor se reintenta después.")
+            AuditButton("Volver", { policy = false })
+        } else when (val state = session.state) {
             AgentCore.State.ConsentPending -> {
-                Text("Paso 1 · Consentimiento", style = MaterialTheme.typography.titleMedium)
-                Text(
-                    "Al aceptar permites que AuditLab reciba eventos propios y de prueba generados por esta app, " +
-                        "su identificador de dispositivo y el contexto de consentimiento. La retención " +
-                        "local es de 7 días y hasta 10000 registros. También se incluyen batería y estado " +
-                        "de conexión del propio dispositivo. El servidor aplica la retención informada por tu grupo.",
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(checked = accepted, onCheckedChange = { accepted = it }, enabled = !session.busy)
-                    Text("He leído la información y acepto el monitoreo.")
-                }
-                Button(
-                    onClick = { session.acceptConsent(scope) },
-                    enabled = accepted && !session.busy,
-                ) { Text("Registrar consentimiento") }
-
-                if (session.consent != null) {
-                    Text("Paso 2 · Inscripción", style = MaterialTheme.typography.titleMedium)
-                    OutlinedTextField(
-                        value = code,
-                        onValueChange = { code = it },
-                        label = { Text("Código de inscripción") },
-                        singleLine = true,
-                        visualTransformation = PasswordVisualTransformation(),
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                    Button(
-                        onClick = { session.enroll(code, scope) },
-                        enabled = code.length >= 32 && !session.busy,
-                    ) { Text(if (session.busy) "Inscribiendo…" else "Inscribir dispositivo") }
+                if (session.consent == null) {
+                    AuditHeader("AUDITLAB")
+                    AuditPanel {
+                        Text("AUDITLAB NO LEE EL CONTENIDO DE OTRAS APLICACIONES.", style = MaterialTheme.typography.titleLarge)
+                    }
+                    Spacer(Modifier.height(2.dp))
+                    Text("ANTES DE EMPEZAR", color = AuditColors.Warning, style = MaterialTheme.typography.labelMedium)
+                    Text("¿Quieres activar el monitoreo visible en este dispositivo?", style = MaterialTheme.typography.titleLarge)
+                    Text("Puedes retirarlo cuando quieras.")
+                    Text("Registra batería y conexión. SMS y llamadas requieren autorización adicional; solo se consulta tipo y fecha.", color = AuditColors.Muted)
+                    AuditButton(if (session.busy) "Registrando…" else "Aceptar consentimiento", { session.acceptConsent(scope) }, !session.busy)
+                    AuditButton("Ver política de datos", { policy = true })
+                    AuditLink("Configurar conexión", { serverDraft = session.serverUrl; serverError = null; configureServer = true }, !session.busy)
+                } else {
+                    AuditHeader("INSCRIBIR DISPOSITIVO", "PASO 2 · CONECTA CON TU CENTRO")
+                    AuditPanel {
+                        AuditStatus("CONSENTIMIENTO REGISTRADO", false)
+                        Text("Todavía no se recopilan eventos. Completa la inscripción y autoriza la captura.")
+                    }
+                    AuditField("URL del servicio", serverDraft, { serverDraft = it }, !session.busy,
+                        placeholder = "https://tu-servidor")
+                    Text("Usa la dirección del servidor que te indique el administrador.", color = AuditColors.Muted)
+                    if (serverDraft.trim() != session.serverUrl) {
+                        Text("Al cambiar de servidor debes revisar y aceptar de nuevo el consentimiento.", color = AuditColors.Warning)
+                        AuditButton("Guardar servidor y revisar consentimiento", ::saveServer,
+                            !session.busy && serverDraft.isNotBlank(), outlined = true)
+                    }
+                    serverError?.let { Text(it, color = AuditColors.Red) }
+                    AuditField("Código de inscripción", code, { code = it }, !session.busy, secret = true,
+                        placeholder = "Código de un solo uso")
+                    Text("Solicita un código al centro de control. Tiene un solo uso y vence en 10 minutos.")
+                    AuditButton(if (session.busy) "Inscribiendo…" else "Inscribir dispositivo",
+                        { session.enroll(code.trim(), scope) }, code.trim().length >= 32 && !session.busy && serverDraft.trim() == session.serverUrl)
+                    AuditLink("Ver política de datos", { policy = true })
                 }
             }
-
             is AgentCore.State.Enrolled -> {
-                Text("Dispositivo inscrito", style = MaterialTheme.typography.titleMedium)
-                Text("Identificador: ${state.deviceId}", style = MaterialTheme.typography.bodySmall)
-                Text("Política aceptada: ${state.consent.policyVersion}", style = MaterialTheme.typography.bodySmall)
-                Text("Pendientes: ${session.stats.pending} · Enviados: ${session.stats.sent} · Rechazados: ${session.stats.failed}")
-                Text("Eventos reales del teléfono", style = MaterialTheme.typography.titleMedium)
-                Text("SMS enviados/recibidos y llamadas entrantes, salientes o perdidas, cuando Android los registra. " +
-                    "Solo tipo y fecha desde la activación; sin contenido ni números. No incluye WhatsApp, RCS ni llamadas por otras apps. " +
-                    "Android puede restringir los permisos de SMS y llamadas.")
-                Text(session.realStatus)
-                if (!session.realMonitoring) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Checkbox(checked = realAccepted, onCheckedChange = { realAccepted = it }, enabled = !session.busy)
-                        Text("Autorizo consultar y enviar estos metadatos reales mientras el monitoreo sea visible.")
-                    }
-                    Button(onClick = { onRequestRealMonitoring?.invoke() ?: session.startRealMonitoring(scope) },
-                        enabled = realAccepted && session.visibleAvailable && !session.busy && !session.revoking,
-                        modifier = Modifier.fillMaxWidth()) { Text("Autorizar e iniciar captura real") }
+                if (history) {
+                    AuditHeader("ACTIVIDAD DEL AGENTE", "HISTORIAL LOCAL · ÚLTIMOS 100 REGISTROS")
+                    AuditLink("← Volver a monitoreo", { history = false })
+                    Text("Los registros se conservan según la retención local; no es el historial completo del servidor.", color = AuditColors.Muted)
+                    AuditRule()
+                    if (session.recentEvents.isEmpty()) AuditEmpty("SIN ACTIVIDAD REGISTRADA", "Los nuevos eventos aparecerán aquí durante el monitoreo autorizado.")
+                    session.recentEvents.forEach { row -> LocalEventRow(row) { selectedEvent = row } }
                 } else {
-                    OutlinedButton(onClick = { session.stopRealMonitoring(scope) }, enabled = !session.busy) { Text("Detener captura real") }
-                }
-                HorizontalDivider()
-                Button(
-                    onClick = { session.sendSimulatedEvent(scope) },
-                    enabled = !session.busy && session.visibleAvailable && !session.revoking,
-                    modifier = Modifier.fillMaxWidth(),
-                ) { Text(if (session.busy) "Enviando…" else "Generar evento simulado") }
-                if (!session.visibleAvailable) {
-                    Text("La captura y el envío están pausados hasta habilitar la notificación visible.")
-                    OutlinedButton(onClick = { onRequestNotifications?.invoke() ?: session.resume(scope) }, enabled = !session.busy) {
-                        Text("Habilitar indicador y reanudar")
+                    AuditHeader("MONITOREO")
+                    AuditPanel {
+                        val active = session.visibleAvailable && session.realCaptureRunning && !session.revoking
+                        AuditStatus(when {
+                            session.revoking -> "DETENIENDO"
+                            !session.visibleAvailable -> "PAUSADO"
+                            active -> "ACTIVO"
+                            session.realMonitoring -> "INICIANDO CAPTURA"
+                            else -> "LISTO PARA ACTIVAR"
+                        }, active)
+                        Text("Sincronización: ${session.stats.pending} pendientes · ${session.stats.sent} enviados", style = MaterialTheme.typography.bodySmall)
+                        if (session.stats.failed > 0) Text("${session.stats.failed} eventos rechazados", color = AuditColors.Red)
                     }
-                    onNotificationSettings?.let { settings -> TextButton(onClick = settings) { Text("Ajustes de notificación") } }
-                } else {
-                    OutlinedButton(onClick = { session.pause(scope) }, enabled = !session.busy) { Text("Pausar monitoreo") }
-                }
-                OutlinedButton(
-                    onClick = { session.revoke(scope) },
-                    enabled = !session.revoking,
-                    modifier = Modifier.fillMaxWidth(),
-                ) { Text(if (session.revoking) "Retirando consentimiento…" else "Revocar consentimiento") }
-            }
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text("DISPOSITIVO", style = MaterialTheme.typography.titleMedium)
+                        Text("${Build.MODEL} / ${state.deviceId.take(8)}…${state.deviceId.takeLast(4)}", color = AuditColors.Muted,
+                            style = MaterialTheme.typography.titleSmall)
+                    }
+                    Column {
+                        Text("ACTIVIDAD RECIENTE", style = MaterialTheme.typography.titleMedium)
+                        AuditRule()
+                        if (session.recentEvents.isEmpty()) {
+                            Spacer(Modifier.height(10.dp))
+                            Text("Sin actividad registrada.", color = AuditColors.Muted)
+                        }
+                        session.recentEvents.take(4).forEach { row -> LocalEventRow(row) { selectedEvent = row } }
+                        AuditLink("Ver todos los eventos →", { history = true })
+                    }
+                    if (session.visibleAvailable) AuditButton("Pausar monitoreo", { session.pause(scope) }, !session.busy)
+                    else {
+                        Text("La captura y los envíos están pausados. Habilita la notificación visible para continuar.")
+                        AuditButton("Habilitar indicador y reanudar", { onRequestNotifications?.invoke() ?: session.resume(scope) }, !session.busy)
+                        onNotificationSettings?.let { AuditLink("Ajustes de notificación", it) }
+                    }
+                    AuditButton(if (session.revoking) "Retirando consentimiento…" else "Retirar consentimiento",
+                        { confirmWithdrawal = true }, !session.revoking)
 
-            is AgentCore.State.Revoked -> {
-                Text("Monitoreo detenido", style = MaterialTheme.typography.titleMedium)
-                Text(
-                    when (state.reason) {
-                        AgentCore.RevokeReason.LOCAL ->
-                            "Revocaste el consentimiento en este dispositivo. No se generarán más eventos."
-                        AgentCore.RevokeReason.REMOTE ->
-                            "El centro de control revocó este dispositivo. No se generarán más eventos."
-                    },
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                Text("Para volver a participar, el centro debe emitir un código nuevo y debes aceptar de nuevo.",
-                    style = MaterialTheme.typography.bodySmall)
-                if (session.revocationPending) {
-                    Text("Retirada local guardada. Falta confirmar el aviso o la limpieza.")
-                    OutlinedButton(onClick = { session.retryPrivacy(scope) }, enabled = !session.busy) { Text("Reintentar retirada pendiente") }
+                    SectionLabel("Estado del dispositivo")
+                    AuditPanel {
+                        val reading = session.lastDeviceStatus
+                        SectionLabel("Última lectura real guardada")
+                        SectionLabel("Batería")
+                        BatteryMeter((reading?.metadata?.get("batteryPercent") as? Number)?.toInt())
+                        SectionLabel("Conexión")
+                        Text(networkLabel(reading?.metadata?.get("networkState")), style = MaterialTheme.typography.titleSmall)
+                        AuditRule()
+                        Text(displayTime(reading?.timestamp), color = AuditColors.Muted)
+                    }
+                    SectionLabel("Captura autorizada")
+                    AuditPanel {
+                        Text("Batería · Conexión · SMS · Llamadas", style = MaterialTheme.typography.titleSmall)
+                        Text("Solo metadatos desde la activación. Sin contenido, números ni audio. Android puede restringir SMS y llamadas.")
+                        Text(session.realStatus, color = AuditColors.Muted)
+                        if (!session.realMonitoring) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Checkbox(realAccepted, { realAccepted = it }, enabled = !session.busy)
+                                Text("Autorizo la captura y envío de estos metadatos reales.", Modifier.weight(1f))
+                            }
+                            AuditButton("Autorizar e iniciar captura real",
+                                { onRequestRealMonitoring?.invoke() ?: session.startRealMonitoring(scope) },
+                                realAccepted && session.visibleAvailable && !session.busy && !session.revoking)
+                        } else AuditButton("Detener captura real", { session.stopRealMonitoring(scope) }, !session.busy, outlined = true)
+                    }
+                    AuditButton(if (session.busy) "Enviando…" else "Generar evento simulado", { session.sendSimulatedEvent(scope) },
+                        !session.busy && session.visibleAvailable && !session.revoking, outlined = true)
+                    AuditLink("Ver política de datos", { policy = true })
                 }
-                OutlinedButton(
-                    onClick = { session.restartConsent(scope) },
-                    enabled = !session.busy && !session.revocationPending,
-                    modifier = Modifier.fillMaxWidth(),
-                ) { Text("Volver a aceptar consentimiento") }
+            }
+            is AgentCore.State.Revoked -> {
+                val remote = state.reason == AgentCore.RevokeReason.REMOTE
+                AuditHeader(if (remote) "DISPOSITIVO REVOCADO" else "CONSENTIMIENTO RETIRADO",
+                    if (remote) "EL CENTRO DE CONTROL BLOQUEÓ NUEVOS ENVÍOS" else "MONITOREO DETENIDO EN ESTE DISPOSITIVO")
+                Text("La captura local se detuvo.", style = MaterialTheme.typography.titleMedium)
+                Text("Los eventos pendientes no serán enviados.")
+                AuditPanel {
+                    Text("Contacta al administrador para volver a inscribir el dispositivo.", style = MaterialTheme.typography.titleSmall)
+                }
+                if (session.revocationPending) {
+                    AuditNotice("La retirada local está guardada. Falta confirmar el aviso al servidor o la limpieza.")
+                    AuditButton("Reintentar retirada pendiente", { session.retryPrivacy(scope) }, !session.busy)
+                }
+                AuditLink("Volver a aceptar consentimiento", { session.restartConsent(scope) }, !session.busy && !session.revocationPending)
             }
             is AgentCore.State.Blocked -> {
-                Text("Transmisiones bloqueadas", style = MaterialTheme.typography.titleMedium)
-                Text(state.message)
-                OutlinedButton(onClick = { session.revoke(scope) }, enabled = !session.revoking) {
-                    Text("Retirar consentimiento y limpiar")
+                AuditHeader("TRANSMISIONES BLOQUEADAS")
+                AuditPanel { Text(state.message) }
+                AuditButton("Retirar consentimiento y limpiar", { confirmWithdrawal = true }, !session.revoking)
+            }
+        }
+    }
+}
+
+private fun deliveryLabel(value: String): String = when (value) {
+    "SENT" -> "Enviado"
+    "FAILED" -> "Rechazado"
+    else -> "Pendiente"
+}
+
+@Composable
+private fun LocalEventRow(row: AgentSession.LocalEvent, onClick: () -> Unit) {
+    Column(Modifier.fillMaxWidth()) {
+        TextButton(onClick, modifier = Modifier.fillMaxWidth(), contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 10.dp)) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    Text(metadataTitle(row.event.metadata), style = MaterialTheme.typography.bodyMedium)
+                    Text("${if (row.event.isSimulated) "Simulado" else "Real"} · ${displayTime(row.event.timestamp)}",
+                        color = AuditColors.Muted, style = MaterialTheme.typography.bodySmall)
+                    metadataDescription(row.event.metadata).takeIf { it.isNotEmpty() }?.let {
+                        Text(it, color = AuditColors.Muted, style = MaterialTheme.typography.bodySmall)
+                    }
                 }
+                Text(deliveryLabel(row.delivery), style = MaterialTheme.typography.labelMedium)
             }
         }
-
-        session.message?.let {
-            Card {
-                Text(it, Modifier.padding(12.dp), style = MaterialTheme.typography.bodyMedium)
-            }
-        }
-
-        if (session.log.isNotEmpty()) {
-            HorizontalDivider()
-            Text("Actividad reciente", style = MaterialTheme.typography.titleSmall)
-            session.log.forEach { entry ->
-                Text(entry, style = MaterialTheme.typography.bodySmall)
-            }
-        }
+        AuditRule()
     }
 }

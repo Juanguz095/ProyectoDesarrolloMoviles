@@ -36,7 +36,10 @@ class NativeAgentFlowTest {
                 !it.config.contains(androidx.compose.ui.semantics.SemanticsProperties.Disabled)
             }
         }
-        compose.onNodeWithText(text).performScrollTo().performClick()
+        val clickable = hasText(text) and hasClickAction()
+        val scrollable = clickable and hasAnyAncestor(hasScrollAction())
+        if (compose.onAllNodes(scrollable).fetchSemanticsNodes().isNotEmpty()) compose.onNode(scrollable).performScrollTo()
+        compose.onNode(clickable).performClick()
     }
     private fun waitFor(text: String) {
         try {
@@ -48,16 +51,36 @@ class NativeAgentFlowTest {
     }
     private fun notificationSwitch(): android.view.accessibility.AccessibilityNodeInfo {
         val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
+        val serviceInfo = automation.serviceInfo
+        if (serviceInfo.flags and android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS == 0) {
+            serviceInfo.flags = serviceInfo.flags or android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS
+            automation.serviceInfo = serviceInfo
+        }
         fun find(node: android.view.accessibility.AccessibilityNodeInfo?): android.view.accessibility.AccessibilityNodeInfo? {
             if (node == null) return null
             if (node.isVisibleToUser && node.isCheckable && node.className?.toString()?.endsWith("Switch") == true) return node
             for (i in 0 until node.childCount) find(node.getChild(i))?.let { return it }
             return null
         }
-        val deadline = android.os.SystemClock.elapsedRealtime() + 30_000
+        fun waitButton(node: android.view.accessibility.AccessibilityNodeInfo?): android.view.accessibility.AccessibilityNodeInfo? {
+            if (node == null) return null
+            if (node.isVisibleToUser && node.isClickable &&
+                (node.viewIdResourceName == "android:id/aerr_wait" || node.text?.toString() == "Wait")) return node
+            for (i in 0 until node.childCount) waitButton(node.getChild(i))?.let { return it }
+            return null
+        }
+        val deadline = android.os.SystemClock.elapsedRealtime() + 90_000
         while (android.os.SystemClock.elapsedRealtime() < deadline) {
-            val root = automation.rootInActiveWindow
-            if (root?.packageName?.toString()?.contains("settings") == true) find(root)?.let { return it }
+            val roots = listOfNotNull(automation.rootInActiveWindow) + automation.windows.mapNotNull { it.root }
+            val blocked = roots.firstNotNullOfOrNull { waitButton(it) }
+            if (blocked != null) {
+                blocked.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK)
+                android.os.SystemClock.sleep(500)
+                continue
+            }
+            for (root in roots) {
+                if (root.packageName?.toString()?.contains("settings") == true) find(root)?.let { return it }
+            }
             android.os.SystemClock.sleep(200)
         }
         throw AssertionError("System notification settings switch unavailable")
@@ -73,30 +96,29 @@ class NativeAgentFlowTest {
     }
     private fun assertCaptureDisabled() {
         compose.waitUntil(15_000) {
-            compose.onAllNodesWithText("Generar evento simulado").fetchSemanticsNodes().any {
+            compose.onAllNodesWithText("GENERAR EVENTO SIMULADO").fetchSemanticsNodes().any {
                 it.config.contains(androidx.compose.ui.semantics.SemanticsProperties.Disabled)
             }
         }
-        compose.onNodeWithText("Generar evento simulado").assertIsNotEnabled()
+        compose.onNodeWithText("GENERAR EVENTO SIMULADO").assertIsNotEnabled()
     }
     private fun enqueueAndWait() {
-        tap("Generar evento simulado"); waitFor("Evento enviado:")
+        tap("GENERAR EVENTO SIMULADO"); waitFor("Evento enviado:")
         assertEquals(QueueStats(0, 1, 0), runtime.journal.stats())
     }
     @Test fun runAuthorizedStage() {
         when (InstrumentationRegistry.getArguments().getString("stage")) {
             "enroll" -> {
-                waitFor("Paso 1 · Consentimiento")
-                compose.onNodeWithText("Registrar consentimiento").assertIsNotEnabled()
+                waitFor("ACEPTAR CONSENTIMIENTO")
+                compose.onNodeWithText("ACEPTAR CONSENTIMIENTO").assertIsEnabled()
                 assertEquals(QueueStats(), runtime.journal.stats())
                 assertNull(runtime.journal.registration())
                 val admin = control()
                 try {
                     val code = admin.createEnrollmentCode().code
-                    compose.onNode(isToggleable()).performScrollTo().performClick()
-                    tap("Registrar consentimiento"); waitFor("Paso 2 · Inscripción")
-                    compose.onNode(hasSetTextAction() and hasText("Código de inscripción")).performScrollTo().performTextInput(code)
-                    tap("Inscribir dispositivo"); waitFor("Dispositivo inscrito")
+                                        tap("ACEPTAR CONSENTIMIENTO"); waitFor("CONSENTIMIENTO REGISTRADO")
+                    compose.onNode(hasSetTextAction() and hasContentDescription("Código de inscripción")).performScrollTo().performTextInput(code)
+                    tap("INSCRIBIR DISPOSITIVO"); waitFor("MONITOREO")
                     assertEquals(AgentPhase.ACTIVE, runtime.journal.registration()?.phase)
                     assertNotNull(runtime.credentials.load())
                     assertTrue(runtime.indicator.isVisible())
@@ -106,47 +128,47 @@ class NativeAgentFlowTest {
                 } finally { admin.logout() }
             }
             "prepare-new-consent" -> {
-                waitFor("Dispositivo inscrito")
-                tap("Revocar consentimiento"); waitFor("Consentimiento revocado y servidor notificado.")
+                waitFor("MONITOREO")
+                tap("RETIRAR CONSENTIMIENTO"); tap("Confirmar retirada"); waitFor("Consentimiento revocado y servidor notificado.")
                 assertEquals(AgentPhase.REVOKED, runtime.journal.registration()?.phase)
                 assertNull(runtime.credentials.load()); assertEquals(QueueStats(), runtime.journal.stats())
-                tap("Volver a aceptar consentimiento"); waitFor("Paso 1 · Consentimiento")
-                compose.onNodeWithText("Registrar consentimiento").assertIsNotEnabled()
+                tap("Volver a aceptar consentimiento"); waitFor("ACEPTAR CONSENTIMIENTO")
+                compose.onNodeWithText("ACEPTAR CONSENTIMIENTO").assertIsEnabled()
             }
             "restore" -> {
-                waitFor("Dispositivo inscrito")
+                waitFor("MONITOREO")
                 assertEquals(AgentPhase.ACTIVE, runtime.journal.registration()?.phase)
                 assertNotNull(runtime.credentials.load())
                 assertEquals(QueueStats(0, 1, 0), runtime.journal.stats())
                 if (!runtime.indicator.isVisible()) {
                     assertCaptureDisabled()
-                    tap("Habilitar indicador y reanudar"); waitFor("Indicador habilitado.")
+                    tap("HABILITAR INDICADOR Y REANUDAR"); waitFor("Indicador habilitado.")
                 }
                 assertTrue(runtime.indicator.isVisible())
             }
             "offline" -> {
-                waitFor("Dispositivo inscrito")
-                if (!runtime.indicator.isVisible()) { tap("Habilitar indicador y reanudar"); waitFor("Indicador habilitado.") }
-                tap("Generar evento simulado"); waitFor("Sin confirmación del servicio.")
+                waitFor("MONITOREO")
+                if (!runtime.indicator.isVisible()) { tap("HABILITAR INDICADOR Y REANUDAR"); waitFor("Indicador habilitado.") }
+                tap("GENERAR EVENTO SIMULADO"); waitFor("Sin confirmación del servicio.")
                 assertEquals(QueueStats(1, 1, 0), runtime.journal.stats())
             }
             "recover" -> {
-                waitFor("Dispositivo inscrito")
+                waitFor("MONITOREO")
                 assertEquals(QueueStats(1, 1, 0), runtime.journal.stats())
                 val id = runtime.journal.pending(100).single().eventId
-                tap("Habilitar indicador y reanudar"); waitFor("Indicador habilitado.")
+                tap("HABILITAR INDICADOR Y REANUDAR"); waitFor("Indicador habilitado.")
                 compose.waitUntil(90_000) { runtime.journal.stats().pending == 0 }
                 val admin = control()
                 try {
                     val items = admin.events(runtime.journal.registration()!!.deviceId).items
                     assertEquals(2, items.size); assertEquals(1, items.count { it.eventId == id })
                 } finally { admin.logout() }
-                tap("Pausar monitoreo"); waitFor("Monitoreo pausado.")
+                tap("PAUSAR MONITOREO"); waitFor("Monitoreo pausado.")
                 assertFalse(runtime.indicator.isVisible())
                 assertCaptureDisabled()
             }
             "verify-recovery" -> {
-                waitFor("Dispositivo inscrito")
+                waitFor("MONITOREO")
                 assertEquals(QueueStats(0, 2, 0), runtime.journal.stats())
                 val ids = mutableSetOf<String>()
                 runtime.database.openHelper.readableDatabase.query("SELECT event_id FROM agent_outbox").use {
@@ -155,13 +177,13 @@ class NativeAgentFlowTest {
                 val admin = control()
                 try { assertEquals(ids, admin.events(runtime.journal.registration()!!.deviceId).items.map { it.eventId }.toSet()) }
                 finally { admin.logout() }
-                if (!runtime.indicator.isVisible()) { tap("Habilitar indicador y reanudar"); waitFor("Indicador habilitado.") }
-                tap("Pausar monitoreo"); waitFor("Monitoreo pausado.")
+                if (!runtime.indicator.isVisible()) { tap("HABILITAR INDICADOR Y REANUDAR"); waitFor("Indicador habilitado.") }
+                tap("PAUSAR MONITOREO"); waitFor("Monitoreo pausado.")
                 assertFalse(runtime.indicator.isVisible())
                 assertCaptureDisabled()
             }
             "permission-denied" -> {
-                waitFor("Dispositivo inscrito")
+                waitFor("MONITOREO")
                 assertTrue(runtime.indicator.allowed()); assertTrue(runtime.indicator.show())
                 try {
                     openNotificationSettings()
@@ -169,7 +191,7 @@ class NativeAgentFlowTest {
                     assertTrue(toggle.isChecked)
                     assertTrue(toggle.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK))
                     compose.waitUntil(15_000) { !runtime.indicator.allowed() }
-                    returnToAgent(); waitFor("Dispositivo inscrito")
+                    returnToAgent(); waitFor("MONITOREO")
                     assertFalse(runtime.indicator.allowed()); assertFalse(runtime.indicator.isVisible())
                     assertCaptureDisabled()
                     var reads = 0
@@ -185,35 +207,35 @@ class NativeAgentFlowTest {
                 }
             }
             "remote-revoked" -> {
-                waitFor("Dispositivo inscrito")
-                if (!runtime.indicator.isVisible()) { tap("Habilitar indicador y reanudar"); waitFor("Indicador habilitado.") }
-                tap("Generar evento simulado"); waitFor("El centro de control revocó este dispositivo.")
+                waitFor("MONITOREO")
+                if (!runtime.indicator.isVisible()) { tap("HABILITAR INDICADOR Y REANUDAR"); waitFor("Indicador habilitado.") }
+                tap("GENERAR EVENTO SIMULADO"); waitFor("El centro de control revocó este dispositivo.")
                 assertEquals(AgentPhase.REVOKED, runtime.journal.registration()?.phase)
                 assertEquals(QueueStats(), runtime.journal.stats()); assertNull(runtime.credentials.load())
                 assertFalse(runtime.indicator.isVisible())
-                tap("Volver a aceptar consentimiento"); waitFor("Paso 1 · Consentimiento")
-                compose.onNodeWithText("Registrar consentimiento").assertIsNotEnabled()
+                tap("Volver a aceptar consentimiento"); waitFor("ACEPTAR CONSENTIMIENTO")
+                compose.onNodeWithText("ACEPTAR CONSENTIMIENTO").assertIsEnabled()
             }
             "withdraw-offline" -> {
-                waitFor("Dispositivo inscrito")
+                waitFor("MONITOREO")
                 // A delayed request from the already revoked enrollment must not
                 // prevent the current device's privacy job from running later.
                 val previous = config().getString("previousDevice")
                 assertNotEquals(previous, runtime.journal.registration()!!.deviceId)
                 runtime.scheduler.privacy(previous)
-                tap("Revocar consentimiento"); waitFor("Retirada local guardada.")
+                tap("RETIRAR CONSENTIMIENTO"); tap("Confirmar retirada"); waitFor("Retirada local guardada.")
                 assertEquals(AgentPhase.REVOKING, runtime.journal.registration()?.phase)
                 assertEquals(QueueStats(), runtime.journal.stats()); assertFalse(runtime.indicator.isVisible())
             }
             "restore-withdrawal" -> {
-                waitFor("Monitoreo detenido")
+                waitFor("CONSENTIMIENTO RETIRADO")
                 assertEquals(AgentPhase.REVOKING, runtime.journal.registration()?.phase)
                 assertEquals(QueueStats(), runtime.journal.stats())
-                compose.onNodeWithText("Generar evento simulado").assertDoesNotExist()
+                compose.onNodeWithText("GENERAR EVENTO SIMULADO").assertDoesNotExist()
                 compose.onNodeWithText("Volver a aceptar consentimiento").assertIsNotEnabled()
             }
             "confirm-withdrawal" -> {
-                waitFor("Monitoreo detenido")
+                waitFor("CONSENTIMIENTO RETIRADO")
                 // No manual retry: real WorkManager must finish after connectivity
                 // returns, including when an older generation also has queued work.
                 compose.waitUntil(90_000) { runtime.journal.registration()?.phase == AgentPhase.REVOKED }
@@ -221,8 +243,8 @@ class NativeAgentFlowTest {
                 val admin = control()
                 try { assertEquals("revoked", admin.devices().items.first { it.deviceId == runtime.journal.registration()!!.deviceId }.status) }
                 finally { admin.logout() }
-                tap("Volver a aceptar consentimiento"); waitFor("Paso 1 · Consentimiento")
-                compose.onNodeWithText("Registrar consentimiento").assertIsNotEnabled()
+                tap("Volver a aceptar consentimiento"); waitFor("ACEPTAR CONSENTIMIENTO")
+                compose.onNodeWithText("ACEPTAR CONSENTIMIENTO").assertIsEnabled()
             }
             else -> error("Unknown native QA stage")
         }

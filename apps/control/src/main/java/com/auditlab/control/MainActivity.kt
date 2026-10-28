@@ -2,34 +2,21 @@ package com.auditlab.control
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import com.auditlab.common.*
+import com.auditlab.design.*
+import kotlinx.coroutines.CoroutineScope
 
 class ControlViewModel(application: android.app.Application) : androidx.lifecycle.AndroidViewModel(application) {
     val session = ControlSession(application)
@@ -50,7 +37,11 @@ class MainActivity : ComponentActivity() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { MaterialTheme { Surface(modifier = Modifier.fillMaxSize()) {
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.light(0xFFDAD7C0.toInt(), 0xFFDAD7C0.toInt()),
+            navigationBarStyle = SystemBarStyle.light(0xFFDAD7C0.toInt(), 0xFFDAD7C0.toInt()),
+        )
+        setContent { AuditTheme { Surface(modifier = Modifier.fillMaxSize()) {
             ControlScreen(model.session, onExport = {
                 model.session.exportTicket()?.let { ticket ->
                     model.pendingExport = ticket
@@ -77,208 +68,145 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 internal fun ControlScreen(session: ControlSession, onExport: (() -> Unit)? = null,
-    workScope: kotlinx.coroutines.CoroutineScope? = null, onOpenReport: (() -> Unit)? = null) {
+    workScope: CoroutineScope? = null, onOpenReport: (() -> Unit)? = null) {
     val composeScope = rememberCoroutineScope()
     val scope = workScope ?: composeScope
-    val revokeTarget = session.revokeTarget
-    val confirmLogout = session.logoutConfirmation
-    var category by rememberSaveable(session.query) { mutableStateOf(session.query.category.orEmpty()) }
-    var start by rememberSaveable(session.query) { mutableStateOf(session.query.from.orEmpty()) }
-    var end by rememberSaveable(session.query) { mutableStateOf(session.query.to.orEmpty()) }
-    var search by rememberSaveable(session.query) { mutableStateOf(session.query.q.orEmpty()) }
-    var filterError by remember { mutableStateOf<String?>(null) }
-    if (confirmLogout && session.signedIn) androidx.compose.material3.AlertDialog(onDismissRequest = { session.cancelLogout() },
-        title = { Text("Cerrar sesión") }, text = { Text("Se eliminará la sesión local de este centro.") },
-        confirmButton = { TextButton(onClick = { session.cancelLogout(); session.logout(scope) }) { Text("Confirmar salida") } },
-        dismissButton = { TextButton(onClick = { session.cancelLogout() }) { Text("Cancelar") } })
-    revokeTarget?.takeIf { session.isAdmin }?.let { target -> androidx.compose.material3.AlertDialog(onDismissRequest = { session.cancelRevoke() },
-        title = { Text("Revocar dispositivo") }, text = { Text("Se bloquearán nuevas transmisiones de $target. Reinscribirlo exigirá un consentimiento nuevo.") },
-        confirmButton = { TextButton(onClick = { session.cancelRevoke(); session.revoke(target, scope) }) { Text("Confirmar revocación") } },
-        dismissButton = { TextButton(onClick = { session.cancelRevoke() }) { Text("Cancelar") } }) }
-    session.detail?.let { event -> androidx.compose.material3.AlertDialog(onDismissRequest = session::closeDetail,
-        title = { Text("Detalle de evento") },
-        text = { Column(Modifier.verticalScroll(rememberScrollState())) {
-            Text("ID: ${event.eventId}"); Text("Dispositivo: ${event.sourceDevice}")
-            Text("Fecha: ${event.timestamp}"); Text("Recibido: ${event.receivedAt}")
-            Text(eventTitle(event)); Text(if (event.isSimulated) "Evento simulado" else "Evento real del dispositivo")
-            Text("Consentimiento: ${event.consent.consentId} · ${event.consent.policyVersion}")
-            Text(event.metadata.entries.joinToString { "${it.key}=${it.value}" })
-        } }, confirmButton = { TextButton(onClick = session::closeDetail) { Text("Cerrar detalle") } }) }
+    var screen by rememberSaveable { mutableStateOf("inicio") }
+    var chosenDevice by rememberSaveable { mutableStateOf<String?>(null) }
     var user by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    androidx.compose.runtime.LaunchedEffect(session.signedIn) {
-        if (session.signedIn) { password = ""; user = "" }
+    val currentDevice = session.devices.firstOrNull { it.deviceId == chosenDevice } ?: session.devices.firstOrNull()
+    LaunchedEffect(session.signedIn) {
+        if (session.signedIn) {
+            password = ""; user = ""
+            if (!session.devicesLoaded && !session.busy) session.refresh(scope)
+        } else { screen = "inicio"; chosenDevice = null }
     }
-
-    Column(
-        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        Text("AuditLab · Centro de control", style = MaterialTheme.typography.headlineMedium)
-
-        if (!session.signedIn) {
-            Text("Inicia sesión con una cuenta de AuditLab. Los roles admin y auditor se aplican en el servidor.",
-                style = MaterialTheme.typography.bodyMedium)
-            OutlinedTextField(
-                value = session.serverUrl,
-                onValueChange = session::updateServerUrl,
-                label = { Text("URL del servicio") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-            )
-            OutlinedTextField(
-                value = user,
-                onValueChange = { user = it },
-                label = { Text("Usuario") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-            )
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Contraseña") },
-                singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth(),
-            )
-            if (session.storageBlocked) Button(onClick = { session.clearLocal(scope) }, enabled = !session.busy) { Text("Borrar sesión local") }
-            Button(
-                onClick = { session.login(user, password, scope) },
-                enabled = !session.busy && !session.storageBlocked && user.isNotBlank() && password.isNotEmpty(),
-                modifier = Modifier.fillMaxWidth(),
-            ) { Text(if (session.busy) "Conectando…" else "Iniciar sesión") }
-        } else {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Column(Modifier.weight(1f)) {
-                    Text(session.username, style = MaterialTheme.typography.titleMedium)
-                    Text("Rol: ${session.role}", style = MaterialTheme.typography.bodySmall)
-                }
-                TextButton(onClick = { session.requestLogout() }, enabled = !session.busy) { Text("Salir") }
-            }
-            Button(
-                onClick = { session.refresh(scope) },
-                enabled = !session.busy,
-                modifier = Modifier.fillMaxWidth(),
-            ) { Text(if (session.busy) "Actualizando…" else "Actualizar dispositivos") }
-
-            Text("Estado de dispositivos")
-            Row { TextButton(onClick = { session.filterDevices(null, scope) }, enabled = !session.busy) { Text("Todos") }
-                TextButton(onClick = { session.filterDevices("active", scope) }, enabled = !session.busy) { Text("Activos") }
-                TextButton(onClick = { session.filterDevices("revoked", scope) }, enabled = !session.busy) { Text("Revocados") } }
-            if (session.deviceCursor != null) Button(onClick = { session.moreDevices(scope) }, enabled = !session.busy) { Text("Más dispositivos") }
-            Button(onClick = { session.applyFilters(com.auditlab.common.EventQuery(), scope) }, enabled = !session.busy) { Text("Consultar todos los eventos") }
-            Button(onClick = { session.loadAudit(scope) }, enabled = !session.busy) { Text("Consultar auditoría") }
-            if (session.auditCursor != null) TextButton(onClick = { session.loadAudit(scope, true) }, enabled = !session.busy) { Text("Más auditoría") }
-            session.audit.forEach { entry -> Text("${entry.occurredAt} · ${entry.action} · ${entry.result}\n${entry.actor}\n${entry.resource}\nFiltros: ${entry.filters}\nCorrelación: ${entry.correlationId}") }
-            if (session.isAdmin) {
-                HorizontalDivider()
-                Text("Inscripción de dispositivos", style = MaterialTheme.typography.titleMedium)
-                Button(
-                    onClick = { session.createEnrollmentCode(scope) },
-                    enabled = !session.busy,
-                ) { Text("Crear código de un uso") }
-                session.enrollmentCode?.let { code ->
-                    Card {
-                        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            Text("Código (visible solo ahora)", style = MaterialTheme.typography.labelMedium)
-                            Text(code.code, style = MaterialTheme.typography.bodyMedium)
-                            Text("Vence: ${code.expiresAt}", style = MaterialTheme.typography.bodySmall)
-                        }
-                    }
-                }
-            }
-
-            HorizontalDivider()
-            Text("Dispositivos (${session.devices.size})", style = MaterialTheme.typography.titleMedium)
-            if (session.devices.isEmpty()) {
-                Text("No hay dispositivos visibles para este rol.", style = MaterialTheme.typography.bodySmall)
-            }
-            session.devices.forEach { device ->
-                Card {
-                    Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text("${device.status.uppercase()} · ${device.appVersion ?: "versión desconocida"}",
-                            style = MaterialTheme.typography.titleSmall)
-                        Text(device.deviceId, style = MaterialTheme.typography.bodySmall)
-                        Text("Inscrito: ${device.enrolledAt}", style = MaterialTheme.typography.bodySmall)
-                        Text("Última recepción: ${device.lastSeenAt ?: "sin eventos"}", style = MaterialTheme.typography.bodySmall)
-                        Text("La conectividad actual no se deduce solo del estado activo.", style = MaterialTheme.typography.bodySmall)
-                        device.revokedAt?.let { Text("Revocado: $it", style = MaterialTheme.typography.bodySmall) }
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            TextButton(
-                                onClick = { session.selectDevice(device.deviceId, scope) },
-                                enabled = !session.busy,
-                            ) { Text("Ver eventos") }
-                            if (session.isAdmin && device.isActive) {
-                                TextButton(
-                                    onClick = { session.requestRevoke(device.deviceId) },
-                                    enabled = !session.busy,
-                                ) { Text("Revocar") }
-                            }
-                        }
-                    }
-                }
-            }
-
-            run {
-                OutlinedTextField(category, { category = it }, label = { Text("Categoría (vacía para todas)") }, enabled = !session.busy)
-                OutlinedTextField(start, { start = it }, label = { Text("Desde UTC: 2026-10-25T00:00:00Z") }, enabled = !session.busy)
-                OutlinedTextField(end, { end = it }, label = { Text("Hasta UTC (exclusiva)") }, enabled = !session.busy)
-                OutlinedTextField(search, { search = it }, label = { Text("ID o código de evento exacto") }, enabled = !session.busy)
-                Button(onClick = {
-                    try { val query = com.auditlab.common.EventQuery(session.selectedDevice, category.trim().ifEmpty { null },
-                        start.trim().ifEmpty { null }, end.trim().ifEmpty { null }, search.trim().ifEmpty { null })
-                        filterError = null; session.applyFilters(query, scope)
-                    } catch (_: Exception) { filterError = "Revisa categoría, fechas UTC e ID/código permitido." }
-                }, enabled = !session.busy) { Text("Aplicar filtros") }
-                filterError?.let { Text(it) }
-                Text("Dispositivo consultado: ${session.selectedDevice ?: "todos"}")
-                Text("Filtros aplicados: categoría ${session.query.category ?: "todas"}; desde ${session.query.from ?: "sin límite"}; hasta ${session.query.to ?: "sin límite"}; ID/código ${session.query.q ?: "todos"}.")
-                Text("CSV: todos los resultados de los filtros aplicados, máximo 10 000 eventos. Sin límite parcial silencioso.")
-                if (onExport != null) Button(onClick = onExport, enabled = !session.busy && session.signedIn) { Text("Guardar CSV") }
-                Text("Se muestra una página de hasta 50 eventos. Exportar incluye todos los resultados filtrados.")
-                TextButton(onClick = { session.applyFilters(session.query, scope) }, enabled = !session.busy) { Text("Primera página de eventos") }
-                if (session.lastReportUri != null && onOpenReport != null) TextButton(onClick = onOpenReport, enabled = !session.busy) { Text("Abrir último CSV guardado") }
-                if (session.eventCursor != null) Button(onClick = { session.moreEvents(scope) }, enabled = !session.busy) { Text("Más eventos") }
-                HorizontalDivider()
-                Text(if (session.selectedDevice != null) "Eventos del dispositivo seleccionado (${session.events.size})" else "Historial general (${session.events.size})",
-                    style = MaterialTheme.typography.titleMedium)
-                Text("La consulta queda registrada en la auditoría del servidor.",
-                    style = MaterialTheme.typography.bodySmall)
-                if (session.events.isEmpty()) {
-                    Text("Sin eventos en la página consultada.", style = MaterialTheme.typography.bodySmall)
-                }
-                session.events.forEach { event ->
-                    Card {
-                        Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                            Text(eventTitle(event),
-                                style = MaterialTheme.typography.titleSmall)
-                            Text("${if (event.isSimulated) "Simulado" else "Real"} · ${event.timestamp}",
-                                style = MaterialTheme.typography.bodySmall)
-                            TextButton(onClick = { session.showDetail(event, scope) }, enabled = !session.busy) { Text("Detalle ${event.eventId}") }
-                            Text(event.metadata.entries.joinToString { "${it.key}=${it.value}" },
-                                style = MaterialTheme.typography.bodySmall)
-                        }
-                    }
-                }
-            }
+    LaunchedEffect(screen, currentDevice?.deviceId, session.overviewDevice, session.busy, session.signedIn) {
+        if (screen == "inicio" && session.signedIn && !session.busy && currentDevice != null && session.overviewDevice != currentDevice.deviceId)
+            session.loadOverview(currentDevice.deviceId, scope)
+    }
+    BackHandler(session.signedIn && screen != "inicio") {
+        screen = when (screen) { "dispositivo" -> "dispositivos"; "auditoria", "inscripcion" -> "mas"; else -> "inicio" }
+    }
+    if (session.logoutConfirmation && session.signedIn) AlertDialog(onDismissRequest = session::cancelLogout,
+        title = { Text("Cerrar sesión", style = MaterialTheme.typography.titleLarge) },
+        text = { Text("Se eliminará la sesión local de este centro de control.") },
+        confirmButton = { AuditLink("Confirmar salida", { session.cancelLogout(); session.logout(scope) }) },
+        dismissButton = { AuditLink("Cancelar", session::cancelLogout) })
+    session.revokeTarget?.takeIf { session.isAdmin }?.let { target ->
+        AlertDialog(onDismissRequest = session::cancelRevoke,
+            title = { Text("Revocar dispositivo", style = MaterialTheme.typography.titleLarge) },
+            text = { Text("Se bloquearán nuevas transmisiones de $target. El agente detendrá la captura al recibir la revocación del servidor. Volver a inscribirlo requiere consentimiento y código nuevos.") },
+            confirmButton = { AuditLink("Confirmar revocación", { session.cancelRevoke(); session.revoke(target, scope) }) },
+            dismissButton = { AuditLink("Cancelar", session::cancelRevoke) })
+    }
+    session.detail?.let { event -> EventDetail(event, session::closeDetail) }
+    fun openEvents(device: String?) {
+        if (session.busy) return
+        session.applyFilters(EventQuery(device = device), scope); screen = "eventos"
+    }
+    val selectedTab = when (screen) { "dispositivo" -> "dispositivos"; "inscripcion", "auditoria" -> "mas"; else -> screen }
+    AuditPage(key = if (session.signedIn) screen else "login", feedback = session.message, working = session.busy, bottom = if (session.signedIn) ({
+        ControlNavigation(selectedTab, !session.busy) { next ->
+            screen = next
+            if (next == "eventos" && !session.eventsLoaded) session.applyFilters(session.query, scope)
         }
-
-        session.message?.let {
-            Card { Text(it, Modifier.padding(12.dp), style = MaterialTheme.typography.bodyMedium) }
+    }) else null) {
+        if (!session.signedIn) {
+            AuditHeader("AUDITLAB", "CENTRO DE CONTROL")
+            Spacer(Modifier.height(10.dp))
+            Text("INICIAR SESIÓN", style = MaterialTheme.typography.titleLarge)
+            Text("Consulta los dispositivos y eventos autorizados de tu grupo.", color = AuditColors.Muted)
+            AuditField("URL del servicio", session.serverUrl, session::updateServerUrl, !session.busy && !session.storageBlocked,
+                placeholder = "https://tu-servidor")
+            AuditField("Usuario", user, { user = it }, !session.busy)
+            AuditField("Contraseña", password, { password = it }, !session.busy, secret = true)
+            AuditButton(if (session.busy) "Conectando…" else "Iniciar sesión", { session.login(user.trim(), password, scope) },
+                !session.busy && !session.storageBlocked && user.isNotBlank() && password.isNotEmpty())
+            if (session.storageBlocked) AuditButton("Borrar sesión local", { session.clearLocal(scope) }, !session.busy, outlined = true)
+            Text("Acceso por rol: administrador o auditor. Todas las consultas quedan registradas.", color = AuditColors.Muted)
+        } else {
+            when (screen) {
+                "inicio" -> Dashboard(session, currentDevice, scope, onChoose = { chosenDevice = it }, onEvents = { openEvents(currentDevice?.deviceId) },
+                    onDevices = { screen = "dispositivos" }, onDetail = { screen = "dispositivo" })
+                "eventos" -> EventExplorer(session, scope, onExport, onOpenReport)
+                "dispositivos" -> DeviceList(session, scope) { id -> chosenDevice = id; screen = "dispositivo" }
+                "dispositivo" -> {
+                    DeviceDetail(session, currentDevice, scope, onBack = { screen = "dispositivos" },
+                        onEvents = { openEvents(currentDevice?.deviceId) },
+                        onAudit = { session.loadAudit(scope); screen = "auditoria" })
+                }
+                "auditoria" -> AuditHistory(session, scope) { screen = "mas" }
+                "inscripcion" -> EnrollmentView(session, scope) { screen = "mas" }
+                else -> {
+                    AuditHeader("MÁS", "CUENTA Y ADMINISTRACIÓN")
+                    AuditPanel {
+                        Text(session.username, style = MaterialTheme.typography.titleMedium)
+                        Text("Rol: ${if (session.isAdmin) "administrador" else "auditor"}")
+                        Text(session.serverUrl, color = AuditColors.Muted)
+                    }
+                    AuditButton("Consultar auditoría", { session.loadAudit(scope); screen = "auditoria" }, !session.busy)
+                    if (session.isAdmin) AuditButton("Crear código de inscripción", { screen = "inscripcion" }, !session.busy)
+                    AuditButton("Actualizar dispositivos", { session.refresh(scope) }, !session.busy, outlined = true)
+                    AuditRule()
+                    Text("Última actualización de la lista", color = AuditColors.Muted)
+                    Text(displayTime(session.devicesUpdatedAt))
+                    AuditButton("Cerrar sesión", session::requestLogout, !session.busy, outlined = true)
+                }
+            }
         }
     }
 }
 
-internal fun eventTitle(event: com.auditlab.common.AuditEvent): String = when (event.metadata["appEventCode"]) {
-    "sms_received" -> "SMS recibido"
-    "sms_sent" -> "SMS enviado"
-    "call_received" -> "Llamada recibida"
-    "call_outgoing" -> "Llamada saliente"
-    "call_missed" -> "Llamada perdida"
-    "call_rejected" -> "Llamada rechazada o bloqueada"
-    "device_status_changed" -> "Cambio de batería o conexión"
-    else -> "${event.category} · ${event.direction}"
+@Composable
+private fun ControlNavigation(selected: String, enabled: Boolean, onSelect: (String) -> Unit) {
+    Column(Modifier.padding(horizontal = 20.dp)) {
+        AuditRule()
+        Row(Modifier.fillMaxWidth()) {
+            listOf("inicio" to "INICIO", "eventos" to "EVENTOS", "dispositivos" to "EQUIPOS", "mas" to "MÁS").forEach { (id, label) ->
+                TextButton({ onSelect(id) }, Modifier.weight(1f).heightIn(min = 52.dp), enabled = enabled,
+                    shape = androidx.compose.ui.graphics.RectangleShape,
+                    colors = ButtonDefaults.textButtonColors(containerColor = if (selected == id) AuditColors.Panel else androidx.compose.ui.graphics.Color.Transparent),
+                    contentPadding = PaddingValues(2.dp)) {
+                    Text(label, style = MaterialTheme.typography.labelMedium,
+                        fontWeight = if (selected == id) androidx.compose.ui.text.font.FontWeight.Bold else androidx.compose.ui.text.font.FontWeight.Normal)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun EventDetail(event: AuditEvent, onClose: () -> Unit) {
+    AlertDialog(onDismissRequest = onClose,
+        title = { Text("DETALLE DE EVENTO", style = MaterialTheme.typography.titleLarge) },
+        text = { Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text(eventTitle(event), style = MaterialTheme.typography.titleMedium)
+            Text(if (event.isSimulated) "Evento simulado" else "Evento real del dispositivo")
+            AuditRule()
+            SectionLabel("Fecha del evento"); Text(displayTime(event.timestamp))
+            SectionLabel("Recibido por el servidor"); Text(displayTime(event.receivedAt))
+            SectionLabel("Dispositivo"); Text(event.sourceDevice)
+            SectionLabel("Identificador del evento"); Text(event.eventId)
+            metadataDescription(event.metadata).takeIf { it.isNotEmpty() }?.let { Text(it) }
+            Text("Código: ${event.metadata["appEventCode"] ?: "Sin código"}")
+            Text("Categoría: ${categoryName(event.category)}")
+            Text("Dirección: ${when (event.direction) { "inbound" -> "Entrante"; "outbound" -> "Saliente"; else -> "Ocurrido" }}")
+            AuditRule()
+            SectionLabel("Consentimiento"); Text(event.consent.consentId)
+            Text("Política: ${event.consent.policyVersion}")
+            Text("Aceptado: ${displayTime(event.consent.acceptedAt)}")
+        } }, confirmButton = { AuditLink("Cerrar detalle", onClose) })
+}
+
+internal fun eventTitle(event: AuditEvent): String = metadataTitle(event.metadata, categoryName(event.category))
+
+internal fun categoryName(category: String): String = when (category) {
+    "device_status" -> "Batería y conexión"
+    "sms" -> "SMS"
+    "call" -> "Llamadas"
+    "app_lifecycle" -> "Actividad de la app"
+    "sync" -> "Sincronización"
+    else -> category
 }

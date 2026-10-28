@@ -39,6 +39,8 @@ interface AgentDao {
     @Query("SELECT COUNT(*) FROM agent_outbox WHERE delivery=:delivery") fun count(delivery: String): Int
     @Insert(onConflict = OnConflictStrategy.ABORT) fun insertEvent(row: OutboxRow)
     @Query("SELECT * FROM agent_outbox WHERE delivery='PENDING' ORDER BY timestamp_ms,event_id LIMIT :limit") fun pending(limit: Int): List<OutboxRow>
+    @Query("SELECT * FROM agent_outbox ORDER BY timestamp_ms DESC,event_id DESC LIMIT :limit") fun recent(limit: Int): List<OutboxRow>
+    @Query("SELECT * FROM agent_outbox WHERE payload_json LIKE '%\"appEventCode\":\"device_status_changed\"%' AND payload_json LIKE '%\"isSimulated\":false%' ORDER BY timestamp_ms DESC,event_id DESC LIMIT 1") fun lastDeviceStatus(): OutboxRow?
     @Query("UPDATE agent_outbox SET delivery='SENT', attempts=attempts+1,error_code=NULL WHERE event_id IN (:ids) AND delivery='PENDING'") fun acknowledge(ids: List<String>)
     @Query("UPDATE agent_outbox SET delivery='FAILED', attempts=attempts+1,error_code=:code WHERE event_id IN (:ids) AND delivery='PENDING'") fun reject(ids: List<String>, code: String)
     @Query("UPDATE agent_registration SET phase='REJECTED' WHERE singleton=1") fun rejectCredential()

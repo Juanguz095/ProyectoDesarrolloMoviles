@@ -28,6 +28,15 @@ class ControlSession internal constructor(private val store: SessionStore, priva
     var eventCursor by mutableStateOf<String?>(null); private set
     var auditCursor by mutableStateOf<String?>(null); private set
     var enrollmentCode by mutableStateOf<EnrollmentCode?>(null); private set
+    var overviewDevice by mutableStateOf<String?>(null); private set
+    var overviewEvents by mutableStateOf<List<AuditEvent>>(emptyList()); private set
+    var overviewReading by mutableStateOf<AuditEvent?>(null); private set
+    var overviewLoaded by mutableStateOf(false); private set
+    var eventPageNumber by mutableStateOf(1); private set
+    var devicesLoaded by mutableStateOf(false); private set
+    var eventsLoaded by mutableStateOf(false); private set
+    var auditLoaded by mutableStateOf(false); private set
+    var devicesUpdatedAt by mutableStateOf<String?>(null); private set
     var busy by mutableStateOf(false); private set
     var revokeTarget by mutableStateOf<String?>(null); private set
     var logoutConfirmation by mutableStateOf(false); private set
@@ -42,7 +51,8 @@ class ControlSession internal constructor(private val store: SessionStore, priva
     fun login(user: String, password: String, scope: CoroutineScope) = run(scope) {
         core().login(user, password)
         val page = core().devices()
-        return@run { devices = page.items; deviceCursor = page.nextCursor; message = "Sesión iniciada." }
+        return@run { devices = page.items; deviceCursor = page.nextCursor; devicesLoaded = true
+            devicesUpdatedAt = java.time.Instant.now().toString(); message = "Sesión iniciada." }
     }
     fun logout(scope: CoroutineScope) { logoutConfirmation = false; doLogout(scope) }
     private fun doLogout(scope: CoroutineScope) = run(scope) {
@@ -59,7 +69,9 @@ class ControlSession internal constructor(private val store: SessionStore, priva
     }
     fun refresh(scope: CoroutineScope) = run(scope) {
         val page = core().devicePage(status, null)
-        return@run { devices = page.items; deviceCursor = page.nextCursor; message = "Actualizado: ${page.items.size} dispositivo(s)." }
+        return@run { devices = page.items; deviceCursor = page.nextCursor; devicesLoaded = true
+            devicesUpdatedAt = java.time.Instant.now().toString(); clearOverview()
+            message = "Actualizado: ${page.items.size} dispositivo(s) en esta página." }
     }
     fun filterDevices(value: String?, scope: CoroutineScope) {
         if (busy) return
@@ -69,18 +81,35 @@ class ControlSession internal constructor(private val store: SessionStore, priva
     fun moreDevices(scope: CoroutineScope) = run(scope) {
         val cursor = deviceCursor ?: error("No hay más dispositivos")
         val page = core().devicePage(status, cursor)
-        return@run { devices = page.items; deviceCursor = page.nextCursor }
+        return@run { devices = page.items; deviceCursor = page.nextCursor; devicesLoaded = true
+            devicesUpdatedAt = java.time.Instant.now().toString() }
     }
+    /** Separate dashboard data from history filters/cursors. Every query remains audited by the API. */
+    fun loadOverview(deviceId: String, scope: CoroutineScope) {
+        if (busy) return
+        clearOverview(); overviewDevice = deviceId
+        run(scope) {
+            val recent = core().eventPage(EventQuery(device = deviceId), null)
+            val readings = core().eventPage(EventQuery(device = deviceId, category = "device_status"), null)
+            return@run {
+                overviewEvents = recent.items
+                overviewReading = readings.items.filter { !it.isSimulated }.maxByOrNull { java.time.Instant.parse(it.timestamp) }
+                overviewLoaded = true
+            }
+        }
+    }
+    private fun clearOverview() { overviewDevice = null; overviewEvents = emptyList(); overviewReading = null; overviewLoaded = false }
     fun selectDevice(deviceId: String, scope: CoroutineScope) { applyFilters(EventQuery(device = deviceId), scope) }
     fun applyFilters(value: EventQuery, scope: CoroutineScope) {
         if (busy) return
         query = value; selectedDevice = value.device; events = emptyList(); eventCursor = null; detail = null
+        eventPageNumber = 1; eventsLoaded = false
         loadEvents(scope, false)
     }
     fun moreEvents(scope: CoroutineScope) = loadEvents(scope, true)
     private fun loadEvents(scope: CoroutineScope, more: Boolean) = run(scope) {
         val page = core().eventPage(query, if (more) eventCursor ?: error("No hay más eventos") else null)
-        return@run { events = page.items
+        return@run { events = page.items; eventsLoaded = true; if (more) eventPageNumber++
           eventCursor = page.nextCursor; message = "Historial actualizado: ${events.size} evento(s)." }
     }
     fun showDetail(event: AuditEvent, scope: CoroutineScope) = run(scope) {
@@ -90,7 +119,7 @@ class ControlSession internal constructor(private val store: SessionStore, priva
     fun closeDetail() { detail = null }
     fun loadAudit(scope: CoroutineScope, more: Boolean = false) = run(scope) {
         val page = core().audit(if (more) auditCursor ?: error("No hay más auditoría") else null)
-        return@run { audit = page.items; auditCursor = page.nextCursor }
+        return@run { audit = page.items; auditCursor = page.nextCursor; auditLoaded = true }
     }
     fun createEnrollmentCode(scope: CoroutineScope) = run(scope) {
         val code = core().createEnrollmentCode()
@@ -99,7 +128,8 @@ class ControlSession internal constructor(private val store: SessionStore, priva
     fun revoke(deviceId: String, scope: CoroutineScope) = run(scope) {
         core().revoke(deviceId)
         val page = core().devicePage(status, null)
-        return@run { devices = page.items; deviceCursor = page.nextCursor; message = "Dispositivo revocado. Los nuevos lotes serán rechazados." }
+        return@run { devices = page.items; deviceCursor = page.nextCursor; devicesLoaded = true; clearOverview()
+            devicesUpdatedAt = java.time.Instant.now().toString(); message = "Dispositivo revocado. Los nuevos lotes serán rechazados." }
     }
     // The picker holds no report or token. An export ticket is invalid after filter/session changes.
     data class ExportTicket(val session: String, val query: EventQuery)
@@ -116,7 +146,8 @@ class ControlSession internal constructor(private val store: SessionStore, priva
     fun notifyExportCancelled() { message = "Exportación cancelada; no se guardó un reporte." }
     private fun clearViews() { signedIn = false; username = ""; role = ""; devices = emptyList(); events = emptyList()
         audit = emptyList(); detail = null; lastReportUri = null; revokeTarget = null; logoutConfirmation = false; query = EventQuery(); selectedDevice = null; enrollmentCode = null
-        deviceCursor = null; eventCursor = null; auditCursor = null }
+        deviceCursor = null; eventCursor = null; auditCursor = null; clearOverview()
+        eventPageNumber = 1; devicesLoaded = false; eventsLoaded = false; auditLoaded = false; devicesUpdatedAt = null }
     private fun run(scope: CoroutineScope, block: () -> (() -> Unit)) {
         if (busy) return
         busy = true; message = null

@@ -12,10 +12,12 @@ android {
         minSdk = 26
         targetSdk = 35
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        versionCode = 3
-        versionName = "0.3.0-rc1"
+        versionCode = 4
+        versionName = "0.3.1-rc1"
     }
     buildFeatures { compose = true }
+    sourceSets.getByName("main").java.srcDir("../design/src/main/kotlin")
+    sourceSets.getByName("main").res.srcDir("../design/src/main/res")
     testOptions { unitTests { isIncludeAndroidResources = true } }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

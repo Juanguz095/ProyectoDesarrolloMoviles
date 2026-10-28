@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AuditLabThemeBase" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:fontFamily">monospace</item>
+        <item name="android:colorAccent">#10110C</item>
+        <item name="android:colorBackground">#DAD7C0</item>
+        <item name="android:windowBackground">#DAD7C0</item>
+        <item name="android:statusBarColor">#DAD7C0</item>
+        <item name="android:navigationBarColor">#DAD7C0</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowActionModeOverlay">true</item>
+    </style>
+    <style name="AuditLabTheme" parent="AuditLabThemeBase" />
+</resources>

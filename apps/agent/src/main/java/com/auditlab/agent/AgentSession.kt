@@ -31,6 +31,11 @@ class AgentSession internal constructor(
     var visibleAvailable by mutableStateOf(platform == null)
         private set
     var realMonitoring by mutableStateOf(false); private set
+    var realCaptureRunning by mutableStateOf(false); private set
+    var ready by mutableStateOf(platform == null); private set
+    data class LocalEvent(val event: EventDraft, val delivery: String, val errorCode: String?)
+    var recentEvents by mutableStateOf<List<LocalEvent>>(emptyList()); private set
+    var lastDeviceStatus by mutableStateOf<EventDraft?>(null); private set
     var realStatus by mutableStateOf("Captura real detenida."); private set
     var busy by mutableStateOf(false)
         private set
@@ -61,7 +66,7 @@ class AgentSession internal constructor(
                 catch (cancelled: CancellationException) { throw cancelled }
                 catch (_: Exception) {
                     state = AgentCore.State.Blocked("No se pudo leer el almacenamiento. Reintenta o revoca.")
-                    visibleAvailable = false
+                    visibleAvailable = false; ready = true
                 }
             }
         }
@@ -135,16 +140,26 @@ class AgentSession internal constructor(
     private fun core(): AgentCore = engine ?: (platform?.core(serverUrl) ?: AgentCore(apiFactory(serverUrl), store))
         .also { engine = it }
     private data class Snapshot(val state: AgentCore.State, val consent: ConsentContext?, val stats: QueueStats,
-                                val pending: Boolean, val visible: Boolean, val url: String)
-    private fun snapshot(): Snapshot {
+                                val pending: Boolean, val visible: Boolean, val url: String,
+                                val events: List<LocalEvent>, val deviceStatus: EventDraft?)
+    private fun snapshot(): Snapshot = platform?.let { synchronized(it.gate) { readSnapshot() } } ?: readSnapshot()
+    private fun readSnapshot(): Snapshot {
         val current = core()
-        return Snapshot(current.refresh(), current.acceptedConsent, current.stats(), current.revocationPending,
-            platform?.indicator?.isVisible() ?: true, platform?.target(serverUrl) ?: serverUrl)
+        // Read only the existing consent-bound local queue; never query phone providers from the UI.
+        val state = current.refresh()
+        val active = state is AgentCore.State.Enrolled
+        val rows = if (active) platform?.database?.dao()?.recent(100).orEmpty() else emptyList()
+        val deviceStatus = if (active) platform?.database?.dao()?.lastDeviceStatus()?.let { EventCodec.decode(it.payloadJson) } else null
+        return Snapshot(state, current.acceptedConsent, current.stats(), current.revocationPending,
+            platform?.indicator?.isVisible() ?: true, platform?.target(serverUrl) ?: serverUrl,
+            rows.map { LocalEvent(EventCodec.decode(it.payloadJson), it.delivery, it.errorCode) }, deviceStatus)
     }
     private fun publish(value: Snapshot) {
         state = value.state; consent = value.consent; stats = value.stats; revocationPending = value.pending
         visibleAvailable = value.visible; serverUrl = value.url
+        ready = true; recentEvents = value.events; lastDeviceStatus = value.deviceStatus
         realMonitoring = platform?.realEvents?.requested == true
+        realCaptureRunning = platform?.realEvents?.running == true
         realStatus = platform?.realEvents?.let { if (it.requested) it.message else "Captura real detenida. ${it.permissionsText()}" }
             ?: "Captura real no disponible en esta prueba."
     }
@@ -176,7 +191,7 @@ class AgentSession internal constructor(
                     catch (_: Exception) { message = "No se pudo completar la operación. No se confirma éxito." }
                     finally {
                         try { publish(withContext(Dispatchers.IO) { snapshot() }) }
-                        catch (_: Exception) { state = AgentCore.State.Blocked("No se pudo leer el almacenamiento. Reintenta o revoca.") }
+                        catch (_: Exception) { state = AgentCore.State.Blocked("No se pudo leer el almacenamiento. Reintenta o revoca."); ready = true }
                         if (privacy) revoking = false
                     }
                 }

@@ -26,11 +26,14 @@ class NativeControlFlowTest {
     }
     private fun tap(text: String) {
         compose.waitUntil(45_000) {
-            compose.onAllNodesWithText(text).fetchSemanticsNodes().any {
+            compose.onAllNodes(hasText(text) and hasClickAction()).fetchSemanticsNodes().any {
                 !it.config.contains(androidx.compose.ui.semantics.SemanticsProperties.Disabled)
             }
         }
-        compose.onNodeWithText(text).performScrollTo().performClick()
+        val clickable = hasText(text) and hasClickAction()
+        val scrollable = clickable and hasAnyAncestor(hasScrollAction())
+        if (compose.onAllNodes(scrollable).fetchSemanticsNodes().isNotEmpty()) compose.onAllNodes(scrollable)[0].performScrollTo()
+        compose.onAllNodes(clickable)[0].performClick()
     }
     private fun waitFor(text: String) {
         compose.waitUntil(45_000) {
@@ -93,27 +96,28 @@ class NativeControlFlowTest {
             "logout" -> {
                 val existing = KeystoreSessionStore(context).load()
                 check(existing != null && existing.serverUrl == cfg.getString("url") && existing.username == "qa_admin")
-                waitFor("Rol: admin"); tap("Salir"); waitFor("Confirmar salida")
-                compose.onNodeWithText("Confirmar salida").performClick(); waitFor("Iniciar sesión")
+                waitFor("VISTA DE DISPOSITIVOS"); tap("MÁS"); tap("CERRAR SESIÓN"); waitFor("Confirmar salida")
+                compose.onNodeWithText("Confirmar salida").performClick(); waitFor("INICIAR SESIÓN")
                 assertNull(KeystoreSessionStore(context).load())
             }
             "login-read" -> {
                 compose.onAllNodes(hasSetTextAction())[1].performScrollTo().performTextReplacement("qa_admin")
                 compose.onAllNodes(hasSetTextAction())[2].performScrollTo().performTextReplacement(cfg.getString("password"))
-                tap("Iniciar sesión"); waitFor("Rol: admin")
+                tap("INICIAR SESIÓN"); waitFor("VISTA DE DISPOSITIVOS")
                 val stored = KeystoreSessionStore(context).load()
                 assertNotNull(stored); assertEquals(cfg.getString("url"), stored!!.serverUrl)
-                compose.onAllNodesWithText("Ver eventos")[0].performScrollTo().performClick()
-                waitFor("app_lifecycle · occurred")
-                tap("Detalle " + cfg.getString("event")); waitFor("Detalle de evento")
-                compose.onNodeWithText("Dispositivo: " + cfg.getString("device")).assertExists()
-                compose.onNodeWithText("ID: " + cfg.getString("event")).assertExists()
-                compose.onNodeWithText("Cerrar detalle").performClick()
-                tap("Consultar auditoría"); waitFor("event_queried")
+                tap("Ver historial de eventos →")
+                waitFor("Actividad del agente")
+                tap("Ver detalle →"); waitFor("DETALLE DE EVENTO")
+                assertTrue(compose.onAllNodesWithText(cfg.getString("device")).fetchSemanticsNodes().isNotEmpty())
+                assertTrue(compose.onAllNodesWithText(cfg.getString("event")).fetchSemanticsNodes().isNotEmpty())
+                tap("Cerrar detalle")
+                tap("MÁS"); tap("CONSULTAR AUDITORÍA"); waitFor("event_queried")
             }
             "create-code" -> {
-                waitFor("Rol: admin")
-                tap("Crear código de un uso"); waitFor("Código (visible solo ahora)")
+                waitFor("VISTA DE DISPOSITIVOS"); tap("MÁS")
+                tap("CREAR CÓDIGO DE INSCRIPCIÓN"); tap("CREAR CÓDIGO DE UN USO")
+                waitFor("CÓDIGO VISIBLE SOLO DURANTE ESTA SESIÓN")
                 val code = androidx.lifecycle.ViewModelProvider(compose.activity)[ControlViewModel::class.java].session.enrollmentCode
                 assertNotNull(code)
                 assertTrue(code!!.code.matches(Regex("enr_[A-Za-z0-9_-]{32,}")))
@@ -121,22 +125,23 @@ class NativeControlFlowTest {
                 assertTrue(java.time.Instant.parse(code.expiresAt).isAfter(java.time.Instant.now()))
             }
             "restore-read" -> {
-                waitFor("Rol: admin")
+                waitFor("VISTA DE DISPOSITIVOS")
                 assertNotNull(KeystoreSessionStore(context).load())
-                tap("Actualizar dispositivos"); waitFor("Actualizado:")
-                compose.onAllNodesWithText("Ver eventos")[0].performScrollTo().performClick()
-                waitFor("app_lifecycle · occurred")
+                tap("EQUIPOS"); tap("ACTUALIZAR DISPOSITIVOS"); waitFor("Actualizado:")
+                tap("INICIO"); tap("Ver historial de eventos →")
+                waitFor("Actividad del agente")
             }
             "export-rotation" -> {
-                waitFor("Rol: admin"); tap("Actualizar dispositivos"); waitFor("Actualizado:")
-                compose.onAllNodesWithText("Ver eventos")[0].performScrollTo().performClick()
-                waitFor("app_lifecycle · occurred")
-                compose.onNode(hasSetTextAction() and hasText("Categoría (vacía para todas)")).performScrollTo().performTextReplacement("app_lifecycle")
-                compose.onNode(hasSetTextAction() and hasText("ID o código de evento exacto")).performScrollTo().performTextReplacement(cfg.getString("event"))
-                tap("Aplicar filtros"); waitFor("Historial actualizado: 1 evento(s).")
-                compose.activityRule.scenario.recreate(); waitFor("Rol: admin")
-                compose.onNode(hasSetTextAction() and hasText("Categoría (vacía para todas)")).assertTextContains("app_lifecycle")
-                compose.onNode(hasSetTextAction() and hasText("ID o código de evento exacto")).assertTextContains(cfg.getString("event"))
+                waitFor("VISTA DE DISPOSITIVOS"); tap("Ver historial de eventos →")
+                waitFor("Actividad del agente")
+                tap("Todas las categorías"); tap("Actividad de la app")
+                compose.onNode(hasSetTextAction() and hasContentDescription("ID o código exacto"))
+                    .performScrollTo().performTextReplacement(cfg.getString("event"))
+                tap("APLICAR FILTROS"); waitFor("Historial actualizado: 1 evento(s).")
+                compose.activityRule.scenario.recreate(); waitFor("EVENTOS")
+                compose.onNodeWithText("Actividad de la app").assertExists()
+                compose.onNode(hasSetTextAction() and hasContentDescription("ID o código exacto"))
+                    .assertTextContains(cfg.getString("event"))
                 val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
                 val info = automation.serviceInfo
                 val previousFlags = info.flags
@@ -145,13 +150,11 @@ class NativeControlFlowTest {
                 val previousAuto = shell("settings get system accelerometer_rotation")
                 val previousRotation = shell("settings get system user_rotation")
                 try {
-                    tap("Guardar CSV")
+                    tap("EXPORTAR CSV")
                     externalNode { it.className?.toString() == "android.widget.EditText" }
                     cancelPicker()
                     waitFor("Exportación cancelada;")
-                    tap("Guardar CSV")
-                    clickExternal { externalNode { it.contentDescription?.toString() in setOf("Show roots", "Open navigation drawer") } }
-                    clickExternal { externalNode { it.text?.toString() == "Downloads" } }
+                    tap("EXPORTAR CSV")
                     val title = externalNode { it.className?.toString() == "android.widget.EditText" }
                     val filename = "qa-native-" + java.util.UUID.randomUUID().toString() + ".csv"
                     val text = android.os.Bundle().apply { putCharSequence(android.view.accessibility.AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, filename) }
@@ -205,15 +208,17 @@ class NativeControlFlowTest {
                 val existing = KeystoreSessionStore(context).load()
                 if (existing != null) {
                     check(existing.serverUrl == cfg.getString("url") && existing.username in setOf("qa_admin", cfg.getString("auditorUser")))
-                    waitFor("Rol:"); tap("Salir"); waitFor("Confirmar salida")
-                    compose.onNodeWithText("Confirmar salida").performClick(); waitFor("Iniciar sesión")
-                } else waitFor("Iniciar sesión")
+                    waitFor("VISTA DE DISPOSITIVOS"); tap("MÁS"); tap("CERRAR SESIÓN"); waitFor("Confirmar salida")
+                    compose.onNodeWithText("Confirmar salida").performClick(); waitFor("INICIAR SESIÓN")
+                } else waitFor("INICIAR SESIÓN")
                 assertNull(KeystoreSessionStore(context).load())
                 compose.onAllNodes(hasSetTextAction())[1].performScrollTo().performTextReplacement(cfg.getString("auditorUser"))
                 compose.onAllNodes(hasSetTextAction())[2].performScrollTo().performTextReplacement(cfg.getString("auditorPassword"))
-                tap("Iniciar sesión"); waitFor("Rol: auditor")
-                compose.onNodeWithText("Crear código de un uso").assertDoesNotExist()
-                compose.onNodeWithText("Revocar").assertDoesNotExist()
+                tap("INICIAR SESIÓN"); waitFor("VISTA DE DISPOSITIVOS")
+                tap("MÁS")
+                compose.onNodeWithText("CREAR CÓDIGO DE INSCRIPCIÓN").assertDoesNotExist()
+                tap("EQUIPOS"); tap("VER DISPOSITIVO")
+                compose.onNodeWithText("REVOCAR DISPOSITIVO").assertDoesNotExist()
                 val session = KeystoreSessionStore(context).load()!!
                 val client = ApiClient(cfg.getString("url"))
                 try { client.createEnrollmentCode(session.accessToken); fail("Auditor must not create enrollment codes") }
@@ -225,24 +230,23 @@ class NativeControlFlowTest {
                     shell("settings put system font_scale 1.5")
                     compose.waitUntil(20_000) { context.resources.configuration.fontScale >= 1.49f }
                     InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-                    compose.waitForIdle(); waitFor("Rol: auditor")
-                    tap("Salir"); waitFor("Confirmar salida")
-                    compose.onNodeWithText("Confirmar salida").performClick(); waitFor("Iniciar sesión")
+                    compose.waitForIdle(); waitFor("DISPOSITIVO")
+                    tap("MÁS"); tap("CERRAR SESIÓN"); waitFor("Confirmar salida")
+                    compose.onNodeWithText("Confirmar salida").performClick(); waitFor("INICIAR SESIÓN")
                     assertNull(KeystoreSessionStore(context).load())
                 } finally {
                     shell(if (previousFont == "null") "settings delete system font_scale" else "settings put system font_scale " + previousFont)
                 }
             }
             "revoke" -> {
-                waitFor("Rol: admin")
-                tap("Actualizar dispositivos"); waitFor("Actualizado:")
-                compose.onAllNodesWithText("Revocar")[0].performScrollTo().performClick()
+                waitFor("VISTA DE DISPOSITIVOS"); tap("Ver detalle del dispositivo →")
+                tap("REVOCAR DISPOSITIVO")
                 compose.onNodeWithText("Confirmar revocación").assertExists()
                 compose.onNodeWithText("Cancelar").performClick()
                 val admin = ControlCore(ApiClient(cfg.getString("url"))).also { it.login("qa_admin", cfg.getString("password")) }
                 try { assertEquals("active", admin.devices().items.first { it.deviceId == cfg.getString("device") }.status) }
                 finally { admin.logout() }
-                compose.onAllNodesWithText("Revocar")[0].performScrollTo().performClick()
+                tap("REVOCAR DISPOSITIVO")
                 compose.onNodeWithText("Confirmar revocación").performClick()
                 waitFor("Dispositivo revocado.")
             }

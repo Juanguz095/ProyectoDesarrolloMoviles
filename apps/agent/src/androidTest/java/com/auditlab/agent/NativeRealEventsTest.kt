@@ -29,7 +29,10 @@ class NativeRealEventsTest {
         compose.waitUntil(45_000) { compose.onAllNodesWithText(text).fetchSemanticsNodes().any {
             !it.config.contains(androidx.compose.ui.semantics.SemanticsProperties.Disabled)
         } }
-        compose.onNodeWithText(text).performScrollTo().performClick()
+        val clickable = hasText(text) and hasClickAction()
+        val scrollable = clickable and hasAnyAncestor(hasScrollAction())
+        if (compose.onAllNodes(scrollable).fetchSemanticsNodes().isNotEmpty()) compose.onNode(scrollable).performScrollTo()
+        compose.onNode(clickable).performClick()
     }
     @Test fun capturesAuthorizedPhoneMetadataAndStopsOnWithdrawal() {
         val input = File(context.filesDir, "qa-real-events.json")
@@ -49,17 +52,16 @@ class NativeRealEventsTest {
         val control = ControlCore(api).also { it.login("qa_admin", config.getString("password")) }
         try {
             val code = control.createEnrollmentCode().code
-            compose.waitUntil(45_000) { compose.onAllNodesWithText("Registrar consentimiento").fetchSemanticsNodes().isNotEmpty() }
-            compose.onNode(isToggleable()).performScrollTo().performClick()
-            tap("Registrar consentimiento")
-            compose.waitUntil(20_000) { compose.onAllNodesWithText("Paso 2 · Inscripción").fetchSemanticsNodes().isNotEmpty() }
+            compose.waitUntil(45_000) { compose.onAllNodesWithText("ACEPTAR CONSENTIMIENTO").fetchSemanticsNodes().isNotEmpty() }
+            tap("ACEPTAR CONSENTIMIENTO")
+            compose.waitUntil(20_000) { compose.onAllNodesWithText("CONSENTIMIENTO REGISTRADO").fetchSemanticsNodes().isNotEmpty() }
             compose.onAllNodes(hasSetTextAction())[1].performScrollTo().performTextInput(code)
-            tap("Inscribir dispositivo")
+            tap("INSCRIBIR DISPOSITIVO")
             await { runtime.journal.registration()?.phase == AgentPhase.ACTIVE }
-            compose.waitUntil(20_000) { compose.onAllNodesWithText("Autorizar e iniciar captura real").fetchSemanticsNodes().isNotEmpty() }
-            compose.onNodeWithText("Autorizar e iniciar captura real").assertIsNotEnabled()
+            compose.waitUntil(20_000) { compose.onAllNodesWithText("AUTORIZAR E INICIAR CAPTURA REAL").fetchSemanticsNodes().isNotEmpty() }
+            compose.onNodeWithText("AUTORIZAR E INICIAR CAPTURA REAL").assertIsNotEnabled()
             compose.onNode(isToggleable()).performScrollTo().performClick()
-            tap("Autorizar e iniciar captura real")
+            tap("AUTORIZAR E INICIAR CAPTURA REAL")
             await { runtime.realEvents.running }
             File(context.filesDir, "qa-real-ready").writeText("ready")
             val device = runtime.journal.registration()!!.deviceId
@@ -79,7 +81,7 @@ class NativeRealEventsTest {
             // A second scan must not duplicate the rows injected by the host.
             android.os.SystemClock.sleep(12_000)
             assertEquals(ids, events().map { it.eventId }.toSet())
-            tap("Revocar consentimiento")
+            tap("RETIRAR CONSENTIMIENTO"); tap("Confirmar retirada")
             await { runtime.journal.registration()?.phase == AgentPhase.REVOKED }
             assertFalse(runtime.realEvents.requested)
             assertFalse(runtime.realEvents.running)
@@ -88,6 +90,9 @@ class NativeRealEventsTest {
             File(context.filesDir, "qa-real-result.json").writeText(JSONObject()
                 .put("eventCount", captured.size).put("realEvents", true).put("deduplicated", true)
                 .put("withdrawalStopped", true).put("device", device).toString())
+            // The owned empty fixture can now be used by the two-device suite.
+            runtime.core().resetAfterRevocation()
+            runtime.after(runtime.core())
         } finally {
             runtime.realEvents.stop()
             runCatching {

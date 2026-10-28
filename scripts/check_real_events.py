@@ -24,9 +24,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--serial', required=True, type=validate_serial)
     parser.add_argument('--resume-owned', action='store_true', help='Resume only an interrupted run marked by this checker')
+    parser.add_argument('--output-directory', type=Path, default=ROOT / '.tooling/real-events-validation')
     args = parser.parse_args()
     serial = args.serial
-    output = ROOT / '.tooling/real-events-validation'
+    output = args.output_directory.resolve()
+    if not output.is_relative_to((ROOT / '.tooling').resolve()): raise ValueError('Evidence must remain under the private .tooling directory')
     output.mkdir(parents=True, exist_ok=True)
     (output / 'native-verdict.json').write_text(json.dumps({'approved': False, 'state': 'running'})+'\n')
 

@@ -1,8 +1,43 @@
 # AuditLab — Registro de avance
 
-Actualización: 26 de octubre de 2026, UTC. Los registros anteriores conservan su fecha y zona indicadas.
+Actualización: 28 de octubre de 2026, America/Lima. Los registros anteriores conservan su fecha y zona indicadas.
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
+
+## Rediseño Android según mockups — 28 de octubre de 2026 (America/Lima)
+
+- P5.3/P6.2/P6.4: aplicada la estética de los cinco mockups a ambas apps: beige,
+  negro, tipografía monoespaciada, bordes rectos, paneles y botones. Se añaden
+  pantallas coherentes para login, inscripción, historial/detalle local, política,
+  lista/detalle de dispositivos, auditoría y cuenta. [Diseño y límites](REDISENO_ANDROID.md).
+- Agente: actividad reciente de Room, estados de entrega, última lectura real de
+  batería/conexión y fecha; activo exige captura en ejecución. Se conservan
+  autorización, indicador visible, permisos opcionales, pausa y retirada. Cambiar
+  de servidor valida la URL y exige revisar el consentimiento. Sin cambios de
+  esquema ni borrado de datos.
+- Centro: resumen por dispositivo con consultas auditadas independientes del
+  historial; solo lecturas reales disponibles en la página, sin valores inventados.
+  Calendario UTC, fechas exactas opcionales, limpieza, búsqueda, paginación, CSV,
+  confirmaciones, roles y avisos visibles fuera del desplazamiento.
+- P8.2/P8.3: APK debug **0.3.1-rc1, código 4** generadas y auditadas. Firma de
+  desarrollo verificada e igual en ambas apps. No cambia el servidor ni se añaden
+  dependencias. El usuario autorizó publicar el código en `origin/main`.
+- Host: **75 comunes + 28 agente + 12 centro = 115 pruebas JVM**, 32 pruebas de
+  herramientas y dos contratos OpenAPI aprobados; sin fallos, errores ni omitidas.
+  Compilación debug y Lint con **0 errores**, 9 avisos agente y 5 centro. La
+  auditoría de ambos APK aprobó paquetes, permisos, red, firma y ausencia de clases
+  de prueba en los artefactos.
+- Android: recorrido completo aprobado en dos AVD separados, agente API28 y centro
+  API26: **17/17 etapas**. Cubre inscripción, consulta cruzada, persistencia,
+  desconexión/recuperación, permiso del indicador, revocación remota/local, CSV,
+  rotación, rol auditor, fuente al 150 % y TLS. La máquina no dispone de KVM; el
+  orquestador pausa temporalmente el AVD inactivo para evitar bloqueos de System UI.
+- Captura real: prueba adicional del agente aprobada en API28 con cinco eventos
+  reales emulados (SMS recibido/enviado, llamada perdida/saliente y estado), API,
+  CSV, deduplicación y retirada. No equivale a una prueba en teléfonos físicos.
+- [Evidencia y hashes](evidencias/REDISENO-0.3.1-2026-10-28.json).
+  Permanecen pendientes Android reciente/teléfonos, revisión visual física, HTTPS
+  operativo, firma de distribución del responsable y piloto.
 
 ## Conexión sin USB — preparación
 

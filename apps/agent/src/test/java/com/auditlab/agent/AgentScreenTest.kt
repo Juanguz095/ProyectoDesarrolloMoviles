@@ -1,6 +1,7 @@
 package com.auditlab.agent
 
-import androidx.compose.material3.MaterialTheme
+import com.auditlab.design.AuditTheme
+import androidx.compose.ui.test.*
 import androidx.compose.material3.Surface
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -49,7 +50,7 @@ class AgentScreenTest {
 
     private fun start(session: AgentSession) {
         compose.setContent {
-            MaterialTheme {
+            AuditTheme {
                 Surface { AgentScreen(session) }
             }
         }
@@ -57,7 +58,10 @@ class AgentScreenTest {
 
     /** Desplaza hasta el control y lo pulsa: el contenido está en una columna con scroll. */
     private fun tap(text: String) {
-        compose.onNodeWithText(text).performScrollTo().performClick()
+        val clickable = hasText(text) and hasClickAction()
+        val scrollable = clickable and hasAnyAncestor(hasScrollAction())
+        if (compose.onAllNodes(scrollable).fetchSemanticsNodes().isNotEmpty()) compose.onNode(scrollable).performScrollTo()
+        compose.onNode(clickable).performClick()
     }
 
     private fun waitFor(text: String) {
@@ -67,40 +71,34 @@ class AgentScreenTest {
     }
 
     @Test
-    fun `sin aceptar el consentimiento el registro esta deshabilitado`() {
-        start(AgentSession(InMemoryCredentialStore(), { FakeApi() }))
-
-        compose.onNodeWithText("Monitoreo visible: DESACTIVADO").assertExists()
-        compose.onNodeWithText("Registrar consentimiento").assertIsNotEnabled()
-        compose.onNodeWithText("Paso 2 · Inscripción").assertDoesNotExist()
-
-        compose.onNode(isToggleable()).performScrollTo().performClick()
-        compose.onNodeWithText("Registrar consentimiento").assertIsEnabled()
-        tap("Registrar consentimiento")
-        compose.onNodeWithText("Paso 2 · Inscripción").assertExists()
-        compose.onNodeWithText("Monitoreo visible: DESACTIVADO").assertExists()
+    fun `sin aceptar el consentimiento no hay captura ni inscripcion`() {
+        val api = FakeApi()
+        val store = InMemoryCredentialStore()
+        val session = AgentSession(store, { api })
+        start(session)
+        compose.onNodeWithText("ACEPTAR CONSENTIMIENTO").assertIsEnabled()
+        compose.onAllNodes(hasSetTextAction()).assertCountEquals(0)
+        compose.onNodeWithText("MONITOREO").assertDoesNotExist()
+        assertNull(session.consent); assertNull(store.load()); assertEquals(0, api.sentEvents)
+        tap("ACEPTAR CONSENTIMIENTO")
+        compose.onNode(hasSetTextAction() and hasContentDescription("Código de inscripción")).assertExists()
+        compose.onNodeWithText("CONSENTIMIENTO REGISTRADO").assertExists()
+        assertEquals(0, api.sentEvents)
     }
 
     @Test
     fun `inscribir y enviar un evento simulado desde la pantalla`() {
         val api = FakeApi()
         start(AgentSession(InMemoryCredentialStore(), { api }))
-
-        compose.onNode(isToggleable()).performScrollTo().performClick()
-        tap("Registrar consentimiento")
-        // 0 = URL del servicio, 1 = código de inscripción.
+        tap("ACEPTAR CONSENTIMIENTO")
         compose.onAllNodes(hasSetTextAction())[1].performScrollTo().performTextInput("x".repeat(40))
-        tap("Inscribir dispositivo")
-
-        waitFor("Dispositivo inscrito")
-        compose.onNodeWithText("Monitoreo visible: ACTIVO").assertExists()
-        compose.onNodeWithText("Identificador: device-1").assertExists()
-        compose.onNodeWithText("Política aceptada: mvp-1").assertExists()
-
-        tap("Generar evento simulado")
+        tap("INSCRIBIR DISPOSITIVO")
+        waitFor("MONITOREO")
+        compose.onNodeWithText("LISTO PARA ACTIVAR").assertExists()
+        compose.onNodeWithText("ACTIVO").assertDoesNotExist()
+        tap("GENERAR EVENTO SIMULADO")
         waitFor("Evento enviado: 1 aceptado(s), 0 duplicado(s).")
-        assertEquals(1, api.sentEvents)
-        assertEquals("device-token", api.sentToken)
+        assertEquals(1, api.sentEvents); assertEquals("device-token", api.sentToken)
     }
 
     @Test
@@ -108,45 +106,58 @@ class AgentScreenTest {
         val api = FakeApi().apply { sendError = ApiException(401, "DEVICE_REVOKED", "corr-1", "revocado") }
         val store = InMemoryCredentialStore(StoredCredential("device-1", "device-token", consent))
         start(AgentSession(store, { api }))
-
-        compose.onNodeWithText("Monitoreo visible: ACTIVO").assertExists()
-        tap("Generar evento simulado")
-
-        waitFor("Monitoreo detenido")
-        compose.onNodeWithText("Monitoreo visible: DETENIDO").assertExists()
-        compose.onNodeWithText("El centro de control revocó este dispositivo. No se generarán más eventos.").assertExists()
-        compose.onNodeWithText("Volver a aceptar consentimiento").assertExists()
+        tap("GENERAR EVENTO SIMULADO")
+        waitFor("DISPOSITIVO REVOCADO")
+        compose.onNodeWithText("La captura local se detuvo.").assertExists()
+        compose.onNodeWithText("GENERAR EVENTO SIMULADO").assertDoesNotExist()
         assertNull(store.load())
+        tap("Volver a aceptar consentimiento")
+        waitFor("ACEPTAR CONSENTIMIENTO")
     }
 
     @Test
-    fun `la revocacion local avisa y borra la credencial`() {
+    fun `retirar pide confirmacion y cancelarlo conserva la credencial`() {
         val api = FakeApi()
         val store = InMemoryCredentialStore(StoredCredential("device-1", "device-token", consent))
         start(AgentSession(store, { api }))
-
-        tap("Revocar consentimiento")
-        waitFor("Monitoreo detenido")
-        compose.onNodeWithText("Monitoreo visible: DETENIDO").assertExists()
-        compose.onNodeWithText("Revocaste el consentimiento en este dispositivo. No se generarán más eventos.").assertExists()
-        assertEquals(1, api.revokedConsents)
-        assertNull(store.load())
-        // Tras revocar, la pantalla ya no ofrece enviar eventos.
-        compose.onNodeWithText("Generar evento simulado").assertDoesNotExist()
+        tap("RETIRAR CONSENTIMIENTO")
+        compose.onNodeWithText("Cancelar").performClick()
+        assertEquals(0, api.revokedConsents)
+        org.junit.Assert.assertNotNull(store.load())
+        tap("RETIRAR CONSENTIMIENTO")
+        compose.onNodeWithText("Confirmar retirada").performClick()
+        waitFor("CONSENTIMIENTO RETIRADO")
+        assertEquals(1, api.revokedConsents); assertNull(store.load())
+        compose.onNodeWithText("GENERAR EVENTO SIMULADO").assertDoesNotExist()
     }
 
     @Test fun `un fallo de red al inscribir no anuncia un evento pendiente inexistente`() {
         val api = FakeApi().apply { enrollError = ApiException(0, "NETWORK_ERROR", null, "fixture offline") }
         val store = InMemoryCredentialStore()
         start(AgentSession(store, { api }))
-        compose.onNode(isToggleable()).performScrollTo().performClick()
-        tap("Registrar consentimiento")
+        tap("ACEPTAR CONSENTIMIENTO")
         compose.onAllNodes(hasSetTextAction())[1].performScrollTo().performTextInput("x".repeat(40))
-        tap("Inscribir dispositivo")
+        tap("INSCRIBIR DISPOSITIVO")
         waitFor("No se pudo confirmar la inscripción. Comprueba el centro y solicita otro código si el anterior fue consumido.")
-        assertNull(store.load())
-        compose.onNodeWithText("Generar evento simulado").assertDoesNotExist()
-        assertEquals(0, api.sentEvents)
+        assertNull(store.load()); assertEquals(0, api.sentEvents)
+        compose.onNodeWithText("GENERAR EVENTO SIMULADO").assertDoesNotExist()
+    }
+
+    @Test fun `cambiar servidor valida la direccion y exige aceptar de nuevo`() {
+        val session = AgentSession(InMemoryCredentialStore(), { FakeApi() })
+        start(session)
+        tap("ACEPTAR CONSENTIMIENTO")
+        compose.runOnIdle { session.updateServerUrl("https://auditlab.example") }
+        waitFor("ACEPTAR CONSENTIMIENTO")
+        assertEquals("https://auditlab.example", session.serverUrl); assertNull(session.consent)
+    }
+
+    @Test fun `politica y estado vacio no presentan lecturas inventadas`() {
+        start(AgentSession(InMemoryCredentialStore(), { FakeApi() }))
+        tap("VER POLÍTICA DE DATOS")
+        compose.onNodeWithText("POLÍTICA DE DATOS").assertExists()
+        tap("VOLVER")
+        compose.onNodeWithText("ACEPTAR CONSENTIMIENTO").assertExists()
     }
 
     private class FakeApi : AuditApi {
