@@ -1,0 +1,88 @@
+{
+  "publication": {
+    "delivery_commit": "f2cdb38e04e1ae22a9f77c791cbcf566e0c48cb1",
+    "source_commit": "9bc2ca92a6b4f84b6e615ac4601165060f31e628",
+    "remote_verified": true,
+    "main_pushed": false,
+    "files": [
+      {
+        "name": "AuditLab-Servidor-Windows-0.3.0-rc1.zip",
+        "bytes": 19082373,
+        "sha256": "7fa6f306ff9ad43690b749ce9dab6cba1bad6afdf92e78f238aab42e2775cfcf",
+        "url": "https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.3.0-rc1.zip"
+      },
+      {
+        "name": "auditlab-agent-0.3.0-rc1.apk",
+        "bytes": 10059023,
+        "sha256": "bc9b9619c8265b24732c126569baa30eb7490b5b709bc867b6f60bb94067ba60",
+        "url": "https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.3.0-rc1.apk"
+      },
+      {
+        "name": "auditlab-control-0.3.0-rc1.apk",
+        "bytes": 9401298,
+        "sha256": "c3a0ee3a05fbc7f96d57d2b331cf5aba1447cc9c91de3aceb585d5a8262bb8a4",
+        "url": "https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.3.0-rc1.apk"
+      }
+    ]
+  },
+  "package": {
+    "source_revision": "9bc2ca92a6b4f84b6e615ac4601165060f31e628",
+    "zip_members": 303,
+    "checksums_verified": true,
+    "native_proof_bound": true,
+    "files": [
+      {
+        "name": "AuditLab-Servidor-Windows-0.3.0-rc1.zip",
+        "bytes": 19082373,
+        "sha256": "7fa6f306ff9ad43690b749ce9dab6cba1bad6afdf92e78f238aab42e2775cfcf"
+      },
+      {
+        "name": "auditlab-agent-0.3.0-rc1.apk",
+        "bytes": 10059023,
+        "sha256": "bc9b9619c8265b24732c126569baa30eb7490b5b709bc867b6f60bb94067ba60"
+      },
+      {
+        "name": "auditlab-control-0.3.0-rc1.apk",
+        "bytes": 9401298,
+        "sha256": "c3a0ee3a05fbc7f96d57d2b331cf5aba1447cc9c91de3aceb585d5a8262bb8a4"
+      }
+    ]
+  },
+  "downloads": {
+    "delivery_commit": "f2cdb38e04e1ae22a9f77c791cbcf566e0c48cb1",
+    "verified": [
+      {
+        "name": "AuditLab-Servidor-Windows-0.3.0-rc1.zip",
+        "http": 200,
+        "sha256_match": true,
+        "bytes": 19082373,
+        "url": "https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.3.0-rc1.zip"
+      },
+      {
+        "name": "auditlab-agent-0.3.0-rc1.apk",
+        "http": 200,
+        "sha256_match": true,
+        "bytes": 10059023,
+        "url": "https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.3.0-rc1.apk"
+      },
+      {
+        "name": "auditlab-control-0.3.0-rc1.apk",
+        "http": 200,
+        "sha256_match": true,
+        "bytes": 9401298,
+        "url": "https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.3.0-rc1.apk"
+      }
+    ]
+  },
+  "cleanup": {
+    "own_emulator_stopped": true,
+    "process_owner_verified": true,
+    "private_input_removed": true,
+    "databases_or_images_deleted": false,
+    "original_avds_modified": false
+  },
+  "windows_verified": false,
+  "physical_phones_verified": false,
+  "public_pilot": false,
+  "main_pushed": false
+}

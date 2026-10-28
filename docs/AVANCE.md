@@ -38,17 +38,25 @@ Los cierres y 278 casos de 0.2 que siguen más abajo son históricos.
   Otro intento esperó la llamada saliente sin terminar: se corrigió el driver para
   esperar al módem y colgar mediante Android; luego hubo dos recorridos completos
   aprobados. Solo el último corresponde al APK final, con ventana para llamadas largas.
-- P8: nuevos APK/servidor **todavía no publicados**. Los enlaces de GitHub existentes
-  siguen siendo 0.2. Windows/teléfonos reales y Android reciente siguen sin ejecución aquí.
+- P8: nuevos APK/servidor **publicados en la rama de descargas**, commit
+  `f2cdb38e04e1ae22a9f77c791cbcf566e0c48cb1`. Los tres enlaces 0.3 devolvieron HTTP 200
+  y los archivos descargados coinciden por tamaño/SHA256. El ZIP incluye la fuente
+  `9bc2ca92a6b4f84b6e615ac4601165060f31e628`, 303 archivos con checksums verificados.
+  [Descargas](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/tree/descargas-auditlab).
+  Se conservan los archivos 0.2 como históricos; no se actualizó `origin/main`.
+  Windows/teléfonos reales y Android reciente siguen sin ejecución aquí.
 
 Evidencias privadas: `.tooling/real-events-validation/`. Se conservan los fallos de
 compilación inicial de la prueba, lint/manifiesto y el nombre de constraint corregido
 en V3, junto con las repeticiones satisfactorias. El entorno se desconectó brevemente;
 los cambios se conservaron y se verificó el estado antes de continuar.
 
-Siguiente: empaquetar/publicar la actualización de
-archivos en la rama de descargas ya autorizada. No declarar funciones físicas validadas
-por resultados JVM, API o telefonía emulada.
+Entrega: actualizados Agente/Centro/servidor 0.3, ZIP vinculado al recorrido nativo final,
+fuentes y guía Windows. [Registro de publicación y descargas](evidencias/ENTREGA-0.3.0-2026-10-27.json).
+Emulador propio sincronizado/detenido con identidad de proceso verificada; archivo de
+entrada privado eliminado, imágenes/bases conservadas y fixture API disponible.
+Siguiente: actualizar los tres componentes en Windows y probar los permisos/captura en
+los teléfonos propios. No declarar funciones físicas validadas por JVM, API o telefonía emulada.
 
 ## Alcance actual de la solicitud
 
