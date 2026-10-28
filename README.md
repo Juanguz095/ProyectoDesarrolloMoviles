@@ -1,14 +1,33 @@
-# AuditLab: descargas para Windows y dos celulares por USB
+# AuditLab: descargas
 
-Archivos preparados de la candidata 0.2.0-rc1. Las APKs de desarrollo conservan los hashes de las pruebas nativas registradas. El asistente PowerShell esta preparado, pero no se ha ejecutado en Windows ni en telefonos fisicos.
+## Version actual: 0.3.0-rc1
 
-Descarga estos tres archivos desde esta rama:
+Captura autorizada de metadatos reales de SMS/llamadas, bateria y conexion.
+Solo tipo/fecha: no contenido, numeros, contactos ni audio. Android 8 o superior.
 
-- [Servidor Windows](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows.zip)
-- [Agente: celular A](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-debug.apk)
-- [Centro: celular B](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-debug.apk)
+- [Agente para el celular A](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.3.0-rc1.apk)
+- [Centro de control para el celular B](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.3.0-rc1.apk)
+- [Servidor Windows actualizado](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.3.0-rc1.zip)
 
-Extrae el servidor en C:\AuditLab. Guarda ambos APKs dentro de C:\AuditLab\apks.
-Sigue PASOS-WINDOWS.md dentro del ZIP. Incluye API compilada, fuentes y asistente Iniciar-AuditLab.ps1.
+Actualizar los tres componentes. El ZIP contiene PASOS-WINDOWS.md, servidor precompilado,
+asistente PowerShell y fuente exacta 9bc2ca92a6b4f84b6e615ac4601165060f31e628.
+Conservar .auditlab-windows y la base existente al actualizar; seguir las instrucciones del ZIP.
 
-La conexion de prueba usa adb reverse por USB y http://127.0.0.1:8081 en ambos celulares. No se declara un piloto HTTPS publicado ni firma de distribucion del responsable.
+En ambos celulares: USB con adb reverse, URL http://127.0.0.1:8081.
+En la PC comprobar http://127.0.0.1:8081/ready. Usuario Windows: admin y la contrasena
+creada al iniciar el servidor por primera vez. En el Agente aceptar la autorizacion
+adicional y los permisos del sistema; una fuente sin permiso no se captura.
+
+253 pruebas host y un recorrido completo del Agente en emulador API28 aprobados sobre
+el APK final: SMS recibido/enviado, llamada perdida/saliente, estado, API, CSV,
+deduplicacion y retirada. No se acredita Windows, telefonos fisicos ni Android reciente.
+Firma debug para desarrollo, sin piloto publico ni firma de distribucion del responsable.
+La publicacion de estos archivos no actualiza la rama main; la fuente nueva va en el ZIP.
+
+Checksums de esta version: SHA256SUMS y SHA256SUMS-0.3.0-rc1.
+
+## Version anterior: 0.2 (historica)
+
+Los archivos auditlab-agent-debug.apk, auditlab-control-debug.apk y
+AuditLab-Servidor-Windows.zip son la version anterior: no capturan SMS/llamadas reales.
+Se conservan con SHA256SUMS-0.2.0 para no perder la entrega anterior.
