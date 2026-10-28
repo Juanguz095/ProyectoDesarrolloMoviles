@@ -4,6 +4,18 @@ Actualización: 26 de octubre de 2026, UTC. Los registros anteriores conservan s
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
+## Conexión sin USB — preparación
+
+- Solicitud posterior: el usuario no quiere depender de cables USB.
+- P8.3: preparada [guía sin USB](PRUEBA_SIN_USB.md) con Tailscale Serve privado y
+  HTTPS hacia el servidor Windows en loopback. Puede funcionar en el mismo Wi-Fi
+  o en redes diferentes; requiere instalar/conectar Tailscale en los tres equipos.
+- No se modifican APKs, confianza TLS, listeners, base ni dependencias del proyecto.
+  Se revisó la sintaxis con la fuente oficial de Serve. No se ejecutaron pruebas,
+  Windows o una cuenta Tailscale; no se activó ningún acceso externo.
+- Siguiente: el usuario configura esa conexión en su PC/teléfonos y comprueba `/ready`
+  desde ambos antes de inscribir con la nueva URL. P8.1/P8.2 físicos siguen pendientes.
+
 ## Ampliación activa — 0.3.0-rc1, captura real
 
 Solicitud del 27 de octubre de 2026 (America/Lima): registrar eventos reales de SMS y

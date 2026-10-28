@@ -17,6 +17,7 @@ No se declara publicado un piloto ni firmada una distribución del responsable.
 ## Documentos de entrada
 
 - [Manual de instalación y uso](docs/MANUAL_PRODUCTO.md).
+- [Conectar Windows y los celulares sin USB](docs/PRUEBA_SIN_USB.md).
 - [Estado real por fase](docs/AVANCE.md) y [plan maestro P0–P8](docs/PLAN_MAESTRO.md).
 - [Informe de implementación, pruebas y límites](docs/evidencias/P5-P8-2026-10-25.md).
 - [Entorno y pruebas integradas](docs/PRUEBAS_INTEGRADAS.md), [herramientas](docs/desarrollo.md).
