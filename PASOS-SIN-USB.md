@@ -1,132 +1,149 @@
-# AuditLab sin USB — Windows y dos celulares
+# AuditLab 0.4 — Windows y dos celulares, sin USB
 
-Los APK 0.3 actuales admiten HTTPS. Para conectarlos sin cables se puede usar
-**Tailscale Serve**, una conexión privada entre tu PC y tus celulares. Sirve en el
-mismo Wi-Fi o en redes distintas con Internet. La PC sigue siendo el servidor y
-debe permanecer encendida, con AuditLab y Tailscale funcionando.
+Necesitas **una PC Windows encendida y dos teléfonos Android 8 o superior**, con
+Internet. La PC ejecuta el servidor; el teléfono A lleva el Agente y B el Centro.
+Tailscale permite conectarlos en redes distintas sin comprar dominio ni abrir
+puertos del router. Ambos teléfonos deben poder acceder al mismo servidor.
 
-No necesitas contratar un servidor o comprar un dominio para esta modalidad.
-Tailscale es una aplicación adicional que debes instalar e iniciar sesión en los
-tres equipos. La cuenta de Tailscale conecta los equipos; la cuenta `admin` de
-AuditLab sigue siendo la del servidor Windows.
+## 1. Descargas
 
-## 1. Encender el servidor en Windows
+Descarga los tres archivos de la misma versión:
 
-Abrir Docker Desktop. Desde la carpeta donde extrajiste el servidor:
+- [Agente 0.4.0-preview](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.4.0-preview.apk).
+- [Centro 0.4.0-preview](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.4.0-preview.apk).
+- [Servidor Windows 0.4.0-preview](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.4.0-preview.zip).
+
+El ZIP también contiene los dos APK en `apks/`. El servidor 0.3 anterior no incluye
+las rutas nuevas de WhatsApp/pantalla: **actualiza los tres componentes**.
+
+## 2. Preparar la PC Windows
+
+Abre PowerShell y ejecuta, uno por uno:
 
 ```powershell
+winget install --id Docker.DockerDesktop -e
+winget install --id Microsoft.OpenJDK.21 -e
+winget install --id Tailscale.Tailscale -e
+```
+
+Reinicia si se solicita. Abre Docker Desktop, acepta su preparación de WSL2 si es
+necesaria y espera a que esté listo, usando contenedores Linux. Abre una PowerShell
+nueva después de instalar Java.
+
+Extrae **todo** el ZIP en `C:\AuditLab`. Deben aparecer `Iniciar-AuditLab.ps1`,
+`api`, `apks` y `source` directamente dentro de esa carpeta. No ejecutes dentro del ZIP.
+
+Si ya usabas AuditLab: detén primero la API con Ctrl+C. Conserva
+`C:\AuditLab\.auditlab-windows` y los volúmenes Docker. Guarda la carpeta `api`
+anterior como respaldo antes de extraer la nueva en la misma ubicación. El
+lanzador reutiliza la configuración y contraseña y aplica las migraciones V4–V6.
+No borres la base ni la configuración para resolver errores de inicio.
+
+En PowerShell:
+
+```powershell
+cd C:\AuditLab
 powershell -NoProfile -ExecutionPolicy Bypass -File .\Iniciar-AuditLab.ps1
 ```
 
-Conservar esa ventana abierta. En el navegador de la **PC**, comprobar:
+En una instalación nueva te pedirá **crear la contraseña de `admin`**, de 12 a 128
+caracteres. Guárdala: esa es la contraseña del Centro. Mantén esta ventana y Docker
+abiertos. En el navegador de la PC, abre:
 
 ```text
 http://127.0.0.1:8081/ready
 ```
 
-Debe mostrar `{"status":"ready"}`. La dirección terminada solamente en `/` no
-tiene página web. Si `/ready` no responde, resolver primero el inicio del servidor.
+Debe aparecer `{"status":"ready"}`. La dirección sin `/ready` no tiene página web.
 
-## 2. Conectar la PC y ambos celulares a Tailscale
+## 3. Conectar por Internet sin USB
 
-En otra PowerShell de Windows, instalar Tailscale:
+Abre Tailscale en Windows e inicia sesión. Instala la aplicación oficial Tailscale
+en **los dos teléfonos**, inicia sesión en la misma cuenta y activa su conexión
+VPN cuando Android lo solicite. Deben aparecer los tres equipos conectados.
 
-```powershell
-winget install --id Tailscale.Tailscale -e
-```
-
-Abrir Tailscale desde Inicio e iniciar sesión. En ambos celulares, instalar la
-aplicación oficial **Tailscale**, iniciar sesión en la misma cuenta y activar su
-conexión VPN cuando Android solicite autorización. Los tres deben aparecer conectados.
-
-Descargas oficiales: [Windows](https://tailscale.com/download/windows) y
-[Android](https://play.google.com/store/apps/details?id=com.tailscale.ipn).
-
-No hace falta conectar cables, usar `adb reverse` ni abrir puertos del router.
-
-## 3. Crear la dirección HTTPS privada de AuditLab
-
-Desde PowerShell de Windows:
+En otra PowerShell de Windows:
 
 ```powershell
 & "$env:ProgramFiles\Tailscale\tailscale.exe" status
 & "$env:ProgramFiles\Tailscale\tailscale.exe" serve status
 ```
 
-Confirmar que la PC está conectada. Si ya existe una configuración en el puerto
-**8443**, conservarla y no ejecutar el siguiente comando hasta revisar qué servicio
-la utiliza. No usar `serve reset`: eliminaría configuraciones anteriores.
-
-Si 8443 está libre, ejecutar:
+Si el puerto 8443 no está ocupado por otro servicio de Tailscale, ejecuta:
 
 ```powershell
 & "$env:ProgramFiles\Tailscale\tailscale.exe" serve --bg --https=8443 http://127.0.0.1:8081
 ```
 
-La primera vez Tailscale puede mostrar un enlace para habilitar HTTPS en tu red
-privada. Abrirlo en tu navegador, habilitar HTTPS y completar/repetir el comando.
-La configuración de acceso de esa red debe permitir a tus celulares conectar a la PC.
+Si muestra un enlace para habilitar HTTPS, ábrelo y sigue sus instrucciones. Copia
+la dirección HTTPS que devuelve el comando, por ejemplo
+`https://mi-pc.tail123456.ts.net:8443`. **Usa tu dirección real, no este ejemplo**.
 
-Copiar la dirección HTTPS que aparece, por ejemplo:
+En el navegador de **cada teléfono**, abre tu dirección añadiendo `/ready`. Ambos
+deben mostrar `{"status":"ready"}` sin errores de certificado. Hasta lograrlo, no
+continúes con la inscripción. [Ayuda de conexión y cierre](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/blob/main/docs/PRUEBA_SIN_USB.md).
 
-```text
-https://mi-pc.tail123456.ts.net:8443
-```
+## 4. Instalar las apps y vincularlas
 
-**Es un ejemplo: usa la dirección real mostrada en tu PC.** Mantener `https://` y
-el puerto que muestra el comando. `Serve` comparte dentro de tu red privada;
-no habilitar `Funnel`, que tiene otro alcance.
+1. En A, abre el APK **Agente**. En B, abre el APK **Centro**. Android puede pedir
+   permitir instalaciones desde el navegador/gestor de archivos. Si actualizas,
+   conserva los datos; no desinstales para saltarte un conflicto de firma.
+2. En el Centro B, introduce **tu URL HTTPS sin `/ready` ni `/v1`**, usuario `admin`
+   y la contraseña creada en Windows. No es la contraseña de Tailscale.
+3. En el Centro, abre **Más → Crear código de inscripción** y genera el código.
+4. En el Agente A, lee/acepta el consentimiento, introduce la misma URL HTTPS y
+   el código y pulsa **Inscribir dispositivo**.
+5. Permite las notificaciones y pulsa **Habilitar indicador y reanudar** si aparece.
+6. En el Centro, abre **Equipos** y actualiza: debe aparecer el dispositivo A.
 
-## 4. Comprobar desde cada celular
+Si el Agente ya estaba inscrito con otra URL, retira/confirma la inscripción por
+la conexión anterior antes de cambiarla. En el Centro cierra la sesión anterior
+para editar su URL. No uses `127.0.0.1` en los teléfonos en esta modalidad.
 
-Con Tailscale conectado en los tres equipos, abrir en el navegador de **cada celular**
-la dirección HTTPS obtenida y añadir `/ready`:
+## 5. Activar cada función
 
-```text
-https://TU-DIRECCION-REAL:8443/ready
-```
+### Batería, conexión y metadatos de SMS/llamadas
 
-Ambos deben mostrar `{"status":"ready"}` sin errores de certificado. Si falla,
-comprobar la conexión Tailscale, el servidor Windows y `tailscale serve status`.
-No desactivar la comprobación de certificados.
+En el Agente, desplázate a la sección de captura real, marca su autorización y
+pulsa **Autorizar e iniciar captura real**. Acepta los permisos opcionales que
+necesites. Comprueba que las fuentes indiquen permiso concedido. SMS/llamadas
+registran tipo y fecha, sin cuerpos, números ni audio. En el Centro usa el historial.
 
-En las dos apps de AuditLab, usar la misma dirección HTTPS **sin `/ready` ni `/v1`**.
-No usar `127.0.0.1`, `10.0.2.2` ni una dirección HTTP de la red local en este modo.
+### Texto de notificaciones nuevas de WhatsApp
 
-## 5. Inscribir y utilizar
+1. En el Agente, baja hasta **Configurar vistas previas de WhatsApp**.
+2. Abre **Configurar acceso de Android** y habilita AuditLab en los ajustes de
+   acceso a notificaciones. Vuelve al Agente y espera a que diga conectado.
+3. Marca la autorización adicional y pulsa **Autorizar e iniciar sesión**.
+4. En el Centro, abre **Equipos → Ver dispositivo → Ver notificaciones de WhatsApp**.
+5. Con WhatsApp en segundo plano en A, recibe un mensaje nuevo de un contacto de
+   prueba para que WhatsApp publique una notificación con texto visible.
 
-1. Centro: URL HTTPS anterior, usuario `admin` y contraseña elegida la primera vez que
-   ejecutaste el servidor Windows. No es la contraseña de Tailscale.
-2. Crear un código de inscripción.
-3. Agente: introducir la misma URL HTTPS, aceptar el consentimiento e inscribir con ese código.
-4. Habilitar el indicador visible. Aceptar la autorización adicional y pulsar
-   **Autorizar e iniciar captura real**, respondiendo a los permisos del sistema.
-5. Verificar que SMS/llamadas figuren autorizados. Probar un SMS convencional y terminar
-   una llamada; actualizar el historial del Centro. [Alcance de los eventos](CAPTURA_REAL.md).
+No aparece el historial del chat ni mensajes sin notificación o con texto oculto.
+Hasta 20 vistas previas/5 minutos en memoria; no se exportan a CSV. Conceder el
+permiso Android por sí solo no activa la sesión. Para detener, pulsa **DETENER**
+en la notificación persistente o el botón del Agente. Cada sesión exige autorización.
 
-Si ya inscribiste el Agente con la URL USB, primero retirar y confirmar esa inscripción
-mediante la conexión que todavía funcione; después aceptar de nuevo con la dirección HTTPS.
-El Agente vincula las credenciales al servidor y no permite reemplazar su URL mientras
-está inscrito o tiene una retirada pendiente. No desinstalar ni borrar datos para saltar
-esa protección. En el Centro, cerrar la sesión anterior antes de editar la URL.
+### Pantalla del teléfono A
 
-## Apagar
+En A, pulsa **Compartir pantalla en vivo**, lee la explicación y acepta el diálogo
+de captura de Android. En B: **Equipos → Ver dispositivo → Ver pantalla compartida**.
+Es una vista actualizada aproximadamente una vez por segundo, sin audio ni grabación.
+El propietario de A inicia y detiene la sesión; B no la inicia remotamente.
 
-Pausar/retirar el monitoreo desde el Agente cuando corresponda y detener la API con
-Ctrl+C. El proxy de Tailscale puede permanecer configurado, pero no servirá eventos
-si la API o la PC están apagadas. Para retirar únicamente el proxy creado en 8443:
+## Si aparece un error
 
-```powershell
-& "$env:ProgramFiles\Tailscale\tailscale.exe" serve --https=8443 off
-```
+- **Credenciales rechazadas:** comprueba primero `/ready` en ambos teléfonos.
+  Usa `admin` y la contraseña de la misma instalación del servidor Windows. Una
+  sesión de otra instalación/URL requiere cerrar sesión y volver a iniciar.
+- **Actualiza el servidor:** estás usando el backend anterior. Instala el ZIP 0.4
+  conservando la configuración y ejecuta el lanzador nuevo.
+- **No llegan notificaciones:** confirma sesión activa, acceso Android concedido,
+  notificaciones WhatsApp habilitadas y texto disponible. Un chat abierto puede
+  no generar notificación; no se inventan mensajes cuando no la hay.
+- **Se detuvo en segundo plano:** revisa el ahorro de batería del fabricante.
+  Forzar la detención o reiniciar el teléfono exige volver a autorizar las sesiones.
 
-Usar ese comando solo si 8443 sigue siendo el servicio de AuditLab creado aquí.
-
-## Estado de esta guía
-
-Preparada para P8.3. Se revisaron las restricciones de los APK/API y la sintaxis de
-Serve en su [fuente oficial](https://github.com/tailscale/tailscale/blob/main/cmd/tailscale/cli/serve_v2.go).
-**No se ha ejecutado Windows/Tailscale ni conectado teléfonos del usuario desde este
-entorno.** No se creó una cuenta, no se habilitó una red ni se publicó un servidor.
-La configuración e inicio de sesión se realizan en tus equipos. No cambian los APK,
-la base de datos ni las pruebas ya registradas para 0.3.
+La PC, API, Docker y Tailscale deben seguir funcionando. Son APK debug de prueba.
+Esta versión pasó pruebas con dos emuladores y entradas de notificación sintéticas;
+Windows, teléfonos físicos y publicación por WhatsApp real quedan por comprobar.

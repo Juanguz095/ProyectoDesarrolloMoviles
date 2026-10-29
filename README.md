@@ -1,3 +1,27 @@
+# AuditLab: descargas 0.4.0-preview
+
+Actualiza **las dos apps y el servidor**. Incluye diseño de los mockups, metadatos
+reales autorizados, pantalla compartida y vistas previas de notificaciones nuevas
+de WhatsApp/Business con consentimiento adicional y notificación DETENER.
+No recupera historial de chats ni mensajes que WhatsApp no notifique.
+
+- [Agente para el celular A](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.4.0-preview.apk)
+- [Centro de control para el celular B](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.4.0-preview.apk)
+- [Servidor Windows actualizado](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.4.0-preview.zip)
+
+[Pasos completos: Windows y dos teléfonos, sin USB](PASOS-SIN-USB.md).
+Se requiere la PC encendida con el servidor y conexión HTTPS; Tailscale permite
+redes distintas sin comprar dominio. El ZIP contiene API compilada, APKs,
+lanzador PowerShell, instrucciones, fuentes y checksums. Conserva
+`.auditlab-windows` y los datos Docker si actualizas una instalación existente.
+
+197 pruebas JVM/Robolectric/PostgreSQL y recorrido de la ampliación aprobado en
+dos emuladores con notificaciones sintéticas. APK debug, Android 8 o posterior.
+Windows, teléfonos físicos y recepción desde WhatsApp instalado aún no verificados.
+Checksums: `SHA256SUMS-0.4.0-preview`. Código fuente: [main](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/tree/main).
+
+---
+
 # AuditLab: descargas
 
 ## Usar sin USB
@@ -8,7 +32,7 @@ Tailscale, una red privada por Wi-Fi o Internet, conservando la PC como servidor
 La guia requiere instalar/iniciar sesion en Tailscale en tus tres equipos; no configura
 esos equipos desde el chat. Windows/Tailscale aun no se han ejecutado aqui.
 
-## Version actual: 0.3.1-rc1
+## Version anterior: 0.3.1-rc1
 
 Rediseño fiel a los mockups del Agente y Centro de control, conservando la captura
 autorizada de metadatos reales de SMS/llamadas, batería y conexión. Solo tipo/fecha:
