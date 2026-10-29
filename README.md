@@ -114,8 +114,9 @@ HTTPS.
 - La revocación local bloquea nuevas capturas y transmisiones. La remota se conoce
   en el siguiente contacto con el servidor; sin red no se recibe inmediatamente.
 
-Los eventos de metadatos utilizan una cola persistente con reintentos; el contenido
-opcional de pantalla y notificaciones utiliza sesiones temporales, sin cola en disco.
+Los eventos, incluido el texto SMS autorizado, utilizan una cola persistente con
+reintentos; el contenido de pantalla y vistas previas WhatsApp utiliza sesiones
+temporales, sin cola en disco.
 El ahorro de batería, retirar permisos o forzar la detención pueden interrumpir el
 servicio. Las sesiones de contenido no se reactivan automáticamente tras reiniciar.
 
@@ -165,6 +166,13 @@ las versiones y el alcance de cada comprobación.
 - [Validación de notificaciones y APK 0.4](docs/evidencias/WHATSAPP-0.4.0-2026-10-29.md).
 - [Validación funcional y pantalla compartida](docs/evidencias/VALIDACION-FUNCIONAL-2026-10-28.md).
 - [Procedimientos de pruebas integradas](docs/PRUEBAS_INTEGRADAS.md).
+
+## Contexto y presentación
+
+- [Contexto del producto: problema, meta, objetivos y funciones](docs/CONTEXTO_PRODUCTO.md).
+- [Arquitectura, flujos y componentes reales](docs/ARQUITECTURA.md).
+- [Contenido para un PPT de 14 diapositivas](docs/PRESENTACION_PPT.md).
+- [Diagrama de arquitectura para insertar en el PPT](docs/presentacion/arquitectura.png).
 
 ## Documentación
 

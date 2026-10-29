@@ -1,5 +1,8 @@
 # PostgreSQL, migraciones y bootstrap
 
+Actualizado: 29 de octubre de 2026, America/Lima. API 0.7, esquema V1–V9.
+[Contexto](CONTEXTO_PRODUCTO.md) · [Arquitectura](ARQUITECTURA.md).
+
 Relación: P2.3 y P3.1. El backend definitivo usa JDBC/Hikari y migraciones Flyway en `backend/ktor/src/main/resources/db/migration`. El prototipo SQLite permanece independiente; no se migran datos personales ni se copian sus credenciales.
 
 ## Modelo
@@ -13,6 +16,16 @@ erDiagram
     DEVICES ||--|| CONSENTS : vincula
     DEVICES ||--o{ EVENTS : origina
     CONSENTS ||--o{ EVENTS : autoriza
+    AUDIT_LOG {
+        uuid id PK
+        string actor_type
+        uuid actor_id
+        string action
+    }
+    AUTH_RATE_LIMITS {
+        string bucket_key PK
+        int attempt_count
+    }
 ```
 
 | Tabla | Restricciones y finalidad |
@@ -27,9 +40,41 @@ erDiagram
 | `auth_rate_limits` | V2: HMAC de ámbito/identificador, ventana y contador; límites compartidos sin credenciales ni identificadores en claro. |
 | `audit_log` | Actor/tipo, acción, recurso/filtros mínimos, resultado, hora y correlación. API solo inserta/consulta; sin FK destructiva a cuentas para no borrar trazabilidad al limpiar registros. |
 
-Hay índices para historial y filtros de dispositivos/eventos, recepción usada en retención, auditoría por actor/acción y expiración de códigos/sesiones. Las consultas finales y su rendimiento se verificarán al implementarlas.
+La auditoría usa un actor polimórfico (usuario/dispositivo/sistema); su asociación
+lógica no es una FK destructiva. Los límites de autenticación tienen su tabla
+independiente.
 
-La BD limita campos/valores de metadatos e impide asociar un consentimiento a otro dispositivo. La API aún debe validar política/fecha exactas, tamaño de lote, reloj, autorización, conflicto de contenido, cursores y retención. Una PK por sí sola no implementa una respuesta idempotente.
+Hay índices para historial y filtros de dispositivos/eventos, recepción usada en retención, auditoría por actor/acción y expiración de códigos/sesiones. Las consultas están implementadas; los resultados de rendimiento y su versión se consultan en AVANCE, sin extrapolarlos a otra revisión.
+
+La BD limita campos/valores de metadatos e impide asociar un consentimiento a otro dispositivo. La API implementa validación de política/fecha, tamaño de lote, reloj, autorización, conflictos y cursores; mantenimiento aplica retención. La idempotencia utiliza ID y comparación de payload normalizado, además de la PK.
+
+## Ampliaciones del esquema y contenido
+
+| Migración | Finalidad |
+| --- | --- |
+| V1 | Usuarios, sesiones, tokens, códigos, dispositivos, consentimientos, eventos y auditoría. |
+| V2 | Límites compartidos de autenticación. |
+| V3 | Categorías/códigos y restricciones para metadatos reales SMS/llamadas/estado. |
+| V4 | Acciones de auditoría para pantalla compartida. |
+| V5 | Acciones de auditoría para vistas previas WhatsApp. |
+| V6 | Recurso de auditoría asociado al consentimiento de sesión WhatsApp. |
+| V7 | Eventos persistentes de actividad WhatsApp, sin texto en esos eventos. |
+| V8 | Número SMS/llamada opcional en metadatos de eventos reales. |
+| V9 | Texto SMS opcional y marca de truncado, solo para SMS reales. |
+
+`metadata` puede incluir `networkState`, `batteryPercent`, `appEventCode`,
+`phoneNumber`, `smsText` y `smsTextTruncated`, bajo las restricciones de categoría,
+valor y origen de cada campo. Número/texto requieren autorizaciones locales
+adicionales; el texto SMS máximo es 2 000 caracteres y puede aparecer en CSV.
+No se completan registros antiguos después de cambiar permisos.
+
+Los cuerpos WhatsApp y cuadros de pantalla **no tienen tabla de almacenamiento**:
+se guardan temporalmente en hubs en memoria del proceso. Se persisten los eventos
+de tipo/fecha WhatsApp y la auditoría de acceso, separados de ese contenido.
+El reinicio de la API elimina las sesiones/contenido temporal.
+
+El filtro `communication` agrupa SMS/llamada/WhatsApp reales para consultas y CSV;
+no es una categoría almacenada en `events`.
 
 ## Tres identidades PostgreSQL separadas
 

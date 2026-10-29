@@ -4,6 +4,22 @@ Actualización: 29 de octubre de 2026, UTC. Los registros anteriores conservan s
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
+## Documentación consolidada y material PPT — 29 de octubre de 2026 (America/Lima)
+
+- P8.3: contexto de producto y arquitectura actualizados para apps 0.7.1/API 0.7.
+  Se documentan objetivos, roles, funciones, stack realmente usado, dos recorridos
+  de datos, despliegue HTTPS/Tailscale y diferencias entre contenido persistente y temporal.
+- Manual actualizado desde 0.2, corrigiendo alcance SMS/WhatsApp/pantalla, permisos,
+  revocación y navegación. Documento BD actualizado a V1–V9 y validación implementada.
+- Contenido para 14 diapositivas con diagramas PNG/SVG y fuente DOT editable;
+  métricas y límites de validación separados. No se afirma recepción real WhatsApp
+  validada ni se presenta el total histórico de pruebas como evidencia de 0.7.1.
+- Enlaces locales y trazabilidad documental comprobados; 73 documentos, 42 tareas
+  y 15 criterios trazados. Diagramas renderizados y revisados visualmente.
+  No se ejecutan pruebas de la app en este trabajo documental.
+- Trabajo documental; no modifica apps/API ni genera APK nuevos. Siguiente P8.3:
+  preparar el diseño de las diapositivas; P7.6 permanece pendiente de recepción real.
+
 ## WhatsApp: actividad independiente y recepción visible — 29 de octubre de 2026 (America/Lima)
 
 - P5.6/P6.6/P6.4: apps 0.7.1-preview, código 10, compatibles con servidor 0.7.

@@ -1,6 +1,9 @@
 # AuditLab — Plan maestro de ejecución
 
-Versión: 1.0 · Fecha: 17 de octubre de 2026.
+Versión del plan base: 1.0 · Fecha: 17 de octubre de 2026.
+Contexto y arquitectura actualizados al 29 de octubre: [producto](CONTEXTO_PRODUCTO.md),
+[arquitectura](ARQUITECTURA.md) y [presentación](PRESENTACION_PPT.md). Las ampliaciones
+fechadas conservan el historial; el alcance actual consolida las versiones posteriores.
 
 **Ampliación 0.7 — 28 de octubre (America/Lima):** P5.3/P6.2 incluyen texto de
 SMS nuevos enviados y recibidos, con autorización local adicional por sesión,

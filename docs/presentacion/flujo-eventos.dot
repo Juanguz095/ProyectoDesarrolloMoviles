@@ -1,0 +1,15 @@
+digraph Eventos {
+  graph [rankdir=LR, bgcolor="#DAD7C0", pad=0.35, nodesep=0.3, ranksep=0.35,
+         fontname="DejaVu Sans", fontsize=24, label="RECORRIDO DE UN EVENTO PERSISTENTE", labelloc=t];
+  node [shape=box, style=filled, fillcolor="#F3EFDD", color="#26271F", penwidth=1.4,
+        fontname="DejaVu Sans", fontsize=17, margin="0.18,0.2"];
+  edge [color="#4F5141", penwidth=1.8, arrowsize=0.8];
+  permiso [label="1 · AUTORIZACIÓN\nConsentimiento\ny permisos"];
+  captura [label="2 · CAPTURA\nEvento nuevo\npermitido"];
+  room [label="3 · COLA LOCAL\nRoom / SQLite\nID estable"];
+  worker [label="4 · ENVÍO\nWorkManager\nHTTPS + token"];
+  api [label="5 · VALIDACIÓN\nAPI Ktor\nReglas y acceso", fillcolor="#10110E", fontcolor="#F3EFDD"];
+  db [label="6 · REGISTRO\nPostgreSQL\nTransacción"];
+  centro [label="7 · CONSULTA\nCentro vía API\nAcceso auditado"];
+  permiso -> captura -> room -> worker -> api -> db -> centro;
+}
