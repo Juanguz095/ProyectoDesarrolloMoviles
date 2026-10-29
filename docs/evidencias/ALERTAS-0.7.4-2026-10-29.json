@@ -1,0 +1,62 @@
+{
+  "date": "2026-10-29",
+  "timezone": "America/Lima",
+  "tasks": [
+    "P6.6",
+    "P6.4",
+    "P8.2",
+    "P8.3"
+  ],
+  "version": "0.7.4-preview",
+  "versionCode": 13,
+  "source_base_commit": "1c01ff243dd7e0be7b649cc62e442e04a4c9f3b8",
+  "artifact": {
+    "file": "auditlab-control-0.7.4-preview.apk",
+    "bytes": 9772476,
+    "sha256": "d4f69bfc470bc6ca484d4a94cf128fb470b983b5cfec360dfd6c943ff570cf55",
+    "signer_sha256": "970a74d96448bdf8f1efdb65396d88ac1bba6126acac4f2e40508390574cd853"
+  },
+  "checks": {
+    "build_and_lint_exit_code": 0,
+    "apk_audit_exit_code": 0,
+    "upgrade_signature_matches_071": true,
+    "test_suites": [
+      {
+        "suite": "com.auditlab.common.ControlCoreTest",
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.auditlab.control.WhatsAppAlertPolicyTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.auditlab.control.DevicePresentationTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "lint": {
+      "Warning": 9,
+      "Information": 3
+    }
+  },
+  "transport": "Foreground dataSync service; authenticated polling every 5 seconds; no Firebase",
+  "firebase_used": false,
+  "server_changes": false,
+  "real_device_execution": false,
+  "service_runtime_verified": false,
+  "real_whatsapp_verified": false,
+  "logs": [
+    ".tooling/whatsapp-alerts-074-final-build.log",
+    ".tooling/whatsapp-alerts-074-tests.log",
+    ".tooling/whatsapp-alerts-074-apk-audit.log"
+  ]
+}

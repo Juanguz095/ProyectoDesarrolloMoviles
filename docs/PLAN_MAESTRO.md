@@ -5,6 +5,10 @@ Contexto y arquitectura actualizados al 29 de octubre: [producto](CONTEXTO_PRODU
 [arquitectura](ARQUITECTURA.md) y [presentación](PRESENTACION_PPT.md). Las ampliaciones
 fechadas conservan el historial; el alcance actual consolida las versiones posteriores.
 
+**Centro 0.7.4 — 29 de octubre (America/Lima):** P6.6/P6.4 añaden alertas locales
+mediante servicio visible, sin Firebase. No son push ni se garantiza ejecución
+permanente. [Activación y límites](ALERTAS_WHATSAPP_0.7.4.md). P7.6 pendiente en teléfonos.
+
 **Centro 0.7.2 — 29 de octubre (America/Lima):** P6.2/P6.6/P6.4 integran vistas
 previas temporales dentro de Resultados en Eventos → Todo y WhatsApp. Sin cambios
 en captura/contrato/persistencia ni acceso a mensajes enviados dentro del chat.

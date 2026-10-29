@@ -1,7 +1,7 @@
 # AuditLab — contenido para preparar el PPT
 
 Actualizado: 29 de octubre de 2026, America/Lima.
-Referencia: Agente 0.7.1-preview, Centro 0.7.3-preview y servidor 0.7. Material de presentación del producto
+Referencia: Agente 0.7.1-preview, Centro 0.7.4-preview y servidor 0.7. Material de presentación del producto
 actual; no implica que todas las funciones estén verificadas en teléfonos físicos.
 
 Formato sugerido: **14 diapositivas**, 16:9, poco texto y una imagen por idea.

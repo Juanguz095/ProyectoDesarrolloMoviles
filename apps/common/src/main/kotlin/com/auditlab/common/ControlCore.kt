@@ -39,6 +39,10 @@ class ControlCore(
     val isAdmin: Boolean get() = session?.role == "admin"
     val isSignedIn: Boolean get() = session != null
 
+    @Synchronized fun discardLocalSession() {
+        try { sessions.clear() } finally { session=null }
+    }
+
     @Synchronized fun login(username: String, password: String): Session {
         val result = api.login(username, password)
         validateSession(result)

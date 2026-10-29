@@ -20,14 +20,20 @@ Una API central autentica las conexiones, recibe los eventos y registra las cons
 Nombre editable, inscripción y contacto visibles; archivo/restauración local de equipos
 anteriores. [Uso y límites](docs/DISPOSITIVOS_0.7.3.md).
 
+## Alertas WhatsApp en Centro 0.7.4
+
+Servicio visible para avisos con texto recibido autorizado, consulta cada 5 segundos,
+sin Firebase. Activar y detener en el detalle del equipo. Android puede interrumpirlo;
+no captura lo enviado dentro del chat. [Activación y límites](docs/ALERTAS_WHATSAPP_0.7.4.md).
+
 ## Descargas
 
-**Agente: 0.7.1-preview · Centro: 0.7.3-preview · Servidor: 0.7 · Android 8.0 o superior.**
+**Agente: 0.7.1-preview · Centro: 0.7.4-preview · Servidor: 0.7 · Android 8.0 o superior.**
 
 | Componente | Instalación | Descargar |
 | --- | --- | --- |
 | Agente | Dispositivo que comparte información | [APK Agente](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.7.1-preview.apk) |
-| Centro de control | Dispositivo desde el que se consulta | [APK Centro](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.7.3-preview.apk) |
+| Centro de control | Dispositivo desde el que se consulta | [APK Centro](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.7.4-preview.apk) |
 | Servidor Windows | PC que ejecuta la API y la base de datos | [Servidor Windows 0.7](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.7.0-preview.zip) |
 
 **Centro 0.7.2:** mensajes de notificaciones WhatsApp dentro de Eventos → Todo o

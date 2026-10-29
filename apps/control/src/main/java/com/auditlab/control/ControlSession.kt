@@ -7,8 +7,10 @@ import kotlinx.coroutines.*
 
 /** Network results are published on Main; busy serializes actions and cursors belong to immutable filters. */
 class ControlSession internal constructor(private val store: SessionStore, private val apiFactory: (String) -> AuditApi,
-    private val boundOrigin: Boolean = false, private val names: android.content.SharedPreferences? = null) {
-    constructor(context: Context) : this(KeystoreSessionStore(context), { ApiClient(it) }, true,context.getSharedPreferences("auditlab_device_names",Context.MODE_PRIVATE))
+    private val boundOrigin: Boolean = false, private val names: android.content.SharedPreferences? = null,
+    private val coreProvider: ((String) -> ControlCore)? = null,
+    private val clearShared: (() -> Unit)? = null) {
+    constructor(context: Context) : this(KeystoreSessionStore(context), { ApiClient(it) }, true,context.getSharedPreferences("auditlab_device_names",Context.MODE_PRIVATE), { SharedControlCore.get(context.applicationContext,it) }, { SharedControlCore.clear(context.applicationContext) })
     private val restored = runCatching { store.load() }
     private var engine: ControlCore? = null
     var serverUrl by mutableStateOf(restored.getOrNull()?.serverUrl ?: DEFAULT_URL); private set
@@ -164,7 +166,7 @@ class ControlSession internal constructor(private val store: SessionStore, priva
     var message by mutableStateOf<String?>(if (restored.isFailure) "No se pudo leer la sesión cifrada. Borra la sesión local para iniciar de nuevo." else null); private set
     var storageBlocked by mutableStateOf(restored.isFailure || (boundOrigin && restored.getOrNull()?.serverUrl == null && restored.getOrNull() != null)); private set
     fun updateServerUrl(value: String) { if (!signedIn && !busy && !storageBlocked) { serverUrl = value; engine = null } }
-    private fun core() = engine ?: ControlCore(apiFactory(serverUrl), store, if (boundOrigin) serverUrl else null).also { engine = it }
+    private fun core() = engine ?: (coreProvider?.invoke(serverUrl) ?: ControlCore(apiFactory(serverUrl), store, if (boundOrigin) serverUrl else null)).also { engine = it }
     suspend fun whatsAppPreviewSnapshot(device: String): WhatsAppPreviewSnapshot {
         check(signedIn && !storageBlocked)
         val engine=core()
@@ -192,7 +194,7 @@ class ControlSession internal constructor(private val store: SessionStore, priva
         }
     }
     fun clearLocal(scope: CoroutineScope) = run(scope) {
-        store.clear()
+        if(clearShared!=null) clearShared.invoke() else { engine?.discardLocalSession() ?: store.clear() }
         return@run { engine = null; storageBlocked = false; clearViews(); message = "Sesión local eliminada." }
     }
     fun refresh(scope: CoroutineScope) = run(scope) {

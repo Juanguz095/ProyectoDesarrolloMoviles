@@ -46,6 +46,7 @@ EXPECTED = {
             "Lcom/auditlab/control/ControlSession;",
             "Lcom/auditlab/control/KeystoreSessionStore;",
             "Lcom/auditlab/control/WhatsAppPreviewsViewKt;",
+            "Lcom/auditlab/control/WhatsAppAlertsService;",
             "Lcom/auditlab/common/ControlCore;",
             "Lcom/auditlab/common/ApiClient;",
         ],
@@ -163,6 +164,9 @@ def audit(apk: Path, profile: str) -> None:
     # Permisos declarados en el manifiesto compilado.
     permissions = re.findall(r"uses-permission: name='([^']+)'", badging)
     allowed = {"android.permission.INTERNET", name + DYNAMIC_RECEIVER_SUFFIX}
+    if name == "com.auditlab.control":
+        allowed.update({"android.permission.POST_NOTIFICATIONS", "android.permission.FOREGROUND_SERVICE",
+                        "android.permission.FOREGROUND_SERVICE_DATA_SYNC"})
     if name == "com.auditlab.agent":
         allowed.update({"android.permission.ACCESS_NETWORK_STATE", "android.permission.POST_NOTIFICATIONS",
                         "android.permission.WAKE_LOCK", "android.permission.RECEIVE_BOOT_COMPLETED",

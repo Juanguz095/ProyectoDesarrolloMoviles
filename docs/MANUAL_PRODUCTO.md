@@ -1,7 +1,7 @@
 # AuditLab — manual del producto
 
 Actualizado: 29 de octubre de 2026, America/Lima.
-Agente **0.7.1-preview**, Centro **0.7.3-preview**; servidor **0.7**, PostgreSQL con migraciones **V1–V9**.
+Agente **0.7.1-preview**, Centro **0.7.4-preview**; servidor **0.7**, PostgreSQL con migraciones **V1–V9**.
 Es una entrega de desarrollo. [Estado comprobado](AVANCE.md) y
 [contexto general](CONTEXTO_PRODUCTO.md).
 
@@ -154,4 +154,6 @@ La recepción real de WhatsApp reportada por el usuario sigue pendiente de confi
 en la versión actual. Compilación/lint/firma no acreditan ese recorrido.
 [Registros](evidencias/WHATSAPP-0.7.1-2026-10-29.json).
 
-Identificación y archivo local de equipos: [Centro 0.7.3](DISPOSITIVOS_0.7.3.md).
+Identificación y archivo local de equipos: [Centro 0.7.4](DISPOSITIVOS_0.7.3.md).
+
+Alertas con servicio visible sin Firebase: [activar Centro 0.7.4](ALERTAS_WHATSAPP_0.7.4.md).

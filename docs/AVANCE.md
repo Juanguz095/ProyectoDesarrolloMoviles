@@ -4,6 +4,27 @@ Actualización: 29 de octubre de 2026, UTC. Los registros anteriores conservan s
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
+## Alertas WhatsApp sin Firebase — 29 de octubre de 2026 (America/Lima)
+
+- P6.6/P6.4: Centro 0.7.4, código 13. Al no disponer de proyecto Firebase se
+  implementa consulta cada 5 s con servicio dataSync visible, una fuente a la vez,
+  inicio manual, permiso Android y acción Detener. No es push ni ejecución permanente.
+- Aviso con texto entrante autorizado y acceso a Eventos filtrado por dispositivo.
+  No se leen mensajes enviados dentro del chat ni historial previo a activar alertas.
+  Avisos ocultos en bloqueo, caducidad de 5 min y retirada al detener/consultar
+  sesión inactiva; contenido y deduplicación locales en RAM, sin CSV/SQL.
+- Actividad/servicio comparten núcleo para serializar refresh. Limpieza local
+  invalida el núcleo y detiene el servicio; sesiones distintas interrumpen el bucle.
+  Servicio no exportado, START_NOT_STICKY, sin arranque tras reinicio.
+- Compilación/lint y auditoría APK correctas. 20 pruebas aprobadas, 0 fallos/omitidas:
+  15 de autenticación, 3 de política/limpieza local, 2 de nombres/archivo.
+  [Evidencia](evidencias/ALERTAS-0.7.4-2026-10-29.json).
+- Sin ejecución real del servicio, avisos Android o WhatsApp en teléfonos. P7.6
+  permanece pendiente. Android puede detener consultas por batería/Doze/límite dataSync.
+  [Activación y límites](ALERTAS_WHATSAPP_0.7.4.md).
+- P8.2/P8.3: preparar publicación del Centro. Compatible con Agente 0.7.1/API 0.7;
+  sin ZIP Windows nuevo ni cambios de contrato/BD o credenciales Firebase.
+
 ## Identificación y archivo local — 29 de octubre de 2026 (America/Lima)
 
 - P6.2/P6.4: Centro 0.7.3, código 12. Nombre editable y persistente por servidor/

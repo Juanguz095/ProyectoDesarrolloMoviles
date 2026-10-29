@@ -28,6 +28,8 @@ class ControlViewModel(application: android.app.Application) : androidx.lifecycl
     override fun onCleared() { scope.coroutineContext[kotlinx.coroutines.Job]?.cancel() }
 }
 class MainActivity : ComponentActivity() {
+    private var alertDevice by mutableStateOf<String?>(null)
+    override fun onNewIntent(intent: android.content.Intent) { super.onNewIntent(intent);alertDevice=intent.getStringExtra("whatsappAlertDevice") }
     private val model by lazy { androidx.lifecycle.ViewModelProvider(this)[ControlViewModel::class.java] }
     private val saveCsv = registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.CreateDocument("text/csv")) { uri ->
         val ticket = model.pendingExport; model.pendingExport = null
@@ -40,12 +42,13 @@ class MainActivity : ComponentActivity() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        alertDevice=intent.getStringExtra("whatsappAlertDevice")
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.light(0xFFDAD7C0.toInt(), 0xFFDAD7C0.toInt()),
             navigationBarStyle = SystemBarStyle.light(0xFFDAD7C0.toInt(), 0xFFDAD7C0.toInt()),
         )
         setContent { AuditTheme { Surface(modifier = Modifier.fillMaxSize()) {
-            ControlScreen(model.session, onExport = {
+            ControlScreen(model.session, alertDevice=alertDevice, onAlertOpened={alertDevice=null}, onExport = {
                 model.session.exportTicket()?.let { ticket ->
                     model.pendingExport = ticket
                     try { saveCsv.launch("AuditLab-eventos.csv") }
@@ -71,7 +74,8 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 internal fun ControlScreen(session: ControlSession, onExport: (() -> Unit)? = null,
-    workScope: CoroutineScope? = null, onOpenReport: (() -> Unit)? = null) {
+    workScope: CoroutineScope? = null, onOpenReport: (() -> Unit)? = null,
+    alertDevice: String? = null, onAlertOpened: () -> Unit = {}) {
     val composeScope = rememberCoroutineScope()
     val scope = workScope ?: composeScope
     var screen by rememberSaveable { mutableStateOf("inicio") }
@@ -128,6 +132,13 @@ internal fun ControlScreen(session: ControlSession, onExport: (() -> Unit)? = nu
     fun openEvents(device: String?) {
         if (session.busy) return
         session.applyFilters(EventQuery(device = device,category="communication"), scope); screen = "eventos"
+    }
+    LaunchedEffect(alertDevice,session.signedIn,session.busy) {
+        if(alertDevice!=null && session.signedIn && !session.busy) {
+            chosenDevice=alertDevice
+            session.applyFilters(EventQuery(device=alertDevice,category="whatsapp"),scope)
+            screen="eventos";onAlertOpened()
+        }
     }
     val selectedTab = when (screen) { "whatsapp", "dispositivo" -> "dispositivos"; "inscripcion", "auditoria" -> "mas"; else -> screen }
     AuditPage(key = if (session.signedIn) screen else "login", feedback = session.message, working = session.busy, bottom = if (session.signedIn) ({

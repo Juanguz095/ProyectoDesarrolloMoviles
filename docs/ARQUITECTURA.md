@@ -1,6 +1,6 @@
 # AuditLab — arquitectura actual
 
-Actualizado: 29 de octubre de 2026, America/Lima. Agente 0.7.1, Centro 0.7.3, API 0.7/V9.
+Actualizado: 29 de octubre de 2026, America/Lima. Agente 0.7.1, Centro 0.7.4, API 0.7/V9.
 Centro 0.7.2 cambia la presentación de vistas previas en Eventos, sin cambiar
 el contrato ni la persistencia. [Detalle](WHATSAPP_EVENTOS_0.7.2.md).
 
@@ -200,3 +200,8 @@ La pantalla es actualización de imágenes, no WebRTC ni cámara remota. WhatsAp
 no es una integración oficial con la base de chats y depende de las notificaciones
 que Android entregue. La corrección 0.7.1 está compilada, pero la recepción real
 en el teléfono del usuario no está confirmada. [Estado del producto](CONTEXTO_PRODUCTO.md).
+
+Centro 0.7.4 añade un servicio dataSync visible que consulta vistas previas cada 5 s
+y construye avisos Android locales. Comparte ControlCore con la actividad para
+serializar la rotación de credenciales. No usa FCM ni cambia API/SQL.
+[Operación y límites](ALERTAS_WHATSAPP_0.7.4.md).

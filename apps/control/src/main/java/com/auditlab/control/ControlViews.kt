@@ -285,7 +285,10 @@ internal fun DeviceDetail(session: ControlSession, device: DeviceSummary?, scope
     DeviceReadingCard(session.overviewReading?.takeIf { it.sourceDevice==device.deviceId },now)
     SectionLabel("Consultar y compartir")
     Text("Para ver WhatsApp o pantalla, el propietario debe iniciar la sesión correspondiente en el Agente.",color=AuditColors.Muted)
-    if(device.isActive) AuditButton("Ver notificaciones de WhatsApp",onWhatsApp,!session.busy)
+    if(device.isActive) {
+        WhatsAppAlertControls(device.deviceId,session.deviceName(device.deviceId))
+        AuditButton("Ver notificaciones de WhatsApp",onWhatsApp,!session.busy)
+    }
     if (device.isActive) AuditButton("Ver pantalla compartida", {
         context.startActivity(android.content.Intent(context, ScreenViewerActivity::class.java).putExtra("device", device.deviceId))
     }, !session.busy)
