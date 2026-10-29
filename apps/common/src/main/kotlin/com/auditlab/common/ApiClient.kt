@@ -9,7 +9,7 @@ import java.net.URI
 import java.net.URLEncoder
 import javax.net.ssl.SSLException
 
-/** Eventos propios, simulados o metadatos autorizados; nunca contenido de comunicaciones. */
+/** Authorized events; optional SMS content requires additional local consent. */
 data class EventDraft(
     val eventId: String,
     val timestamp: String,
@@ -19,7 +19,7 @@ data class EventDraft(
     val consent: ConsentContext,
     val metadata: Map<String, Any?>,
     val isSimulated: Boolean = true,
-)
+) { override fun toString() = "EventDraft(eventId=$eventId, category=$category, metadata=[redacted])" }
 
 /** Superficie usada por las apps; permite probar la lógica sin red. */
 interface AuditApi {

@@ -137,9 +137,11 @@ class AgentSession internal constructor(
     var numberConsent by mutableStateOf(false)
         private set
     fun updateNumberConsent(value: Boolean) { if(!realMonitoring) numberConsent=value }
+    var smsTextConsent by mutableStateOf(false); private set
+    fun updateSmsTextConsent(value: Boolean) { if(!realMonitoring) smsTextConsent=value }
     fun startRealMonitoring(scope: CoroutineScope) = perform(scope) {
         check(platform != null) { "La captura real necesita un dispositivo Android." }
-        platform.realEvents.start(numberConsent)
+        platform.realEvents.start(numberConsent,smsTextConsent)
         "Captura solicitada. ${platform.realEvents.permissionsText()}"
     }
     fun stopRealMonitoring(scope: CoroutineScope) = perform(scope) {
@@ -171,7 +173,7 @@ class AgentSession internal constructor(
             rows.map { LocalEvent(EventCodec.decode(it.payloadJson), it.delivery, it.errorCode) }, deviceStatus)
     }
     private fun publish(value: Snapshot) {
-        if(value.state !is AgentCore.State.Enrolled) numberConsent=false
+        if(value.state !is AgentCore.State.Enrolled) { numberConsent=false;smsTextConsent=false }
         state = value.state; consent = value.consent; stats = value.stats; revocationPending = value.pending
         visibleAvailable = value.visible; serverUrl = value.url
         ready = true; recentEvents = value.events; lastDeviceStatus = value.deviceStatus

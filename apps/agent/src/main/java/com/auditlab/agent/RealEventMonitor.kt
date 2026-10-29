@@ -57,17 +57,19 @@ class RealEventMonitor(private val context: Context, private val runtime: AgentR
     fun permissionsText() = "SMS: ${if (hasPermission(Manifest.permission.READ_SMS)) "autorizado" else "sin permiso"}. " +
         "Llamadas: ${if (hasPermission(Manifest.permission.READ_CALL_LOG)) "autorizadas" else "sin permiso"}."
     @Volatile var includeNumbers=false; private set
-    fun start(numbers: Boolean=false) = synchronized(runtime.gate) {
+    @Volatile var includeSmsText=false; private set
+    fun start(numbers: Boolean=false, smsText: Boolean=false) = synchronized(runtime.gate) {
         val state = runtime.core().refresh() as? AgentCore.State.Enrolled ?: error("Primero inscribe el dispositivo.")
         check(runtime.indicator.isVisible()) { "Habilita primero el indicador visible." }
         check(!runtime.gate.withdrawalRequested)
         if (requested) return@synchronized
         includeNumbers=numbers
+        includeSmsText=smsText
         startedAt = System.currentTimeMillis()
         deviceId = state.deviceId
         val receipt = context.getSharedPreferences("auditlab_real_consent", Context.MODE_PRIVATE)
         if (!receipt.edit().putString("device", state.deviceId).putString("consent", state.consent.consentId)
-                .putString("scope", if(numbers) "sms_call_number_timestamp_v2" else "sms_call_type_timestamp_device_status_v1").putLong("acceptedAt", startedAt).commit()) {
+                .putString("scope", "real-v3:numbers=$numbers;smsText=$smsText").putLong("acceptedAt", startedAt).commit()) {
             deviceId = null
             throw StorageFailure()
         }
@@ -189,7 +191,9 @@ class RealMonitoringService : Service() {
         if (!runtime.realEvents.hasPermission(permission)) { sourceEnabledAt.remove(sms); return }
         val permittedSince = sourceEnabledAt.getOrPut(sms) { System.currentTimeMillis() }
         val basic = if (sms) PhoneMetadata.smsProjection else PhoneMetadata.callProjection
-        val projection = if(runtime.realEvents.includeNumbers) basic + (if(sms) Telephony.Sms.ADDRESS else CallLog.Calls.NUMBER) else basic
+        val projection = basic +
+            (if(runtime.realEvents.includeNumbers) arrayOf(if(sms) Telephony.Sms.ADDRESS else CallLog.Calls.NUMBER) else emptyArray()) +
+            (if(sms && runtime.realEvents.includeSmsText) arrayOf(Telephony.Sms.BODY) else emptyArray())
         val uri = if (sms) Telephony.Sms.CONTENT_URI else CallLog.Calls.CONTENT_URI
         val active = runtime.core().refresh() as? AgentCore.State.Enrolled ?: return
         val cursor = contentResolver.query(uri, projection, "date>=?", arrayOf(maxOf(since, permittedSince).toString()), "date ASC, _id ASC")
@@ -206,8 +210,15 @@ class RealMonitoringService : Service() {
                     val (category, direction) = EventPolicy.realCodes.getValue(code)
                     val metadata=mutableMapOf<String,Any?>("appEventCode" to code)
                     if(runtime.realEvents.includeNumbers) {
-                        val number=cursor.getString(3)?.trim()
+                        val number=cursor.getString(cursor.getColumnIndexOrThrow(if(sms) Telephony.Sms.ADDRESS else CallLog.Calls.NUMBER))?.trim()
                         if(number!=null && number !in setOf("-1","-2","-3") && number.matches(Regex("[+0-9 ()*#.-]{1,40}"))) metadata["phoneNumber"]=number
+                    }
+                    if(sms && runtime.realEvents.includeSmsText) {
+                        val body=cursor.getString(cursor.getColumnIndexOrThrow(Telephony.Sms.BODY))
+                        if(!body.isNullOrBlank()) {
+                            metadata["smsText"]=body.take(2000).let { if(it.isNotEmpty() && Character.isHighSurrogate(it.last())) it.dropLast(1) else it }
+                            if(body.length>2000) metadata["smsTextTruncated"]=true
+                        }
                     }
                     runtime.core().captureRealEvent(category, direction, metadata, Instant.ofEpochMilli(millis), id)
                 }

@@ -122,8 +122,8 @@ class ScreenShareService : Service() {
                         delay(1000)
                     }
                 } catch (cancelled: CancellationException) { throw cancelled }
-                catch (_: Exception) {
-                    ScreenSharingState.message = "Captura detenida: falló la conexión o la autorización del servidor. Vuelve a iniciar para reintentar."
+                catch (error: Exception) {
+                    ScreenSharingState.message = "Captura detenida: ${sharingFailure(error)}"
                     stopSelf()
                 } finally { latest = null }
             }

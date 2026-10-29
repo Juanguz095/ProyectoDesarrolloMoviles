@@ -162,10 +162,8 @@ class WhatsAppSharingService : Service() {
         sender=scope.launch {
             val api=ApiClient(stored.serverUrl!!)
             val session=WhatsAppSharingRuntime.Session(id,acceptedAt)
-            var began=false
             try {
                 api.beginWhatsApp(stored.deviceToken,stored.deviceId,id,Instant.ofEpochMilli(acceptedAt).toString(),stored.consent)
-                began=true
                 if(!isActive || !WhatsAppSharingRuntime.allowed(this@WhatsAppSharingService)) return@launch
                 WhatsAppSharingRuntime.activate(session)
                 WhatsAppSharingState.message="Compartiendo notificaciones nuevas de WhatsApp."
@@ -173,8 +171,9 @@ class WhatsAppSharingService : Service() {
                     if(!WhatsAppSharingRuntime.allowed(this@WhatsAppSharingService)) { stopSelf();break }
                     val observation=withTimeoutOrNull(10000) { session.queue.receive() }
                     if(!isActive || WhatsAppSharingRuntime.current!==session) break
-                    if(observation==null) api.heartbeatWhatsApp(stored.deviceToken,stored.deviceId,id)
+                    if(observation==null) sharingRequest { api.heartbeatWhatsApp(stored.deviceToken,stored.deviceId,id) }
                     else {
+                        sharingRequest { api.heartbeatWhatsApp(stored.deviceToken,stored.deviceId,id) }
                         val recorded=synchronized(runtime.gate) {
                             if(WhatsAppSharingRuntime.current!==session || !WhatsAppSharingRuntime.allowed(this@WhatsAppSharingService)) return@synchronized false
                             val credential=runtime.credentials.load()
@@ -186,17 +185,16 @@ class WhatsAppSharingService : Service() {
                             true
                         }
                         if(!recorded || WhatsAppSharingRuntime.current!==session || !isActive || !WhatsAppSharingRuntime.allowed(this@WhatsAppSharingService)) break
-                        observation.preview?.let { api.sendWhatsAppPreview(stored.deviceToken,stored.deviceId,id,it) }
+                        observation.preview?.let { preview -> sharingRequest { api.sendWhatsAppPreview(stored.deviceToken,stored.deviceId,id,preview) } }
                         // Metadata uses the consent-bound durable outbox; preview text never enters it.
-                        synchronized(runtime.gate) { runtime.core().flushPending(maxBatches=1);runtime.after(runtime.core()) }
+                        // runtime.after already schedules the durable outbox via WorkManager.
+                        // A transient outbox failure must not terminate this separate preview session.
                         WhatsAppSharingState.message="Actividad de WhatsApp enviada. Último evento: ${displayLocalTime(observation.timestamp)}"
                     }
                 }
             } catch(cancelled: CancellationException) { throw cancelled }
             catch(error: Exception) {
-                if(scope.isActive) WhatsAppSharingState.message=if(error is ApiException && (error.status==404 || !began && error.status==400))
-                    "Sesión detenida: necesitas el servidor 0.5 y fecha/hora correctas para registrar actividad de WhatsApp."
-                    else "Sesión detenida: falló la conexión o la autorización. El texto no se guarda; los eventos de tipo/fecha ya registrados conservan su cola."
+                if(scope.isActive) WhatsAppSharingState.message="Sesión detenida: ${sharingFailure(error)} El texto temporal no se conserva."
                 if(error is ApiException && error.isDeviceRevoked) runCatching { runtime.core().confirmRemoteRevocation(stored.deviceId) }.onSuccess { runtime.after(runtime.core()) }
             } finally {
                 if(WhatsAppSharingRuntime.current===session) WhatsAppSharingRuntime.clear()

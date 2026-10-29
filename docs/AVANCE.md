@@ -4,6 +4,59 @@ Actualización: 29 de octubre de 2026, UTC. Los registros anteriores conservan s
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
+## Texto SMS y estabilidad de sesiones — 28 de octubre de 2026 (America/Lima)
+
+- P5.3/P6.2: 0.7.0-preview, código Android 9. BODY de SMS nuevos solo tras casilla
+  local adicional desmarcada, permiso READ_SMS e indicador visible. Enviados y
+  recibidos con De/Para, texto/hora y detalle. Límite 2 000 caracteres con aviso;
+  sin historial previo, RCS, audio, agenda ni emparejamiento supuesto de respuestas.
+- `smsText`/`smsTextTruncated` validados en app/API/V9 solo para SMS reales. Texto
+  sujeto a cola/retención/CSV de eventos, explicado antes de autorizar. `toString`
+  de eventos redacta metadatos. Lotes también limitados por bytes bajo 256 KiB.
+- P5.6: WhatsApp renueva heartbeat también con respuestas observadas, sin depender
+  del envío de texto entrante; envío de cola durable delegado a WorkManager para
+  no terminar vistas previas por un fallo de esa cola. Reintentos transitorios
+  acotados dentro de la misma sesión y errores específicos. No se inicia/reinicia
+  captura sin nueva acción local. No se amplía texto WhatsApp saliente ni historial.
+- Ambas apps/API compiladas y lint sin errores (12 avisos Agente, 6 y 2 informativos
+  Centro); cuatro contratos válidos, auditoría estática APK correcta. V9 aplicada
+  a la base preservada de desarrollo. [Registro](evidencias/SMS-0.7.0-2026-10-28.json).
+- No se ejecutaron suites automáticas ni recepción real SMS/WhatsApp en teléfonos;
+  causa del fallo reportado no reproducida. No declarar el teléfono reparado solo
+  por compilación o /ready. Siguiente P7.1/P7.6: comprobar nuevos SMS y sesión real.
+- P8.2/P8.3: preparación de APK/servidor compatibles con V9 siguiendo
+  [la actualización](ACTUALIZACION_0.7.md), sin reiniciar configuración ni datos.
+
+## Diagnóstico de sesiones detenidas — 28 de octubre de 2026 (America/Lima)
+
+- Capturas del teléfono muestran interrupción de WhatsApp y pantalla compartida;
+  no demuestran falta de permiso ni permiten distinguir red de autorización.
+- P5.5/P5.6: se sustituye el aviso combinado por causas y acciones específicas
+  para red, TLS, HTTP 400/401/403/404/409/429/5xx sin exponer cuerpos ni secretos.
+  Se elimina el diagnóstico incorrecto de servidor antiguo ante cualquier 404
+  de WhatsApp, que también puede indicar una sesión ausente.
+- Agente assembleDebug/lintDebug satisfactorios; documentación y diff correctos.
+  Sin pruebas funcionales ni publicación de APK nuevo para estos diagnósticos.
+- No se declara reparada la causa del teléfono: pendiente texto exacto del error
+  rojo del Centro y disponibilidad /ready desde el Agente. Sin reconexión ni
+  reinicio de captura automáticos; se conserva la autorización por sesión.
+
+## Corrección de interpretación de SMS — 28 de octubre de 2026 (America/Lima)
+
+- P6.2/P6.4: la captura del usuario muestra `515` sin etiqueta. El código lo
+  presenta desde `phoneNumber`, no desde un cuerpo de SMS. Se corrige la tarjeta
+  a De/Para y se aclara que es registro sin texto. No se puede atribuir el origen
+  concreto del registro del teléfono a partir de esa imagen.
+- El contador de página dice eventos, para no llamar recibidos a los SMS enviados.
+- Pendiente: diagnosticar ausencia WhatsApp con estado de sesión/permiso/servicio
+  del teléfono real. El parser no ofrece texto de mensajes propios ni captura
+  general de envíos en chats abiertos. No se declara corregida esa limitación.
+- No se amplía la lectura de cuerpos SMS; ese texto no existe en los eventos
+  actuales. No se emparejan recibidos con respuestas sin evidencia de relación.
+- Centro: assembleDebug y lintDebug completados, BUILD SUCCESSFUL. Documentación
+  y diff sin errores. No se ejecutaron pruebas funcionales ni suites automáticas.
+- Cambio de interfaz en código; no publicado como APK nuevo en esta revisión.
+
 ## Comunicaciones e interfaz legible — 28 de octubre de 2026 (America/Lima)
 
 - P5.3/P6.2/P6.4: apps 0.6.0-preview, código 8. Eventos abre en SMS, llamadas y

@@ -173,7 +173,7 @@ internal fun EventExplorer(session: ControlSession, scope: CoroutineScope, onExp
         EventRow(event,!session.busy,if(session.devices.size>1) session.deviceName(event.sourceDevice) else null) {session.showDetail(event,scope)}
     }
     Text("La consulta queda registrada en auditoría.", style = MaterialTheme.typography.bodySmall)
-    SectionLabel("Página ${session.eventPageNumber} · ${session.events.size} recibidos · Hasta 50 eventos")
+    SectionLabel("Página ${session.eventPageNumber} · ${session.events.size} eventos · Hasta 50 por página")
     AuditRule()
     if(showFilters) {
     SectionLabel("Opciones adicionales")
@@ -345,7 +345,16 @@ internal fun EventRow(event: AuditEvent, enabled: Boolean, deviceName: String?=n
         Text(eventTitle(event),style=MaterialTheme.typography.titleMedium,color=AuditColors.Ink)
         Text(categoryName(event.category),style=MaterialTheme.typography.labelMedium,color=AuditColors.Muted)
         if(event.category in setOf("sms","call") && event.metadata["phoneNumber"]==null) Text("Número no compartido o no disponible",color=AuditColors.Muted)
-        (event.metadata["phoneNumber"] as? String)?.let { Text(it,style=MaterialTheme.typography.bodyLarge,color=AuditColors.Ink) }
+        (event.metadata["phoneNumber"] as? String)?.let {
+            val label=when(event.direction) { "inbound"->"De"; "outbound"->"Para";else->"Número" }
+            Text("$label: $it",style=MaterialTheme.typography.bodyLarge,color=AuditColors.Ink)
+        }
+        if(event.category=="sms") {
+            val body=event.metadata["smsText"] as? String
+            if(body==null) Text("Texto no compartido o no disponible",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
+            else Text(body,maxLines=4,overflow=androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+            if(event.metadata["smsTextTruncated"]==true) Text("Texto limitado a 2 000 caracteres",style=MaterialTheme.typography.bodySmall)
+        }
         deviceName?.let { Text(it,color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall) }
         Text(displayFriendlyTime(event.timestamp),style=MaterialTheme.typography.bodyMedium,color=AuditColors.Ink)
 

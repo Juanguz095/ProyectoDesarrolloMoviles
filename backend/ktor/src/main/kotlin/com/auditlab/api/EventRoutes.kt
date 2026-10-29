@@ -36,7 +36,7 @@ private data class EventFilters(val device: UUID?, val category: String?, val fr
 private fun parseMetadata(node: JsonNode?): String {
     if (node == null || node.isNull) return "{}"
     if (!node.isObject) throw ApiFailure(400, "INVALID_REQUEST")
-    val allowed = setOf("networkState", "batteryPercent", "appEventCode", "phoneNumber")
+    val allowed = setOf("networkState", "batteryPercent", "appEventCode", "phoneNumber", "smsText", "smsTextTruncated")
     if (!allowed.containsAll(node.fieldNames().asSequence().toSet())) throw ApiFailure(400, "INVALID_REQUEST")
     val canonical = json.createObjectNode()
     node["networkState"]?.let {
@@ -54,6 +54,14 @@ private fun parseMetadata(node: JsonNode?): String {
     node["phoneNumber"]?.let {
         if(!it.isTextual || !it.textValue().matches(Regex("[+0-9 ()*#.-]{1,40}"))) throw ApiFailure(400,"INVALID_REQUEST")
         canonical.put("phoneNumber",it.textValue())
+    }
+    node["smsText"]?.let {
+        if(!it.isTextual || it.textValue().isBlank() || it.textValue().length>2000) throw ApiFailure(400,"INVALID_REQUEST")
+        canonical.put("smsText",it.textValue())
+    }
+    node["smsTextTruncated"]?.let {
+        if(!it.isBoolean || !it.booleanValue() || !node.has("smsText")) throw ApiFailure(400,"INVALID_REQUEST")
+        canonical.put("smsTextTruncated",true)
     }
     return canonical.toString()
 }
@@ -75,6 +83,7 @@ private fun parseEvent(node: JsonNode, clock: Clock): NormalizedEvent {
     if (timestamp.isBefore(consent.acceptedAt)) throw ApiFailure(400, "INVALID_REQUEST")
     val metadata = parseMetadata(node["metadata"])
     if(node["metadata"]?.has("phoneNumber")==true && (simulated.booleanValue() || category !in setOf("sms","call"))) throw ApiFailure(400,"INVALID_REQUEST")
+    if((node["metadata"]?.has("smsText")==true || node["metadata"]?.has("smsTextTruncated")==true) && (simulated.booleanValue() || category!="sms")) throw ApiFailure(400,"INVALID_REQUEST")
     val code = node["metadata"]?.get("appEventCode")?.textValue()
     if (!simulated.booleanValue()) {
         if (realEventCodes[code] != (category to direction)) throw ApiFailure(400, "INVALID_REQUEST")

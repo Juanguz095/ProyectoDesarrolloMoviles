@@ -87,3 +87,12 @@ no recupera números antiguos, agenda, cuerpos de SMS ni audio. El número puede
 aparecer en el CSV y se conserva con los eventos según la política vigente.
 
 Consulta [la guía de actualización y límites](ACTUALIZACION_0.6.md).
+
+
+## Texto SMS — 0.7
+
+En el Agente detén captura real, marca la casilla específica para texto e inicia de
+nuevo con READ_SMS e indicador visible. Solo SMS nuevos, hasta 2 000 caracteres.
+Se guardan y exportan bajo la retención de eventos; los antiguos no se completan.
+Eventos → SMS muestra De/Para, texto y hora. Recibido no implica respuesta a un
+envío anterior. [Guía y límites](ACTUALIZACION_0.7.md).

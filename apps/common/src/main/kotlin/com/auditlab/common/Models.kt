@@ -64,7 +64,7 @@ data class AuditEvent(
     val isSimulated: Boolean,
     val metadata: Map<String, Any?>,
     val receivedAt: String,
-)
+) { override fun toString() = "AuditEvent(eventId=$eventId, category=$category, metadata=[redacted])" }
 
 data class EventPage(val items: List<AuditEvent>, val nextCursor: String?)
 

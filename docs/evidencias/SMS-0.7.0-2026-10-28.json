@@ -1,0 +1,74 @@
+{
+  "date": "2026-10-28",
+  "timezone": "America/Lima",
+  "version": "0.7.0-preview",
+  "tasks": [
+    "P5.3",
+    "P5.6",
+    "P6.2",
+    "P6.4",
+    "P8.2",
+    "P8.3"
+  ],
+  "source_base_commit": "7daa1793cec57f41a990e6dbd8a9d9e8e2ae6343",
+  "artifacts": [
+    {
+      "component": "agent",
+      "versionCode": 9,
+      "file": "auditlab-agent-0.7.0-preview.apk",
+      "bytes": 10276841,
+      "sha256": "6d9da3ad8ca5be56fa6b73996fc2c99d066dfb42f794962e12533b73defcefbd"
+    },
+    {
+      "component": "control",
+      "versionCode": 9,
+      "file": "auditlab-control-0.7.0-preview.apk",
+      "bytes": 9583347,
+      "sha256": "0ed145ff9370fb4cd5a415643e7e0f97d70c0a597e163c89d6b17e98a3035112"
+    }
+  ],
+  "checks": {
+    "build_exit_code": 0,
+    "apk_audit_exit_code": 0,
+    "openapi_documents_valid": 4,
+    "local_development_migration_versions": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9"
+    ],
+    "lint": {
+      "agent": {
+        "Warning": 12
+      },
+      "control": {
+        "Warning": 6,
+        "Information": 2
+      }
+    },
+    "automated_tests_executed": false,
+    "manual_device_review_for_this_revision": false,
+    "real_whatsapp_verified": false,
+    "real_sms_verified": false,
+    "windows_verified": false
+  },
+  "changes": [
+    "Optional new SMS text under separate unchecked local consent, READ_SMS and visible indicator; 2000 character bound with truncation marker",
+    "SMS text real-only category validation and V9; event retention/export, no prior history",
+    "SMS direction labels and event counter; readable text in detail and card snippet",
+    "Size-bounded event batches and redacted event toString",
+    "WhatsApp heartbeat for outbound observations; WorkManager outbox independent of preview delivery; bounded transient retries without session restart",
+    "Specific session errors replace combined network/authorization message"
+  ],
+  "limits": [
+    "Phone reported issue not reproduced; root cause not confirmed remotely",
+    "No full WhatsApp chat history or general detection of sends inside open chats",
+    "No SMS backfill or RCS; incoming messages not assumed to be replies",
+    "No automated suites or functional device review for this revision"
+  ]
+}

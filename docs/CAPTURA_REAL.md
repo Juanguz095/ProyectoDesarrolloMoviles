@@ -1,8 +1,17 @@
-# Captura real de llamadas y SMS — vigente desde 0.6
+# Captura real de llamadas y SMS — vigente desde 0.7
 
 Ampliación solicitada por el usuario el 27 de octubre de 2026 (America/Lima).
 Sustituye la limitación de la candidata 0.2 que admitía únicamente eventos simulados.
 Las evidencias históricas de 0.2 no validan esta ampliación.
+
+## Texto de SMS desde 0.7
+
+Una casilla local adicional permite leer BODY solo de SMS nuevos posteriores a la
+activación con READ_SMS e indicador visible. Inicialmente desmarcada. Hasta 2 000
+caracteres; retención y CSV de eventos, con aviso de recorte. No importa mensajes
+previos, agenda, RCS ni empareja respuestas por suposición. La restricción anterior
+sin cuerpos describe el modo de metadatos, que sigue disponible sin esta casilla.
+[Actualización y consentimiento](ACTUALIZACION_0.7.md).
 
 ## Qué registra
 

@@ -131,7 +131,12 @@ class AgentCore(
         repeat(maxBatches) {
             if (!visible()) throw MonitoringPaused()
             check(!gate.withdrawalRequested) { "Hay una retirada de consentimiento en curso." }
-            val batch = journal.pending(100)
+            var batchBytes=0
+            val batch = journal.pending(100).takeWhile { event ->
+                // Leave envelope/key overhead below the API's 256 KiB request limit.
+                val size=EventCodec.encode(event).toByteArray(Charsets.UTF_8).size+128
+                (batchBytes+size<=200_000).also { if(it) batchBytes+=size }
+            }
             if (batch.isEmpty()) return@synchronized IngestResult(accepted, duplicates)
             check(batch.all { it.sourceDevice == credential.deviceId && it.consent == credential.consent }) {
                 "La cola no coincide con la inscripción activa. No se enviaron datos."

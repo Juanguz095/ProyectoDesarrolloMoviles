@@ -213,6 +213,11 @@ private fun EventDetail(event: AuditEvent, onClose: () -> Unit) {
             if(event.category=="whatsapp") Text(if(event.direction=="outbound")
                 "Android mostró una respuesta propia en una notificación. Este registro no confirma entrega ni detecta todos los mensajes escritos dentro del chat. No se guardó texto, remitente ni número."
                 else "Se observó una notificación nueva de WhatsApp. Este evento guarda solo tipo y fecha; el texto de la vista previa pertenece a la sesión temporal autorizada.")
+            if(event.category=="sms") Text("Android registró un SMS ${if(event.direction=="outbound") "enviado" else "recibido"}. El número identifica al remitente o destinatario. El texto se comparte solo con autorización adicional. No se relaciona automáticamente un recibido con una respuesta.")
+            (event.metadata["smsText"] as? String)?.let {
+                SectionLabel("Texto del SMS");Text(it)
+                if(event.metadata["smsTextTruncated"]==true) Text("El mensaje superó el límite: se muestran sus primeros 2 000 caracteres.")
+            }
             Text(if (event.isSimulated) "Evento simulado" else "Evento real del dispositivo")
             AuditRule()
             SectionLabel("Fecha del evento"); Text(displayFriendlyTime(event.timestamp))

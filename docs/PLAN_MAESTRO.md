@@ -2,6 +2,13 @@
 
 Versión: 1.0 · Fecha: 17 de octubre de 2026.
 
+**Ampliación 0.7 — 28 de octubre (America/Lima):** P5.3/P6.2 incluyen texto de
+SMS nuevos enviados y recibidos, con autorización local adicional por sesión,
+READ_SMS, indicador visible y retención/CSV de eventos. Máximo 2 000 caracteres;
+sin importar historial previo, agenda, RCS ni emparejar respuestas por suposición.
+WhatsApp mantiene contenido efímero y captura limitada a notificaciones.
+[Guía y límites](ACTUALIZACION_0.7.md).
+
 **Ampliación 0.6 — 28 de octubre (America/Lima):** P5.3/P6.2/P6.4 separan
 lecturas de batería del historial principal, resumen eventos de comunicación y
 ocultan identificadores técnicos. Números SMS/llamadas solo tras autorización local

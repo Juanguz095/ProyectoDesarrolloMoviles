@@ -134,6 +134,7 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
             Text(displayFriendlyTime(row.event.timestamp))
             Text(deliveryLabel(row.delivery))
             Text(metadataDescription(row.event.metadata))
+            (row.event.metadata["smsText"] as? String)?.let { Text(it) }
             var technical by remember {mutableStateOf(false)}
             AuditLink(if(technical) "Ocultar información técnica" else "Información técnica",{technical=!technical})
             if(technical) {
@@ -163,7 +164,7 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
             SectionLabel("Datos permitidos")
             Text("Batería y conexión. Si das una autorización adicional y Android concede los permisos: tipo y fecha de SMS y llamadas. Puedes autorizar también el número en una casilla adicional; se conservará en el historial y reportes según la misma retención. Las llamadas aparecen al finalizar.")
             SectionLabel("Datos que no se recopilan")
-            Text("La captura de metadatos no lee mensajes ni contactos. Compartir pantalla es opcional y requiere otra autorización: permite ver lo que abras, incluidos chats de WhatsApp. No comparte audio ni guarda video.")
+            Text("El texto de SMS nuevos solo se lee si marcas su autorización adicional; puede guardarse y exportarse con los eventos. No se leen contactos. Compartir pantalla es opcional y requiere otra autorización: permite ver lo que abras, incluidos chats de WhatsApp. No comparte audio ni guarda video.")
             Text("También puedes autorizar, por separado, compartir el texto de notificaciones nuevas de WhatsApp. Requiere acceso de Android y consentimiento por sesión. No recupera historial ni archivos; conserva hasta 20 vistas previas durante 5 minutos en memoria, sin exportarlas ni guardarlas en la base de datos.")
             SectionLabel("Destino y conservación")
             Text("Servidor configurado: ${session.serverUrl}")
@@ -254,6 +255,10 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
                             Row(verticalAlignment=Alignment.CenterVertically) {
                                 Checkbox(session.numberConsent,session::updateNumberConsent,enabled=!session.busy)
                                 Text("Autorizo compartir el número del remitente/destinatario de SMS y llamadas. Quedará en el historial y reportes, según la retención de eventos.",Modifier.weight(1f))
+                            }
+                            Row(verticalAlignment=Alignment.CenterVertically) {
+                                Checkbox(session.smsTextConsent,session::updateSmsTextConsent,enabled=!session.busy)
+                                Text("Autorizo compartir el texto de SMS nuevos enviados y recibidos (hasta 2 000 caracteres). Los administradores y auditores podrán leerlo y exportarlo; se guarda con la retención de eventos. Puede contener información sensible. No incluye RCS ni WhatsApp.",Modifier.weight(1f))
                             }
                             AuditButton("Autorizar e iniciar captura real",
                                 {onRequestRealMonitoring?.invoke() ?: session.startRealMonitoring(scope)},
@@ -352,6 +357,7 @@ private fun LocalEventRow(row: AgentSession.LocalEvent, onClick: () -> Unit) {
                     Text(metadataTitle(row.event.metadata), style = MaterialTheme.typography.bodyMedium)
                     Text("${displayFriendlyTime(row.event.timestamp)}",
                         color = AuditColors.Muted, style = MaterialTheme.typography.bodySmall)
+                    (row.event.metadata["smsText"] as? String)?.let { Text(it,maxLines=3,overflow=androidx.compose.ui.text.style.TextOverflow.Ellipsis) }
                     metadataDescription(row.event.metadata).takeIf { it.isNotEmpty() }?.let {
                         Text(it, color = AuditColors.Muted, style = MaterialTheme.typography.bodySmall)
                     }
