@@ -4,6 +4,20 @@ Actualización: 29 de octubre de 2026, UTC. Los registros anteriores conservan s
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
+## Análisis aislado de Windows — 29 de octubre de 2026 (America/Lima)
+
+- El usuario solicita resolver la entrega sin ejecutar diagnósticos en su PC.
+- Se prepara un job de GitHub Actions en windows-latest que descarga el ZIP
+  original por commit inmutable, verifica SHA256 y lo analiza sin ejecutarlo.
+  Exige Defender activo, ejecutable Microsoft firmado y firmas actualizadas.
+  Reporta fallo/bloqueo ante ausencia de motor, detección, error o cambio de hash.
+- Informe JSON publicado por el bot en security-reports; no publica binarios ni
+  habilita automáticamente el ZIP. No modifica exclusiones/protección ni restaura
+  el archivo de la PC del usuario.
+- Auditoría Trivy del runtime resuelto completada el 29/10; sin altas/críticas.
+  [Registro](evidencias/DEPENDENCIAS-2026-10-29.json). No es análisis antimalware.
+- Pendiente observar la ejecución Windows y resolver la detección reportada.
+
 ## Bloqueo de Defender en ZIP Windows 0.7 — 29 de octubre de 2026 (America/Lima)
 
 - P7.4/P8.1/P8.3: el usuario reporta `Trojan:Script/Ulthar.A!ml`, estado Removed,

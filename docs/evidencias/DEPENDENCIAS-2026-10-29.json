@@ -1,0 +1,24 @@
+{
+  "recorded_at": "2026-10-29T05:18:05.733120+00:00",
+  "scanner": "Trivy 0.76.1",
+  "modules_resolved": 156,
+  "packages_identified": 156,
+  "findings": 0,
+  "high_or_critical": 0,
+  "severity_counts": {
+    "CRITICAL": 0,
+    "HIGH": 0,
+    "MEDIUM": 0,
+    "LOW": 0,
+    "UNKNOWN": 0
+  },
+  "database": {
+    "Version": 2,
+    "NextUpdate": "2026-10-30T01:22:22.544155326Z",
+    "UpdatedAt": "2026-10-29T01:22:22.544155871Z",
+    "DownloadedAt": "2026-10-29T05:18:05.658441517Z"
+  },
+  "sbom_sha256": "ef5f201fa4861f6273f508f2d2ee5e21b1e235f7f889f6c5ee329d86250c2701",
+  "passed": true,
+  "scope": "Resolved production Maven runtime modules; excludes OS/JDK, test tools and operational configuration"
+}
