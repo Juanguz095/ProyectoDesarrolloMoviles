@@ -2,7 +2,7 @@
     "schema_version":  1,
     "scanner":  "Microsoft Defender Antivirus",
     "status":  "blocked",
-    "scanned_at_utc":  "2026-10-29T05:43:15.4495752Z",
+    "scanned_at_utc":  "2026-10-29T05:44:47.8952725Z",
     "artifact":  {
                      "name":  "AuditLab-Servidor-Windows-0.7.0-preview.zip",
                      "bytes":  38336916,
@@ -12,16 +12,17 @@
     "engine_version":  null,
     "signature_version":  null,
     "signature_updated_at_utc":  null,
-    "archive_scanning_enabled":  true,
+    "internet_zone_applied":  false,
+    "archive_scanning_enabled":  false,
     "exclusion_checks_passed":  false,
     "detected_threats":  [
 
                          ],
-    "error":  "The archive is under a Defender exclusion. No clearance issued.",
+    "error":  "Could not open the alternate data stream \u0027Zone.Identifier\u0027 of the file \u0027C:\\ProgramData\\AuditLab-Antimalware\\AuditLab-Servidor-Windows-0.7.0-preview.zip\u0027.",
     "antivirus_service_status":  "Running",
     "post_scan_findings":  [
 
                            ],
-    "workflow_run_id":  "40824882496",
-    "source_commit":  "e4bf8e3ec6e7771e511d7cb741cd74a13ea0c483"
+    "workflow_run_id":  "40825034958",
+    "source_commit":  "69637e1c2fc809fba3420a6e1c564ca6bed4d5d3"
 }

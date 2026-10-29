@@ -1,0 +1,28 @@
+﻿{
+    "schema_version":  1,
+    "scanner":  "Microsoft Defender Antivirus",
+    "status":  "blocked",
+    "scanned_at_utc":  "2026-10-29T05:44:47.8952725Z",
+    "artifact":  {
+                     "name":  "AuditLab-Servidor-Windows-0.7.0-preview.zip",
+                     "bytes":  38336916,
+                     "sha256":  "280b7e57579d22c9ee97a65d060e6250a882b23665fa91a8f737cce353439778"
+                 },
+    "scan_exit_code":  null,
+    "engine_version":  null,
+    "signature_version":  null,
+    "signature_updated_at_utc":  null,
+    "internet_zone_applied":  false,
+    "archive_scanning_enabled":  false,
+    "exclusion_checks_passed":  false,
+    "detected_threats":  [
+
+                         ],
+    "error":  "Could not open the alternate data stream \u0027Zone.Identifier\u0027 of the file \u0027C:\\ProgramData\\AuditLab-Antimalware\\AuditLab-Servidor-Windows-0.7.0-preview.zip\u0027.",
+    "antivirus_service_status":  "Running",
+    "post_scan_findings":  [
+
+                           ],
+    "workflow_run_id":  "40825034958",
+    "source_commit":  "69637e1c2fc809fba3420a6e1c564ca6bed4d5d3"
+}
