@@ -1,38 +1,48 @@
-# AuditLab — Descargas 0.7
+# AuditLab — apps 0.7.1
 
-## Revisión de Defender completada — 29/10/2026
+## Corrección de WhatsApp
 
-El ZIP original fue analizado en Windows Server 2022 con Defender activo, análisis
-de ZIP habilitado, marca de zona Internet y sin exclusiones que cubran el archivo.
-Motor **1.1.26100.4**, firmas **1.463.16.0**, código de salida **0**, sin amenazas
-detectadas. Se mantiene el mismo archivo y SHA256; no se renombró ni reempaquetó.
-
-La alerta reportada no se reprodujo. No hay confirmación del proveedor de falso
-positivo ni garantía para otras versiones/configuraciones del antivirus.
-**Mantén Defender activo. Si vuelve a bloquearlo, déjalo bloqueado; no restaures
-ni añadas exclusiones.**
-
-[Informe Windows](DEFENDER-WINDOWS-40825372845.json) ·
-[Resolución y alcance](DEFENDER-RESOLUCION-0.7-2026-10-29.json) ·
-[Ejecución](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/actions/runs/40825372845)
+- Señal de actividad cada 8 segundos independiente de la cola de eventos.
+- Recuperación de notificaciones publicadas durante la conexión inicial, siempre
+  posteriores al consentimiento local. Sin importar historial anterior.
+- Compatibilidad con notificaciones de mensaje sin estilo completo.
+- Agente muestra avisos observados, eventos reconocidos, textos enviados y señal
+  confirmada. Centro permite elegir teléfono y actualizar WhatsApp directamente.
 
 | Componente | Descargar |
 | --- | --- |
-| Agente | [APK Agente](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.7.0-preview.apk) |
-| Centro | [APK Centro](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.7.0-preview.apk) |
-| Servidor Windows y apps | [ZIP revisado](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.7.0-preview.zip) |
+| Agente 0.7.1 | [APK Agente](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.7.1-preview.apk) |
+| Centro 0.7.1 | [APK Centro](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.7.1-preview.apk) |
 
-Android 8.0 o superior. SMS nuevo con texto opcional autorizado, De/Para y hora;
-WhatsApp limitado a notificaciones nuevas en sesión local autorizada. El texto
-SMS usa retención/exportación; el texto WhatsApp permanece temporal. No se ofrece
-historial completo de chats ni detección de todos los envíos dentro de ellos.
+**Instala los dos como actualización conservando sus datos.** Compatibles con
+servidor 0.7. El ZIP Windows 0.7 conserva las apps anteriores; usa estos APK para
+esta corrección. No se publica un ZIP Windows nuevo con este cambio.
 
-[Instalación sin USB](PASOS-SIN-USB.md) · [Activación y cambios](ACTUALIZACION-0.7.md) ·
-[SHA256](SHA256SUMS-0.7.0-preview)
+[Activación y límites](CORRECCION-WHATSAPP-0.7.1.md) ·
+[Pasos Windows](PASOS-SIN-USB.md) · [SHA256 de las apps](SHA256SUMS-0.7.1-preview) ·
+[Registro](ENTREGA-0.7.1-preview.json)
 
-Conserva `.auditlab-windows`, claves, datos Docker y datos de las apps al actualizar.
-No necesitas cambiar la URL ni la cuenta. Las APK mantienen firma debug. La revisión
-antimalware no demuestra el recorrido funcional en teléfonos; ese estado está en
-[AVANCE](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/blob/main/docs/AVANCE.md).
+## Comprobar WhatsApp
 
-Versiones anteriores conservadas como historial, sin revisión antivirus implícita.
+En el Agente reinicia la sesión opcional autorizada con indicador visible. Recibe
+un mensaje nuevo con WhatsApp en segundo plano. En el Centro abre Eventos →
+WhatsApp, selecciona ese teléfono y pulsa Actualizar WhatsApp. Texto disponible
+solo si Android lo publica en la notificación; no se capturan todos los envíos
+escritos dentro del chat. Texto entrante efímero: 20 vistas previas/5 minutos, sin
+Room/SQL/CSV. Las respuestas observadas solo comparten tipo/fecha.
+
+Compilación, lint, auditoría estática y firma de actualización correctos. No se
+han ejecutado suites automáticas ni confirmado la recepción real en teléfonos
+para esta revisión. No se declara que sea la causa confirmada del teléfono del
+usuario. [Estado](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/blob/main/docs/AVANCE.md).
+
+## Servidor Windows 0.7: revisión separada
+
+El ZIP original 0.7 se analizó con Defender en Windows Server 2022, con análisis
+ZIP/zona Internet y sin exclusiones de cobertura: no se detectaron amenazas.
+No se confirmó un falso positivo del proveedor. Si Defender vuelve a bloquearlo,
+conserva el bloqueo sin restaurar ni añadir exclusiones. Ese informe corresponde
+al ZIP 0.7 y no es una validación antivirus de estos APK nuevos.
+
+[Informe Windows](REVISION-DEFENDER-0.7.md) · [SHA256 anteriores](SHA256SUMS-0.7.0-preview).
+Versiones anteriores conservadas como historial.

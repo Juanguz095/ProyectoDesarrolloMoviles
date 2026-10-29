@@ -16,13 +16,14 @@ puertos del router. Ambos teléfonos deben poder acceder al mismo servidor.
 
 ## 1. Descargas
 
-Descarga las tres piezas **0.7.0-preview**:
+Descarga las apps **0.7.1-preview** y, si necesitas instalar el servidor, el paquete **0.7.0-preview**:
 
-- [Agente 0.7](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.7.0-preview.apk).
-- [Centro 0.7](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.7.0-preview.apk).
+- [Agente 0.7.1](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.7.1-preview.apk).
+- [Centro 0.7.1](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.7.1-preview.apk).
 - [Servidor Windows 0.7](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.7.0-preview.zip).
 
-El ZIP también contiene ambos APK actuales en `apks/`. Para el nuevo historial de comunicaciones y el texto SMS opcional se necesita
+El ZIP conserva los APK 0.7 en `apks/`; para la corrección WhatsApp instala los
+APK 0.7.1 desde los enlaces separados. [Cambios](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/blob/main/docs/CORRECCION_WHATSAPP_0.7.1.md). Para el nuevo historial de comunicaciones y el texto SMS opcional se necesita
 servidor 0.7 con V9; actualizar solo el Centro no habilita la captura del Agente. [Guía y límites de la actualización](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/blob/main/docs/ACTUALIZACION_0.7.md).
 
 ## 2. Preparar la PC Windows
