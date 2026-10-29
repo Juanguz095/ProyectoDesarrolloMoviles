@@ -3,8 +3,17 @@
 | Componente | Descargar |
 | --- | --- |
 | Agente 0.7.1 | [APK Agente](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.7.1-preview.apk) |
-| Centro 0.7.3 | [APK Centro](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.7.3-preview.apk) |
+| Centro 0.7.4 | [APK Centro](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.7.4-preview.apk) |
 | Servidor Windows 0.7 | [ZIP original revisado](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.7.0-preview.zip) |
+
+## Alertas WhatsApp sin Firebase
+
+Equipos → Ver dispositivo → Activar alertas para este teléfono. Permitir
+notificaciones y mantener la sesión autorizada en el Agente. Servicio visible
+que consulta cada 5 segundos, con texto recibido y botón Detener. Una fuente
+por vez. Tocar un aviso abre Eventos del equipo. Sin captura de envíos del chat.
+Android puede interrumpirlo por batería/Doze o límites dataSync; sin reinicio
+oculto ni garantía de avisos permanentes. No usa Firebase ni cambia el servidor.
 
 ## Identificar y archivar equipos
 
@@ -29,13 +38,13 @@ en el Agente. No obtiene el texto enviado dentro del chat ni todo el historial.
 Texto temporal: 20 vistas previas/5 minutos, fuera de Room/PostgreSQL/CSV.
 Historial persistente de actividad solo contiene tipo/fecha para WhatsApp.
 
-[Guía de la actualización](DISPOSITIVOS-0.7.3.md) ·
+[Guía de la actualización](ALERTAS-WHATSAPP-0.7.4.md) ·
 [Instalación Windows](PASOS-SIN-USB.md) ·
-[Registro Centro 0.7.3](ENTREGA-0.7.3-preview.json) ·
-[SHA256 Centro](SHA256SUMS-0.7.3-preview) ·
+[Registro Centro 0.7.4](ENTREGA-0.7.4-preview.json) ·
+[SHA256 Centro](SHA256SUMS-0.7.4-preview) ·
 [SHA256 Agente](SHA256SUMS-0.7.1-preview).
 
-Compilación, lint, revisión estática y firma de actualización correctos. Dos pruebas Robolectric aprobadas; sin recepción real en teléfonos para esta revisión.
+Compilación, lint, revisión estática y firma de actualización correctos. 20 pruebas unitarias/Robolectric aprobadas; sin recepción real en teléfonos para esta revisión.
 
 ## Servidor Windows
 
