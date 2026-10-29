@@ -28,8 +28,12 @@
   "real_whatsapp_verified": false,
   "windows_verified": false,
   "pilot_approved": false,
-  "security_status": "windows_zip_suspended_after_defender_report",
+  "security_status": "covered_defender_scan_no_threats_detected",
   "security_reported_detection": "Trojan:Script/Ulthar.A!ml",
-  "antivirus_clearance": false,
-  "security_review_url": "https://github.com/Juanguz095/ProyectoDesarrolloMoviles/blob/main/docs/REVISION_DEFENDER_0.7.md"
+  "antivirus_clearance": true,
+  "security_review_url": "https://github.com/Juanguz095/ProyectoDesarrolloMoviles/blob/main/docs/REVISION_DEFENDER_0.7.md",
+  "antivirus_scope": "Windows Server 2022; listed Defender engine and signatures; not universal safety certification",
+  "vendor_false_positive_confirmation": false,
+  "antivirus_report": "DEFENDER-WINDOWS-40825372845.json",
+  "security_resolution": "DEFENDER-RESOLUCION-0.7-2026-10-29.json"
 }

@@ -1,19 +1,38 @@
-# AuditLab — Descargas
+# AuditLab — Descargas 0.7
 
-## Servidor Windows 0.7: instalación suspendida
+## Revisión de Defender completada — 29/10/2026
 
-**29/10/2026, America/Lima.** Un usuario reportó que Microsoft Defender bloqueó
-`AuditLab-Servidor-Windows-0.7.0-preview.zip` como `Trojan:Script/Ulthar.A!ml`.
-No restaurar, ejecutar ni añadir exclusiones. No usar otra versión o un archivo
-renombrado para eludir el bloqueo.
+El ZIP original fue analizado en Windows Server 2022 con Defender activo, análisis
+de ZIP habilitado, marca de zona Internet y sin exclusiones que cubran el archivo.
+Motor **1.1.26100.4**, firmas **1.463.16.0**, código de salida **0**, sin amenazas
+detectadas. Se mantiene el mismo archivo y SHA256; no se renombró ni reempaquetó.
 
-Se verificó que el artefacto coincide con la entrega original y sus fuentes.
-Eso no sustituye un análisis antivirus: no se declara falso positivo ni archivo
-seguro. No hay dictamen de Defender disponible en el entorno de revisión.
+La alerta reportada no se reprodujo. No hay confirmación del proveedor de falso
+positivo ni garantía para otras versiones/configuraciones del antivirus.
+**Mantén Defender activo. Si vuelve a bloquearlo, déjalo bloqueado; no restaures
+ni añadas exclusiones.**
 
-[Informe y estado](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/blob/main/docs/REVISION_DEFENDER_0.7.md).
+[Informe Windows](DEFENDER-WINDOWS-40825372845.json) ·
+[Resolución y alcance](DEFENDER-RESOLUCION-0.7-2026-10-29.json) ·
+[Ejecución](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/actions/runs/40825372845)
 
-Las instrucciones de instalación quedan pausadas. Los artefactos históricos se
-conservan para revisar exactamente el contenido reportado; no son una recomendación
-de descarga ni ejecución. La detección reportada señala el ZIP Windows; no es un
-dictamen sobre otros archivos de esta rama.
+| Componente | Descargar |
+| --- | --- |
+| Agente | [APK Agente](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.7.0-preview.apk) |
+| Centro | [APK Centro](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.7.0-preview.apk) |
+| Servidor Windows y apps | [ZIP revisado](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.7.0-preview.zip) |
+
+Android 8.0 o superior. SMS nuevo con texto opcional autorizado, De/Para y hora;
+WhatsApp limitado a notificaciones nuevas en sesión local autorizada. El texto
+SMS usa retención/exportación; el texto WhatsApp permanece temporal. No se ofrece
+historial completo de chats ni detección de todos los envíos dentro de ellos.
+
+[Instalación sin USB](PASOS-SIN-USB.md) · [Activación y cambios](ACTUALIZACION-0.7.md) ·
+[SHA256](SHA256SUMS-0.7.0-preview)
+
+Conserva `.auditlab-windows`, claves, datos Docker y datos de las apps al actualizar.
+No necesitas cambiar la URL ni la cuenta. Las APK mantienen firma debug. La revisión
+antimalware no demuestra el recorrido funcional en teléfonos; ese estado está en
+[AVANCE](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/blob/main/docs/AVANCE.md).
+
+Versiones anteriores conservadas como historial, sin revisión antivirus implícita.
