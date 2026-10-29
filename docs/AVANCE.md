@@ -22,7 +22,9 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
 - Sin ejecución real del servicio, avisos Android o WhatsApp en teléfonos. P7.6
   permanece pendiente. Android puede detener consultas por batería/Doze/límite dataSync.
   [Activación y límites](ALERTAS_WHATSAPP_0.7.4.md).
-- P8.2/P8.3: preparar publicación del Centro. Compatible con Agente 0.7.1/API 0.7;
+- P8.2/P8.3: fuente `db1aba5` y APK/guía publicados en descargas `a456f3f`;
+  HTTP 200 y tamaño/SHA256 coincidentes. [Entrega](evidencias/ENTREGA-CENTRO-0.7.4-2026-10-29.json).
+  Compatible con Agente 0.7.1/API 0.7;
   sin ZIP Windows nuevo ni cambios de contrato/BD o credenciales Firebase.
 
 ## Identificación y archivo local — 29 de octubre de 2026 (America/Lima)

@@ -25,6 +25,7 @@ anteriores. [Uso y límites](docs/DISPOSITIVOS_0.7.3.md).
 Servicio visible para avisos con texto recibido autorizado, consulta cada 5 segundos,
 sin Firebase. Activar y detener en el detalle del equipo. Android puede interrumpirlo;
 no captura lo enviado dentro del chat. [Activación y límites](docs/ALERTAS_WHATSAPP_0.7.4.md).
+[Comprobaciones y entrega 0.7.4](docs/evidencias/ENTREGA-CENTRO-0.7.4-2026-10-29.json).
 
 ## Descargas
 

@@ -1,0 +1,23 @@
+{
+  "source_commit": "db1aba5fe21e31aeaba364cb82c9daca6406ecd6",
+  "control_version": "0.7.4-preview",
+  "compatible_agent": "0.7.1-preview",
+  "compatible_server": "0.7.0-preview",
+  "artifact": {
+    "file": "auditlab-control-0.7.4-preview.apk",
+    "bytes": 9772476,
+    "sha256": "d4f69bfc470bc6ca484d4a94cf128fb470b983b5cfec360dfd6c943ff570cf55",
+    "signer_sha256": "970a74d96448bdf8f1efdb65396d88ac1bba6126acac4f2e40508390574cd853",
+    "url": "https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.7.4-preview.apk"
+  },
+  "build_and_lint_passed": true,
+  "apk_static_audit_passed": true,
+  "signature_matches_previous": true,
+  "automated_app_tests_executed": true,
+  "real_whatsapp_verified": false,
+  "new_windows_archive": false,
+  "delivery_commit": "a456f3ff7b4d7d15e6645a4c5faf035fed04dec7",
+  "download_http_status": 200,
+  "download_verified_bytes": 9772476,
+  "download_sha256": "d4f69bfc470bc6ca484d4a94cf128fb470b983b5cfec360dfd6c943ff570cf55"
+}
