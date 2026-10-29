@@ -6,15 +6,21 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
 
 ## Publicación solicitada — 29 de octubre de 2026 (UTC)
 
-- P8.2/P8.3: el usuario autoriza subir cambios y descargar ambos APK. Se prepara
-  `0.4.0-preview`, con servidor Windows actualizado, guía sin USB y lanzador
-  reproducible conservando configuración y base existentes.
+- P8.2/P8.3: publicación autorizada y completada de `0.4.0-preview`: ambos APK,
+  servidor Windows actualizado, guía sin USB y lanzador reproducible conservando
+  configuración y base existentes.
 - `scripts/package_preview.py` vincula los cuatro hashes al recorrido de la
   ampliación y verifica migraciones compiladas. No sustituye ni relaja la condición
   de 17 etapas de `package_qa.py`; identifica explícitamente el paquete como preview,
   con Windows, WhatsApp real y piloto aún no verificados.
-- [Descargas y pasos completos](INICIO_WINDOWS_0.4.md). Publicación y comprobación
-  de enlaces en curso; no declarar entregados los enlaces hasta verificarlos.
+- Fuente `e77854e08aa2bddb98242c6e213458ac671b0cb2` subida a `origin/main`.
+  Descargas en `descargas-auditlab`, commit `251d326cea539400fa481b3ada004113f5ae1ca2`.
+  Los tres archivos devolvieron HTTP 200 y sus tamaños/SHA256 coincidieron. ZIP con
+  420 entradas y checksums verificados; fuente exacta incluida, sin datos privados.
+- [Descargas y pasos completos](INICIO_WINDOWS_0.4.md) y
+  [registro de publicación](evidencias/ENTREGA-0.4.0-2026-10-29.json). P8.4: se
+  publica la descarga de desarrollo; Windows/teléfonos/WhatsApp real y piloto HTTPS
+  continúan sin verificación. El servidor no queda alojado permanentemente en GitHub.
 
 ## Ampliación: notificaciones independientes de WhatsApp — 29 de octubre de 2026 (UTC)
 

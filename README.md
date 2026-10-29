@@ -1,6 +1,6 @@
 # AuditLab
 
-Sistema de monitoreo autorizado para dispositivos Android propios o administrados: **agente Android + centro de control Android + API Ktor/PostgreSQL**. Candidata **0.3.0-rc1**: amplía la 0.2 con metadatos reales de SMS/llamadas cuando Android concede los permisos, además de batería/conexión y eventos de prueba. Requiere consentimiento e indicador visible. [Activación, alcance y límites](docs/CAPTURA_REAL.md).
+Sistema de monitoreo autorizado para dispositivos Android propios o administrados: **agente Android + centro de control Android + API Ktor/PostgreSQL**. Versión **0.4.0-preview**: metadatos reales de SMS/llamadas cuando Android concede los permisos, batería/conexión, pantalla compartida y vistas previas opcionales de notificaciones de WhatsApp. Requiere consentimiento e indicador visible. [Activación, alcance y límites](docs/CAPTURA_REAL.md).
 
 ## Versión 0.4.0-preview
 
