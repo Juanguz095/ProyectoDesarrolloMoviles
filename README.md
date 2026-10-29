@@ -23,7 +23,7 @@ Las APK publicadas usan firma debug; la firma de distribución sigue pendiente.
 
 [Instalación paso a paso en Windows, sin USB](docs/INICIO_WINDOWS_0.4.md) ·
 [Archivos y checksums](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/tree/descargas-auditlab) ·
-[Registro de compilación](docs/evidencias/SMS-0.7.0-2026-10-28.json)
+[Registro de publicación](docs/evidencias/ENTREGA-0.7.0-2026-10-28.json)
 
 ## Cambios en 0.7
 

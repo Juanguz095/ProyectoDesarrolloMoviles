@@ -24,8 +24,10 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
 - No se ejecutaron suites automáticas ni recepción real SMS/WhatsApp en teléfonos;
   causa del fallo reportado no reproducida. No declarar el teléfono reparado solo
   por compilación o /ready. Siguiente P7.1/P7.6: comprobar nuevos SMS y sesión real.
-- P8.2/P8.3: preparación de APK/servidor compatibles con V9 siguiendo
-  [la actualización](ACTUALIZACION_0.7.md), sin reiniciar configuración ni datos.
+- P8.2/P8.3: APK/servidor publicados con V9. Fuente `cae5f9f`, descargas `0f7752c`.
+  Tres enlaces HTTP 200 con tamaño/SHA256 coincidentes; ZIP de 449 entradas
+  verificado. [Entrega](evidencias/ENTREGA-0.7.0-2026-10-28.json) y
+  [actualización](ACTUALIZACION_0.7.md), conservando configuración y datos.
 
 ## Diagnóstico de sesiones detenidas — 28 de octubre de 2026 (America/Lima)
 
