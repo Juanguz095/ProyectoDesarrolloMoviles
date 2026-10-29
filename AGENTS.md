@@ -29,6 +29,13 @@ El plan describe el producto objetivo. El registro contiene el estado real; no t
 
 ## Comprobaciones y entrega
 
+- Distribución Windows suspendida según `delivery/windows/security-status.json`.
+  Generar un candidato no autoriza publicarlo. Antes de publicar ejecutar
+  `scripts/check_windows_release.py` con evidencia Defender del ZIP exacto.
+  Resolver y documentar el incidente original antes de levantar la suspensión;
+  no renombrar, cambiar contenedor ni recomendar exclusiones para sortearla.
+  Una compilación, hashes o auditoría de dependencias no son análisis antivirus.
+
 - Ejecuta las comprobaciones pertinentes a cada tarea. Conserva el código de salida y los resultados reales; diferencia aprobado, fallido, omitido y no ejecutado.
 - Usa datos ficticios y ubicaciones temporales para comprobar migraciones, retención, concurrencia y recuperación. No borres datos existentes para lograr una comprobación satisfactoria.
 - Si el código Android no se compila o no se prueba en un dispositivo/emulador compatible, registra esa limitación. No declares el APK validado.

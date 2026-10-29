@@ -1,0 +1,7 @@
+{
+  "distribution_suspended": true,
+  "reason": "Unresolved Microsoft Defender Trojan:Script/Ulthar.A!ml report on the 0.7 Windows archive",
+  "reported_sha256": "280b7e57579d22c9ee97a65d060e6250a882b23665fa91a8f737cce353439778",
+  "incident_record": "docs/evidencias/DEFENDER-0.7.0-2026-10-29.json",
+  "resolution_required": "Document the original detection analysis before lifting this hold; do not rename or repackage to bypass it"
+}

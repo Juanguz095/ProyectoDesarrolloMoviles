@@ -41,6 +41,7 @@ def bundle(destination, record_path):
               'source_revision':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
               'kind':'development preview; functional validation pending','working_tree_dirty':False,
               'pilot_approved':False,'windows_verified':False,'real_whatsapp_verified':False,
+              'antimalware_validation_required_before_publication':True,'publish_allowed':False,
               'automated_tests_executed_for_this_revision':False,'validation_record':record,
               'files':{n:{'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()} for n,b in sorted(contents.items())}}
     contents['manifest.json']=(json.dumps(manifest,indent=2)+'\n').encode()
@@ -56,7 +57,8 @@ def bundle(destination, record_path):
         for name,data in contents.items():
             if archive.read(name)!=data: raise ValueError('Archive content mismatch')
     return {'file':str(destination),'version':record['version'],'source_revision':manifest['source_revision'],
-            'bytes':destination.stat().st_size,'sha256':digest(destination),'files':len(contents),'pilot_approved':False}
+            'bytes':destination.stat().st_size,'sha256':digest(destination),'files':len(contents),'pilot_approved':False,
+            'publish_allowed':False,'antimalware_validation_required_before_publication':True}
 
 
 if __name__=='__main__':

@@ -51,3 +51,18 @@ La captura afecta al ZIP Windows: no contiene un dictamen sobre los APK ni sobre
 otras versiones. Su disponibilidad no demuestra que estén libres de detecciones.
 
 [Evidencia de la revisión](evidencias/DEFENDER-0.7.0-2026-10-29.json).
+
+
+## Continuación sin usar la PC del usuario
+
+Se añadió `.github/workflows/windows-antimalware.yml` para analizar el mismo ZIP
+original en Windows aislado, sin ejecutar sus scripts. `Analizar-Paquete.ps1`
+comprueba SHA256, Defender activo, firma Microsoft del motor y firmas actualizadas.
+Publica su resultado incluso si falla o no encuentra el motor, en `security-reports`.
+Un resultado ausente, bloqueado o con error nunca habilita publicación.
+
+`check_windows_release.py` exige evidencia antimalware reciente del ZIP exacto y
+rechaza distribución mientras `delivery/windows/security-status.json` mantenga
+el incidente abierto. No tiene opción de saltar el control. El empaquetador
+marca cualquier nuevo archivo como candidato no autorizado para publicación.
+La revisión de dependencias Trivy está separada del dictamen antimalware.

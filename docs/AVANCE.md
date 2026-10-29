@@ -16,7 +16,13 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
   el archivo de la PC del usuario.
 - Auditoría Trivy del runtime resuelto completada el 29/10; sin altas/críticas.
   [Registro](evidencias/DEPENDENCIAS-2026-10-29.json). No es análisis antimalware.
-- Pendiente observar la ejecución Windows y resolver la detección reportada.
+- Primera ejecución Windows `40822807224` bloqueada antes del análisis: consulta
+  a Defender falló con error RPC; no hay dictamen. Se prepara Windows Server 2022
+  iniciando su servicio WinDefend, sin desactivar seguridad ni modificar exclusiones.
+- Control de publicación añadido: exige evidencia reciente del ZIP exacto y
+  mantiene suspensión global mientras el incidente original siga abierto.
+  El empaquetador marca candidatos como no publicables.
+- Pendiente completar el análisis Windows y resolver la detección reportada.
 
 ## Bloqueo de Defender en ZIP Windows 0.7 — 29 de octubre de 2026 (America/Lima)
 
