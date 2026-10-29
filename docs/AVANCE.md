@@ -25,8 +25,10 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
   historial autenticado en API26 confirmó tarjetas sin recorte con datos QA.
   [Registro técnico](evidencias/ACTIVIDAD-0.5.0-2026-10-28.json). No se ejecutaron suites
   automáticas ni recepción desde WhatsApp instalado en esta revisión.
-- P8.2/P8.3: entrega de desarrollo preparada para actualizar las tres piezas;
-  [guía](ACTUALIZACION_0.5.md). `package_development.py` registra validación funcional
+- P8.2/P8.3: entrega de desarrollo publicada para actualizar las tres piezas.
+  Fuente `a5b29fd` y descargas `308b9ec`; tres enlaces HTTP 200,
+  tamaños/SHA256 coincidentes y ZIP de 434 entradas verificado.
+  [Guía](ACTUALIZACION_0.5.md) y [registro](evidencias/ENTREGA-0.5.0-2026-10-28.json). `package_development.py` registra validación funcional
   pendiente; no relaja los requisitos de `package_qa.py` o `package_preview.py`.
 - Siguiente P7.6/P7.1: verificar con notificaciones reales, respuestas directas,
   permisos, red, revocación y versiones Android. No declarar captura completa de chats.
