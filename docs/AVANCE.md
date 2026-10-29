@@ -17,7 +17,9 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
   sin fallos: persistencia/restauración/aislamiento por servidor y dispositivo,
   validación del nombre y estados de contacto. Sin ejecución real en teléfonos.
   [Evidencia](evidencias/DISPOSITIVOS-0.7.3-2026-10-29.json).
-- P8.2/P8.3: APK y guía preparados. Sin ZIP Windows ni Agente nuevos.
+- P8.2/P8.3: fuente `62dfe73` y APK/guía publicados en descargas `abda9d6`.
+  HTTP 200 y tamaño/SHA256 coincidentes. [Entrega](evidencias/ENTREGA-CENTRO-0.7.3-2026-10-29.json).
+  Sin ZIP Windows ni Agente nuevos.
   Siguiente: verificar interfaz y restauración en los teléfonos del usuario (P7.1).
 
 ## Mensajes WhatsApp dentro de Eventos — 29 de octubre de 2026 (America/Lima)
