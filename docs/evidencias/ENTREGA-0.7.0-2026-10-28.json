@@ -39,6 +39,7 @@
   "real_whatsapp_verified": false,
   "windows_verified": false,
   "pilot_approved": false,
-  "security_status": "windows_zip_suspended_after_defender_report",
-  "security_review": "DEFENDER-0.7.0-2026-10-29.json"
+  "security_status": "covered_defender_scan_no_threats_detected",
+  "security_review": "DEFENDER-0.7.0-2026-10-29.json",
+  "security_resolution": "DEFENDER-RESOLUCION-0.7-2026-10-29.json"
 }

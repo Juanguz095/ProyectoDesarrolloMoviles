@@ -2,7 +2,24 @@
 
 Fecha: 29 de octubre de 2026, America/Lima.
 
-## Estado: instalación del ZIP suspendida
+## Estado actual: revisión completada, alerta no reproducida
+
+El 29/10/2026 se completó la ejecución Windows `40825372845` sobre el mismo ZIP,
+sin modificar sus bytes. Defender 1.1.26100.4 con firmas 1.463.16.0 terminó con
+código 0 y sin amenazas detectadas, con zona Internet aplicada, análisis ZIP
+habilitado y comprobación de exclusiones superada. Se revisaron también las
+fuentes/manifiesto y 156 dependencias, sin vulnerabilidades conocidas detectadas.
+
+Se reabren los enlaces de instalación para este artefacto revisado. Esto no es una
+confirmación del proveedor de falso positivo ni garantiza el resultado en otra PC.
+Si Defender vuelve a bloquearlo, conservar el bloqueo, sin restaurar ni añadir
+exclusiones. La validación funcional de las apps en teléfonos permanece separada.
+
+[Informe completo de Windows](evidencias/DEFENDER-WINDOWS-40825372845.json) ·
+[Resolución documentada](evidencias/DEFENDER-RESOLUCION-0.7-2026-10-29.json) ·
+[Ejecución en GitHub](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/actions/runs/40825372845).
+
+## Reporte inicial y suspensión histórica
 
 El usuario reportó que Windows Defender detectó `Trojan:Script/Ulthar.A!ml` en
 `AuditLab-Servidor-Windows-0.7.0-preview.zip`. Su captura indica **Removed** y
@@ -11,7 +28,7 @@ que haya sido ejecutado. No demuestra por sí sola infección de la PC.
 
 No restaurar ni ejecutar ese archivo, desactivar Defender o añadir exclusiones.
 No usar otra versión o un archivo renombrado para intentar eludir el bloqueo.
-Los enlaces de instalación actuales del ZIP quedan suspendidos. El artefacto
+Los enlaces de instalación del ZIP se suspendieron durante la revisión. El artefacto
 histórico se conserva para permitir el análisis del mismo contenido reportado.
 
 ## Revisión realizada
@@ -32,16 +49,18 @@ Estas comprobaciones establecen procedencia e integridad. No sustituyen un
 análisis antimalware y no descartan código peligroso en una dependencia u otro
 componente. No se determina qué miembro del ZIP disparó la detección.
 
-## Pendiente para reanudar distribución
+## Limitación inicial y continuación de la revisión
 
-No hay Microsoft Defender ni otro motor antimalware disponible en este entorno
-Linux. La validación anterior era compilación/lint/contratos/auditoría estática de
+Inicialmente no había motor antimalware disponible en el entorno Linux.
+La revisión se trasladó a Windows Server 2022 mediante GitHub Actions. La validación anterior era compilación/lint/contratos/auditoría estática de
 APK; **no incluía análisis antivirus de Windows**. No se declara falso positivo.
 
 Se necesita identificar el miembro detectado, analizar el mismo artefacto con
 Defender actualizado y resolver el resultado con el proveedor. Microsoft ofrece
 [envío de muestras para análisis](https://www.microsoft.com/en-us/wdsi/filesubmission).
-No se ha enviado una muestra ni obtenido un dictamen en esta sesión.
+No se envió una muestra para adjudicación manual ni se obtuvo una confirmación
+de falso positivo del proveedor; el análisis Windows automatizado queda registrado
+en el estado actual al inicio de este documento.
 
 Si el archivo ya se ejecutó, realizar un análisis completo desde Seguridad de
 Windows y conservar el resultado. No compartir credenciales ni el archivo privado

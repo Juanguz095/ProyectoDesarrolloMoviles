@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-29",
+  "timezone": "America/Lima",
+  "reported_detection": "Trojan:Script/Ulthar.A!ml",
+  "disposition": "not_reproduced_in_covered_defender_scan",
+  "artifact": {
+    "name": "AuditLab-Servidor-Windows-0.7.0-preview.zip",
+    "bytes": 38336916,
+    "sha256": "280b7e57579d22c9ee97a65d060e6250a882b23665fa91a8f737cce353439778"
+  },
+  "windows_scan_record": "DEFENDER-WINDOWS-40825372845.json",
+  "workflow_url": "https://github.com/Juanguz095/ProyectoDesarrolloMoviles/actions/runs/40825372845",
+  "engine_version": "1.1.26100.4",
+  "signature_version": "1.463.16.0",
+  "covered_archive_scan_passed": true,
+  "source_and_manifest_integrity_review_passed": true,
+  "runtime_dependency_audit_high_critical": 0,
+  "original_archive_bytes_modified": false,
+  "vendor_false_positive_confirmation": false,
+  "restore_or_exclusion_recommended": false,
+  "distribution_hold_lifted": true,
+  "scope": "Review of this exact archive and listed Defender version/signatures, not a universal safety or functional certification",
+  "if_defender_blocks_again": "Keep the file blocked; do not restore it or add exclusions"
+}

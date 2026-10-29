@@ -1,11 +1,12 @@
 # AuditLab 0.7 — texto de SMS y sesiones de WhatsApp
 
-> **Servidor Windows 0.7 suspendido — 29/10/2026 (America/Lima).**
-> Un usuario reportó que Microsoft Defender bloqueó el ZIP con
-> `Trojan:Script/Ulthar.A!ml`. No restaurar, ejecutar ni añadir exclusiones.
-> La integridad del paquete coincide con la entrega, pero no hay dictamen
-> antivirus que descarte la detección. Las instrucciones de instalación quedan
-> pausadas. [Estado de la revisión](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/blob/main/docs/REVISION_DEFENDER_0.7.md).
+> **Revisión de Defender completada — 29/10/2026 (America/Lima).**
+> El ZIP original 0.7 pasó un análisis en Windows Server 2022 con Defender activo,
+> firmas actualizadas, marca de zona Internet y sin exclusiones que cubran el ZIP.
+> Motor `1.1.26100.4`, firmas `1.463.16.0`: sin amenazas detectadas.
+> La alerta reportada no se reprodujo; no hay confirmación de falso positivo del proveedor.
+> Mantén Defender activo. Si vuelve a bloquearlo, déjalo bloqueado y no añadas exclusiones.
+> [Informe de la revisión](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/blob/main/docs/REVISION_DEFENDER_0.7.md).
 
 
 ## Cambios
@@ -50,7 +51,7 @@ No hay historial completo ni confirmación de entrega/lectura.
 
 - [APK Agente 0.7](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.7.0-preview.apk).
 - [APK Centro 0.7](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.7.0-preview.apk).
-- **ZIP suspendido: revisión de Defender pendiente**.
+- [Servidor Windows 0.7](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.7.0-preview.zip).
 
 1. Detén la API con Ctrl+C. Conserva `.auditlab-windows`, claves y datos/volúmenes
    Docker. Respalda la carpeta `api` anterior y extrae todo el ZIP nuevo en la misma

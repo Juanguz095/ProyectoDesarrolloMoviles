@@ -28,6 +28,9 @@ def verify(archive, report_path, now=None):
             or type(report.get('scan_exit_code')) is not int
             or report['scan_exit_code'] != 0
             or report.get('detected_threats') != []
+            or report.get('post_scan_findings') != []
+            or report.get('antivirus_service_status') != 'Running'
+            or report.get('diagnostics_error') is not None
             or report.get('error') is not None
             or not report.get('engine_version')
             or not report.get('signature_version')):

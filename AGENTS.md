@@ -29,10 +29,10 @@ El plan describe el producto objetivo. El registro contiene el estado real; no t
 
 ## Comprobaciones y entrega
 
-- Distribución Windows suspendida según `delivery/windows/security-status.json`.
+- Consultar el estado de distribución en `delivery/windows/security-status.json`.
   Generar un candidato no autoriza publicarlo. Antes de publicar ejecutar
   `scripts/check_windows_release.py` con evidencia Defender del ZIP exacto.
-  Resolver y documentar el incidente original antes de levantar la suspensión;
+  Si existe una suspensión, resolver y documentar el incidente antes de levantarla;
   no renombrar, cambiar contenedor ni recomendar exclusiones para sortearla.
   Una compilación, hashes o auditoría de dependencias no son análisis antivirus.
 

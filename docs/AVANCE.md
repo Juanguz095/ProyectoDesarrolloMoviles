@@ -4,6 +4,23 @@ Actualización: 29 de octubre de 2026, UTC. Los registros anteriores conservan s
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
+## Revisión completa del ZIP en Defender — 29 de octubre de 2026 (America/Lima)
+
+- P7.4/P8.3: ejecución `40825372845` completada en Windows Server 2022 sobre el
+  ZIP original SHA256 `280b7e...39778`, sin modificar bytes. Defender 1.1.26100.4,
+  firmas 1.463.16.0, código 0, sin amenazas detectadas ni hallazgos posteriores.
+- Zona Internet aplicada, análisis de comprimidos habilitado y exclusiones de ruta/
+  extensión comprobadas. Excepciones de compilación del runner eliminadas para
+  fortalecer el análisis. No se modificó la PC del usuario ni se ejecutó el ZIP.
+- Se levanta la suspensión de los enlaces con alcance explícito de ese análisis;
+  no se declara confirmación del proveedor de falso positivo. Un bloqueo nuevo
+  debe mantenerse. Se conservan informes iniciales/fallos de infraestructura.
+- [Resolución](evidencias/DEFENDER-RESOLUCION-0.7-2026-10-29.json) e
+  [informe](evidencias/DEFENDER-WINDOWS-40825372845.json). Control de publicación
+  exige evidencia reciente del ZIP exacto y rechaza exclusiones/detecciones/errores.
+- Validación funcional/Windows de operación y recepción real en teléfonos sigue
+  pendiente; este resultado es antimalware, separado de compilación y usabilidad.
+
 ## Análisis aislado de Windows — 29 de octubre de 2026 (America/Lima)
 
 - El usuario solicita resolver la entrega sin ejecutar diagnósticos en su PC.

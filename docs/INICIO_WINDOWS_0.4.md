@@ -1,11 +1,12 @@
 # AuditLab — Windows y dos celulares, sin USB
 
-> **Servidor Windows 0.7 suspendido — 29/10/2026 (America/Lima).**
-> Un usuario reportó que Microsoft Defender bloqueó el ZIP con
-> `Trojan:Script/Ulthar.A!ml`. No restaurar, ejecutar ni añadir exclusiones.
-> La integridad del paquete coincide con la entrega, pero no hay dictamen
-> antivirus que descarte la detección. Las instrucciones de instalación quedan
-> pausadas. [Estado de la revisión](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/blob/main/docs/REVISION_DEFENDER_0.7.md).
+> **Revisión de Defender completada — 29/10/2026 (America/Lima).**
+> El ZIP original 0.7 pasó un análisis en Windows Server 2022 con Defender activo,
+> firmas actualizadas, marca de zona Internet y sin exclusiones que cubran el ZIP.
+> Motor `1.1.26100.4`, firmas `1.463.16.0`: sin amenazas detectadas.
+> La alerta reportada no se reprodujo; no hay confirmación de falso positivo del proveedor.
+> Mantén Defender activo. Si vuelve a bloquearlo, déjalo bloqueado y no añadas exclusiones.
+> [Informe de la revisión](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/blob/main/docs/REVISION_DEFENDER_0.7.md).
 
 
 Necesitas **una PC Windows encendida y dos teléfonos Android 8 o superior**, con
@@ -19,7 +20,7 @@ Descarga las tres piezas **0.7.0-preview**:
 
 - [Agente 0.7](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.7.0-preview.apk).
 - [Centro 0.7](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.7.0-preview.apk).
-- **ZIP suspendido: revisión de Defender pendiente**.
+- [Servidor Windows 0.7](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.7.0-preview.zip).
 
 El ZIP también contiene ambos APK actuales en `apks/`. Para el nuevo historial de comunicaciones y el texto SMS opcional se necesita
 servidor 0.7 con V9; actualizar solo el Centro no habilita la captura del Agente. [Guía y límites de la actualización](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/blob/main/docs/ACTUALIZACION_0.7.md).
