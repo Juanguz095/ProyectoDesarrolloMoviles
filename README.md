@@ -1,48 +1,40 @@
-# AuditLab — apps 0.7.1
-
-## Corrección de WhatsApp
-
-- Señal de actividad cada 8 segundos independiente de la cola de eventos.
-- Recuperación de notificaciones publicadas durante la conexión inicial, siempre
-  posteriores al consentimiento local. Sin importar historial anterior.
-- Compatibilidad con notificaciones de mensaje sin estilo completo.
-- Agente muestra avisos observados, eventos reconocidos, textos enviados y señal
-  confirmada. Centro permite elegir teléfono y actualizar WhatsApp directamente.
+# AuditLab — descargas actuales
 
 | Componente | Descargar |
 | --- | --- |
 | Agente 0.7.1 | [APK Agente](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.7.1-preview.apk) |
-| Centro 0.7.1 | [APK Centro](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.7.1-preview.apk) |
+| Centro 0.7.2 | [APK Centro](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.7.2-preview.apk) |
+| Servidor Windows 0.7 | [ZIP original revisado](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.7.0-preview.zip) |
 
-**Instala los dos como actualización conservando sus datos.** Compatibles con
-servidor 0.7. El ZIP Windows 0.7 conserva las apps anteriores; usa estos APK para
-esta corrección. No se publica un ZIP Windows nuevo con este cambio.
+## WhatsApp en Eventos
 
-[Activación y límites](CORRECCION-WHATSAPP-0.7.1.md) ·
-[Pasos Windows](PASOS-SIN-USB.md) · [SHA256 de las apps](SHA256SUMS-0.7.1-preview) ·
-[Registro](ENTREGA-0.7.1-preview.json)
+Actualizar el Centro sobre la instalación anterior. Compatible con Agente 0.7.1
+y servidor 0.7, sin volver a inscribir ni cambiar la URL.
 
-## Comprobar WhatsApp
+En Eventos → Todo o WhatsApp aparecen las vistas previas de notificaciones
+entrantes autorizadas, con título, texto expandible y hora. Si hay varios teléfonos,
+seleccionar uno. Usar sin filtros de fecha o ID para ver texto en vivo.
 
-En el Agente reinicia la sesión opcional autorizada con indicador visible. Recibe
-un mensaje nuevo con WhatsApp en segundo plano. En el Centro abre Eventos →
-WhatsApp, selecciona ese teléfono y pulsa Actualizar WhatsApp. Texto disponible
-solo si Android lo publica en la notificación; no se capturan todos los envíos
-escritos dentro del chat. Texto entrante efímero: 20 vistas previas/5 minutos, sin
-Room/SQL/CSV. Las respuestas observadas solo comparten tipo/fecha.
+Requiere permiso de notificaciones, indicador visible y sesión autorizada localmente
+en el Agente. No obtiene el texto enviado dentro del chat ni todo el historial.
+Texto temporal: 20 vistas previas/5 minutos, fuera de Room/PostgreSQL/CSV.
+Historial persistente de actividad solo contiene tipo/fecha para WhatsApp.
 
-Compilación, lint, auditoría estática y firma de actualización correctos. No se
-han ejecutado suites automáticas ni confirmado la recepción real en teléfonos
-para esta revisión. No se declara que sea la causa confirmada del teléfono del
-usuario. [Estado](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/blob/main/docs/AVANCE.md).
+[Guía de la actualización](WHATSAPP-EVENTOS-0.7.2.md) ·
+[Instalación Windows](PASOS-SIN-USB.md) ·
+[Registro Centro 0.7.2](ENTREGA-0.7.2-preview.json) ·
+[SHA256 Centro](SHA256SUMS-0.7.2-preview) ·
+[SHA256 Agente](SHA256SUMS-0.7.1-preview).
 
-## Servidor Windows 0.7: revisión separada
+Compilación, lint, revisión estática y firma de actualización correctos. Sin suites
+automáticas ni recepción real en teléfonos para esta revisión.
 
-El ZIP original 0.7 se analizó con Defender en Windows Server 2022, con análisis
-ZIP/zona Internet y sin exclusiones de cobertura: no se detectaron amenazas.
-No se confirmó un falso positivo del proveedor. Si Defender vuelve a bloquearlo,
-conserva el bloqueo sin restaurar ni añadir exclusiones. Ese informe corresponde
-al ZIP 0.7 y no es una validación antivirus de estos APK nuevos.
+## Servidor Windows
 
-[Informe Windows](REVISION-DEFENDER-0.7.md) · [SHA256 anteriores](SHA256SUMS-0.7.0-preview).
+No hay ZIP nuevo. El ZIP 0.7 contiene APK anteriores: usar los enlaces separados
+actuales. El ZIP original pasó un análisis Defender en Windows Server 2022 sin
+hallazgos; no hay confirmación del proveedor de falso positivo. Si Defender vuelve
+a bloquearlo, mantener el bloqueo sin restaurarlo ni añadir exclusiones.
+[Informe](REVISION-DEFENDER-0.7.md). El análisis histórico no cubre este APK nuevo.
+
 Versiones anteriores conservadas como historial.
