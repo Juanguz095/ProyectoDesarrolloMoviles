@@ -22,6 +22,10 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
 - Control de publicación añadido: exige evidencia reciente del ZIP exacto y
   mantiene suspensión global mientras el incidente original siga abierto.
   El empaquetador marca candidatos como no publicables.
+- Windows Server 2022 consigue iniciar WinDefend. El control detectó que el
+  runner tenía deshabilitado el análisis de ZIP: ejecución `40823191760` bloqueada
+  sin emitir dictamen. Se habilita ese análisis en el runner aislado y se repite;
+  no se cambian protección ni exclusiones en la PC del usuario.
 - Pendiente completar el análisis Windows y resolver la detección reportada.
 
 ## Bloqueo de Defender en ZIP Windows 0.7 — 29 de octubre de 2026 (America/Lima)

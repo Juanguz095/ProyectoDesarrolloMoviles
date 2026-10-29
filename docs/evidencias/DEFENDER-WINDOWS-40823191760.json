@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "scanner": "Microsoft Defender Antivirus",
+  "status": "blocked",
+  "scanned_at_utc": "2026-10-29T05:25:35.8616682Z",
+  "artifact": {
+    "name": "AuditLab-Servidor-Windows-0.7.0-preview.zip",
+    "bytes": 38336916,
+    "sha256": "280b7e57579d22c9ee97a65d060e6250a882b23665fa91a8f737cce353439778"
+  },
+  "scan_exit_code": null,
+  "engine_version": null,
+  "signature_version": null,
+  "signature_updated_at_utc": null,
+  "detected_threats": [],
+  "error": "Archive scanning is disabled. No clearance can be issued for a ZIP.",
+  "antivirus_service_status": "Running",
+  "post_scan_findings": [],
+  "workflow_run_id": "40823191760",
+  "source_commit": "9bb694415f75c895aeda3729143d8cc2baf4e128"
+}
