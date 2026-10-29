@@ -16,6 +16,7 @@ $report = [ordered]@{
     engine_version = $null
     signature_version = $null
     signature_updated_at_utc = $null
+    internet_zone_applied = $false
     archive_scanning_enabled = $false
     exclusion_checks_passed = $false
     detected_threats = @()
@@ -27,6 +28,14 @@ try {
     $hash = (Get-FileHash -LiteralPath $archive.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
     $report.artifact = [ordered]@{ name = $archive.Name; bytes = $archive.Length; sha256 = $hash }
     if ($hash -ne $ExpectedSha256.ToLowerInvariant()) { throw 'Candidate SHA256 differs from the recorded delivery.' }
+    # Retain Internet/Restricted zone protection and model a browser download.
+    $zone = Get-Content -LiteralPath $archive.FullName -Stream Zone.Identifier -Raw -ErrorAction SilentlyContinue
+    if ($zone -notmatch '(?m)^ZoneId=(3|4)\s*$') {
+        Set-Content -LiteralPath $archive.FullName -Stream Zone.Identifier -Value "[ZoneTransfer]`r`nZoneId=3"
+    }
+    $zone = Get-Content -LiteralPath $archive.FullName -Stream Zone.Identifier -Raw
+    if ($zone -notmatch '(?m)^ZoneId=(3|4)\s*$') { throw 'Internet zone protection could not be applied.' }
+    $report.internet_zone_applied = $true
     $status = Get-MpComputerStatus
     if (-not $status.AntivirusEnabled -or -not $status.AMServiceEnabled -or -not $status.AntispywareEnabled) {
         throw 'Defender is unavailable or inactive. No antivirus clearance can be issued.'

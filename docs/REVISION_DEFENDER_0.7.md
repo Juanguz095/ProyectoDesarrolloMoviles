@@ -66,3 +66,10 @@ rechaza distribución mientras `delivery/windows/security-status.json` mantenga
 el incidente abierto. No tiene opción de saltar el control. El empaquetador
 marca cualquier nuevo archivo como candidato no autorizado para publicación.
 La revisión de dependencias Trivy está separada del dictamen antimalware.
+
+
+El análisis reforzado usa ProgramData, comprueba exclusiones de ruta/extensión y
+mantiene/aplica la marca de zona Internet del ZIP para representar una descarga
+de navegador. No elimina esa marca ni ejecuta el contenido. Un escaneo negativo
+sigue siendo un resultado del motor/firmas registrados, no una certificación de
+falso positivo ni una instrucción para ignorar un bloqueo en otra PC.
