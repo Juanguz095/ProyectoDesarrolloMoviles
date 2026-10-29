@@ -4,6 +4,16 @@ Actualización: 29 de octubre de 2026, UTC. Los registros anteriores conservan s
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
+## Presentación del repositorio — 28 de octubre de 2026 (America/Lima)
+
+- P8.3: README actualizado a 0.4 con presentación de producto, funciones reales,
+  descargas directas, requisitos, conexión HTTPS, arquitectura y documentación.
+  Retiradas del README las referencias académicas, relatos de la conversación,
+  mockups y conteos de versiones antiguas. Se conserva la documentación histórica.
+- Se mantienen firma debug/preview, permisos, consentimiento y límites de validación.
+  Actualización documental; no cambia aplicaciones, API, APK ni evidencias previas.
+- Se sincroniza la presentación de la rama de descargas con la versión actual.
+
 ## Publicación solicitada — 29 de octubre de 2026 (UTC)
 
 - P8.2/P8.3: publicación autorizada y completada de `0.4.0-preview`: ambos APK,

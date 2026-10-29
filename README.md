@@ -1,88 +1,143 @@
 # AuditLab
 
-Sistema de monitoreo autorizado para dispositivos Android propios o administrados: **agente Android + centro de control Android + API Ktor/PostgreSQL**. Versión **0.4.0-preview**: metadatos reales de SMS/llamadas cuando Android concede los permisos, batería/conexión, pantalla compartida y vistas previas opcionales de notificaciones de WhatsApp. Requiere consentimiento e indicador visible. [Activación, alcance y límites](docs/CAPTURA_REAL.md).
+**Monitoreo visible y autorizado para dispositivos Android propios o administrados.**
 
-## Versión 0.4.0-preview
+AuditLab conecta un Agente instalado en el dispositivo supervisado con un Centro
+de control para consultar su actividad, revisar eventos y gestionar accesos.
+Una API central autentica las conexiones, recibe los eventos y registra las consultas.
 
-Incluye el diseño Android de los mockups, pantalla compartida con autorización
-MediaProjection por sesión y vistas previas de notificaciones nuevas de WhatsApp
-con consentimiento adicional y permiso Android. No recupera historial de chats.
-**Actualizar ambos APK y el servidor**: la API anterior no incluye estas rutas.
+## Descargas
 
-- [Descargas y pasos para Windows y dos teléfonos, sin USB](docs/INICIO_WINDOWS_0.4.md).
-- [Pantalla compartida](docs/COMPARTIR_PANTALLA.md) y [notificaciones de WhatsApp](docs/WHATSAPP_NOTIFICACIONES.md).
-- [Validación 0.4](docs/evidencias/WHATSAPP-0.4.0-2026-10-29.md): 197 pruebas JVM/Robolectric/PostgreSQL y recorrido en dos AVD aprobados con entradas de notificación sintéticas. Pendiente WhatsApp instalado y teléfonos físicos.
+**Versión actual: 0.4.0-preview · Android 8.0 o superior.**
 
-## Qué hace el MVP
+| Componente | Instalación | Descargar |
+| --- | --- | --- |
+| Agente | Dispositivo que comparte información | [APK Agente](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.4.0-preview.apk) |
+| Centro de control | Dispositivo desde el que se consulta | [APK Centro](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.4.0-preview.apk) |
+| Servidor Windows | PC que ejecuta la API y la base de datos | [Servidor y aplicaciones](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.4.0-preview.zip) |
 
-- **Agente:** consentimiento e inscripción con código de un uso; Room con cola persistente, retención de siete días y capacidad de 10 000; WorkManager con lotes/reintentos; pausa visible; revocación local incluso sin red; credencial cifrada con Keystore.
-- **Centro:** login admin/auditor, sesión renovable, dispositivos y última recepción, historial con filtros/páginas, detalle, CSV mediante el selector Android, auditoría y revocación con confirmación.
-- **API:** autenticación, inscripción, recepción idempotente, validación estricta, consultas/exportación, revocación, auditoría, retención y HTTPS. PostgreSQL usa roles separados y migraciones.
+**Actualiza las dos aplicaciones y el servidor a la misma versión.** El servidor
+0.3 no incluye los endpoints de pantalla compartida y notificaciones de WhatsApp.
+Las APK publicadas usan firma debug; la firma de distribución sigue pendiente.
 
-La candidata 0.3 requiere sus propias comprobaciones de captura real, registradas en [AVANCE](docs/AVANCE.md).
-La versión anterior **0.2** tuvo 278 casos aprobados, incluidas 17 etapas nativas con agente
-Android 9/API28 y centro Android 8/API26; eso no acredita la ampliación de SMS/llamadas.
-[Informe histórico](docs/evidencias/P7-P8-2026-10-26.md), [hashes históricos 0.2](docs/evidencias/artefactos-0.2.0-rc1-2026-10-26.json).
-No se declara publicado un piloto ni firmada una distribución del responsable.
+[Instalación paso a paso en Windows, sin USB](docs/INICIO_WINDOWS_0.4.md) ·
+[Archivos y checksums](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/tree/descargas-auditlab) ·
+[Registro de publicación](docs/evidencias/ENTREGA-0.4.0-2026-10-29.json)
 
-## Documentos de entrada
+## Funciones
 
-- [Manual de instalación y uso](docs/MANUAL_PRODUCTO.md).
-- [Conectar Windows y los celulares sin USB](docs/PRUEBA_SIN_USB.md).
-- [Estado real por fase](docs/AVANCE.md) y [plan maestro P0–P8](docs/PLAN_MAESTRO.md).
-- [Informe de implementación, pruebas y límites](docs/evidencias/P5-P8-2026-10-25.md).
-- [Entorno y pruebas integradas](docs/PRUEBAS_INTEGRADAS.md), [herramientas](docs/desarrollo.md).
-- [Despliegue HTTPS, respaldo y restauración](docs/despliegue.md).
-- [Contrato OpenAPI](contracts/openapi.yaml), [requisitos](docs/requisitos.md), [estados](docs/estados.md) e [historias/criterios](docs/historias.md).
+| Función | Alcance |
+| --- | --- |
+| Estado del dispositivo | Lecturas de batería y conexión, eventos propios de la app y último contacto con el servidor. |
+| SMS y llamadas | Metadatos de tipo y fecha desde la activación, sujetos a permisos Android. Sin contenido de SMS, números ni audio. |
+| Notificaciones de WhatsApp | Título/remitente y texto disponible en notificaciones nuevas de WhatsApp y WhatsApp Business, con autorización adicional por sesión. |
+| Pantalla compartida | Vista remota de la pantalla iniciada por su propietario con permiso de Android; aproximadamente una actualización por segundo, sin audio ni grabación. |
+| Historial y reportes | Filtros por dispositivo, categoría y fechas; búsqueda, detalle, paginación y exportación CSV de eventos. |
+| Administración | Inscripción con código de un uso, roles administrador/auditor, revocación y registro de accesos. |
 
-## Compilar y ejecutar
+El estado de inscripción y la fecha del último contacto permiten revisar la
+actividad recibida; una inscripción activa no garantiza que el dispositivo esté
+conectado en ese momento.
 
-Desde la raíz, con JDK 21, Android SDK35 y las versiones fijadas en el proyecto:
+## Cómo empezar
+
+1. **Prepara el servidor.** Instala Java 21 y Docker Desktop y extrae el paquete
+   Windows. Ejecuta `Iniciar-AuditLab.ps1` y crea la contraseña de `admin`.
+2. **Conecta los equipos.** Publica la API mediante HTTPS. Para una PC y dos
+   teléfonos sin USB, utiliza la [configuración privada con Tailscale](docs/PRUEBA_SIN_USB.md).
+   Ambos teléfonos deben poder abrir la URL del servidor terminada en `/ready`.
+3. **Inicia sesión en el Centro.** Introduce la URL HTTPS sin `/ready` ni `/v1`,
+   el usuario `admin` y la contraseña creada en el servidor.
+4. **Inscribe el Agente.** Genera un código en el Centro, acepta el consentimiento
+   en el Agente e introduce la misma URL y el código. Habilita el indicador visible.
+5. **Activa las funciones necesarias.** La captura real, las notificaciones de
+   WhatsApp y la pantalla compartida tienen sus propias autorizaciones y permisos.
+6. **Consulta y administra.** Abre el dispositivo desde el Centro para revisar
+   eventos, acceder a las sesiones autorizadas o revocar la inscripción.
+
+La API debe permanecer funcionando en una PC o servidor accesible. La conexión
+puede atravesar redes distintas cuando ambos dispositivos alcanzan la misma URL
+HTTPS.
+
+## Componentes
+
+| Componente | Tecnología | Responsabilidad |
+| --- | --- | --- |
+| Agente Android | Kotlin, Jetpack Compose, Room y WorkManager | Consentimiento, captura autorizada, cola de eventos y sincronización. |
+| Centro Android | Kotlin y Jetpack Compose | Sesión de usuario, consulta, reportes y administración por rol. |
+| API | Ktor, PostgreSQL y Flyway | Autenticación, validación, recepción, consultas, revocación y auditoría. |
+| Acceso | HTTPS, JWT con refresh y Android Keystore | Transporte autenticado, sesiones y protección de credenciales. |
+
+## Privacidad y control
+
+- La captura requiere consentimiento y un indicador visible. El propietario puede
+  pausar el monitoreo o retirar su consentimiento desde el Agente.
+- WhatsApp y pantalla compartida requieren autorización local adicional por sesión.
+  El Centro consulta las sesiones activadas por el propietario.
+- WhatsApp comparte únicamente vistas previas nuevas entregadas por Android. No
+  recupera historial de chats, archivos ni mensajes sin notificación o con texto oculto.
+- El servidor conserva hasta 20 vistas previas por dispositivo durante un máximo
+  de 5 minutos. Se eliminan al detener la sesión o tras 30 segundos sin comunicación del Agente.
+  El texto no se guarda en Room, PostgreSQL, reportes CSV ni respaldos SQL.
+- La pantalla compartida mantiene un cuadro temporal en memoria, que caduca a los
+  5 segundos sin renovación. Android puede ocultar ventanas protegidas.
+- La auditoría registra consultas y acciones administrativas. En las funciones de
+  contenido registra metadatos de acceso y consentimiento, sin cuerpos de mensajes
+  ni imágenes.
+- Las credenciales Android se almacenan cifradas mediante Keystore. HTTPS valida
+  certificado y hostname; HTTP se limita a las direcciones locales de depuración.
+- La revocación local bloquea nuevas capturas y transmisiones. La remota se conoce
+  en el siguiente contacto con el servidor; sin red no se recibe inmediatamente.
+
+Los eventos de metadatos utilizan una cola persistente con reintentos; el contenido
+opcional de pantalla y notificaciones utiliza sesiones temporales, sin cola en disco.
+El ahorro de batería, retirar permisos o forzar la detención pueden interrumpir el
+servicio. Las sesiones de contenido no se reactivan automáticamente tras reiniciar.
+
+## Compilar desde el código
+
+Requisitos: JDK 21, Android SDK 35 y Python 3. Usa las versiones de Gradle y
+bibliotecas fijadas en el repositorio.
 
 ```bash
 python3 scripts/gradle.py :apps:agent:assembleDebug :apps:control:assembleDebug :backend:ktor:installDist --no-daemon --max-workers=1
 ```
 
-APKs de desarrollo:
+Artefactos generados:
 
-- `apps/agent/build/outputs/apk/debug/agent-debug.apk` → dispositivo A.
-- `apps/control/build/outputs/apk/debug/control-debug.apk` → dispositivo B.
+- Agente: `apps/agent/build/outputs/apk/debug/agent-debug.apk`.
+- Centro: `apps/control/build/outputs/apk/debug/control-debug.apk`.
+- API: `backend/ktor/build/install/ktor/`.
 
-Preparar PostgreSQL/cuentas/HTTPS según la guía de despliegue. Para desarrollo aislado, [el fixture QA](docs/PRUEBAS_INTEGRADAS.md) genera credenciales privadas, escucha en loopback y conserva los datos. En el emulador se usa `http://10.0.2.2:8081`; en teléfonos, la URL HTTPS del servidor autorizado.
+Consulta la [guía de desarrollo](docs/desarrollo.md) para las herramientas y la
+[guía de despliegue](docs/despliegue.md) para PostgreSQL, roles, migraciones,
+HTTPS, respaldo y restauración.
 
-## Comprobaciones principales
+## Estado de la versión
 
-```bash
-python3 scripts/gradle.py :apps:common:test :apps:agent:testDebugUnitTest :apps:control:testDebugUnitTest :backend:ktor:test --no-daemon --max-workers=1
-python3 scripts/check_database.py
-python3 scripts/check_apk.py
-python3 scripts/local_fixture.py run -- bash scripts/check_tls.sh
-python3 scripts/check_dependencies.py --prepare
-```
+La validación registrada para 0.4 incluye **197 pruebas JVM/Robolectric/PostgreSQL**,
+32 de herramientas, 49 de contrato y 23 respuestas verificadas contra el contrato
+con la API en ejecución. El recorrido de notificaciones entre dos emuladores aprobó
+consentimiento, permiso Android, envío, visualización y detención con entradas
+sintéticas. La pantalla compartida cuenta con un recorrido simultáneo de captura
+real entre dos emuladores.
 
-La suite nativa requiere compilar también `assembleDebugAndroidTest` de ambas apps y dos emuladores dedicados ya arrancados:
+Quedan por verificar la instalación Windows, Android reciente, teléfonos físicos
+y la recepción de notificaciones desde WhatsApp instalado. La firma de distribución
+y el despliegue operativo HTTPS también están pendientes. Los informes distinguen
+las versiones y el alcance de cada comprobación.
 
-```bash
-.venv/bin/python scripts/check_android.py --agent-serial emulator-5580 --control-serial emulator-5582
-```
+- [Validación de notificaciones y APK 0.4](docs/evidencias/WHATSAPP-0.4.0-2026-10-29.md).
+- [Validación funcional y pantalla compartida](docs/evidencias/VALIDACION-FUNCIONAL-2026-10-28.md).
+- [Procedimientos de pruebas integradas](docs/PRUEBAS_INTEGRADAS.md).
 
-No borra datos para poder ejecutarse: rechaza inscripciones/sesiones existentes y exige retirarlas/cerrarlas desde las apps. Comprueba los 17 pasos completos y devuelve error si falla o queda incompleto alguno. [Precondiciones y límites](docs/PRUEBAS_INTEGRADAS.md).
+## Documentación
 
-## Entrega para desarrollo local
-
-Después de aprobar la suite nativa, `scripts/package_qa.py` genera un ZIP con las dos APKs instalables, la API compilada, los manuales y el código versionado con wrappers/pruebas. Incluye `LEEME.md`, manifiesto y checksums; exige que los hashes coincidan con las APKs probadas. [Comando y verificación](docs/PRUEBAS_INTEGRADAS.md#paquete-instalable-de-qa).
-
-Para probar localmente se usan dos emuladores y el fixture en loopback; no hace falta dominio. La instalación en teléfonos y el piloto HTTPS siguen los requisitos de entrega del plan. El usuario confirmó que actualmente no dispone de servidor/dominio, clave de distribución ni teléfonos de prueba.
-
-## Alcance de seguridad y entrega
-
-El Agente solicita opcionalmente READ_SMS/READ_CALL_LOG para consultar únicamente tipo y fecha desde la activación. No consulta cuerpos ni números; no solicita contactos, cámara, micrófono, ubicación ni accesibilidad. No se oculta y permite retirar el consentimiento. HTTPS valida certificado y hostname; HTTP solo se permite en loopback. La revocación remota se conoce en el siguiente contacto del agente; un dispositivo offline no recibe una confirmación inmediata.
-
-Quedan como condiciones externas de entrega: validación en Android reciente y teléfonos propios, clave de distribución del responsable y piloto HTTPS con acceso/autorización. Las APKs debug y los certificados QA sirven para desarrollo. El análisis de dependencias se limita al runtime Maven resuelto y a la base de avisos registrada; no acredita la seguridad de todo un despliegue.
-
-## Entregas anteriores conservadas
-
-- **App académica local `academic/`:** I01–I12 y versión 0.1.0-i12/12. [Entrega](docs/ENTREGA_ACADEMICA.md), [avance](docs/AVANCE_ACADEMICO.md), [manual](docs/USO_ACADEMICO.md), [evidencia en dos emuladores](docs/evidencias/academico/DOS-EMULADORES-2026-10-23.md). Es una entrega independiente; no sustituye el flujo de dos apps/API. Sus fuentes y datos se conservan.
-- **Prototipo Python/web `backend/api`:** referencia local con SQLite y [contrato 0.1](contracts/prototype-v0.1.yaml). [Guía](backend/api/README.md). Mantenerlo en loopback; el servicio definitivo es Ktor/PostgreSQL.
-
-Para continuar el trabajo, leer [AGENTS.md](AGENTS.md).
+- [Instalación y conexión sin USB](docs/INICIO_WINDOWS_0.4.md).
+- [Manual del producto](docs/MANUAL_PRODUCTO.md).
+- [Captura de metadatos](docs/CAPTURA_REAL.md).
+- [Notificaciones de WhatsApp](docs/WHATSAPP_NOTIFICACIONES.md).
+- [Pantalla compartida](docs/COMPARTIR_PANTALLA.md).
+- [Contrato de la API](contracts/openapi.yaml), [pantalla](contracts/screen-share.openapi.yaml) y [notificaciones](contracts/whatsapp-preview.openapi.yaml).
+- [Despliegue y operación](docs/despliegue.md).
+- [Registro de cambios y estado](docs/AVANCE.md).
