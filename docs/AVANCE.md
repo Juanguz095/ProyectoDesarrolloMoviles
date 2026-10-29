@@ -18,6 +18,9 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
 - [Resolución](evidencias/DEFENDER-RESOLUCION-0.7-2026-10-29.json) e
   [informe](evidencias/DEFENDER-WINDOWS-40825372845.json). Control de publicación
   exige evidencia reciente del ZIP exacto y rechaza exclusiones/detecciones/errores.
+- Enlaces reabiertos en descargas `a3144c0`, binarios idénticos al original.
+  Tres descargas HTTP 200 con SHA256/tamaño coincidentes e informe Defender
+  público HTTP 200. [Entrega revisada](evidencias/ENTREGA-REVISADA-0.7-2026-10-29.json).
 - Validación funcional/Windows de operación y recepción real en teléfonos sigue
   pendiente; este resultado es antimalware, separado de compilación y usabilidad.
 

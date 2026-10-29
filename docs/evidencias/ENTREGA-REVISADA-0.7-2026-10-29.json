@@ -1,0 +1,46 @@
+{
+  "version": "0.7.0-preview",
+  "verified_at_utc": "2026-10-29T05:54:51.379813+00:00",
+  "source_commit": "cae5f9f8adc9ab130472a83176d3ff35ed6cd410",
+  "delivery_commit": "a3144c0f796354427a13abd2a23a13bcbe17bde7",
+  "files": [
+    {
+      "name": "auditlab-agent-0.7.0-preview.apk",
+      "bytes": 10276841,
+      "sha256": "6d9da3ad8ca5be56fa6b73996fc2c99d066dfb42f794962e12533b73defcefbd",
+      "url": "https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.7.0-preview.apk",
+      "http_status": 200,
+      "verified_sha256": "6d9da3ad8ca5be56fa6b73996fc2c99d066dfb42f794962e12533b73defcefbd",
+      "verified_bytes": 10276841
+    },
+    {
+      "name": "auditlab-control-0.7.0-preview.apk",
+      "bytes": 9583347,
+      "sha256": "0ed145ff9370fb4cd5a415643e7e0f97d70c0a597e163c89d6b17e98a3035112",
+      "url": "https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.7.0-preview.apk",
+      "http_status": 200,
+      "verified_sha256": "0ed145ff9370fb4cd5a415643e7e0f97d70c0a597e163c89d6b17e98a3035112",
+      "verified_bytes": 9583347
+    },
+    {
+      "name": "AuditLab-Servidor-Windows-0.7.0-preview.zip",
+      "bytes": 38336916,
+      "sha256": "280b7e57579d22c9ee97a65d060e6250a882b23665fa91a8f737cce353439778",
+      "url": "https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.7.0-preview.zip",
+      "http_status": 200,
+      "verified_sha256": "280b7e57579d22c9ee97a65d060e6250a882b23665fa91a8f737cce353439778",
+      "verified_bytes": 38336916
+    }
+  ],
+  "package_entries": 449,
+  "package_crc_and_contents_verified": true,
+  "functional_validation_pending": true,
+  "automated_tests_executed": false,
+  "real_whatsapp_verified": false,
+  "windows_verified": false,
+  "pilot_approved": false,
+  "antivirus_scan_record": "DEFENDER-WINDOWS-40825372845.json",
+  "security_resolution": "DEFENDER-RESOLUCION-0.7-2026-10-29.json",
+  "artifacts_unchanged_from_original_delivery": true,
+  "published_antivirus_report_http_status": 200
+}
