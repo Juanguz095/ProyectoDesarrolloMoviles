@@ -29,6 +29,9 @@ try {
     if (-not $status.AntivirusEnabled -or -not $status.AMServiceEnabled -or -not $status.AntispywareEnabled) {
         throw 'Defender is unavailable or inactive. No antivirus clearance can be issued.'
     }
+    if ((Get-MpPreference).DisableArchiveScanning) {
+        throw 'Archive scanning is disabled. No clearance can be issued for a ZIP.'
+    }
     Update-MpSignature
     $status = Get-MpComputerStatus
     $report.engine_version = $status.AMEngineVersion

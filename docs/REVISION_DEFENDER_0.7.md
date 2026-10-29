@@ -57,7 +57,7 @@ otras versiones. Su disponibilidad no demuestra que estén libres de detecciones
 
 Se añadió `.github/workflows/windows-antimalware.yml` para analizar el mismo ZIP
 original en Windows aislado, sin ejecutar sus scripts. `Analizar-Paquete.ps1`
-comprueba SHA256, Defender activo, firma Microsoft del motor y firmas actualizadas.
+comprueba SHA256, Defender activo, análisis de archivos comprimidos habilitado, firma Microsoft del motor y firmas actualizadas.
 Publica su resultado incluso si falla o no encuentra el motor, en `security-reports`.
 Un resultado ausente, bloqueado o con error nunca habilita publicación.
 
