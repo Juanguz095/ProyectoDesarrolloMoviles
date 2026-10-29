@@ -1,0 +1,30 @@
+{
+  "version": "0.4.1-preview",
+  "source_commit": "7121d54e477f47af6f477fb6b869e5a69eff22f1",
+  "server_compatible": "0.4.0-preview",
+  "files": [
+    {
+      "component": "agent",
+      "version": "0.4.1-preview",
+      "versionCode": 6,
+      "file": "auditlab-agent-0.4.1-preview.apk",
+      "bytes": 10246482,
+      "sha256": "eb64c7713344c800d08b1ab3854e558d493ca25a141e9cec90a266dba0525b88",
+      "url": "https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.4.1-preview.apk"
+    },
+    {
+      "component": "control",
+      "version": "0.4.1-preview",
+      "versionCode": 6,
+      "file": "auditlab-control-0.4.1-preview.apk",
+      "bytes": 9698271,
+      "sha256": "79c3f8c1f1f48f595885907dbffc4c151f2a6441f4ebaca36254a5dc31a822b7",
+      "url": "https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.4.1-preview.apk"
+    }
+  ],
+  "debug_build_passed": true,
+  "lint_errors": 0,
+  "automatic_tests_executed": false,
+  "full_functional_flow_executed": false,
+  "pilot_approved": false
+}

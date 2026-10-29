@@ -7,13 +7,14 @@ puertos del router. Ambos teléfonos deben poder acceder al mismo servidor.
 
 ## 1. Descargas
 
-Descarga los tres archivos de la misma versión:
+Descarga los APK 0.4.1 y el servidor compatible 0.4.0:
 
-- [Agente 0.4.0-preview](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.4.0-preview.apk).
-- [Centro 0.4.0-preview](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.4.0-preview.apk).
+- [Agente 0.4.1-preview](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.4.1-preview.apk).
+- [Centro 0.4.1-preview](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.4.1-preview.apk).
 - [Servidor Windows 0.4.0-preview](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.4.0-preview.zip).
 
-El ZIP también contiene los dos APK en `apks/`. El servidor 0.3 anterior no incluye
+El ZIP contiene los APK 0.4.0 anteriores en `apks/`; instala los APK 0.4.1
+de los enlaces anteriores. Si ya tienes el servidor 0.4.0, conserva la instalación. El servidor 0.3 anterior no incluye
 las rutas nuevas de WhatsApp/pantalla: **actualiza los tres componentes**.
 
 ## 2. Preparar la PC Windows
