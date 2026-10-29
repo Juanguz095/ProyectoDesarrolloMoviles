@@ -1,0 +1,25 @@
+﻿{
+    "schema_version":  1,
+    "scanner":  "Microsoft Defender Antivirus",
+    "status":  "no_threats_detected",
+    "scanned_at_utc":  "2026-10-29T05:23:54.9252171Z",
+    "artifact":  {
+                     "name":  "AuditLab-Servidor-Windows-0.7.0-preview.zip",
+                     "bytes":  38336916,
+                     "sha256":  "280b7e57579d22c9ee97a65d060e6250a882b23665fa91a8f737cce353439778"
+                 },
+    "scan_exit_code":  0,
+    "engine_version":  "1.1.26100.4",
+    "signature_version":  "1.463.16.0",
+    "signature_updated_at_utc":  "2026-10-28T20:03:00.0000000Z",
+    "detected_threats":  [
+
+                         ],
+    "error":  null,
+    "antivirus_service_status":  "Running",
+    "post_scan_findings":  [
+
+                           ],
+    "workflow_run_id":  "40823055641",
+    "source_commit":  "456654fa3ad9b4654185557f1a3e08a2f88beb2e"
+}
