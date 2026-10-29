@@ -33,7 +33,7 @@ Las APK publicadas usan firma debug; la firma de distribución sigue pendiente.
 
 [Instalación paso a paso en Windows, sin USB](docs/INICIO_WINDOWS_0.4.md) ·
 [Archivos y checksums](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/tree/descargas-auditlab) ·
-[Registro de las apps 0.7.1](docs/evidencias/WHATSAPP-0.7.1-2026-10-29.json)
+[Entrega de las apps 0.7.1](docs/evidencias/ENTREGA-0.7.1-2026-10-29.json)
 
 ## Cambios en 0.7
 

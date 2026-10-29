@@ -23,8 +23,11 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
   [Registro](evidencias/WHATSAPP-0.7.1-2026-10-29.json).
   No se ejecutan suites automáticas ni recepción real en teléfonos en esta revisión.
   No se declara causa confirmada del dispositivo del usuario.
-- [Guía](CORRECCION_WHATSAPP_0.7.1.md). P8.2/P8.3: preparar los dos APK; no hay API,
-  BD ni ZIP Windows nuevo. Siguiente P7.6: confirmar recepción autorizada real.
+- P8.2/P8.3: dos APK publicados, fuente `0dd067a`, descargas
+  `042f6f1`. Ambos enlaces HTTP 200 con tamaño/SHA256 coincidentes.
+  [Entrega](evidencias/ENTREGA-0.7.1-2026-10-29.json) y
+  [guía](CORRECCION_WHATSAPP_0.7.1.md). Sin API/BD/ZIP Windows nuevos.
+  Siguiente P7.6: confirmar recepción autorizada real en el teléfono.
 
 ## Revisión completa del ZIP en Defender — 29 de octubre de 2026 (America/Lima)
 

@@ -1,0 +1,35 @@
+{
+  "apps_version": "0.7.1-preview",
+  "compatible_server_version": "0.7.0-preview",
+  "source_commit": "0dd067afa9f93f31ef12955125b71be9a3f4d2b9",
+  "files": [
+    {
+      "name": "auditlab-agent-0.7.1-preview.apk",
+      "bytes": 10281044,
+      "sha256": "629eca43164365ba59af6bae307319de17c8d25294b2d6fae4917cdaf0890c35",
+      "url": "https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.7.1-preview.apk",
+      "http_status": 200,
+      "verified_sha256": "629eca43164365ba59af6bae307319de17c8d25294b2d6fae4917cdaf0890c35",
+      "verified_bytes": 10281044
+    },
+    {
+      "name": "auditlab-control-0.7.1-preview.apk",
+      "bytes": 9712231,
+      "sha256": "4121570369db6b07e4967ac148630cd6cebbe861c4e574a042753db2a3414ca8",
+      "url": "https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.7.1-preview.apk",
+      "http_status": 200,
+      "verified_sha256": "4121570369db6b07e4967ac148630cd6cebbe861c4e574a042753db2a3414ca8",
+      "verified_bytes": 9712231
+    }
+  ],
+  "build_and_static_checks_passed": true,
+  "upgrade_signatures_match": true,
+  "automated_tests_executed": false,
+  "real_whatsapp_verified": false,
+  "new_windows_archive": false,
+  "windows_zip_antivirus_report_covers_this_patch": false,
+  "pilot_approved": false,
+  "delivery_commit": "042f6f1c179c531bae433aceddbc1000bcacce40",
+  "verified_at_utc": "2026-10-29T06:36:27.146939+00:00",
+  "scope": "Android APK downloads and static/build checks; no new phone functional validation"
+}
