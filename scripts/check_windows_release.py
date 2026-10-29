@@ -22,6 +22,8 @@ def verify(archive, report_path, now=None):
     if (report.get('schema_version') != 1
             or report.get('scanner') != 'Microsoft Defender Antivirus'
             or report.get('status') != 'no_threats_detected'
+            or report.get('archive_scanning_enabled') is not True
+            or report.get('exclusion_checks_passed') is not True
             or type(report.get('scan_exit_code')) is not int
             or report['scan_exit_code'] != 0
             or report.get('detected_threats') != []

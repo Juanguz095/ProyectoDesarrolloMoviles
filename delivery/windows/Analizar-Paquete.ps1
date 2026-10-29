@@ -16,6 +16,8 @@ $report = [ordered]@{
     engine_version = $null
     signature_version = $null
     signature_updated_at_utc = $null
+    archive_scanning_enabled = $false
+    exclusion_checks_passed = $false
     detected_threats = @()
     error = $null
 }
@@ -29,9 +31,25 @@ try {
     if (-not $status.AntivirusEnabled -or -not $status.AMServiceEnabled -or -not $status.AntispywareEnabled) {
         throw 'Defender is unavailable or inactive. No antivirus clearance can be issued.'
     }
-    if ((Get-MpPreference).DisableArchiveScanning) {
+    $preferences = Get-MpPreference
+    if ($preferences.DisableArchiveScanning) {
         throw 'Archive scanning is disabled. No clearance can be issued for a ZIP.'
     }
+    $report.archive_scanning_enabled = $true
+    foreach ($entry in @($preferences.ExclusionPath)) {
+        if ([string]::IsNullOrWhiteSpace($entry)) { continue }
+        $pattern = [Environment]::ExpandEnvironmentVariables($entry)
+        if ($archive.FullName -like $pattern -or $archive.FullName -like ($pattern.TrimEnd('\') + '\*')) {
+            throw 'The archive is under a Defender exclusion. No clearance issued.'
+        }
+    }
+    foreach ($entry in @($preferences.ExclusionExtension)) {
+        if ([string]::IsNullOrWhiteSpace($entry)) { continue }
+        if ($archive.Name -like $entry -or $archive.Extension -eq ('.' + $entry.TrimStart('.'))) {
+            throw 'The archive extension is excluded from Defender. No clearance issued.'
+        }
+    }
+    $report.exclusion_checks_passed = $true
     Update-MpSignature
     $status = Get-MpComputerStatus
     $report.engine_version = $status.AMEngineVersion

@@ -26,7 +26,11 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
   runner tenía deshabilitado el análisis de ZIP: ejecución `40823191760` bloqueada
   sin emitir dictamen. Se habilita ese análisis en el runner aislado y se repite;
   no se cambian protección ni exclusiones en la PC del usuario.
-- Pendiente completar el análisis Windows y resolver la detección reportada.
+- Ejecución `40824564648`: Defender 1.1.26100.4, firmas 1.463.16.0, scan exit 0,
+  sin detecciones sobre el ZIP original. Aún no se levanta suspensión: se añade
+  control explícito de exclusiones y se repite en ProgramData para evitar carpetas
+  temporales excluidas por el runner. No se cambian/retiran exclusiones para lograrlo.
+- Pendiente completar esa comprobación antes de decidir distribución.
 
 ## Bloqueo de Defender en ZIP Windows 0.7 — 29 de octubre de 2026 (America/Lima)
 
