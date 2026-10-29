@@ -1,7 +1,7 @@
 # AuditLab — manual del producto
 
 Actualizado: 29 de octubre de 2026, America/Lima.
-Apps **0.7.1-preview**; servidor **0.7**, PostgreSQL con migraciones **V1–V9**.
+Agente **0.7.1-preview**, Centro **0.7.2-preview**; servidor **0.7**, PostgreSQL con migraciones **V1–V9**.
 Es una entrega de desarrollo. [Estado comprobado](AVANCE.md) y
 [contexto general](CONTEXTO_PRODUCTO.md).
 
@@ -12,7 +12,7 @@ Es una entrega de desarrollo. [Estado comprobado](AVANCE.md) y
 - Ambos teléfonos deben alcanzar la misma URL HTTPS. Para Windows/Tailscale:
   [instalación sin USB](INICIO_WINDOWS_0.4.md). No usar 127.0.0.1 en los teléfonos.
 - APK actuales: utilizar los enlaces de [README](../README.md). El ZIP Windows 0.7
-  incluye los APK anteriores; para la corrección WhatsApp descargar los APK 0.7.1 separados.
+  incluye los APK anteriores; descargar los APK actuales separados.
 - Las apps publicadas tienen firma debug. Para una distribución propia usar una
   clave del responsable fuera de Git; cambiar de firma puede impedir actualizar
   una instalación anterior. No borrar sus datos automáticamente para resolverlo.
@@ -90,7 +90,10 @@ a cámara, audio ni grabación; ventanas protegidas pueden aparecer en blanco/ne
   No busca palabras dentro del texto SMS. Fechas precisas del filtro usan UTC;
   las tarjetas presentan hora local.
 - **Detalle:** información legible; IDs/códigos/contexto bajo Información técnica.
-- **WhatsApp:** Eventos → WhatsApp, seleccionar teléfono y Actualizar WhatsApp.
+- **WhatsApp:** Eventos → Todo o WhatsApp, seleccionar teléfono y Actualizar WhatsApp.
+  Las tarjetas de texto temporal se muestran dentro de Resultados, separadas del
+  historial de actividad, sin filtros de fecha/ID. Ver mensaje completo expande
+  el texto. [Alcance del Centro 0.7.2](WHATSAPP_EVENTOS_0.7.2.md).
   También puede abrirse desde el dispositivo. Consulta cada 3 s en primer plano.
 - **Pantalla:** Equipos → Ver dispositivo → Ver pantalla compartida.
 

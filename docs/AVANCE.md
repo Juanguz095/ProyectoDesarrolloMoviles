@@ -4,6 +4,26 @@ Actualización: 29 de octubre de 2026, UTC. Los registros anteriores conservan s
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
+## Mensajes WhatsApp dentro de Eventos — 29 de octubre de 2026 (America/Lima)
+
+- P6.2/P6.6/P6.4: Centro 0.7.2-preview, código 11, muestra las vistas previas
+  temporales dentro de Resultados en Todo y WhatsApp. Selector explícito si hay
+  varios teléfonos; con uno activo se usa ese. Tarjetas ordenadas de más nueva a
+  antigua, título de notificación, texto expandible y hora local.
+- Con filtros de fecha/ID se conserva solo el historial de actividad y se explica
+  por qué no se recupera texto anterior. Las filas persistentes de WhatsApp indican
+  que no contienen texto; no se asocian por suposición a ninguna vista previa.
+- Consulta en primer plano cada 3 s, descarte al salir/fondo/logout y FLAG_SECURE
+  conservados. No cambia API, captura ni consentimiento; Agente 0.7.1/API 0.7 siguen
+  siendo compatibles. No se obtiene texto de mensajes enviados dentro del chat.
+- Compilación y lint aprobados, 0 errores, 6 advertencias y 3 informativos.
+  Auditoría estática del APK aprobada; firma igual a Centro 0.7.1. Evidencia:
+  [revisión 0.7.2](evidencias/WHATSAPP-EVENTOS-0.7.2-2026-10-29.json).
+- Sin suites automáticas, ejecución en dispositivos ni recepción WhatsApp real
+  en esta revisión. Siguiente P7.6: verificar una notificación nueva autorizada en
+  los teléfonos del usuario. P8.2/P8.3: preparar publicación del APK y guía, sin ZIP
+  Windows nuevo. La revisión Defender histórica no cubre este APK.
+
 ## Documentación consolidada y material PPT — 29 de octubre de 2026 (America/Lima)
 
 - P8.3: contexto de producto y arquitectura actualizados para apps 0.7.1/API 0.7.

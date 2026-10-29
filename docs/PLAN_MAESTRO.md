@@ -5,6 +5,11 @@ Contexto y arquitectura actualizados al 29 de octubre: [producto](CONTEXTO_PRODU
 [arquitectura](ARQUITECTURA.md) y [presentación](PRESENTACION_PPT.md). Las ampliaciones
 fechadas conservan el historial; el alcance actual consolida las versiones posteriores.
 
+**Centro 0.7.2 — 29 de octubre (America/Lima):** P6.2/P6.6/P6.4 integran vistas
+previas temporales dentro de Resultados en Eventos → Todo y WhatsApp. Sin cambios
+en captura/contrato/persistencia ni acceso a mensajes enviados dentro del chat.
+[Alcance](WHATSAPP_EVENTOS_0.7.2.md); P7.6 de recepción real permanece pendiente.
+
 **Ampliación 0.7 — 28 de octubre (America/Lima):** P5.3/P6.2 incluyen texto de
 SMS nuevos enviados y recibidos, con autorización local adicional por sesión,
 READ_SMS, indicador visible y retención/CSV de eventos. Máximo 2 000 caracteres;

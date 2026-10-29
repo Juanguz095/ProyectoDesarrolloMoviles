@@ -17,15 +17,20 @@ Una API central autentica las conexiones, recibe los eventos y registra las cons
 
 ## Descargas
 
-**Apps actuales: 0.7.1-preview · Servidor compatible: 0.7 · Android 8.0 o superior.**
+**Agente: 0.7.1-preview · Centro: 0.7.2-preview · Servidor: 0.7 · Android 8.0 o superior.**
 
 | Componente | Instalación | Descargar |
 | --- | --- | --- |
 | Agente | Dispositivo que comparte información | [APK Agente](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.7.1-preview.apk) |
-| Centro de control | Dispositivo desde el que se consulta | [APK Centro](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.7.1-preview.apk) |
+| Centro de control | Dispositivo desde el que se consulta | [APK Centro](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.7.2-preview.apk) |
 | Servidor Windows | PC que ejecuta la API y la base de datos | [Servidor Windows 0.7](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.7.0-preview.zip) |
 
-**Corrección WhatsApp 0.7.1:** instala los dos APK como actualización. Compatible
+**Centro 0.7.2:** mensajes de notificaciones WhatsApp dentro de Eventos → Todo o
+WhatsApp, con título, texto expandible y hora. Son vistas previas temporales,
+separadas del historial/CSV; no captura el texto enviado dentro del chat.
+[Cómo usarlo y límites](docs/WHATSAPP_EVENTOS_0.7.2.md).
+
+**Corrección del Agente 0.7.1:** instala los APK actuales como actualización. Compatible
 con servidor 0.7 y datos/configuración existentes. El ZIP Windows 0.7 conserva los
 APK anteriores; para este cambio usa los enlaces separados de Agente y Centro.
 [Qué corrige y cómo activarlo](docs/CORRECCION_WHATSAPP_0.7.1.md).
@@ -140,6 +145,10 @@ Consulta la [guía de desarrollo](docs/desarrollo.md) para las herramientas y la
 HTTPS, respaldo y restauración.
 
 ## Estado de la versión
+
+Centro 0.7.2: compilación, lint y auditoría estática aprobados; firma compatible
+con 0.7.1. Sin ejecución funcional en dispositivos en esta revisión.
+[Registro](docs/evidencias/WHATSAPP-EVENTOS-0.7.2-2026-10-29.json).
 
 Apps 0.7.1: compilación, lint, auditoría estática y firma de actualización correctos.
 No se ejecutaron suites automáticas ni recepción real en teléfonos en esta revisión;

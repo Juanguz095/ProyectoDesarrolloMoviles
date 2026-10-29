@@ -1,5 +1,8 @@
 # WhatsApp — vistas previas y actividad autorizada
 
+Centro 0.7.2: [vistas previas dentro de Eventos → Todo y WhatsApp](WHATSAPP_EVENTOS_0.7.2.md).
+Compatible con Agente 0.7.1 y servidor 0.7; no añade captura de envíos dentro del chat.
+
 Corrección Android 0.7.1: [actividad independiente, notificaciones durante la
 conexión y diagnóstico visible](CORRECCION_WHATSAPP_0.7.1.md). Compatible con servidor 0.7.
 

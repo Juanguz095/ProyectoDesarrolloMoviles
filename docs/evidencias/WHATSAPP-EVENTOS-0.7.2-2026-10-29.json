@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-29",
+  "timezone": "America/Lima",
+  "tasks": [
+    "P6.2",
+    "P6.6",
+    "P6.4",
+    "P8.2",
+    "P8.3"
+  ],
+  "source_base_commit": "e5cd735ddd0238267fbaee8eaff93e1cb42bd231",
+  "component": "control",
+  "version": "0.7.2-preview",
+  "versionCode": 11,
+  "compatible_agent": "0.7.1-preview",
+  "compatible_server": "0.7.0-preview",
+  "artifact": {
+    "file": "auditlab-control-0.7.2-preview.apk",
+    "bytes": 9532782,
+    "sha256": "f03feb5f0909bf3b64999a3c5bfa10c72ab14e02a864dbb50ecf614844019890",
+    "signer_sha256": "970a74d96448bdf8f1efdb65396d88ac1bba6126acac4f2e40508390574cd853"
+  },
+  "checks": {
+    "build_and_lint_exit_code": 0,
+    "build_log": ".tooling/whatsapp-events-072-build.log",
+    "lint_issues": {
+      "Warning": 6,
+      "Information": 3
+    },
+    "apk_audit_exit_code": 0,
+    "apk_audit_log": ".tooling/whatsapp-events-072-apk-audit.log",
+    "upgrade_signature_matches_071": true
+  },
+  "automated_app_tests_executed": false,
+  "real_whatsapp_verified": false,
+  "device_execution_performed": false,
+  "api_or_database_changes": false,
+  "new_windows_archive": false,
+  "limitations": [
+    "Incoming notification previews only; no outgoing chat text",
+    "Preview text remains ephemeral, excluded from CSV and persistent event store",
+    "Real phone reception remains pending P7.6"
+  ]
+}

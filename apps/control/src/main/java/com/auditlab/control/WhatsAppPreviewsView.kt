@@ -4,6 +4,7 @@ import android.view.WindowManager
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.activity.compose.LocalActivity
+import androidx.compose.ui.text.style.TextOverflow
 import com.auditlab.common.*
 import com.auditlab.design.*
 import kotlinx.coroutines.*
@@ -39,6 +40,7 @@ private fun WhatsAppMessagesContent(session: ControlSession,device: String?,onBa
     var lastChecked by remember(device) { mutableStateOf<String?>(null) }
     var error by remember(device) { mutableStateOf<String?>(null) }
     LaunchedEffect(device,session.signedIn,foreground,refreshKey) {
+        if(!session.signedIn || !foreground) { snapshot=null;error=null;return@LaunchedEffect }
         if(device!=null && session.signedIn && foreground) while(isActive && foreground && session.signedIn) {
             try {
                 val latest=session.whatsAppPreviewSnapshot(device)
@@ -65,8 +67,8 @@ private fun WhatsAppMessagesContent(session: ControlSession,device: String?,onBa
         }
     }
     if(!compact) {AuditHeader("WHATSAPP","VISTAS PREVIAS AUTORIZADAS");AuditLink("← Volver al dispositivo",onBack)}
-    else Text("Mensajes recientes de WhatsApp",style=MaterialTheme.typography.titleMedium)
-    Text("Texto disponible en notificaciones nuevas; no es el historial completo del chat. Solo se comparte si el propietario activa la sesión en el Agente.")
+    else Text("Mensajes recibidos · Vistas previas temporales",style=MaterialTheme.typography.titleMedium)
+    Text("Texto de notificaciones nuevas autorizado en el Agente. No incluye el texto de lo enviado dentro del chat ni el historial completo.")
     AuditLink("Actualizar WhatsApp",{refreshKey++},device!=null && !session.busy)
     lastChecked?.let {Text("Última consulta: ${displayFriendlyTime(it)}",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)}
     AuditRule()
@@ -75,14 +77,17 @@ private fun WhatsAppMessagesContent(session: ControlSession,device: String?,onBa
     else snapshot?.let { current ->
         AuditStatus(if(current.active) "SESIÓN ACTIVA" else "SESIÓN DETENIDA",current.active)
         if(current.items.isEmpty()) AuditEmpty("SIN VISTAS PREVIAS",if(current.active) "Aparecerán cuando WhatsApp publique una notificación con texto permitido por Android." else "En el teléfono Agente, abre Configurar vistas previas de WhatsApp, concede acceso Android y autoriza la sesión. Aquí aparecerá el texto de notificaciones nuevas.")
-        current.items.forEach { preview ->
+        current.items.sortedByDescending { it.timestamp }.forEach { preview -> key(preview.messageId) {
             AuditPanel {
-                Text(preview.title.ifBlank { "WhatsApp" },style=MaterialTheme.typography.titleMedium)
-                Text(preview.text)
+                var expanded by remember { mutableStateOf(false) }
+                Text("WhatsApp recibido",style=MaterialTheme.typography.labelMedium,color=AuditColors.Muted)
+                Text("De: ${preview.title.ifBlank { "Nombre no disponible en la notificación" }}",style=MaterialTheme.typography.titleMedium)
+                Text(preview.text,maxLines=if(expanded) Int.MAX_VALUE else 4,overflow=TextOverflow.Ellipsis)
+                AuditLink(if(expanded) "Mostrar menos" else "Ver mensaje completo",{expanded=!expanded})
                 Text(displayFriendlyTime(preview.timestamp),color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
                 Text(if(preview.packageName=="com.whatsapp.w4b") "WhatsApp Business" else "WhatsApp",style=MaterialTheme.typography.bodySmall)
             }
-        }
+        } }
     }
     if(snapshot==null && error==null && device!=null) Text("Consultando la sesión…")
     AuditRule()

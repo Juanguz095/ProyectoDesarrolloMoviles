@@ -126,16 +126,6 @@ internal fun EventExplorer(session: ControlSession, scope: CoroutineScope, onExp
                     selectedContainerColor=AuditColors.Ink,selectedLabelColor=AuditColors.Panel))
         }
     }
-    if(session.query.category=="whatsapp") {
-        val target=session.query.device ?: session.devices.singleOrNull {it.isActive}?.deviceId
-        AuditChoice("Teléfono para WhatsApp", target?.let(session::deviceName) ?: "Selecciona un teléfono",
-            session.devices.filter { it.isActive }.map { it.deviceId to session.deviceName(it.deviceId) },!session.busy) {
-            session.applyFilters(session.query.copy(device=it),scope)
-        }
-        if(target==null) Text("Selecciona el teléfono que tiene el Agente para consultar sus notificaciones autorizadas.")
-        else WhatsAppMessagesInline(session,target)
-        AuditLink("Actualizar teléfonos",{session.refresh(scope)},!session.busy)
-    }
     AuditButton(if(showFilters) "Ocultar filtros" else "Filtrar eventos",{showFilters=!showFilters},!session.busy,outlined=true)
     if(showFilters) {
     AuditPanel {
@@ -167,6 +157,23 @@ internal fun EventExplorer(session: ControlSession, scope: CoroutineScope, onExp
     if(!showFilters && onExport!=null) AuditButton("Exportar CSV",onExport,!session.busy && session.eventsLoaded,outlined=true)
     AuditRule()
     SectionLabel("Resultados")
+    if(session.query.category in setOf(null,"communication","whatsapp")) {
+        SectionLabel("Mensajes de WhatsApp · En vivo")
+        if(session.query.from!=null || session.query.to!=null || session.query.q!=null) {
+            Text("Los filtros de fecha e identificador consultan el historial de actividad, que no guarda texto de WhatsApp. Quita esos filtros para ver las vistas previas en vivo.",color=AuditColors.Muted)
+        } else {
+            val target=session.query.device ?: session.devices.singleOrNull {it.isActive}?.deviceId
+            AuditChoice("Teléfono para WhatsApp", target?.let(session::deviceName) ?: "Selecciona un teléfono",
+                session.devices.filter { it.isActive }.map { it.deviceId to session.deviceName(it.deviceId) },!session.busy) {
+                session.applyFilters(session.query.copy(device=it),scope)
+            }
+            if(target==null) Text("Selecciona el teléfono que tiene el Agente para consultar sus notificaciones autorizadas.")
+            else androidx.compose.runtime.key(target) { WhatsAppMessagesInline(session,target) }
+            AuditLink("Actualizar teléfonos",{session.refresh(scope)},!session.busy)
+        }
+        AuditRule()
+    }
+    SectionLabel("Historial de actividad · ${session.events.size} eventos en esta página")
     if (session.events.isEmpty()) AuditEmpty(message = if(session.query.category=="whatsapp")
         "En el Agente activa WhatsApp y autoriza registrar su actividad. Aparecerán notificaciones nuevas y respuestas observadas en ellas; no se puede detectar todo lo escrito dentro del chat."
         else if(session.query.category in setOf("sms","call")) "En el Agente autoriza la captura y concede el permiso de SMS o llamadas en Android. Las llamadas aparecen al finalizar."
@@ -360,6 +367,10 @@ internal fun EventRow(event: AuditEvent, enabled: Boolean, deviceName: String?=n
             else Text(body,maxLines=4,overflow=androidx.compose.ui.text.style.TextOverflow.Ellipsis)
             if(event.metadata["smsTextTruncated"]==true) Text("Texto limitado a 2 000 caracteres",style=MaterialTheme.typography.bodySmall)
         }
+        if(event.category=="whatsapp") Text(if(event.direction=="outbound")
+            "Respuesta observada en una notificación · Sin texto disponible"
+            else "Actividad registrada · Consulta el texto temporal en Eventos → Todo o WhatsApp, sin filtros de fecha o identificador",
+            style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
         deviceName?.let { Text(it,color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall) }
         Text(displayFriendlyTime(event.timestamp),style=MaterialTheme.typography.bodyMedium,color=AuditColors.Ink)
 
