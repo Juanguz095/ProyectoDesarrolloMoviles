@@ -1,0 +1,93 @@
+{
+  "date": "2026-10-28",
+  "timezone": "America/Lima",
+  "version": "0.5.0-preview",
+  "tasks": [
+    "P3.8",
+    "P5.6",
+    "P6.4",
+    "P6.6",
+    "P8.2",
+    "P8.3"
+  ],
+  "source_base_commit": "19be7b9a790fa6d4ece0c3dba929ed483fa26252",
+  "source_status": "working tree before publication",
+  "source_files_sha256": {
+    "backend/ktor/src/main/resources/db/migration/V7__whatsapp_activity_events.sql": "e9a29c6b7015556e6b2f458e79f463e9cb6a37cb2d0820e591d7074aad884ba0",
+    "apps/agent/build.gradle.kts": "193e863f5b0bb5e131a1bea50d8782dc5a9d6d834dacb5be6ddaebf7004aa184",
+    "apps/agent/src/main/java/com/auditlab/agent/MainActivity.kt": "fe11bcb29642dc6ad8109c9b08b9226c568220639f916772ebdb7fc6ad09d00c",
+    "apps/agent/src/main/java/com/auditlab/agent/WhatsAppNotificationParser.kt": "8cf563b45fef93fd3908acf5d2b473ba6e7987107f6321c9e6e60b88320683c4",
+    "apps/agent/src/main/java/com/auditlab/agent/WhatsAppSharing.kt": "5bd1aa2fed270dce4900dc49deedd25196fea48cc8bbae61dfe22e73770bbec6",
+    "apps/common/src/main/kotlin/com/auditlab/common/EventPolicy.kt": "c6beb42982fb2e85ec49f8760bcb47fa69ffac319a17842fa0a49a113398565d",
+    "apps/common/src/main/kotlin/com/auditlab/common/WhatsAppPreview.kt": "c9970072ed8996a63c0a8c27181399fb9b4af4b41cda67b95b38a97b4e762be2",
+    "apps/control/build.gradle.kts": "ef8af3a53f6c17715596ef281b8be91514997afa945b209a523a64f3b5b243a7",
+    "apps/control/src/main/java/com/auditlab/control/ControlSession.kt": "34a6add8f69dc1a711d4d3b4b776c346e39abc2b5e1d273d9d009f6b7ee76ba1",
+    "apps/control/src/main/java/com/auditlab/control/ControlViews.kt": "18a2300cc0694df5d39b8832555c09ce4502d4ecbd007a320b38d91f344334f9",
+    "apps/control/src/main/java/com/auditlab/control/MainActivity.kt": "7eacc34449a4e6d1ad870904cbc0503e4864490cc5f10c17c24f80a6b2fe6bb2",
+    "apps/control/src/main/java/com/auditlab/control/WhatsAppPreviewsView.kt": "56b7964652f2ebc9abdff8ad98e2a733136ab3d43f94e1db1cec42f55448b662",
+    "apps/design/src/main/kotlin/com/auditlab/design/AuditUi.kt": "69fe6c8e870994b96b8877779a2766fc69bc058692a156e1d6e27d90e5c4a82e",
+    "backend/ktor/src/integrationTest/kotlin/com/auditlab/api/DatabaseIntegrationTest.kt": "699ab72f81611c21a2a63ce8cce1804fc13e9edddb3ddd75960af7d9122ce783",
+    "backend/ktor/src/main/kotlin/com/auditlab/api/EventRoutes.kt": "df5a243894b0a8b6ddba785e7ebfb225ab547d86d966dab6116daae18ae0fb03",
+    "backend/ktor/src/main/kotlin/com/auditlab/api/Formats.kt": "db218df4d3f0b55516230a702f5707814a7269eac08006c8aad2d1401e1769c9",
+    "backend/ktor/src/main/kotlin/com/auditlab/api/WhatsAppPreviewRoutes.kt": "51e3f098c2512beb1de59ae2798db5b8f10fe28def5ef318572da0f583045c8f"
+  },
+  "artifacts": [
+    {
+      "component": "agent",
+      "versionCode": 7,
+      "file": "auditlab-agent-0.5.0-preview.apk",
+      "bytes": 10250685,
+      "sha256": "c7b408d9eb037b7c7279d3e9e4284344604be43a20510babf6ba4a5946ce3362"
+    },
+    {
+      "component": "control",
+      "versionCode": 7,
+      "file": "auditlab-control-0.5.0-preview.apk",
+      "bytes": 9516398,
+      "sha256": "39b3a52c998b568503fc685d280a57cb8f97918d9cc3dba1e6fffb7ef18a0121"
+    }
+  ],
+  "checks": {
+    "build_exit_code": 0,
+    "lint": {
+      "agent": {
+        "Warning": 12
+      },
+      "control": {
+        "Warning": 5,
+        "Information": 2
+      }
+    },
+    "apk_audit_exit_code": 0,
+    "openapi_documents_valid": 4,
+    "local_development_migration_versions": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7"
+    ],
+    "manual_visual_review": "Authenticated event cards rendered without the capsule clipping on API26 against owned QA metadata; no real WhatsApp account or source notification capture exercised",
+    "automated_tests_executed": false,
+    "real_whatsapp_verified": false,
+    "windows_verified": false
+  },
+  "changes": [
+    "Clickable event panels replace capsule-shaped multi-line TextButtons",
+    "Rectangular multi-line local history and shared buttons",
+    "WhatsApp notification and observed reply type/time events, no text/contact persisted",
+    "Explicit optional consent policy whatsapp-preview-2",
+    "Metadata event allowlist and direction validation extended through additive V7",
+    "Category filters wrap instead of clipping horizontally"
+  ],
+  "limits": [
+    "No general detection of messages composed inside an open chat",
+    "Observed reply does not prove delivery or read",
+    "Unknown/ambiguous sender identity is skipped",
+    "No prior message/history import",
+    "Preview text stays ephemeral and outside Room/SQL/CSV; event type/time uses ordinary retention",
+    "Full automatic and physical-device/real-WhatsApp regression not executed"
+  ]
+}

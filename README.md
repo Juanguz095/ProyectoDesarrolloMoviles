@@ -8,33 +8,35 @@ Una API central autentica las conexiones, recibe los eventos y registra las cons
 
 ## Descargas
 
-**Aplicaciones 0.4.1-preview · Servidor compatible 0.4.0-preview · Android 8.0 o superior.**
+**Versión actual: 0.5.0-preview · Android 8.0 o superior.**
 
 | Componente | Instalación | Descargar |
 | --- | --- | --- |
-| Agente | Dispositivo que comparte información | [APK Agente](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.4.1-preview.apk) |
-| Centro de control | Dispositivo desde el que se consulta | [APK Centro](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.4.1-preview.apk) |
-| Servidor Windows | PC que ejecuta la API y la base de datos | [Servidor y aplicaciones](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.4.0-preview.zip) |
+| Agente | Dispositivo que comparte información | [APK Agente](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.5.0-preview.apk) |
+| Centro de control | Dispositivo desde el que se consulta | [APK Centro](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.5.0-preview.apk) |
+| Servidor Windows | PC que ejecuta la API y la base de datos | [Servidor y aplicaciones](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.5.0-preview.zip) |
 
-**Actualiza ambos APK a 0.4.1. Puedes conservar tu servidor 0.4.0, su URL y los datos.**
-El ZIP del servidor contiene los APK 0.4.0 anteriores: descarga los APK 0.4.1 de
-esta tabla. El servidor 0.3 requiere actualizarse a 0.4.0 para pantalla y WhatsApp.
+**Actualiza las dos aplicaciones y el servidor a 0.5.** La nueva categoría
+WhatsApp y el consentimiento v2 requieren la migración V7 incluida en el servidor.
+Conserva `.auditlab-windows`, su configuración y los datos al actualizar.
 Las APK publicadas usan firma debug; la firma de distribución sigue pendiente.
 
 [Instalación paso a paso en Windows, sin USB](docs/INICIO_WINDOWS_0.4.md) ·
 [Archivos y checksums](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/tree/descargas-auditlab) ·
-[Registro de publicación](docs/evidencias/ENTREGA-0.4.1-2026-10-28.json)
+[Registro técnico de esta versión](docs/evidencias/ACTIVIDAD-0.5.0-2026-10-28.json)
 
-## Cambios en 0.4.1
+## Cambios en 0.5
 
-- Centro con actualización automática cada 10 segundos y botón **Actualizar ahora**.
-- Batería con porcentaje grande, hora de lectura y aviso cuando el dato es antiguo.
-- Eventos en tarjetas con nombres legibles, fecha local y filtros desplegables.
-- Agente con activación visible de batería/eventos y botón **Enviar estado ahora**.
-- Lectura de batería mediante el estado de Android, renovación cada minuto aunque
-  el valor no cambie y captura independiente de errores de los proveedores SMS/llamadas.
+- Tarjetas de eventos con texto completo, sin el recorte de los botones en cápsula.
+- Filtros rápidos Todos, WhatsApp, SMS, Llamadas y Batería.
+- Eventos de notificaciones WhatsApp y respuestas propias observadas, con tipo/fecha
+  y sin guardar texto ni contacto en el historial o CSV.
+- Consentimiento adicional v2; las vistas previas de texto siguen siendo temporales.
+- Se conserva la consulta automática cada 10 segundos y el botón Actualizar ahora.
 
-[Cómo activar la actualización y qué comprobar](docs/ACTUALIZACION_0.4.1.md).
+Android no expone todos los mensajes escritos dentro de un chat abierto. Una
+respuesta observada en una notificación no confirma entrega o lectura.
+[Qué se detecta, cómo actualizar y activar](docs/ACTUALIZACION_0.5.md).
 
 ## Funciones
 
@@ -42,7 +44,7 @@ Las APK publicadas usan firma debug; la firma de distribución sigue pendiente.
 | --- | --- |
 | Estado del dispositivo | Lecturas de batería y conexión, eventos propios de la app y último contacto con el servidor. |
 | SMS y llamadas | Metadatos de tipo y fecha desde la activación, sujetos a permisos Android. Sin contenido de SMS, números ni audio. |
-| Notificaciones de WhatsApp | Título/remitente y texto disponible en notificaciones nuevas de WhatsApp y WhatsApp Business, con autorización adicional por sesión. |
+| WhatsApp | Vistas previas temporales de notificaciones nuevas y eventos de tipo/fecha de notificaciones recibidas o respuestas propias observadas, con autorización adicional por sesión. |
 | Pantalla compartida | Vista remota de la pantalla iniciada por su propietario con permiso de Android; aproximadamente una actualización por segundo, sin audio ni grabación. |
 | Historial y reportes | Filtros por dispositivo, categoría y fechas; búsqueda, detalle, paginación y exportación CSV de eventos. |
 | Administración | Inscripción con código de un uso, roles administrador/auditor, revocación y registro de accesos. |
@@ -127,9 +129,10 @@ HTTPS, respaldo y restauración.
 
 ## Estado de la versión
 
-En 0.4.1 se completaron compilación, lint y auditoría de los APK. Se revisó la
-apertura de las pantallas iniciales en emuladores. No se ejecutaron pruebas
-automáticas ni el recorrido funcional completo de esta actualización.
+La entrega 0.5 documenta compilación, revisión estática, migración del servidor
+de desarrollo y revisión visual. La recepción desde WhatsApp instalado y el
+recorrido completo en teléfonos siguen pendientes; no se ejecutan suites
+automáticas en esta revisión.
 
 La validación registrada para **0.4.0** incluye **197 pruebas JVM/Robolectric/PostgreSQL**,
 32 de herramientas, 49 de contrato y 23 respuestas verificadas contra el contrato
@@ -150,6 +153,7 @@ las versiones y el alcance de cada comprobación.
 ## Documentación
 
 - [Instalación y conexión sin USB](docs/INICIO_WINDOWS_0.4.md).
+- [Actualizar a 0.5 y registrar actividad WhatsApp](docs/ACTUALIZACION_0.5.md).
 - [Manual del producto](docs/MANUAL_PRODUCTO.md).
 - [Captura de metadatos](docs/CAPTURA_REAL.md).
 - [Notificaciones de WhatsApp](docs/WHATSAPP_NOTIFICACIONES.md).

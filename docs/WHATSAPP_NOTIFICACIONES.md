@@ -1,4 +1,4 @@
-# Vistas previas de WhatsApp — ampliación opcional
+# WhatsApp — vistas previas y actividad autorizada
 
 ## Qué comparte
 
@@ -14,9 +14,19 @@ se filtran mensajes anteriores al consentimiento y respuestas propias reconocibl
 Si Android omite la identidad del usuario, se excluye también el nombre local por
 precaución: un contacto con el mismo nombre puede quedar omitido.
 
+Desde 0.5, una autorización `whatsapp-preview-2` permite además registrar en
+**Eventos → WhatsApp** el tipo y la fecha de notificaciones recibidas y respuestas
+propias observadas, sin texto ni contacto. La identificación requiere señales
+explícitas de Android; una coincidencia de nombre por sí sola no identifica una
+respuesta propia. El historial de respuestas directas se observa primero como
+referencia y solo cambios posteriores pueden generar actividad nueva.
+No se confirma entrega, lectura ni todos los envíos desde el chat abierto.
+Estos metadatos usan la cola y retención de eventos; el texto sigue siendo temporal.
+[Alcance, actualización y activación 0.5](ACTUALIZACION_0.5.md).
+
 ## Activar y detener
 
-1. Actualizar **Agente, Centro y servidor** a la revisión que incluye Flyway V5/V6.
+1. Actualizar **Agente, Centro y servidor** a la revisión que incluye Flyway V5/V6/V7.
    No basta actualizar solamente los APK.
 2. Inscribir el Agente y activar su indicador visible de monitoreo.
 3. En Monitoreo, abrir **Configurar vistas previas de WhatsApp**.
@@ -52,7 +62,7 @@ funcionamiento ilimitado en segundo plano ni después de forzar su detención.
 - Token de dispositivo para enviar; JWT admin/auditor para consultar; aislamiento
   por dispositivo, sesión UUID y contexto de consentimiento base comprobado.
 - Auditoría SQL: inicio/fin, identificador de sesión, aceptación y accesos. **Sin
-  título ni cuerpo de los mensajes**. No se incluyen en eventos, CSV ni respaldos SQL.
+  título ni cuerpo de los mensajes**. El texto no se incluye en eventos, CSV ni respaldos SQL. Los eventos de tipo/fecha sí aparecen en historial y CSV con la política v2.
 - El Centro consulta cada 3 segundos, elimina la vista al perder conexión, salir o
   detenerse la sesión. La pantalla usa FLAG_SECURE para impedir capturas y vistas
   recientes del sistema; no puede impedir que una persona copie lo que leyó.

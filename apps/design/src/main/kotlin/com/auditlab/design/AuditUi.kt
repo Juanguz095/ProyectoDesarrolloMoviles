@@ -122,7 +122,7 @@ private fun AuditFeedback(message: String) {
                 SectionLabel("Aviso · toca para ver completo")
                 Text(message, maxLines = 2, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall)
             }
-            TextButton({ dismissed = true }, contentPadding = PaddingValues(8.dp)) { Text("Cerrar", style = MaterialTheme.typography.labelMedium) }
+            TextButton({ dismissed = true },shape=RectangleShape, contentPadding = PaddingValues(8.dp)) { Text("Cerrar", style = MaterialTheme.typography.labelMedium) }
         }
     }
     if (expanded) AlertDialog(onDismissRequest = { expanded = false }, title = { Text("AVISO") },
@@ -168,7 +168,7 @@ fun AuditButton(text: String, onClick: () -> Unit, enabled: Boolean = true, outl
 
 @Composable
 fun AuditLink(text: String, onClick: () -> Unit, enabled: Boolean = true, modifier: Modifier = Modifier) {
-    TextButton(onClick, modifier.heightIn(min = 48.dp), enabled = enabled,
+    TextButton(onClick, modifier.heightIn(min = 48.dp), enabled = enabled,shape=RectangleShape,
         contentPadding = PaddingValues(horizontal = 0.dp, vertical = 8.dp)) {
         Text(text, style = MaterialTheme.typography.labelLarge)
     }
@@ -265,6 +265,8 @@ fun metadataTitle(metadata: Map<String, Any?>, fallback: String = "Evento de la 
     "call_missed" -> "Llamada perdida"
     "call_rejected" -> "Llamada rechazada o bloqueada"
     "device_status_changed" -> "Estado del dispositivo"
+    "whatsapp_notification_received" -> "Notificación de WhatsApp recibida"
+    "whatsapp_reply_observed" -> "Respuesta de WhatsApp observada"
     "agent_started" -> "Actividad del agente"
     "sync_succeeded" -> "Sincronización completada"
     "sync_failed" -> "Error de sincronización"

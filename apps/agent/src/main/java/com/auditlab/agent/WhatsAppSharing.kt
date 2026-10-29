@@ -52,6 +52,8 @@ class WhatsAppShareActivity : ComponentActivity() {
             AuditPage(key="whatsapp-consent") {
                 AuditHeader("NOTIFICACIONES DE WHATSAPP","AUTORIZACIÓN ADICIONAL")
                 Text("Se compartirán el título o remitente y el texto de las notificaciones nuevas de WhatsApp y WhatsApp Business con los administradores y auditores de tu Centro.")
+                Text("También quedará en el historial un evento sin contenido: notificación recibida o respuesta propia observada en una notificación. El registro guarda tipo y fecha, sin texto, nombres ni números; utiliza la retención de eventos del sistema.")
+                Text("Los mensajes escritos dentro de un chat abierto normalmente no producen una notificación y no se pueden detectar con este permiso. Una respuesta observada no confirma que se haya entregado al destinatario.")
                 Text("Android concede acceso general a notificaciones; AuditLab procesa únicamente las de WhatsApp. No recupera chats, mensajes anteriores, archivos ni texto ocultado por Android o WhatsApp.")
                 Text("Últimas 20 vistas previas, hasta 5 minutos en memoria del servidor. Al detener se retiran; sin conexión el servidor puede tardar hasta 30 segundos. No entran en Room, reportes CSV ni copias de la base de datos.")
                 AuditButton("Configurar acceso de Android", {
@@ -61,7 +63,7 @@ class WhatsAppShareActivity : ComponentActivity() {
                 Text(if(WhatsAppSharingState.listenerConnected) "Servicio de notificaciones conectado." else "Android aún no conectó el servicio.")
                 Row(Modifier.fillMaxWidth()) {
                     Checkbox(accepted,{accepted=it})
-                    Text("Autorizo compartir estas vistas previas durante esta sesión. Puedo detenerla desde la app o la notificación.",Modifier.weight(1f))
+                    Text("Autorizo compartir estas vistas previas y registrar los eventos de actividad sin contenido durante esta sesión. Puedo detenerla desde la app o la notificación.",Modifier.weight(1f))
                 }
                 AuditButton("Autorizar e iniciar sesión", {
                     startForegroundService(Intent(this@WhatsAppShareActivity,WhatsAppSharingService::class.java)
@@ -89,8 +91,9 @@ class WhatsAppNotificationListener : NotificationListenerService() {
 
 object WhatsAppSharingRuntime {
     class Session(val id: String,val startedAt: Long) {
-        val queue=Channel<WhatsAppPreview>(20,BufferOverflow.DROP_OLDEST)
+        val queue=Channel<WhatsAppObservation>(20,BufferOverflow.DROP_OLDEST)
         val seen=linkedSetOf<String>()
+        val replyHistory=linkedMapOf<String,String?>()
     }
     @Volatile var current: Session? = null; private set
     @Synchronized fun activate(session: Session) { current?.queue?.cancel();current=session;WhatsAppSharingState.active=true }
@@ -106,10 +109,25 @@ object WhatsAppSharingRuntime {
     fun offer(context: Context,sbn: StatusBarNotification) {
         val session=current ?: return
         if(!allowed(context)) { stop(context);return }
-        val rows=runCatching { WhatsAppNotificationParser.parse(sbn,session.id,session.startedAt) }.getOrElse { emptyList() }
+        if(sbn.packageName !in WhatsAppPreviewPolicy.PACKAGES || sbn.postTime<session.startedAt || sbn.postTime>System.currentTimeMillis()+300000 ||
+            sbn.notification.flags and Notification.FLAG_GROUP_SUMMARY!=0) return
+        val rows=runCatching { WhatsAppNotificationParser.observe(sbn,session.id,session.startedAt) }.getOrElse { emptyList() }.toMutableList()
         synchronized(session) {
             if(current!==session) return
-            for(row in rows) if(session.seen.add(row.messageId)) session.queue.trySend(row)
+            // RemoteInputHistory has no per-message timestamp. Establish a baseline
+            // first; only a later changed front entry can describe a new local reply.
+            if(sbn.notification.category==Notification.CATEGORY_MESSAGE) {
+                val history=runCatching { sbn.notification.extras.getCharSequenceArray(Notification.EXTRA_REMOTE_INPUT_HISTORY)?.firstOrNull()?.toString()?.takeIf(String::isNotBlank) }.getOrNull()
+                val fingerprint=history?.let { UUID.nameUUIDFromBytes(it.toByteArray(Charsets.UTF_8)).toString() }
+                val known=session.replyHistory.containsKey(sbn.key)
+                val previous=session.replyHistory.put(sbn.key,fingerprint)
+                if(known && fingerprint!=null && fingerprint!=previous && rows.none { it.direction=="outbound" }) {
+                    val key=UUID.nameUUIDFromBytes("${sbn.key}|${sbn.postTime}|outbound".toByteArray(Charsets.UTF_8)).toString()
+                    rows += WhatsAppObservation(key,Instant.ofEpochMilli(sbn.postTime).toString(),"outbound","whatsapp_reply_observed",null)
+                }
+                while(session.replyHistory.size>128) session.replyHistory.remove(session.replyHistory.keys.first())
+            }
+            for(row in rows) if(session.seen.add(row.key)) session.queue.trySend(row)
             while(session.seen.size>512) session.seen.remove(session.seen.first())
         }
     }
@@ -137,33 +155,48 @@ class WhatsAppSharingService : Service() {
         val id=UUID.randomUUID().toString();sessionId=id
         val stop=PendingIntent.getService(this,0,Intent(this,javaClass).setAction("stop"),PendingIntent.FLAG_IMMUTABLE)
         startForeground(ID,NotificationCompat.Builder(this,CHANNEL).setSmallIcon(R.drawable.ic_auditlab)
-            .setContentTitle("AuditLab · Compartiendo textos de WhatsApp")
+            .setContentTitle("AuditLab · Actividad y vistas previas de WhatsApp")
             .setContentText("Vistas previas nuevas autorizadas. Pulsa DETENER para finalizar.")
             .setOngoing(true).setOnlyAlertOnce(true).addAction(0,"DETENER",stop).build())
         WhatsAppSharingState.message="Iniciando la sesión autorizada…"
         sender=scope.launch {
             val api=ApiClient(stored.serverUrl!!)
             val session=WhatsAppSharingRuntime.Session(id,acceptedAt)
+            var began=false
             try {
                 api.beginWhatsApp(stored.deviceToken,stored.deviceId,id,Instant.ofEpochMilli(acceptedAt).toString(),stored.consent)
+                began=true
                 if(!isActive || !WhatsAppSharingRuntime.allowed(this@WhatsAppSharingService)) return@launch
                 WhatsAppSharingRuntime.activate(session)
                 WhatsAppSharingState.message="Compartiendo notificaciones nuevas de WhatsApp."
                 while(isActive && WhatsAppSharingRuntime.current===session) {
                     if(!WhatsAppSharingRuntime.allowed(this@WhatsAppSharingService)) { stopSelf();break }
-                    val preview=withTimeoutOrNull(10000) { session.queue.receive() }
+                    val observation=withTimeoutOrNull(10000) { session.queue.receive() }
                     if(!isActive || WhatsAppSharingRuntime.current!==session) break
-                    if(preview==null) api.heartbeatWhatsApp(stored.deviceToken,stored.deviceId,id)
+                    if(observation==null) api.heartbeatWhatsApp(stored.deviceToken,stored.deviceId,id)
                     else {
-                        api.sendWhatsAppPreview(stored.deviceToken,stored.deviceId,id,preview)
-                        WhatsAppSharingState.message="Compartiendo notificaciones nuevas. Último envío: ${preview.timestamp}"
+                        val recorded=synchronized(runtime.gate) {
+                            if(WhatsAppSharingRuntime.current!==session || !WhatsAppSharingRuntime.allowed(this@WhatsAppSharingService)) return@synchronized false
+                            val credential=runtime.credentials.load()
+                            check(credential?.deviceId==stored.deviceId && credential.consent==stored.consent)
+                            val eventId=UUID.nameUUIDFromBytes("${stored.deviceId}|${stored.consent.consentId}|${observation.key}".toByteArray(Charsets.UTF_8)).toString()
+                            if(!runtime.database.dao().containsEvent(eventId)) runtime.core().captureRealEvent("whatsapp",observation.direction,
+                                mapOf("appEventCode" to observation.code),Instant.parse(observation.timestamp),eventId)
+                            runtime.after(runtime.core())
+                            true
+                        }
+                        if(!recorded || WhatsAppSharingRuntime.current!==session || !isActive || !WhatsAppSharingRuntime.allowed(this@WhatsAppSharingService)) break
+                        observation.preview?.let { api.sendWhatsAppPreview(stored.deviceToken,stored.deviceId,id,it) }
+                        // Metadata uses the consent-bound durable outbox; preview text never enters it.
+                        synchronized(runtime.gate) { runtime.core().flushPending(maxBatches=1);runtime.after(runtime.core()) }
+                        WhatsAppSharingState.message="Actividad de WhatsApp enviada. Último evento: ${displayLocalTime(observation.timestamp)}"
                     }
                 }
             } catch(cancelled: CancellationException) { throw cancelled }
             catch(error: Exception) {
-                if(scope.isActive) WhatsAppSharingState.message=if(error is ApiException && error.status==404)
-                    "Sesión detenida: actualiza el servidor de AuditLab para usar esta función."
-                    else "Sesión detenida: falló la conexión o la autorización. No se guardaron vistas previas para reintentar."
+                if(scope.isActive) WhatsAppSharingState.message=if(error is ApiException && (error.status==404 || !began && error.status==400))
+                    "Sesión detenida: necesitas el servidor 0.5 y fecha/hora correctas para registrar actividad de WhatsApp."
+                    else "Sesión detenida: falló la conexión o la autorización. El texto no se guarda; los eventos de tipo/fecha ya registrados conservan su cola."
                 if(error is ApiException && error.isDeviceRevoked) runCatching { runtime.core().confirmRemoteRevocation(stored.deviceId) }.onSuccess { runtime.after(runtime.core()) }
             } finally {
                 if(WhatsAppSharingRuntime.current===session) WhatsAppSharingRuntime.clear()

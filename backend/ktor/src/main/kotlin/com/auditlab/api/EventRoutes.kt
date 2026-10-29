@@ -73,7 +73,7 @@ private fun parseEvent(node: JsonNode, clock: Clock): NormalizedEvent {
     val code = node["metadata"]?.get("appEventCode")?.textValue()
     if (!simulated.booleanValue()) {
         if (realEventCodes[code] != (category to direction)) throw ApiFailure(400, "INVALID_REQUEST")
-    } else if (category in setOf("sms", "call") || code in realEventCodes) throw ApiFailure(400, "INVALID_REQUEST")
+    } else if (category in setOf("sms", "call", "whatsapp") || code in realEventCodes) throw ApiFailure(400, "INVALID_REQUEST")
     val canonical = json.createObjectNode().apply {
         put("eventId", eventId.toString())
         put("timestamp", wire(timestamp))

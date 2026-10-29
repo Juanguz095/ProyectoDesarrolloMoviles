@@ -100,6 +100,7 @@ class ControlSession internal constructor(private val store: SessionStore, priva
                         error is ApiException && error.status==401 -> "La sesión venció. Vuelve a iniciar sesión."
                         error is ApiException && error.code=="TLS_ERROR" -> "El certificado del servidor fue rechazado."
                         error is ApiException && error.status==404 -> "Este dispositivo ya no está disponible. Actualiza la lista de equipos."
+                        error is ApiException && error.code=="INVALID_REQUEST" && filter.category=="whatsapp" -> "Actualiza el servidor a 0.5 para consultar la actividad de WhatsApp."
                         else -> "No se pudo actualizar. Comprueba Internet, Tailscale y el servidor. Se muestran los últimos datos recibidos."
                     }
                     if(error is StorageFailure) storageBlocked=true
@@ -253,6 +254,7 @@ class ControlSession internal constructor(private val store: SessionStore, priva
                     error.status == 401 -> "Credenciales rechazadas o sesión vencida."
                     error.status == 403 -> "Tu rol no permite esta operación."
                     error.code == "INVALID_CURSOR" -> "La página venció. Actualiza la consulta desde el inicio."
+                    error.code == "INVALID_REQUEST" && query.category=="whatsapp" -> "Actualiza el servidor a 0.5 para consultar la actividad de WhatsApp."
                     else -> "Solicitud rechazada (${error.code})."
                 }
             } catch (_: StorageFailure) { storageBlocked = true; clearViews(); message = "No se pudo confirmar el almacenamiento cifrado. Borra la sesión local." }

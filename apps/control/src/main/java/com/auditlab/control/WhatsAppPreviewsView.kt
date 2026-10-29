@@ -65,7 +65,7 @@ internal fun WhatsAppPreviewsView(session: ControlSession, device: String?, onBa
             AuditPanel {
                 Text(preview.title.ifBlank { "WhatsApp" },style=MaterialTheme.typography.titleMedium)
                 Text(preview.text)
-                Text(displayTime(preview.timestamp),color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
+                Text(displayLocalTime(preview.timestamp),color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
                 Text(if(preview.packageName=="com.whatsapp.w4b") "WhatsApp Business" else "WhatsApp",style=MaterialTheme.typography.bodySmall)
             }
         }

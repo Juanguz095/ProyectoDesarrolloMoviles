@@ -8,7 +8,7 @@ data class WhatsAppPreview(val messageId: String, val timestamp: String, val pac
 data class WhatsAppPreviewSnapshot(val active: Boolean, val sessionId: String?, val items: List<WhatsAppPreview>)
 
 object WhatsAppPreviewPolicy {
-    const val VERSION = "whatsapp-preview-1"
+    const val VERSION = "whatsapp-preview-2"
     val PACKAGES = setOf("com.whatsapp", "com.whatsapp.w4b")
     const val MAX_TEXT = 2000
     const val MAX_TITLE = 200

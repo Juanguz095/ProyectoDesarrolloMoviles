@@ -268,13 +268,13 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
                     }
                     Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
                         Text("Actividad reciente",Modifier.weight(1f),style=MaterialTheme.typography.titleMedium)
-                        TextButton({history=true}) {Text("Ver todos")}
+                        TextButton({history=true},shape=androidx.compose.ui.graphics.RectangleShape) {Text("Ver todos")}
                     }
                     if(session.recentEvents.isEmpty()) AuditEmpty("SIN EVENTOS TODAVÍA","Activa la captura para empezar. Aquí verás qué se registró y si se envió.")
                     session.recentEvents.take(4).forEach {row->LocalEventRow(row) {selectedEvent=row}}
                     AuditPanel {
                         Text("2. Notificaciones de WhatsApp",style=MaterialTheme.typography.titleMedium)
-                        Text("Comparte vistas previas nuevas, con permiso y autorización propios. No recupera el historial del chat.")
+                        Text("Comparte vistas previas y registra eventos de notificaciones nuevas. Las respuestas propias se detectan solo si Android las muestra en una notificación. No recupera historial ni todos los envíos dentro del chat.")
                         Text(WhatsAppSharingState.message,color=AuditColors.Muted)
                         if(WhatsAppSharingState.active) AuditButton("Detener vistas previas de WhatsApp",session::stopWhatsAppSharing,outlined=true)
                         else onShareWhatsApp?.let {AuditButton("Configurar vistas previas de WhatsApp",it,session.visibleAvailable && !session.busy)}
@@ -334,7 +334,7 @@ private fun deliveryLabel(value: String): String = when (value) {
 @Composable
 private fun LocalEventRow(row: AgentSession.LocalEvent, onClick: () -> Unit) {
     Column(Modifier.fillMaxWidth()) {
-        TextButton(onClick, modifier = Modifier.fillMaxWidth(), contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 10.dp)) {
+        TextButton(onClick, modifier = Modifier.fillMaxWidth(),shape=androidx.compose.ui.graphics.RectangleShape, contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 10.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     Text(metadataTitle(row.event.metadata), style = MaterialTheme.typography.bodyMedium)

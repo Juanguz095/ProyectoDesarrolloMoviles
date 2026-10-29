@@ -16,14 +16,15 @@ internal fun Route.whatsAppPreviewRoutes(auth: AuthService?, hub: WhatsAppPrevie
             withContext(Dispatchers.IO) { service.authorizedDevice(token) { _,d -> if(d.deviceId!=device) throw ApiFailure(403,"DEVICE_SCOPE_MISMATCH") } }
             val body=call.strictObject()
             body.requireExactKeys(setOf("sessionId","acceptedAt","policyVersion","consentContext"))
-            if(body.requireText("policyVersion")!="whatsapp-preview-1") throw ApiFailure(400,"INVALID_REQUEST")
+            val policy=body.requireText("policyVersion")
+            if(policy !in setOf("whatsapp-preview-1","whatsapp-preview-2")) throw ApiFailure(400,"INVALID_REQUEST")
             val id=parseUuid(body.requireText("sessionId"));val accepted=parseInstant(body.requireText("acceptedAt"),"acceptedAt")
             if(accepted.isBefore(Instant.now().minusSeconds(300)) || accepted.isAfter(Instant.now().plusSeconds(300))) throw ApiFailure(400,"INVALID_REQUEST")
             val consent=parseConsent(body.requireObject("consentContext"))
             withContext(Dispatchers.IO) { service.authorizedDevice(token) { connection,d ->
                 if(d.deviceId!=device) throw ApiFailure(403,"DEVICE_SCOPE_MISMATCH")
                 if(consent.id!=d.consentId || consent.policyVersion!=d.policyVersion || consent.acceptedAt!=d.acceptedAt) throw ApiFailure(409,"CONSENT_MISMATCH")
-                Audit.record(connection,"device",device,"whatsapp_sharing_started",json.writeValueAsString(mapOf("type" to "whatsapp_preview","deviceId" to device.toString(),"sessionId" to id.toString(),"consentId" to consent.id.toString(),"acceptedAt" to wire(accepted),"policyVersion" to "whatsapp-preview-1")),correlation=correlation)
+                Audit.record(connection,"device",device,"whatsapp_sharing_started",json.writeValueAsString(mapOf("type" to "whatsapp_preview","deviceId" to device.toString(),"sessionId" to id.toString(),"consentId" to consent.id.toString(),"acceptedAt" to wire(accepted),"policyVersion" to policy)),correlation=correlation)
                 hub.start(device,id,accepted)
             } }
             call.respond(HttpStatusCode.NoContent)

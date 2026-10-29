@@ -1,10 +1,11 @@
 openapi: 3.1.0
 info:
   title: AuditLab API definitiva
-  version: 0.3.0
+  version: 0.5.0
   description: 'Contrato objetivo Ktor/PostgreSQL. Su definición no implica rutas ya implementadas. El prototipo
     Python mantiene su contrato separado en prototype-v0.1.yaml. Eventos propios, simulados y metadatos reales autorizados
-    de tipo/fecha de SMS y llamadas, batería y conexión; sin contenido ni números.
+    de tipo/fecha de SMS, llamadas y actividad de notificaciones WhatsApp, batería y conexión; sin contenido ni números.
+    WhatsApp entrante describe una notificación observada; salida describe una respuesta propia mostrada en una notificación, sin confirmar entrega.
     TLS y validación de certificados obligatorios fuera de loopback. Credenciales solo por headers/cuerpos autenticados;
     respuestas con Cache-Control: no-store. Ejemplos y fixtures son ficticios.'
 servers:
@@ -946,6 +947,7 @@ components:
       - device_status
       - sms
       - call
+      - whatsapp
     Direction:
       type: string
       enum:
@@ -971,6 +973,8 @@ components:
       - call_rejected
       - call_outgoing
       - device_status_changed
+      - whatsapp_notification_received
+      - whatsapp_reply_observed
     AuditAction:
       type: string
       enum:

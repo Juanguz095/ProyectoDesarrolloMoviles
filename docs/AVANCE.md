@@ -4,6 +4,33 @@ Actualización: 29 de octubre de 2026, UTC. Los registros anteriores conservan s
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
+## Tarjetas y actividad WhatsApp — 28 de octubre de 2026 (America/Lima)
+
+- P6.4: corregido el recorte circular de títulos/descripciones en tarjetas. Causa:
+  TextButton aplicaba forma de cápsula al contenido de varias líneas. Eventos usa
+  un panel pulsable; historial local/enlaces/botones largos usan forma rectangular.
+- P3.8/P5.6/P6.6: apps/API 0.5.0-preview, código Android 7. Categoría `whatsapp`
+  con códigos `whatsapp_notification_received` y `whatsapp_reply_observed`, tipo,
+  fecha/dirección y sin contenido/contactos. Cola/CSV/retención de eventos existentes.
+- Sesión opcional con consentimiento local v2; texto permanece solo en vistas
+  previas efímeras. Respuestas propias se reconocen por señales explícitas de
+  MessagingStyle o cambios posteriores del historial de respuesta directa Android.
+  Coincidencias de nombre ambiguas no se consideran respuesta propia. No se
+  detectan todos los envíos dentro del chat ni se confirma entrega.
+- V7 amplía enums y restricciones preservando datos y migraciones V1–V6. Backend
+  acepta la política anterior para clientes anteriores; Agente nuevo exige v2.
+  Centro añade filtros rápidos WhatsApp/SMS/Llamadas/Batería y explica los límites.
+- Compilación de ambas apps/API, lint y contratos completados; V7 aplicada en el
+  servidor de desarrollo conservando base/configuración. Revisión visual del
+  historial autenticado en API26 confirmó tarjetas sin recorte con datos QA.
+  [Registro técnico](evidencias/ACTIVIDAD-0.5.0-2026-10-28.json). No se ejecutaron suites
+  automáticas ni recepción desde WhatsApp instalado en esta revisión.
+- P8.2/P8.3: entrega de desarrollo preparada para actualizar las tres piezas;
+  [guía](ACTUALIZACION_0.5.md). `package_development.py` registra validación funcional
+  pendiente; no relaja los requisitos de `package_qa.py` o `package_preview.py`.
+- Siguiente P7.6/P7.1: verificar con notificaciones reales, respuestas directas,
+  permisos, red, revocación y versiones Android. No declarar captura completa de chats.
+
 ## Usabilidad y actualización de lecturas — 28 de octubre de 2026 (America/Lima)
 
 - P5.3/P6.2/P6.4: apps 0.4.1-preview, código 6. Paleta beige/negro conservada,

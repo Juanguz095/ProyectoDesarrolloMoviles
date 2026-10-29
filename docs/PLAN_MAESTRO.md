@@ -2,6 +2,12 @@
 
 Versión: 1.0 · Fecha: 17 de octubre de 2026.
 
+**Ampliación 0.5 — 28 de octubre (America/Lima):** P3.8/P5.6/P6.6 incluyen
+eventos persistentes de tipo/fecha de notificaciones WhatsApp recibidas y respuestas
+propias observadas. Consentimiento v2; texto solo en sesión temporal. P6.4 corrige
+recorte de tarjetas. No se asume que Android notifique todos los envíos dentro del
+chat ni se confirma entrega. [Alcance y actualización](ACTUALIZACION_0.5.md).
+
 **Ampliación del 29 de octubre (UTC):** vistas previas independientes de
 notificaciones nuevas de WhatsApp/Business con autorización adicional por sesión y
 permiso Android. [WHATSAPP_NOTIFICACIONES.md](WHATSAPP_NOTIFICACIONES.md) define

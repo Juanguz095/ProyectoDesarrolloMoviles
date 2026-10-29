@@ -210,6 +210,9 @@ private fun EventDetail(event: AuditEvent, onClose: () -> Unit) {
         title = { Text("DETALLE DE EVENTO", style = MaterialTheme.typography.titleLarge) },
         text = { Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(eventTitle(event), style = MaterialTheme.typography.titleMedium)
+            if(event.category=="whatsapp") Text(if(event.direction=="outbound")
+                "Android mostró una respuesta propia en una notificación. Este registro no confirma entrega ni detecta todos los mensajes escritos dentro del chat. No se guardó texto, remitente ni número."
+                else "Se observó una notificación nueva de WhatsApp. Este evento guarda solo tipo y fecha; el texto de la vista previa pertenece a la sesión temporal autorizada.")
             Text(if (event.isSimulated) "Evento simulado" else "Evento real del dispositivo")
             AuditRule()
             SectionLabel("Fecha del evento"); Text(displayLocalTime(event.timestamp))
@@ -233,6 +236,7 @@ internal fun categoryName(category: String): String = when (category) {
     "device_status" -> "Batería y conexión"
     "sms" -> "SMS"
     "call" -> "Llamadas"
+    "whatsapp" -> "WhatsApp"
     "app_lifecycle" -> "Actividad de la app"
     "sync" -> "Sincronización"
     else -> category

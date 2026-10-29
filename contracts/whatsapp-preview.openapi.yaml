@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: AuditLab optional WhatsApp notification previews
-  version: 0.1.0
-  description: Explicit local session only. Last 20 previews in RAM for up to 300 seconds; idle sessions close after 30 seconds. No chat history, attachments or CSV export.
+  version: 0.2.0
+  description: Explicit local session only. Last 20 previews in RAM for up to 300 seconds; idle sessions close after 30 seconds. No chat history or attachments. Preview text is not exported. Policy v2 additionally consents to type/time notification activity in the event history, without content. Replies are observable only when Android publishes them in a notification.
 servers:
   - url: /v1
 paths:
@@ -23,7 +23,7 @@ paths:
               properties:
                 sessionId: {type: string, format: uuid}
                 acceptedAt: {type: string, format: date-time, description: Fresh local consent within 300 seconds of server time}
-                policyVersion: {type: string, const: whatsapp-preview-1}
+                policyVersion: {type: string, enum: [whatsapp-preview-1, whatsapp-preview-2]}
                 consentContext:
                   type: object
                   additionalProperties: false

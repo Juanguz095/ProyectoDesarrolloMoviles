@@ -34,7 +34,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 internal fun RefreshControls(session: ControlSession, screen: String, deviceId: String?, scope: CoroutineScope) {
     Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(8.dp)) {
-        OutlinedButton({session.refreshVisible(screen,deviceId,scope)},enabled=!session.busy && !session.refreshing,
+        OutlinedButton({session.refreshVisible(screen,deviceId,scope)},shape=RectangleShape,enabled=!session.busy && !session.refreshing,
             modifier=Modifier.weight(1f).heightIn(min=48.dp)) {
             Text(if(session.refreshing) "Actualizando…" else "Actualizar ahora")
         }
@@ -87,13 +87,13 @@ internal fun Dashboard(session: ControlSession, device: DeviceSummary?, scope: C
             Text(deviceLabel(device),style=MaterialTheme.typography.titleMedium)
             Text(if(device.isActive) "Inscripción activa" else "Dispositivo revocado",color=if(device.isActive) AuditColors.Green else AuditColors.Red)
         }
-        TextButton(onDevice) { Text("Ver equipo →") }
+        TextButton(onDevice,shape=RectangleShape) { Text("Ver equipo →") }
     }
     Text("Último contacto: ${device.lastSeenAt?.let { ageLabel(it,now) } ?: "Aún sin contacto"}",color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
     DeviceReadingCard(reading,now)
     Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
         Text("Actividad reciente",Modifier.weight(1f),style=MaterialTheme.typography.titleMedium)
-        TextButton(onEvents,enabled=!session.busy) { Text("Ver todos") }
+        TextButton(onEvents,enabled=!session.busy,shape=RectangleShape) { Text("Ver todos") }
     }
     if(recent.isEmpty()) AuditEmpty("SIN EVENTOS TODAVÍA","Activa la captura en el Agente. Los eventos aparecerán aquí cuando lleguen al servidor.")
     recent.take(5).forEach { EventRow(it,!session.busy) {session.showDetail(it,scope)} }
@@ -102,6 +102,7 @@ internal fun Dashboard(session: ControlSession, device: DeviceSummary?, scope: C
 }
 
 @Composable
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 internal fun EventExplorer(session: ControlSession, scope: CoroutineScope, onExport: (() -> Unit)?, onOpenReport: (() -> Unit)?) {
     var device by rememberSaveable(session.query) { mutableStateOf(session.query.device.orEmpty()) }
     var category by rememberSaveable(session.query) { mutableStateOf(session.query.category.orEmpty()) }
@@ -117,6 +118,14 @@ internal fun EventExplorer(session: ControlSession, scope: CoroutineScope, onExp
     Text("${session.events.size} eventos en esta página",style=MaterialTheme.typography.titleMedium)
     val applied=listOfNotNull(session.query.device?.let { "Equipo ${shortDeviceId(it)}" },session.query.category?.let(::categoryName))
     Text(if(applied.isEmpty()) "Todos los dispositivos · Todas las categorías" else applied.joinToString(" · "),color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
+    FlowRow(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp),verticalArrangement=Arrangement.spacedBy(4.dp)) {
+        listOf(null to "Todos","whatsapp" to "WhatsApp","sms" to "SMS","call" to "Llamadas","device_status" to "Batería").forEach { (value,label) ->
+            FilterChip(selected=session.query.category==value,onClick={session.applyFilters(session.query.copy(category=value),scope)},
+                label={Text(label)},enabled=!session.busy,
+                colors=FilterChipDefaults.filterChipColors(containerColor=AuditColors.Panel,labelColor=AuditColors.Ink,
+                    selectedContainerColor=AuditColors.Ink,selectedLabelColor=AuditColors.Panel))
+        }
+    }
     AuditButton(if(showFilters) "Ocultar filtros" else "Filtrar eventos",{showFilters=!showFilters},!session.busy,outlined=true)
     if(showFilters) {
     AuditPanel {
@@ -148,8 +157,10 @@ internal fun EventExplorer(session: ControlSession, scope: CoroutineScope, onExp
     if(!showFilters && onExport!=null) AuditButton("Exportar CSV",onExport,!session.busy && session.eventsLoaded,outlined=true)
     AuditRule()
     SectionLabel("Resultados")
-    if (session.events.isEmpty()) AuditEmpty(message = if (session.eventsLoaded)
-        "No se recibieron eventos para los filtros aplicados." else "Aplica filtros o actualiza la consulta para recibir eventos.")
+    if (session.events.isEmpty()) AuditEmpty(message = if(session.query.category=="whatsapp")
+        "En el Agente activa WhatsApp y autoriza registrar su actividad. Aparecerán notificaciones nuevas y respuestas observadas en ellas; no se puede detectar todo lo escrito dentro del chat."
+        else if(session.query.category in setOf("sms","call")) "En el Agente autoriza la captura y concede el permiso de SMS o llamadas en Android. Las llamadas aparecen al finalizar."
+        else if (session.eventsLoaded) "No se recibieron eventos para los filtros aplicados." else "Aplica filtros o actualiza la consulta para recibir eventos.")
     var previousDay: String?=null
     session.events.forEach { event ->
         val day=displayLocalDay(event.timestamp)
@@ -314,18 +325,13 @@ internal fun AuditChoice(label: String, value: String, options: List<Pair<String
 
 @Composable
 internal fun EventRow(event: AuditEvent, enabled: Boolean, onClick: () -> Unit) {
-    AuditPanel {
-        TextButton(onClick,Modifier.fillMaxWidth().semantics {contentDescription="Ver detalle →"},enabled=enabled,
-            contentPadding=PaddingValues(0.dp)) {
-            Column(Modifier.fillMaxWidth(),verticalArrangement=Arrangement.spacedBy(8.dp)) {
-                Text(eventTitle(event),style=MaterialTheme.typography.titleMedium,color=AuditColors.Ink)
-                Text("${categoryName(event.category)} · ${if(event.isSimulated) "Simulado" else "Real"}",style=MaterialTheme.typography.labelMedium,color=AuditColors.Muted)
-                metadataDescription(event.metadata).takeIf(String::isNotBlank)?.let { Text(it,style=MaterialTheme.typography.bodyLarge,color=AuditColors.Ink) }
-                Text(displayLocalTime(event.timestamp),style=MaterialTheme.typography.bodyMedium,color=AuditColors.Ink)
-                Text("Equipo ${shortDeviceId(event.sourceDevice)}",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
-                Text("Ver detalle →",style=MaterialTheme.typography.labelLarge)
-            }
-        }
+    AuditPanel(Modifier.clickable(enabled=enabled,onClick=onClick).semantics {contentDescription="Ver detalle →"}) {
+        Text(eventTitle(event),style=MaterialTheme.typography.titleMedium,color=AuditColors.Ink)
+        Text("${categoryName(event.category)} · ${if(event.isSimulated) "Simulado" else "Real"}",style=MaterialTheme.typography.labelMedium,color=AuditColors.Muted)
+        metadataDescription(event.metadata).takeIf(String::isNotBlank)?.let { Text(it,style=MaterialTheme.typography.bodyLarge,color=AuditColors.Ink) }
+        Text(displayLocalTime(event.timestamp),style=MaterialTheme.typography.bodyMedium,color=AuditColors.Ink)
+        Text("Equipo ${shortDeviceId(event.sourceDevice)}",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
+        Text("Ver detalle →",style=MaterialTheme.typography.labelLarge)
     }
 }
 
