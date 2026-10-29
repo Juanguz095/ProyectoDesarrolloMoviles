@@ -22,8 +22,11 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
   Auditoría de APK correcta y revisión visual limitada a pantallas iniciales de AVD.
   Selectores de pruebas existentes adaptados a la nueva navegación; no se añaden
   casos ni se ejecutan pruebas automáticas o un recorrido funcional completo.
-- P8.2/P8.3: preparados APK 0.4.1. API y BD no cambian; servidor 0.4.0 compatible,
-  URL/credenciales/datos preservados. [Guía de actualización](ACTUALIZACION_0.4.1.md).
+- P8.2/P8.3: APK 0.4.1 publicados. API y BD no cambian; servidor 0.4.0 compatible,
+  URL/credenciales/datos preservados. Fuente `7121d54` subida a main;
+  descargas en `d8a72f7`. Ambos APK devolvieron HTTP 200 y sus
+  tamaños/SHA256 coinciden con los artefactos compilados. [Guía](ACTUALIZACION_0.4.1.md)
+  y [registro de publicación](evidencias/ENTREGA-0.4.1-2026-10-28.json).
   Los resultados 197/2 AVD de 0.4.0 permanecen históricos, no acreditan 0.4.1.
 - Siguiente P7.1: validar batería/eventos entre dos dispositivos con conexión real,
   permisos denegados, fallos de red, segundo plano, filtros y cambio de páginas.
