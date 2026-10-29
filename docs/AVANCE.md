@@ -29,7 +29,10 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
 - Ejecución `40824564648`: Defender 1.1.26100.4, firmas 1.463.16.0, scan exit 0,
   sin detecciones sobre el ZIP original. Aún no se levanta suspensión: se añade
   control explícito de exclusiones y se repite en ProgramData para evitar carpetas
-  temporales excluidas por el runner. No se cambian/retiran exclusiones para lograrlo.
+  temporales excluidas por el runner. La repetición `40824882496` detectó exclusión
+  incluso en ProgramData y bloqueó la validación. Se eliminan las exclusiones de
+  compilación en el runner desechable para fortalecer el análisis, sin modificar
+  la PC del usuario. Se conserva/aplica zona Internet del archivo.
 - Pendiente completar esa comprobación antes de decidir distribución.
 
 ## Bloqueo de Defender en ZIP Windows 0.7 — 29 de octubre de 2026 (America/Lima)

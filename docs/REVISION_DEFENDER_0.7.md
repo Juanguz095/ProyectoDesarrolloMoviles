@@ -73,3 +73,10 @@ mantiene/aplica la marca de zona Internet del ZIP para representar una descarga
 de navegador. No elimina esa marca ni ejecuta el contenido. Un escaneo negativo
 sigue siendo un resultado del motor/firmas registrados, no una certificación de
 falso positivo ni una instrucción para ignorar un bloqueo en otra PC.
+
+
+El runner tenía exclusiones de compilación que cubrían también ProgramData.
+El control lo detectó y bloqueó el dictamen de la ejecución `40824882496`.
+En la máquina temporal se eliminan sus exclusiones de ruta/extensión/proceso para
+fortalecer el análisis y se mantiene la comprobación de que el ZIP no esté excluido.
+No se añaden exclusiones ni se cambia la configuración de la PC del usuario.
