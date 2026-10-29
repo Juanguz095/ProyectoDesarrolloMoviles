@@ -1,10 +1,10 @@
 openapi: 3.1.0
 info:
   title: AuditLab API definitiva
-  version: 0.5.0
+  version: 0.6.0
   description: 'Contrato objetivo Ktor/PostgreSQL. Su definición no implica rutas ya implementadas. El prototipo
     Python mantiene su contrato separado en prototype-v0.1.yaml. Eventos propios, simulados y metadatos reales autorizados
-    de tipo/fecha de SMS, llamadas y actividad de notificaciones WhatsApp, batería y conexión; sin contenido ni números.
+    de tipo/fecha de SMS, llamadas y actividad de notificaciones WhatsApp, batería y conexión; sin contenido persistente. El número de SMS/llamadas es opcional y requiere autorización local adicional.
     WhatsApp entrante describe una notificación observada; salida describe una respuesta propia mostrada en una notificación, sin confirmar entrega.
     TLS y validación de certificados obligatorios fuera de loopback. Credenciales solo por headers/cuerpos autenticados;
     respuestas con Cache-Control: no-store. Ejemplos y fixtures son ficticios.'
@@ -473,7 +473,8 @@ paths:
         in: query
         required: false
         schema:
-          $ref: '#/components/schemas/Category'
+          type: string
+          enum: [communication, app_lifecycle, sync, device_status, sms, call, whatsapp]
       - name: from
         in: query
         required: false
@@ -619,7 +620,8 @@ paths:
         in: query
         required: false
         schema:
-          $ref: '#/components/schemas/Category'
+          type: string
+          enum: [communication, app_lifecycle, sync, device_status, sms, call, whatsapp]
       - name: from
         in: query
         required: false
@@ -1183,6 +1185,10 @@ components:
           type: integer
           minimum: 0
           maximum: 100
+        phoneNumber:
+          type: string
+          pattern: '^[+0-9 ()*#.-]{1,40}$'
+          description: Optional separately authorized SMS/call number; real events only.
         appEventCode:
           $ref: '#/components/schemas/AppEventCode'
     EventInput:

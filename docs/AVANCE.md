@@ -4,6 +4,34 @@ Actualización: 29 de octubre de 2026, UTC. Los registros anteriores conservan s
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
+## Comunicaciones e interfaz legible — 28 de octubre de 2026 (America/Lima)
+
+- P5.3/P6.2/P6.4: apps 0.6.0-preview, código 8. Eventos abre en SMS, llamadas y
+  WhatsApp reales; se excluyen batería, conexión y simulaciones antes de paginar
+  y exportar. Inicio conserva la lectura de batería. Historial local permite
+  desplegar eventos técnicos; las tarjetas muestran tipo, número autorizado y hora.
+- UUID/códigos de eventos, dispositivos y auditoría se pliegan bajo Información
+  técnica. Alias locales persistentes Teléfono 1, Teléfono 2; no se inventan nombres
+  de contactos. Confirmaciones también usan alias.
+- Número SMS/llamada opcional con casilla local adicional, inicialmente desmarcada,
+  permiso Android existente y captura nueva. Sin casilla no se consulta el campo.
+  Sin cuerpo de SMS/agenda/audio; no se completan registros antiguos. Retención y
+  CSV de eventos se aplican también al número compartido. V8 valida tipo/longitud/
+  categoría/origen y conserva las migraciones y datos previos.
+- Texto WhatsApp efímero integrado en Eventos → WhatsApp con selección de dispositivo,
+  misma autorización por sesión y límites de memoria. No se copia texto a SQL,
+  Room ni CSV. No se detectan todos los envíos dentro del chat abierto.
+- Compilación de ambas apps/API y lint completados (sin errores; 12 avisos Agente,
+  6 avisos y 2 informativos Centro), cuatro OpenAPI válidos y auditoría de APK
+  correcta. V8 aplicada a la base de desarrollo preservada; API /ready activa.
+  [Registro](evidencias/COMUNICACIONES-0.6.0-2026-10-28.json).
+- No se ejecutaron suites automáticas ni revisión nativa de esta versión. No se
+  reutilizan resultados históricos como validación de 0.6. Windows, números de
+  operadores reales y recepción real de WhatsApp en teléfonos siguen pendientes.
+- P8.2/P8.3: preparar/publicar dos APK y servidor compatibles con V8 siguiendo
+  [la guía](ACTUALIZACION_0.6.md). Siguiente P7.1/P7.6: recorrido real de permisos,
+  comunicaciones, red y revocación en teléfonos autorizados.
+
 ## Tarjetas y actividad WhatsApp — 28 de octubre de 2026 (America/Lima)
 
 - P6.4: corregido el recorte circular de títulos/descripciones en tarjetas. Causa:

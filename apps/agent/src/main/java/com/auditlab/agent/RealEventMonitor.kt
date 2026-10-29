@@ -23,7 +23,7 @@ import kotlinx.coroutines.sync.withLock
 import java.time.Instant
 import java.util.UUID
 
-/** The projection deliberately excludes addresses, numbers, message bodies and recordings. */
+/** Base projections exclude numbers. An explicitly authorized session may append the number column only. */
 internal object PhoneMetadata {
     val smsProjection = arrayOf(Telephony.Sms._ID, Telephony.Sms.DATE, Telephony.Sms.TYPE)
     val callProjection = arrayOf(CallLog.Calls._ID, CallLog.Calls.DATE, CallLog.Calls.TYPE)
@@ -56,16 +56,18 @@ class RealEventMonitor(private val context: Context, private val runtime: AgentR
     fun hasPermission(permission: String) = context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
     fun permissionsText() = "SMS: ${if (hasPermission(Manifest.permission.READ_SMS)) "autorizado" else "sin permiso"}. " +
         "Llamadas: ${if (hasPermission(Manifest.permission.READ_CALL_LOG)) "autorizadas" else "sin permiso"}."
-    fun start() = synchronized(runtime.gate) {
+    @Volatile var includeNumbers=false; private set
+    fun start(numbers: Boolean=false) = synchronized(runtime.gate) {
         val state = runtime.core().refresh() as? AgentCore.State.Enrolled ?: error("Primero inscribe el dispositivo.")
         check(runtime.indicator.isVisible()) { "Habilita primero el indicador visible." }
         check(!runtime.gate.withdrawalRequested)
         if (requested) return@synchronized
+        includeNumbers=numbers
         startedAt = System.currentTimeMillis()
         deviceId = state.deviceId
         val receipt = context.getSharedPreferences("auditlab_real_consent", Context.MODE_PRIVATE)
         if (!receipt.edit().putString("device", state.deviceId).putString("consent", state.consent.consentId)
-                .putString("scope", "sms_call_type_timestamp_device_status_v1").putLong("acceptedAt", startedAt).commit()) {
+                .putString("scope", if(numbers) "sms_call_number_timestamp_v2" else "sms_call_type_timestamp_device_status_v1").putLong("acceptedAt", startedAt).commit()) {
             deviceId = null
             throw StorageFailure()
         }
@@ -186,7 +188,8 @@ class RealMonitoringService : Service() {
         val permission = if (sms) Manifest.permission.READ_SMS else Manifest.permission.READ_CALL_LOG
         if (!runtime.realEvents.hasPermission(permission)) { sourceEnabledAt.remove(sms); return }
         val permittedSince = sourceEnabledAt.getOrPut(sms) { System.currentTimeMillis() }
-        val projection = if (sms) PhoneMetadata.smsProjection else PhoneMetadata.callProjection
+        val basic = if (sms) PhoneMetadata.smsProjection else PhoneMetadata.callProjection
+        val projection = if(runtime.realEvents.includeNumbers) basic + (if(sms) Telephony.Sms.ADDRESS else CallLog.Calls.NUMBER) else basic
         val uri = if (sms) Telephony.Sms.CONTENT_URI else CallLog.Calls.CONTENT_URI
         val active = runtime.core().refresh() as? AgentCore.State.Enrolled ?: return
         val cursor = contentResolver.query(uri, projection, "date>=?", arrayOf(maxOf(since, permittedSince).toString()), "date ASC, _id ASC")
@@ -201,7 +204,12 @@ class RealMonitoringService : Service() {
                 if (id in observedIds) continue
                 if (!runtime.database.dao().containsEvent(id)) {
                     val (category, direction) = EventPolicy.realCodes.getValue(code)
-                    runtime.core().captureRealEvent(category, direction, mapOf("appEventCode" to code), Instant.ofEpochMilli(millis), id)
+                    val metadata=mutableMapOf<String,Any?>("appEventCode" to code)
+                    if(runtime.realEvents.includeNumbers) {
+                        val number=cursor.getString(3)?.trim()
+                        if(number!=null && number !in setOf("-1","-2","-3") && number.matches(Regex("[+0-9 ()*#.-]{1,40}"))) metadata["phoneNumber"]=number
+                    }
+                    runtime.core().captureRealEvent(category, direction, metadata, Instant.ofEpochMilli(millis), id)
                 }
                 // Preserve deduplication even after a sent outbox row is evicted for capacity.
                 // A new service activation always starts a new time window.

@@ -7,8 +7,8 @@ import kotlinx.coroutines.*
 
 /** Network results are published on Main; busy serializes actions and cursors belong to immutable filters. */
 class ControlSession internal constructor(private val store: SessionStore, private val apiFactory: (String) -> AuditApi,
-    private val boundOrigin: Boolean = false) {
-    constructor(context: Context) : this(KeystoreSessionStore(context), { ApiClient(it) }, true)
+    private val boundOrigin: Boolean = false, private val names: android.content.SharedPreferences? = null) {
+    constructor(context: Context) : this(KeystoreSessionStore(context), { ApiClient(it) }, true,context.getSharedPreferences("auditlab_device_names",Context.MODE_PRIVATE))
     private val restored = runCatching { store.load() }
     private var engine: ControlCore? = null
     var serverUrl by mutableStateOf(restored.getOrNull()?.serverUrl ?: DEFAULT_URL); private set
@@ -22,7 +22,7 @@ class ControlSession internal constructor(private val store: SessionStore, priva
     var detail by mutableStateOf<AuditEvent?>(null); private set
     var lastReportUri by mutableStateOf<android.net.Uri?>(null); private set
     var selectedDevice by mutableStateOf<String?>(null); private set
-    var query by mutableStateOf(EventQuery()); private set
+    var query by mutableStateOf(EventQuery(category="communication")); private set
     var status by mutableStateOf<String?>(null); private set
     var deviceCursor by mutableStateOf<String?>(null); private set
     var eventCursor by mutableStateOf<String?>(null); private set
@@ -43,6 +43,8 @@ class ControlSession internal constructor(private val store: SessionStore, priva
     var refreshError by mutableStateOf<String?>(null); private set
     var autoRefresh by mutableStateOf(true); private set
     var devicePageNumber by mutableStateOf(1); private set
+    private val deviceNames=linkedMapOf<String,String>()
+    fun deviceName(id: String): String = deviceNames.getOrPut(id) { names?.getString(id,null) ?: "Teléfono ${(names?.all?.size ?: deviceNames.size)+1}".also { names?.edit()?.putString(id,it)?.apply() } }
     private var refreshJob: Job? = null
     private var refreshGeneration = 0L
     fun updateAutoRefresh(enabled: Boolean) { autoRefresh=enabled; if(!enabled) cancelRefresh() }
@@ -73,7 +75,7 @@ class ControlSession internal constructor(private val store: SessionStore, priva
                     val page=if(screen=="dispositivos" || screen=="inicio" && deviceId==null) engine.devicePage(status,null) else null
                     val selected=if(screen in setOf("inicio","dispositivo"))
                         deviceId?.let(engine::device) ?: page?.items?.firstOrNull() else null
-                    val recent=selected?.let { engine.eventPage(EventQuery(device=it.deviceId),null) }
+                    val recent=selected?.let { engine.eventPage(EventQuery(device=it.deviceId,category="communication"),null) }
                     val reading=selected?.let { engine.eventPage(EventQuery(device=it.deviceId,category="device_status"),null) }
                     val history=if(screen=="eventos") engine.eventPage(filter,null) else null
                     FreshView(page,selected,recent,reading,history)
@@ -180,7 +182,7 @@ class ControlSession internal constructor(private val store: SessionStore, priva
         if (busy) return
         clearOverview(); overviewDevice = deviceId
         run(scope) {
-            val recent = core().eventPage(EventQuery(device = deviceId), null)
+            val recent = core().eventPage(EventQuery(device = deviceId,category="communication"), null)
             val readings = core().eventPage(EventQuery(device = deviceId, category = "device_status"), null)
             return@run {
                 overviewEvents = recent.items
@@ -237,7 +239,7 @@ class ControlSession internal constructor(private val store: SessionStore, priva
     fun notifyExportUnavailable() { message = "El selector de archivos no está disponible o fue bloqueado. No se exportó un reporte." }
     fun notifyExportCancelled() { message = "Exportación cancelada; no se guardó un reporte." }
     private fun clearViews() { signedIn = false; username = ""; role = ""; devices = emptyList(); events = emptyList()
-        audit = emptyList(); detail = null; lastReportUri = null; revokeTarget = null; logoutConfirmation = false; query = EventQuery(); selectedDevice = null; enrollmentCode = null
+        audit = emptyList(); detail = null; lastReportUri = null; revokeTarget = null; logoutConfirmation = false; query = EventQuery(category="communication"); selectedDevice = null; enrollmentCode = null
         deviceCursor = null; eventCursor = null; auditCursor = null; clearOverview()
         eventPageNumber = 1;devicePageNumber=1; devicesLoaded = false; eventsLoaded = false; auditLoaded = false; devicesUpdatedAt = null
         dataUpdatedAt=null;eventsUpdatedAt=null }

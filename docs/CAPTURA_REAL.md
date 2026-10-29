@@ -1,4 +1,4 @@
-# Captura real de llamadas y SMS — 0.3.0-rc1
+# Captura real de llamadas y SMS — vigente desde 0.6
 
 Ampliación solicitada por el usuario el 27 de octubre de 2026 (America/Lima).
 Sustituye la limitación de la candidata 0.2 que admitía únicamente eventos simulados.
@@ -14,8 +14,12 @@ Las evidencias históricas de 0.2 no validan esta ampliación.
 
 Solo se transmite categoría, dirección, fecha, un código cerrado del evento y el contexto
 de consentimiento/identidad del agente. El ID local se usa para deduplicar mediante un UUID
-determinista, no se envía como campo independiente. No se consultan números, direcciones,
-contenido de SMS, contactos, grabaciones ni notificaciones ajenas. No incluye RCS,
+determinista, no se envía como campo independiente. Desde 0.6, solo con una casilla de autorización adicional local, se puede consultar
+ADDRESS de SMS o NUMBER de llamadas y enviar `phoneNumber`. Sin esa autorización
+se mantienen las proyecciones originales sin números. No se consulta contenido
+de SMS, contactos, grabaciones ni notificaciones ajenas. Los números usan la misma
+retención que los eventos y pueden aparecer en CSV para roles autorizados. No se
+importan números de eventos anteriores ni se inventan nombres. No incluye RCS,
 WhatsApp, Telegram ni llamadas por otras aplicaciones. Las llamadas aparecen cuando
 Android escribe el registro al finalizar; no se observa el audio ni se promete aviso en vivo.
 

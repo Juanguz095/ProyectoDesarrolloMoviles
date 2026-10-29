@@ -92,7 +92,7 @@ class ApiException(
 data class EventQuery(val device: String? = null, val category: String? = null,
     val from: String? = null, val to: String? = null, val q: String? = null) {
     init {
-        require(category == null || category in EventPolicy.categories)
+        require(category == null || category == "communication" || category in EventPolicy.categories)
         require(q == null || q.matches(Regex("[A-Za-z0-9_-]{1,64}"))) { "Busca un ID o código de evento (máximo 64 caracteres)." }
         val start = from?.let(java.time.Instant::parse)
         val end = to?.let(java.time.Instant::parse)

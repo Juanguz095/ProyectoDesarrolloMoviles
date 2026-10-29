@@ -221,10 +221,7 @@ fun AuditEmpty(title: String = "SIN DATOS RECIBIDOS", message: String = "Los eve
     Text(message, color = AuditColors.Muted)
 }
 
-fun displayTime(value: String?): String = value?.let {
-    runCatching { DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss 'UTC'").withZone(ZoneOffset.UTC).format(Instant.parse(it)) }
-        .getOrDefault(it)
-} ?: "Sin datos recibidos"
+fun displayTime(value: String?): String = value?.let(::displayFriendlyTime) ?: "Sin datos recibidos"
 
 fun displayClock(value: String?): String = value?.let {
     runCatching { DateTimeFormatter.ofPattern("HH:mm:ss 'UTC'").withZone(ZoneOffset.UTC).format(Instant.parse(it)) }
@@ -275,6 +272,14 @@ fun metadataTitle(metadata: Map<String, Any?>, fallback: String = "Evento de la 
 }
 
 fun metadataDescription(metadata: Map<String, Any?>): String = listOfNotNull(
+    (metadata["phoneNumber"] as? String)?.let { "Número: $it" },
     (metadata["batteryPercent"] as? Number)?.let { "Batería: ${it.toInt()} %" },
     metadata["networkState"]?.let { networkLabel(it) },
 ).joinToString(" · ")
+
+fun displayFriendlyTime(value: String): String = runCatching {
+    val date=Instant.parse(value).atZone(java.time.ZoneId.systemDefault())
+    val today=java.time.LocalDate.now()
+    val day=when(date.toLocalDate()) { today->"Hoy";today.minusDays(1)->"Ayer";else->date.format(DateTimeFormatter.ofPattern("dd/MM")) }
+    "$day · ${date.format(DateTimeFormatter.ofPattern("HH:mm"))}"
+}.getOrDefault("Hora no disponible")

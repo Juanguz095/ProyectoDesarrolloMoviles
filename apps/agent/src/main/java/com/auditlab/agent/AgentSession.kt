@@ -134,9 +134,12 @@ class AgentSession internal constructor(
         "Monitoreo pausado. Los pendientes se conservan; no se generan ni envían eventos."
         }
     }
+    var numberConsent by mutableStateOf(false)
+        private set
+    fun updateNumberConsent(value: Boolean) { if(!realMonitoring) numberConsent=value }
     fun startRealMonitoring(scope: CoroutineScope) = perform(scope) {
         check(platform != null) { "La captura real necesita un dispositivo Android." }
-        platform.realEvents.start()
+        platform.realEvents.start(numberConsent)
         "Captura solicitada. ${platform.realEvents.permissionsText()}"
     }
     fun stopRealMonitoring(scope: CoroutineScope) = perform(scope) {
@@ -168,6 +171,7 @@ class AgentSession internal constructor(
             rows.map { LocalEvent(EventCodec.decode(it.payloadJson), it.delivery, it.errorCode) }, deviceStatus)
     }
     private fun publish(value: Snapshot) {
+        if(value.state !is AgentCore.State.Enrolled) numberConsent=false
         state = value.state; consent = value.consent; stats = value.stats; revocationPending = value.pending
         visibleAvailable = value.visible; serverUrl = value.url
         ready = true; recentEvents = value.events; lastDeviceStatus = value.deviceStatus

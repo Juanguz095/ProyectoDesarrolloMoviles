@@ -1,0 +1,70 @@
+{
+  "date": "2026-10-28",
+  "timezone": "America/Lima",
+  "version": "0.6.0-preview",
+  "tasks": [
+    "P5.3",
+    "P6.2",
+    "P6.4",
+    "P8.2",
+    "P8.3"
+  ],
+  "source_base_commit": "2f7864759cc50796f9a750eac7262b4692ceae0d",
+  "artifacts": [
+    {
+      "component": "agent",
+      "versionCode": 8,
+      "file": "auditlab-agent-0.6.0-preview.apk",
+      "bytes": 10255798,
+      "sha256": "393412195f89994ae14ae621713dd05acc0406e60290e2b7ce0575665608b6d6"
+    },
+    {
+      "component": "control",
+      "versionCode": 8,
+      "file": "auditlab-control-0.6.0-preview.apk",
+      "bytes": 9708065,
+      "sha256": "0796293ddbbe6cc0317a3f82164202a95dcc7563c1e2cb2a8cf85b33943de842"
+    }
+  ],
+  "checks": {
+    "build_exit_code": 0,
+    "apk_audit_exit_code": 0,
+    "openapi_documents_valid": 4,
+    "local_development_migration_versions": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8"
+    ],
+    "lint": {
+      "agent": {
+        "Warning": 12
+      },
+      "control": {
+        "Warning": 6,
+        "Information": 2
+      }
+    },
+    "automated_tests_executed": false,
+    "manual_device_review_for_this_revision": false,
+    "real_whatsapp_verified": false,
+    "windows_verified": false
+  },
+  "changes": [
+    "Communication-only query filtered on server before pagination and export; status and simulated events excluded",
+    "Optional locally authorized SMS/call number, unchanged Android permissions, no contacts or bodies; additive V8 validation",
+    "Friendly persisted local device aliases and hidden technical UUID/code details",
+    "WhatsApp ephemeral previews directly within Events category, existing session consent and limits retained"
+  ],
+  "limits": [
+    "No real WhatsApp reception verified for this revision",
+    "Outgoing messages inside an open chat are not generally observable",
+    "No phone number backfill; blocked or unavailable values omitted",
+    "Numbers persist with ordinary event retention and CSV; WhatsApp message text stays ephemeral",
+    "No automated suites run for this revision; historical test totals are not new validation"
+  ]
+}

@@ -94,6 +94,8 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
     var configureServer by remember { mutableStateOf(false) }
     var serverError by remember { mutableStateOf<String?>(null) }
     var realAccepted by rememberSaveable(session.consentEpoch) { mutableStateOf(false) }
+    val communicationEvents=session.recentEvents.filter { !it.event.isSimulated && it.event.category in setOf("sms","call","whatsapp") }
+    var technicalHistory by rememberSaveable {mutableStateOf(false)}
     var selectedEvent by remember { mutableStateOf<AgentSession.LocalEvent?>(null) }
     androidx.compose.runtime.LaunchedEffect(session.state) {
         if (session.state !is AgentCore.State.Enrolled) { history = false; selectedEvent = null; realAccepted = false }
@@ -129,13 +131,17 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
         title = { Text(metadataTitle(row.event.metadata), style = MaterialTheme.typography.titleLarge) },
         text = { Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(if (row.event.isSimulated) "Simulado" else "Real")
-            Text(displayLocalTime(row.event.timestamp))
+            Text(displayFriendlyTime(row.event.timestamp))
             Text(deliveryLabel(row.delivery))
             Text(metadataDescription(row.event.metadata))
+            var technical by remember {mutableStateOf(false)}
+            AuditLink(if(technical) "Ocultar información técnica" else "Información técnica",{technical=!technical})
+            if(technical) {
             Text("ID: ${row.event.eventId}")
             Text("Dispositivo: ${row.event.sourceDevice}")
             Text("Política: ${row.event.consent.policyVersion}")
             row.errorCode?.let { Text("Error: $it") }
+            }
         } }, confirmButton = { AuditLink("Cerrar detalle", { selectedEvent = null }) }) }
 
     val page = when {
@@ -155,7 +161,7 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
                 Text("AuditLab registra eventos propios, eventos de prueba identificados como simulados y metadatos autorizados de este dispositivo.")
             }
             SectionLabel("Datos permitidos")
-            Text("Batería y conexión. Si das una autorización adicional y Android concede los permisos: tipo y fecha de SMS y llamadas. Las llamadas aparecen al finalizar.")
+            Text("Batería y conexión. Si das una autorización adicional y Android concede los permisos: tipo y fecha de SMS y llamadas. Puedes autorizar también el número en una casilla adicional; se conservará en el historial y reportes según la misma retención. Las llamadas aparecen al finalizar.")
             SectionLabel("Datos que no se recopilan")
             Text("La captura de metadatos no lee mensajes ni contactos. Compartir pantalla es opcional y requiere otra autorización: permite ver lo que abras, incluidos chats de WhatsApp. No comparte audio ni guarda video.")
             Text("También puedes autorizar, por separado, compartir el texto de notificaciones nuevas de WhatsApp. Requiere acceso de Android y consentimiento por sesión. No recupera historial ni archivos; conserva hasta 20 vistas previas durante 5 minutos en memoria, sin exportarlas ni guardarlas en la base de datos.")
@@ -209,7 +215,9 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
                     Text("Los registros se conservan según la retención local; no es el historial completo del servidor.", color = AuditColors.Muted)
                     AuditRule()
                     if (session.recentEvents.isEmpty()) AuditEmpty("SIN ACTIVIDAD REGISTRADA", "Los nuevos eventos aparecerán aquí durante el monitoreo autorizado.")
-                    session.recentEvents.forEach { row -> LocalEventRow(row) { selectedEvent = row } }
+                    AuditLink(if(technicalHistory) "Ocultar eventos técnicos" else "Mostrar eventos técnicos",{technicalHistory=!technicalHistory})
+                    (if(technicalHistory) session.recentEvents else communicationEvents).forEach { row -> LocalEventRow(row) { selectedEvent = row } }
+                    if(!technicalHistory && communicationEvents.isEmpty()) Text("Aún no hay mensajes ni llamadas en estos registros locales.")
                 } else {
                     AuditHeader("MI TELÉFONO", "AGENTE AUDITLAB")
                     val active=session.visibleAvailable && session.realCaptureRunning && !session.revoking
@@ -227,7 +235,7 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
                             !session.visibleAvailable -> "Habilita la notificación visible para poder compartir información."
                             else -> "El teléfono está vinculado. Activa la captura de abajo para que el Centro reciba batería y eventos."
                         })
-                        Text("${Build.MODEL} · ${state.deviceId.take(8)}…${state.deviceId.takeLast(4)}",color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
+                        Text("${Build.MODEL}",color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
                         if(session.visibleAvailable) AuditButton("Pausar monitoreo",{session.pause(scope)},!session.busy,outlined=true)
                         else {
                             AuditButton("Habilitar indicador y reanudar",{onRequestNotifications?.invoke() ?: session.resume(scope)},!session.busy)
@@ -237,11 +245,15 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
                     AuditPanel {
                         Text("1. Batería y eventos del teléfono",style=MaterialTheme.typography.titleMedium)
                         Text("Se lee el estado cada 10 segundos y se envía cuando cambia; también se confirma al menos una vez por minuto mientras hay conexión.")
-                        Text("SMS y llamadas comparten solo tipo y fecha si concedes sus permisos. La batería funciona aunque no autorices SMS o llamadas.",color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
+                        Text("SMS y llamadas muestran tipo y fecha. Puedes autorizar también el número; Android debe conceder sus permisos. La batería no necesita acceso a SMS o llamadas.",color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
                         if(!session.realMonitoring) {
                             Row(verticalAlignment=Alignment.CenterVertically) {
                                 Checkbox(realAccepted,{realAccepted=it},enabled=!session.busy)
                                 Text("Autorizo la captura y el envío de estos metadatos reales.",Modifier.weight(1f))
+                            }
+                            Row(verticalAlignment=Alignment.CenterVertically) {
+                                Checkbox(session.numberConsent,session::updateNumberConsent,enabled=!session.busy)
+                                Text("Autorizo compartir el número del remitente/destinatario de SMS y llamadas. Quedará en el historial y reportes, según la retención de eventos.",Modifier.weight(1f))
                             }
                             AuditButton("Autorizar e iniciar captura real",
                                 {onRequestRealMonitoring?.invoke() ?: session.startRealMonitoring(scope)},
@@ -270,8 +282,8 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
                         Text("Actividad reciente",Modifier.weight(1f),style=MaterialTheme.typography.titleMedium)
                         TextButton({history=true},shape=androidx.compose.ui.graphics.RectangleShape) {Text("Ver todos")}
                     }
-                    if(session.recentEvents.isEmpty()) AuditEmpty("SIN EVENTOS TODAVÍA","Activa la captura para empezar. Aquí verás qué se registró y si se envió.")
-                    session.recentEvents.take(4).forEach {row->LocalEventRow(row) {selectedEvent=row}}
+                    if(communicationEvents.isEmpty()) AuditEmpty("SIN EVENTOS TODAVÍA","Activa la captura para empezar. Aquí verás qué se registró y si se envió.")
+                    communicationEvents.take(4).forEach {row->LocalEventRow(row) {selectedEvent=row}}
                     AuditPanel {
                         Text("2. Notificaciones de WhatsApp",style=MaterialTheme.typography.titleMedium)
                         Text("Comparte vistas previas y registra eventos de notificaciones nuevas. Las respuestas propias se detectan solo si Android las muestra en una notificación. No recupera historial ni todos los envíos dentro del chat.")
@@ -338,7 +350,7 @@ private fun LocalEventRow(row: AgentSession.LocalEvent, onClick: () -> Unit) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     Text(metadataTitle(row.event.metadata), style = MaterialTheme.typography.bodyMedium)
-                    Text("${if (row.event.isSimulated) "Simulado" else "Real"} · ${displayLocalTime(row.event.timestamp)}",
+                    Text("${displayFriendlyTime(row.event.timestamp)}",
                         color = AuditColors.Muted, style = MaterialTheme.typography.bodySmall)
                     metadataDescription(row.event.metadata).takeIf { it.isNotEmpty() }?.let {
                         Text(it, color = AuditColors.Muted, style = MaterialTheme.typography.bodySmall)

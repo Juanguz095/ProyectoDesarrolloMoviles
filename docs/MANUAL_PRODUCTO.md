@@ -70,3 +70,20 @@ La suite `scripts/check_android.py` ejecuta las actividades reales contra el fix
 El test TLS primero rechaza el certificado QA por defecto, habilita **solo en su proceso de prueba** la CA exacta conservando validación de hostname y vuelve a comprobar el rechazo al restaurar la confianza original. Eso no instala certificados en el sistema ni cambia la app de producción. El piloto exige su certificado reconocido por Android.
 
 Ver precondiciones, informes, comandos y paquete con APKs/API/código en [pruebas integradas](PRUEBAS_INTEGRADAS.md). La [última repetición](evidencias/P7-P8-2026-10-26.md) conserva su resultado y hashes; los fallos corregidos anteriores permanecen en la [evidencia previa](evidencias/P5-P8-2026-10-25.md).
+
+
+## Interfaz de comunicaciones — 0.6
+
+Eventos abre en mensajes y llamadas reales; la batería y conexión se consultan en
+Inicio o en el dispositivo. Las tarjetas muestran tipo de comunicación, número
+solo si se autorizó y hora local. Los UUID/códigos quedan bajo Información técnica.
+Los alias locales como Teléfono 1 se conservan en ese Centro, sin cambiar la identidad
+del servidor. WhatsApp muestra texto temporal desde Eventos → WhatsApp; con varios
+agentes se selecciona un dispositivo en los filtros.
+
+Para compartir el número, detén la captura real del Agente, marca la autorización
+adicional e inicia de nuevo con permisos SMS/llamadas. Solo afecta eventos nuevos;
+no recupera números antiguos, agenda, cuerpos de SMS ni audio. El número puede
+aparecer en el CSV y se conserva con los eventos según la política vigente.
+
+Consulta [la guía de actualización y límites](ACTUALIZACION_0.6.md).

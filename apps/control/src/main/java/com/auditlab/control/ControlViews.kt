@@ -75,8 +75,8 @@ internal fun Dashboard(session: ControlSession, device: DeviceSummary?, scope: C
     val now by produceState(Instant.now()) { while(true) { delay(10_000);value=Instant.now() } }
     AuditHeader("AUDITLAB","CENTRO DE CONTROL")
     Text("Tu dispositivo de un vistazo",style=MaterialTheme.typography.titleLarge)
-    if(session.devices.size>1) AuditChoice("Dispositivo seleccionado",device?.let(::deviceLabel) ?: "Selecciona un equipo",
-        session.devices.map { it.deviceId to deviceLabel(it) },!session.busy,onChoose)
+    if(session.devices.size>1) AuditChoice("Dispositivo seleccionado",device?.let { session.deviceName(it.deviceId) } ?: "Selecciona un equipo",
+        session.devices.map { it.deviceId to session.deviceName(it.deviceId) },!session.busy,onChoose)
     RefreshControls(session,"inicio",device?.deviceId,scope)
     if(device==null) {
         AuditEmpty("SIN DISPOSITIVOS","Vincula el primer teléfono desde Más → Crear código de inscripción. Después introduce ese código en el Agente.")
@@ -84,7 +84,7 @@ internal fun Dashboard(session: ControlSession, device: DeviceSummary?, scope: C
     }
     Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {
-            Text(deviceLabel(device),style=MaterialTheme.typography.titleMedium)
+            Text(session.deviceName(device.deviceId),style=MaterialTheme.typography.titleMedium)
             Text(if(device.isActive) "Inscripción activa" else "Dispositivo revocado",color=if(device.isActive) AuditColors.Green else AuditColors.Red)
         }
         TextButton(onDevice,shape=RectangleShape) { Text("Ver equipo →") }
@@ -116,25 +116,30 @@ internal fun EventExplorer(session: ControlSession, scope: CoroutineScope, onExp
     AuditHeader("EVENTOS", "ACTIVIDAD RECIBIDA DEL TELÉFONO")
     RefreshControls(session,"eventos",session.query.device,scope)
     Text("${session.events.size} eventos en esta página",style=MaterialTheme.typography.titleMedium)
-    val applied=listOfNotNull(session.query.device?.let { "Equipo ${shortDeviceId(it)}" },session.query.category?.let(::categoryName))
+    val applied=listOfNotNull(session.query.device?.let { session.deviceName(it) },session.query.category?.let(::categoryName))
     Text(if(applied.isEmpty()) "Todos los dispositivos · Todas las categorías" else applied.joinToString(" · "),color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
     FlowRow(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp),verticalArrangement=Arrangement.spacedBy(4.dp)) {
-        listOf(null to "Todos","whatsapp" to "WhatsApp","sms" to "SMS","call" to "Llamadas","device_status" to "Batería").forEach { (value,label) ->
+        listOf("communication" to "Todo","whatsapp" to "WhatsApp","sms" to "SMS","call" to "Llamadas").forEach { (value,label) ->
             FilterChip(selected=session.query.category==value,onClick={session.applyFilters(session.query.copy(category=value),scope)},
                 label={Text(label)},enabled=!session.busy,
                 colors=FilterChipDefaults.filterChipColors(containerColor=AuditColors.Panel,labelColor=AuditColors.Ink,
                     selectedContainerColor=AuditColors.Ink,selectedLabelColor=AuditColors.Panel))
         }
     }
+    if(session.query.category=="whatsapp") {
+        val target=session.query.device ?: session.devices.singleOrNull {it.isActive}?.deviceId
+        if(target==null) Text("Selecciona un teléfono en Filtrar eventos para consultar sus mensajes de WhatsApp.")
+        else WhatsAppMessagesInline(session,target)
+    }
     AuditButton(if(showFilters) "Ocultar filtros" else "Filtrar eventos",{showFilters=!showFilters},!session.busy,outlined=true)
     if(showFilters) {
     AuditPanel {
-    AuditChoice("Dispositivo", if (manualDevice) "Escribir identificador" else device.ifEmpty { "Todos los dispositivos" },
-        listOf("" to "Todos los dispositivos") + session.devices.map { it.deviceId to "${it.deviceId.take(8)}…${it.deviceId.takeLast(4)}" } + listOf("manual" to "Escribir identificador"),
+    AuditChoice("Dispositivo", if (manualDevice) "Escribir identificador" else device.takeIf {it.isNotEmpty()}?.let(session::deviceName) ?: "Todos los dispositivos",
+        listOf("" to "Todos los dispositivos") + session.devices.map { it.deviceId to session.deviceName(it.deviceId) } + listOf("manual" to "Escribir identificador"),
         !session.busy) { value -> if (value == "manual") manualDevice = true else { device = value; manualDevice = false } }
     if (manualDevice) AuditField("Identificador del dispositivo", device, { device = it }, !session.busy, placeholder = "UUID completo")
     AuditChoice("Categoría", if (category.isEmpty()) "Todas las categorías" else categoryName(category),
-        listOf("" to "Todas las categorías") + EventPolicy.categories.sorted().map { it to categoryName(it) }, !session.busy) { category = it }
+        listOf("communication" to "Mensajes y llamadas","whatsapp" to "WhatsApp","sms" to "SMS","call" to "Llamadas"), !session.busy) { category = it }
     SectionLabel("Rango UTC")
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         DateChoice("Desde", start, false, !session.busy, { start = it }, Modifier.weight(1f))
@@ -165,7 +170,7 @@ internal fun EventExplorer(session: ControlSession, scope: CoroutineScope, onExp
     session.events.forEach { event ->
         val day=displayLocalDay(event.timestamp)
         if(day!=previousDay) { SectionLabel(day);previousDay=day }
-        EventRow(event,!session.busy) {session.showDetail(event,scope)}
+        EventRow(event,!session.busy,if(session.devices.size>1) session.deviceName(event.sourceDevice) else null) {session.showDetail(event,scope)}
     }
     Text("La consulta queda registrada en auditoría.", style = MaterialTheme.typography.bodySmall)
     SectionLabel("Página ${session.eventPageNumber} · ${session.events.size} recibidos · Hasta 50 eventos")
@@ -179,8 +184,8 @@ internal fun EventExplorer(session: ControlSession, scope: CoroutineScope, onExp
         Text("Formato UTC: 2026-10-28T00:00:00Z. Deja vacío para no limitar.", color = AuditColors.Muted, style = MaterialTheme.typography.bodySmall)
     }
     AuditLink("Limpiar filtros", {
-        filterError = null; manualDevice = false; device = ""; category = ""; start = ""; end = ""; search = ""
-        session.applyFilters(EventQuery(), scope)
+        filterError = null; manualDevice = false; device = ""; category = "communication"; start = ""; end = ""; search = ""
+        session.applyFilters(EventQuery(category="communication"), scope)
     }, !session.busy)
     if (device.trim().ifEmpty { null } != session.query.device || category.ifEmpty { null } != session.query.category ||
         start.trim().ifEmpty { null } != session.query.from || end.trim().ifEmpty { null } != session.query.to || search.trim().ifEmpty { null } != session.query.q) {
@@ -207,9 +212,9 @@ internal fun DeviceList(session: ControlSession, scope: CoroutineScope, onDetail
     if (session.devices.isEmpty()) AuditEmpty("SIN DISPOSITIVOS", if (session.devicesLoaded) "No hay dispositivos en esta página para el filtro actual." else "Actualiza la lista para consultar tus dispositivos.")
     session.devices.forEach { device ->
         AuditPanel {
-            Text(deviceLabel(device), style = MaterialTheme.typography.titleMedium)
+            Text(session.deviceName(device.deviceId), style = MaterialTheme.typography.titleMedium)
             Text(enrollmentStatus(device), style = MaterialTheme.typography.titleSmall)
-            Text("Último contacto: ${displayTime(device.lastSeenAt)}", color = AuditColors.Muted)
+            Text("Último contacto: ${device.lastSeenAt?.let(::displayFriendlyTime) ?: "Sin contacto"}", color = AuditColors.Muted)
             AuditButton("Ver dispositivo", { onDetail(device.deviceId) }, !session.busy, outlined = true)
         }
     }
@@ -228,10 +233,14 @@ internal fun DeviceDetail(session: ControlSession, device: DeviceSummary?, scope
     RefreshControls(session,"dispositivo",device?.deviceId,scope)
     if (device == null) { AuditEmpty("DISPOSITIVO NO DISPONIBLE", "Actualiza la lista de dispositivos para consultar su detalle."); return }
     AuditRule()
+    Text(session.deviceName(device.deviceId),style=MaterialTheme.typography.titleLarge)
     SectionLabel("Inscripción")
     Text(enrollmentStatus(device), style = MaterialTheme.typography.titleLarge)
-    Text("Último contacto: ${displayTime(device.lastSeenAt)}", color = AuditColors.Muted)
+    Text("Último contacto: ${device.lastSeenAt?.let(::displayFriendlyTime) ?: "Sin contacto"}", color = AuditColors.Muted)
     AuditRule()
+    var technical by remember {mutableStateOf(false)}
+    AuditLink(if(technical) "Ocultar información técnica" else "Información técnica",{technical=!technical})
+    if(technical) {
     SectionLabel("Identificador")
     Text(device.deviceId, style = MaterialTheme.typography.titleSmall)
     AuditLink("Copiar identificador", { composeScope.launch {
@@ -240,11 +249,12 @@ internal fun DeviceDetail(session: ControlSession, device: DeviceSummary?, scope
     Text("Versión de la app: ${device.appVersion ?: "Sin datos"}")
     Text("Inscrito: ${displayTime(device.enrolledAt)}")
     device.revokedAt?.let { Text("Revocado: ${displayTime(it)}") }
+    }
     AuditPanel {
         SectionLabel("Consentimiento registrado")
         Text(if (device.isActive) "INSCRIPCIÓN ACTIVA" else "INSCRIPCIÓN REVOCADA", style = MaterialTheme.typography.titleMedium)
-        Text("Política: ${device.consent.policyVersion}")
-        Text("Aceptado: ${displayTime(device.consent.acceptedAt)}")
+        Text("Aceptado: ${displayFriendlyTime(device.consent.acceptedAt)}")
+        if(technical) Text("Política: ${device.consent.policyVersion}")
         Text("El usuario puede retirar el consentimiento desde el agente. El servidor no confirma si la notificación está visible en este momento.", color = AuditColors.Muted)
     }
     val now by produceState(Instant.now()) { while(true) { delay(10_000);value=Instant.now() } }
@@ -290,13 +300,19 @@ internal fun AuditHistory(session: ControlSession, scope: CoroutineScope, onBack
         "No hay registros en esta página." else "Actualiza para consultar la trazabilidad del grupo.")
     session.audit.forEach { entry ->
         AuditPanel {
-            Text(entry.action, style = MaterialTheme.typography.titleMedium)
-            Text(displayTime(entry.occurredAt), color = AuditColors.Muted)
+            Text(auditActionName(entry.action), style = MaterialTheme.typography.titleMedium)
+            Text(displayFriendlyTime(entry.occurredAt), color = AuditColors.Muted)
+            Text("Resultado: ${when(entry.result) { "success"->"Completado"; "failure"->"Fallido";else->entry.result }}")
+            var technical by remember(entry.correlationId) {mutableStateOf(false)}
+            AuditLink(if(technical) "Ocultar información técnica" else "Información técnica",{technical=!technical})
+            if(technical) {
+            Text("Acción: ${entry.action}")
             Text("Actor: ${entry.actor}")
             Text("Recurso: ${entry.resource}")
             Text("Resultado: ${entry.result}")
             Text("Filtros: ${entry.filters}", style = MaterialTheme.typography.bodySmall)
             Text("Correlación: ${entry.correlationId}", style = MaterialTheme.typography.bodySmall)
+            }
         }
     }
     if (session.auditCursor != null) AuditButton("Siguiente página de auditoría", { session.loadAudit(scope, true) }, !session.busy)
@@ -324,13 +340,15 @@ internal fun AuditChoice(label: String, value: String, options: List<Pair<String
 }
 
 @Composable
-internal fun EventRow(event: AuditEvent, enabled: Boolean, onClick: () -> Unit) {
+internal fun EventRow(event: AuditEvent, enabled: Boolean, deviceName: String?=null, onClick: () -> Unit) {
     AuditPanel(Modifier.clickable(enabled=enabled,onClick=onClick).semantics {contentDescription="Ver detalle →"}) {
         Text(eventTitle(event),style=MaterialTheme.typography.titleMedium,color=AuditColors.Ink)
-        Text("${categoryName(event.category)} · ${if(event.isSimulated) "Simulado" else "Real"}",style=MaterialTheme.typography.labelMedium,color=AuditColors.Muted)
-        metadataDescription(event.metadata).takeIf(String::isNotBlank)?.let { Text(it,style=MaterialTheme.typography.bodyLarge,color=AuditColors.Ink) }
-        Text(displayLocalTime(event.timestamp),style=MaterialTheme.typography.bodyMedium,color=AuditColors.Ink)
-        Text("Equipo ${shortDeviceId(event.sourceDevice)}",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
+        Text(categoryName(event.category),style=MaterialTheme.typography.labelMedium,color=AuditColors.Muted)
+        if(event.category in setOf("sms","call") && event.metadata["phoneNumber"]==null) Text("Número no compartido o no disponible",color=AuditColors.Muted)
+        (event.metadata["phoneNumber"] as? String)?.let { Text(it,style=MaterialTheme.typography.bodyLarge,color=AuditColors.Ink) }
+        deviceName?.let { Text(it,color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall) }
+        Text(displayFriendlyTime(event.timestamp),style=MaterialTheme.typography.bodyMedium,color=AuditColors.Ink)
+
         Text("Ver detalle →",style=MaterialTheme.typography.labelLarge)
     }
 }

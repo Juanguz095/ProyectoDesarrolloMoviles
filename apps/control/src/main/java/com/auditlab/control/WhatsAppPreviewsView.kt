@@ -9,7 +9,14 @@ import com.auditlab.design.*
 import kotlinx.coroutines.*
 
 @Composable
-internal fun WhatsAppPreviewsView(session: ControlSession, device: String?, onBack: () -> Unit) {
+internal fun WhatsAppPreviewsView(session: ControlSession,device: String?,onBack:()->Unit) =
+    WhatsAppMessagesContent(session,device,onBack,false)
+
+@Composable
+internal fun WhatsAppMessagesInline(session: ControlSession,device: String) = WhatsAppMessagesContent(session,device,{},true)
+
+@Composable
+private fun WhatsAppMessagesContent(session: ControlSession,device: String?,onBack:()->Unit,compact: Boolean) {
     val activity=LocalActivity.current
     var snapshot by remember(device) { mutableStateOf<WhatsAppPreviewSnapshot?>(null) }
     val lifecycle=(activity as? androidx.lifecycle.LifecycleOwner)?.lifecycle
@@ -52,20 +59,20 @@ internal fun WhatsAppPreviewsView(session: ControlSession, device: String?, onBa
             delay(3000)
         }
     }
-    AuditHeader("WHATSAPP","VISTAS PREVIAS AUTORIZADAS")
-    AuditLink("← Volver al dispositivo",onBack)
+    if(!compact) {AuditHeader("WHATSAPP","VISTAS PREVIAS AUTORIZADAS");AuditLink("← Volver al dispositivo",onBack)}
+    else Text("Mensajes recientes de WhatsApp",style=MaterialTheme.typography.titleMedium)
     Text("Texto disponible en notificaciones nuevas; no es el historial completo del chat. Solo se comparte si el propietario activa la sesión en el Agente.")
     AuditRule()
     error?.let { AuditNotice(it) }
     if(device==null) AuditEmpty("SIN DISPOSITIVO","Selecciona un dispositivo inscrito.")
     else snapshot?.let { current ->
         AuditStatus(if(current.active) "SESIÓN ACTIVA" else "SESIÓN DETENIDA",current.active)
-        if(current.items.isEmpty()) AuditEmpty("SIN VISTAS PREVIAS",if(current.active) "Aparecerán cuando WhatsApp publique una notificación con texto permitido por Android." else "El propietario debe autorizar una nueva sesión en el Agente.")
+        if(current.items.isEmpty()) AuditEmpty("SIN VISTAS PREVIAS",if(current.active) "Aparecerán cuando WhatsApp publique una notificación con texto permitido por Android." else "En el teléfono Agente, abre Configurar vistas previas de WhatsApp, concede acceso Android y autoriza la sesión. Aquí aparecerá el texto de notificaciones nuevas.")
         current.items.forEach { preview ->
             AuditPanel {
                 Text(preview.title.ifBlank { "WhatsApp" },style=MaterialTheme.typography.titleMedium)
                 Text(preview.text)
-                Text(displayLocalTime(preview.timestamp),color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
+                Text(displayFriendlyTime(preview.timestamp),color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
                 Text(if(preview.packageName=="com.whatsapp.w4b") "WhatsApp Business" else "WhatsApp",style=MaterialTheme.typography.bodySmall)
             }
         }

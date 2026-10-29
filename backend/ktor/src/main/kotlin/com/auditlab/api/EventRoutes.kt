@@ -36,7 +36,7 @@ private data class EventFilters(val device: UUID?, val category: String?, val fr
 private fun parseMetadata(node: JsonNode?): String {
     if (node == null || node.isNull) return "{}"
     if (!node.isObject) throw ApiFailure(400, "INVALID_REQUEST")
-    val allowed = setOf("networkState", "batteryPercent", "appEventCode")
+    val allowed = setOf("networkState", "batteryPercent", "appEventCode", "phoneNumber")
     if (!allowed.containsAll(node.fieldNames().asSequence().toSet())) throw ApiFailure(400, "INVALID_REQUEST")
     val canonical = json.createObjectNode()
     node["networkState"]?.let {
@@ -50,6 +50,10 @@ private fun parseMetadata(node: JsonNode?): String {
     node["appEventCode"]?.let {
         if (!it.isTextual || !isAllowedAppEventCode(it.textValue())) throw ApiFailure(400, "INVALID_REQUEST")
         canonical.put("appEventCode", it.textValue())
+    }
+    node["phoneNumber"]?.let {
+        if(!it.isTextual || !it.textValue().matches(Regex("[+0-9 ()*#.-]{1,40}"))) throw ApiFailure(400,"INVALID_REQUEST")
+        canonical.put("phoneNumber",it.textValue())
     }
     return canonical.toString()
 }
@@ -70,6 +74,7 @@ private fun parseEvent(node: JsonNode, clock: Clock): NormalizedEvent {
     if (timestamp.isAfter(clock.instant().plusSeconds(300))) throw ApiFailure(400, "INVALID_REQUEST")
     if (timestamp.isBefore(consent.acceptedAt)) throw ApiFailure(400, "INVALID_REQUEST")
     val metadata = parseMetadata(node["metadata"])
+    if(node["metadata"]?.has("phoneNumber")==true && (simulated.booleanValue() || category !in setOf("sms","call"))) throw ApiFailure(400,"INVALID_REQUEST")
     val code = node["metadata"]?.get("appEventCode")?.textValue()
     if (!simulated.booleanValue()) {
         if (realEventCodes[code] != (category to direction)) throw ApiFailure(400, "INVALID_REQUEST")
@@ -91,7 +96,7 @@ private fun parseEvent(node: JsonNode, clock: Clock): NormalizedEvent {
 
 private fun parseEventFilters(query: Map<String, String>): EventFilters {
     val device = query["device"]?.let(::parseUuid)
-    val category = query["category"]?.also { if (!isAllowedCategory(it)) throw ApiFailure(400, "INVALID_REQUEST") }
+    val category = query["category"]?.also { if (it!="communication" && !isAllowedCategory(it)) throw ApiFailure(400, "INVALID_REQUEST") }
     val from = query["from"]?.let { parseInstant(it, "from") }
     val to = query["to"]?.let { parseInstant(it, "to") }
     if (from != null && to != null && !from.isBefore(to)) throw ApiFailure(400, "INVALID_RANGE")
@@ -107,7 +112,7 @@ private fun eventWhere(filters: EventFilters, cursor: List<String>?): Pair<Strin
     val sql = StringBuilder()
     val values = mutableListOf<Any>()
     filters.device?.let { sql.append(" AND e.device_id=?"); values += it }
-    filters.category?.let { sql.append(" AND e.category=?"); values += it }
+    filters.category?.let { if(it=="communication") sql.append(" AND e.category IN ('sms','call','whatsapp') AND NOT e.is_simulated") else {sql.append(" AND e.category=?"); values += it} }
     filters.from?.let { sql.append(" AND e.occurred_at>=?"); values += java.sql.Timestamp.from(it) }
     filters.to?.let { sql.append(" AND e.occurred_at<?"); values += java.sql.Timestamp.from(it) }
     filters.q?.let {

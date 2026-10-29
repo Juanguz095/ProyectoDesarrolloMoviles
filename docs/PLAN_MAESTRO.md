@@ -2,6 +2,12 @@
 
 Versión: 1.0 · Fecha: 17 de octubre de 2026.
 
+**Ampliación 0.6 — 28 de octubre (America/Lima):** P5.3/P6.2/P6.4 separan
+lecturas de batería del historial principal, resumen eventos de comunicación y
+ocultan identificadores técnicos. Números SMS/llamadas solo tras autorización local
+adicional, con retención y CSV de eventos. WhatsApp temporal accesible en Eventos.
+[Alcance y actualización](ACTUALIZACION_0.6.md).
+
 **Ampliación 0.5 — 28 de octubre (America/Lima):** P3.8/P5.6/P6.6 incluyen
 eventos persistentes de tipo/fecha de notificaciones WhatsApp recibidas y respuestas
 propias observadas. Consentimiento v2; texto solo en sesión temporal. P6.4 corrige

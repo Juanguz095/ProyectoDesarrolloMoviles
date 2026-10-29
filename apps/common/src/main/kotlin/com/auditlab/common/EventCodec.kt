@@ -10,9 +10,10 @@ object EventCodec {
     fun encode(event: EventDraft): String {
         EventPolicy.validate(event.category, event.direction, event.metadata["appEventCode"], event.isSimulated)
         require(event.direction in setOf("inbound", "outbound", "occurred"))
-        require(event.metadata.keys.all { it in setOf("networkState", "batteryPercent", "appEventCode") })
+        require(event.metadata.keys.all { it in setOf("networkState", "batteryPercent", "appEventCode", "phoneNumber") })
         event.metadata.forEach { (key, value) ->
             require(when (key) {
+                "phoneNumber" -> !event.isSimulated && event.category in setOf("sms","call") && value is String && value.matches(Regex("[+0-9 ()*#.-]{1,40}"))
                 "networkState" -> value in setOf("online", "offline", "unknown")
                 "batteryPercent" -> (value is Int || value is Long) && (value as Number).toLong() in 0..100
                 "appEventCode" -> value in EventPolicy.codes

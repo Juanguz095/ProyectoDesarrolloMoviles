@@ -119,14 +119,14 @@ internal fun ControlScreen(session: ControlSession, onExport: (() -> Unit)? = nu
     session.revokeTarget?.takeIf { session.isAdmin }?.let { target ->
         AlertDialog(onDismissRequest = session::cancelRevoke,
             title = { Text("Revocar dispositivo", style = MaterialTheme.typography.titleLarge) },
-            text = { Text("Se bloquearán nuevas transmisiones de $target. El agente detendrá la captura al recibir la revocación del servidor. Volver a inscribirlo requiere consentimiento y código nuevos.") },
+            text = { Text("Se bloquearán nuevas transmisiones de ${session.deviceName(target)}. El agente detendrá la captura al recibir la revocación del servidor. Volver a inscribirlo requiere consentimiento y código nuevos.") },
             confirmButton = { AuditLink("Confirmar revocación", { session.cancelRevoke(); session.revoke(target, scope) }) },
             dismissButton = { AuditLink("Cancelar", session::cancelRevoke) })
     }
     session.detail?.let { event -> EventDetail(event, session::closeDetail) }
     fun openEvents(device: String?) {
         if (session.busy) return
-        session.applyFilters(EventQuery(device = device), scope); screen = "eventos"
+        session.applyFilters(EventQuery(device = device,category="communication"), scope); screen = "eventos"
     }
     val selectedTab = when (screen) { "whatsapp", "dispositivo" -> "dispositivos"; "inscripcion", "auditoria" -> "mas"; else -> screen }
     AuditPage(key = if (session.signedIn) screen else "login", feedback = session.message, working = session.busy, bottom = if (session.signedIn) ({
@@ -215,7 +215,11 @@ private fun EventDetail(event: AuditEvent, onClose: () -> Unit) {
                 else "Se observó una notificación nueva de WhatsApp. Este evento guarda solo tipo y fecha; el texto de la vista previa pertenece a la sesión temporal autorizada.")
             Text(if (event.isSimulated) "Evento simulado" else "Evento real del dispositivo")
             AuditRule()
-            SectionLabel("Fecha del evento"); Text(displayLocalTime(event.timestamp))
+            SectionLabel("Fecha del evento"); Text(displayFriendlyTime(event.timestamp))
+            metadataDescription(event.metadata).takeIf {it.isNotBlank()}?.let {Text(it)}
+            var technical by remember {mutableStateOf(false)}
+            AuditLink(if(technical) "Ocultar información técnica" else "Información técnica",{technical=!technical})
+            if(technical) {
             SectionLabel("Recibido por el servidor"); Text(displayLocalTime(event.receivedAt))
             SectionLabel("Dispositivo"); Text(event.sourceDevice)
             SectionLabel("Identificador del evento"); Text(event.eventId)
@@ -227,6 +231,7 @@ private fun EventDetail(event: AuditEvent, onClose: () -> Unit) {
             SectionLabel("Consentimiento"); Text(event.consent.consentId)
             Text("Política: ${event.consent.policyVersion}")
             Text("Aceptado: ${displayTime(event.consent.acceptedAt)}")
+            }
         } }, confirmButton = { AuditLink("Cerrar detalle", onClose) })
 }
 
@@ -237,7 +242,32 @@ internal fun categoryName(category: String): String = when (category) {
     "sms" -> "SMS"
     "call" -> "Llamadas"
     "whatsapp" -> "WhatsApp"
+    "communication" -> "Mensajes y llamadas"
     "app_lifecycle" -> "Actividad de la app"
     "sync" -> "Sincronización"
     else -> category
+}
+
+internal fun auditActionName(action: String): String = when(action) {
+    "events_queried", "event_queried" -> "Consulta de eventos"
+    "report_exported" -> "Exportación de eventos"
+    "events_received" -> "Recepción de eventos"
+    "devices_listed" -> "Consulta de dispositivos"
+    "device_queried" -> "Consulta de un dispositivo"
+    "device_revoked" -> "Dispositivo revocado"
+    "device_enrolled" -> "Inscripción de dispositivo"
+    "enrollment_code_created" -> "Código de inscripción creado"
+    "consent_revoked" -> "Consentimiento retirado"
+    "login_succeeded" -> "Inicio de sesión"
+    "login_failed" -> "Intento de acceso rechazado"
+    "session_revoked" -> "Cierre de sesión"
+    "session_refreshed" -> "Renovación de sesión"
+    "audit_log_queried" -> "Consulta de auditoría"
+    "retention_executed" -> "Limpieza por retención"
+    "bootstrap_user_created" -> "Usuario inicial creado"
+    "screen_frame_queried" -> "Consulta de pantalla compartida"
+    "whatsapp_sharing_started" -> "Sesión de WhatsApp iniciada"
+    "whatsapp_sharing_stopped" -> "Sesión de WhatsApp detenida"
+    "whatsapp_previews_queried" -> "Consulta de mensajes temporales de WhatsApp"
+    else -> "Actividad registrada"
 }

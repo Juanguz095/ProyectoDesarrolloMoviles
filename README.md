@@ -8,42 +8,47 @@ Una API central autentica las conexiones, recibe los eventos y registra las cons
 
 ## Descargas
 
-**Versión actual: 0.5.0-preview · Android 8.0 o superior.**
+**Versión actual: 0.6.0-preview · Android 8.0 o superior.**
 
 | Componente | Instalación | Descargar |
 | --- | --- | --- |
-| Agente | Dispositivo que comparte información | [APK Agente](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.5.0-preview.apk) |
-| Centro de control | Dispositivo desde el que se consulta | [APK Centro](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.5.0-preview.apk) |
-| Servidor Windows | PC que ejecuta la API y la base de datos | [Servidor y aplicaciones](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.5.0-preview.zip) |
+| Agente | Dispositivo que comparte información | [APK Agente](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.6.0-preview.apk) |
+| Centro de control | Dispositivo desde el que se consulta | [APK Centro](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.6.0-preview.apk) |
+| Servidor Windows | PC que ejecuta la API y la base de datos | [Servidor y aplicaciones](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.6.0-preview.zip) |
 
-**Actualiza las dos aplicaciones y el servidor a 0.5.** La nueva categoría
-WhatsApp y el consentimiento v2 requieren la migración V7 incluida en el servidor.
+**Actualiza las dos aplicaciones y el servidor a 0.6.** El historial de
+comunicaciones y los números opcionales requieren la API nueva y V8.
 Conserva `.auditlab-windows`, su configuración y los datos al actualizar.
 Las APK publicadas usan firma debug; la firma de distribución sigue pendiente.
 
 [Instalación paso a paso en Windows, sin USB](docs/INICIO_WINDOWS_0.4.md) ·
 [Archivos y checksums](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/tree/descargas-auditlab) ·
-[Registro de publicación](docs/evidencias/ENTREGA-0.5.0-2026-10-28.json)
+[Registro de compilación](docs/evidencias/COMUNICACIONES-0.6.0-2026-10-28.json)
 
-## Cambios en 0.5
+## Cambios en 0.6
 
-- Tarjetas de eventos con texto completo, sin el recorte de los botones en cápsula.
-- Filtros rápidos Todos, WhatsApp, SMS, Llamadas y Batería.
-- Eventos de notificaciones WhatsApp y respuestas propias observadas, con tipo/fecha
-  y sin guardar texto ni contacto en el historial o CSV.
-- Consentimiento adicional v2; las vistas previas de texto siguen siendo temporales.
-- Se conserva la consulta automática cada 10 segundos y el botón Actualizar ahora.
+- **Eventos muestra mensajes y llamadas**: las lecturas de batería/conexión y
+  eventos simulados dejan de llenar el historial. La batería permanece en Inicio.
+- SMS/llamadas muestran su tipo, hora local y **número solo si el propietario lo
+  autoriza en una casilla adicional**. Requiere permiso Android y captura nueva;
+  los registros antiguos no se completan ni se inventan nombres de contactos.
+- Los dispositivos usan alias locales persistentes como “Teléfono 1”. Los UUID,
+  códigos y datos de diagnóstico quedan bajo **Información técnica**.
+- **Eventos → WhatsApp** incorpora el texto temporal de las notificaciones nuevas
+  durante una sesión autorizada; no se guarda en el historial ni en CSV.
+- Se conserva Actualizar ahora y la consulta automática cada 10 segundos.
 
 Android no expone todos los mensajes escritos dentro de un chat abierto. Una
 respuesta observada en una notificación no confirma entrega o lectura.
-[Qué se detecta, cómo actualizar y activar](docs/ACTUALIZACION_0.5.md).
+
+[Qué cambia, cómo actualizar y activar](docs/ACTUALIZACION_0.6.md).
 
 ## Funciones
 
 | Función | Alcance |
 | --- | --- |
 | Estado del dispositivo | Lecturas de batería y conexión, eventos propios de la app y último contacto con el servidor. |
-| SMS y llamadas | Metadatos de tipo y fecha desde la activación, sujetos a permisos Android. Sin contenido de SMS, números ni audio. |
+| SMS y llamadas | Metadatos de tipo y fecha desde la activación, sujetos a permisos Android. Número opcional con autorización adicional; sin contenido de SMS ni audio. |
 | WhatsApp | Vistas previas temporales de notificaciones nuevas y eventos de tipo/fecha de notificaciones recibidas o respuestas propias observadas, con autorización adicional por sesión. |
 | Pantalla compartida | Vista remota de la pantalla iniciada por su propietario con permiso de Android; aproximadamente una actualización por segundo, sin audio ni grabación. |
 | Historial y reportes | Filtros por dispositivo, categoría y fechas; búsqueda, detalle, paginación y exportación CSV de eventos. |
@@ -129,8 +134,8 @@ HTTPS, respaldo y restauración.
 
 ## Estado de la versión
 
-La entrega 0.5 documenta compilación, revisión estática, migración del servidor
-de desarrollo y revisión visual. La recepción desde WhatsApp instalado y el
+La entrega 0.6 documenta compilación, lint, revisión estática y migración del servidor
+de desarrollo. La recepción desde WhatsApp instalado y el
 recorrido completo en teléfonos siguen pendientes; no se ejecutan suites
 automáticas en esta revisión.
 
@@ -153,7 +158,7 @@ las versiones y el alcance de cada comprobación.
 ## Documentación
 
 - [Instalación y conexión sin USB](docs/INICIO_WINDOWS_0.4.md).
-- [Actualizar a 0.5 y registrar actividad WhatsApp](docs/ACTUALIZACION_0.5.md).
+- [Actualizar a 0.6 y consultar comunicaciones](docs/ACTUALIZACION_0.6.md).
 - [Manual del producto](docs/MANUAL_PRODUCTO.md).
 - [Captura de metadatos](docs/CAPTURA_REAL.md).
 - [Notificaciones de WhatsApp](docs/WHATSAPP_NOTIFICACIONES.md).

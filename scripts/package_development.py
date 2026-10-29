@@ -24,7 +24,7 @@ def bundle(destination, record_path):
     files=payloads(ROOT)
     files.update({'Iniciar-AuditLab.ps1':ROOT/'delivery/windows/Iniciar-AuditLab.ps1',
                   'PASOS-SIN-USB.md':ROOT/'docs/INICIO_WINDOWS_0.4.md',
-                  'LEEME.md':ROOT/'docs/ACTUALIZACION_0.5.md'})
+                  'LEEME.md':ROOT/'docs/ACTUALIZACION_0.6.md'})
     contents={name:path.read_bytes() for name,path in files.items()}
     for component in ('agent','control'):
         artifact=next(a for a in record['artifacts'] if a['component']==component)
