@@ -1,7 +1,7 @@
 # AuditLab — contexto del producto
 
 Actualizado: **29 de octubre de 2026, America/Lima**.
-Agente: **0.7.1-preview**, código 10. Centro: **0.7.2-preview**, código 11.
+Agente: **0.7.1-preview**, código 10. Centro: **0.7.3-preview**, código 12.
 Servidor compatible: **0.7**, esquema V9. Centro 0.7.2 integra las vistas previas
 temporales de WhatsApp en Eventos → Todo; [alcance](WHATSAPP_EVENTOS_0.7.2.md).
 

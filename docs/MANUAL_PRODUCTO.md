@@ -1,7 +1,7 @@
 # AuditLab — manual del producto
 
 Actualizado: 29 de octubre de 2026, America/Lima.
-Agente **0.7.1-preview**, Centro **0.7.2-preview**; servidor **0.7**, PostgreSQL con migraciones **V1–V9**.
+Agente **0.7.1-preview**, Centro **0.7.3-preview**; servidor **0.7**, PostgreSQL con migraciones **V1–V9**.
 Es una entrega de desarrollo. [Estado comprobado](AVANCE.md) y
 [contexto general](CONTEXTO_PRODUCTO.md).
 
@@ -153,3 +153,5 @@ contenido no usan cola en disco ni se inician automáticamente después de reini
 La recepción real de WhatsApp reportada por el usuario sigue pendiente de confirmar
 en la versión actual. Compilación/lint/firma no acreditan ese recorrido.
 [Registros](evidencias/WHATSAPP-0.7.1-2026-10-29.json).
+
+Identificación y archivo local de equipos: [Centro 0.7.3](DISPOSITIVOS_0.7.3.md).

@@ -1,6 +1,6 @@
 # AuditLab — arquitectura actual
 
-Actualizado: 29 de octubre de 2026, America/Lima. Agente 0.7.1, Centro 0.7.2, API 0.7/V9.
+Actualizado: 29 de octubre de 2026, America/Lima. Agente 0.7.1, Centro 0.7.3, API 0.7/V9.
 Centro 0.7.2 cambia la presentación de vistas previas en Eventos, sin cambiar
 el contrato ni la persistencia. [Detalle](WHATSAPP_EVENTOS_0.7.2.md).
 

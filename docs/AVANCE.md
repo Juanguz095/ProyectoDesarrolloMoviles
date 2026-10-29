@@ -4,6 +4,22 @@ Actualización: 29 de octubre de 2026, UTC. Los registros anteriores conservan s
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
+## Identificación y archivo local — 29 de octubre de 2026 (America/Lima)
+
+- P6.2/P6.4: Centro 0.7.3, código 12. Nombre editable y persistente por servidor/
+  inscripción; fecha de inscripción y último contacto visibles. El contacto reciente
+  usa un umbral de 120 segundos independiente de la inscripción activa.
+- Archivo/restauración confirmados, filtro local de equipos y exclusión de Inicio.
+  No cambia API/BD: nombres y archivo son locales a este Centro, no compartidos.
+  Conserva historial; no bloquea envíos ni cambia la consulta Todos en Eventos.
+  Tarjetas históricas identifican siempre el equipo de origen.
+- Compilación, lint y auditoría APK aprobados. Dos pruebas Robolectric aprobadas,
+  sin fallos: persistencia/restauración/aislamiento por servidor y dispositivo,
+  validación del nombre y estados de contacto. Sin ejecución real en teléfonos.
+  [Evidencia](evidencias/DISPOSITIVOS-0.7.3-2026-10-29.json).
+- P8.2/P8.3: APK y guía preparados. Sin ZIP Windows ni Agente nuevos.
+  Siguiente: verificar interfaz y restauración en los teléfonos del usuario (P7.1).
+
 ## Mensajes WhatsApp dentro de Eventos — 29 de octubre de 2026 (America/Lima)
 
 - P6.2/P6.6/P6.4: Centro 0.7.2-preview, código 11, muestra las vistas previas

@@ -43,8 +43,43 @@ class ControlSession internal constructor(private val store: SessionStore, priva
     var refreshError by mutableStateOf<String?>(null); private set
     var autoRefresh by mutableStateOf(true); private set
     var devicePageNumber by mutableStateOf(1); private set
-    private val deviceNames=linkedMapOf<String,String>()
-    fun deviceName(id: String): String = deviceNames.getOrPut(id) { names?.getString(id,null) ?: "Teléfono ${(names?.all?.size ?: deviceNames.size)+1}".also { names?.edit()?.putString(id,it)?.apply() } }
+    private val deviceLabels=mutableStateMapOf<String,String>()
+    private val archivedDevices=mutableStateMapOf<String,Boolean>()
+    private fun presentationKey(id: String): String {
+        val origin=serverUrl.trim().trimEnd('/')
+        val scope=java.security.MessageDigest.getInstance("SHA-256").digest(origin.toByteArray()).joinToString("") { "%02x".format(it) }
+        return "$scope:$id"
+    }
+    fun deviceName(id: String): String {
+        val key=presentationKey(id)
+        return deviceLabels.getOrPut(key) {
+            names?.getString("label:$key",null) ?: names?.getString(id,null) ?: "Teléfono ${id.takeLast(4)}"
+        }
+    }
+    fun isArchived(id: String): Boolean {
+        val key=presentationKey(id)
+        return archivedDevices.getOrPut(key) { names?.getBoolean("archived:$key",false) ?: false }
+    }
+    val visibleDevices get() = devices.filterNot { isArchived(it.deviceId) }
+    fun renameDevice(id: String,value: String): Boolean {
+        val label=value.trim()
+        if(!signedIn || label.isEmpty() || label.length>60 || label.any { it.isISOControl() }) return false
+        val key=presentationKey(id)
+        if(names?.edit()?.putString("label:$key",label)?.commit()==false) {
+            message="No se pudo guardar el nombre en este Centro.";return false
+        }
+        deviceLabels[key]=label;message="Nombre guardado en este Centro.";return true
+    }
+    fun archiveDevice(id: String,archived: Boolean): Boolean {
+        if(!signedIn) return false
+        val key=presentationKey(id)
+        if(names?.edit()?.putBoolean("archived:$key",archived)?.commit()==false) {
+            message="No se pudo guardar el cambio en este Centro.";return false
+        }
+        archivedDevices[key]=archived
+        message=if(archived) "Equipo archivado en este Centro. Conserva sus eventos y puede seguir enviando datos." else "Equipo restaurado en este Centro."
+        return true
+    }
     private var refreshJob: Job? = null
     private var refreshGeneration = 0L
     fun updateAutoRefresh(enabled: Boolean) { autoRefresh=enabled; if(!enabled) cancelRefresh() }

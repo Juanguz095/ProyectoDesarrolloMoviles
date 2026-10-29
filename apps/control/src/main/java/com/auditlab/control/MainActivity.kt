@@ -78,7 +78,8 @@ internal fun ControlScreen(session: ControlSession, onExport: (() -> Unit)? = nu
     var chosenDevice by rememberSaveable { mutableStateOf<String?>(null) }
     var user by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    val currentDevice = session.devices.firstOrNull { it.deviceId == chosenDevice } ?: session.devices.firstOrNull()
+    val selectableDevices = if(screen in setOf("dispositivo","whatsapp")) session.devices else session.visibleDevices
+    val currentDevice = selectableDevices.firstOrNull { it.deviceId == chosenDevice } ?: selectableDevices.firstOrNull()
     val lifecycle=(LocalActivity.current as? androidx.lifecycle.LifecycleOwner)?.lifecycle
     var foreground by remember { mutableStateOf(lifecycle?.currentState?.isAtLeast(androidx.lifecycle.Lifecycle.State.STARTED)!=false) }
     DisposableEffect(lifecycle) {

@@ -16,10 +16,10 @@ puertos del router. Ambos teléfonos deben poder acceder al mismo servidor.
 
 ## 1. Descargas
 
-Descarga **Agente 0.7.1-preview y Centro 0.7.2-preview** y, si necesitas instalar el servidor, el paquete **0.7.0-preview**:
+Descarga **Agente 0.7.1-preview y Centro 0.7.3-preview** y, si necesitas instalar el servidor, el paquete **0.7.0-preview**:
 
 - [Agente 0.7.1](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.7.1-preview.apk).
-- [Centro 0.7.2](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.7.2-preview.apk).
+- [Centro 0.7.3](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.7.3-preview.apk).
 - [Servidor Windows 0.7](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.7.0-preview.zip).
 
 El ZIP conserva los APK 0.7 en `apks/`; para la corrección WhatsApp instala los

@@ -75,11 +75,11 @@ internal fun Dashboard(session: ControlSession, device: DeviceSummary?, scope: C
     val now by produceState(Instant.now()) { while(true) { delay(10_000);value=Instant.now() } }
     AuditHeader("AUDITLAB","CENTRO DE CONTROL")
     Text("Tu dispositivo de un vistazo",style=MaterialTheme.typography.titleLarge)
-    if(session.devices.size>1) AuditChoice("Dispositivo seleccionado",device?.let { session.deviceName(it.deviceId) } ?: "Selecciona un equipo",
-        session.devices.map { it.deviceId to session.deviceName(it.deviceId) },!session.busy,onChoose)
+    if(session.visibleDevices.size>1) AuditChoice("Dispositivo seleccionado",device?.let { session.deviceName(it.deviceId) } ?: "Selecciona un equipo",
+        session.visibleDevices.map { it.deviceId to session.deviceName(it.deviceId) },!session.busy,onChoose)
     RefreshControls(session,"inicio",device?.deviceId,scope)
     if(device==null) {
-        AuditEmpty("SIN DISPOSITIVOS","Vincula el primer teléfono desde Más → Crear código de inscripción. Después introduce ese código en el Agente.")
+        AuditEmpty("SIN DISPOSITIVOS","No hay equipos visibles en esta página. Revisa Equipos → Archivados o vincula un teléfono desde Más → Crear código de inscripción.")
         return
     }
     Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
@@ -162,7 +162,7 @@ internal fun EventExplorer(session: ControlSession, scope: CoroutineScope, onExp
         if(session.query.from!=null || session.query.to!=null || session.query.q!=null) {
             Text("Los filtros de fecha e identificador consultan el historial de actividad, que no guarda texto de WhatsApp. Quita esos filtros para ver las vistas previas en vivo.",color=AuditColors.Muted)
         } else {
-            val target=session.query.device ?: session.devices.singleOrNull {it.isActive}?.deviceId
+            val target=session.query.device ?: session.visibleDevices.singleOrNull {it.isActive}?.deviceId
             AuditChoice("Teléfono para WhatsApp", target?.let(session::deviceName) ?: "Selecciona un teléfono",
                 session.devices.filter { it.isActive }.map { it.deviceId to session.deviceName(it.deviceId) },!session.busy) {
                 session.applyFilters(session.query.copy(device=it),scope)
@@ -182,7 +182,7 @@ internal fun EventExplorer(session: ControlSession, scope: CoroutineScope, onExp
     session.events.forEach { event ->
         val day=displayLocalDay(event.timestamp)
         if(day!=previousDay) { SectionLabel(day);previousDay=day }
-        EventRow(event,!session.busy,if(session.devices.size>1) session.deviceName(event.sourceDevice) else null) {session.showDetail(event,scope)}
+        EventRow(event,!session.busy,session.deviceName(event.sourceDevice)) {session.showDetail(event,scope)}
     }
     Text("La consulta queda registrada en auditoría.", style = MaterialTheme.typography.bodySmall)
     SectionLabel("Página ${session.eventPageNumber} · ${session.events.size} eventos · Hasta 50 por página")
@@ -222,10 +222,19 @@ internal fun DeviceList(session: ControlSession, scope: CoroutineScope, onDetail
     }
     Text("Actualizado: ${displayTime(session.devicesUpdatedAt)}", color = AuditColors.Muted, style = MaterialTheme.typography.bodySmall)
     if (session.devices.isEmpty()) AuditEmpty("SIN DISPOSITIVOS", if (session.devicesLoaded) "No hay dispositivos en esta página para el filtro actual." else "Actualiza la lista para consultar tus dispositivos.")
-    session.devices.forEach { device ->
+    var showArchived by rememberSaveable { mutableStateOf(false) }
+    AuditChoice("Mostrar",if(showArchived) "Archivados" else "Sin archivar",
+        listOf("visible" to "Sin archivar","archived" to "Archivados"),true) { showArchived=it=="archived" }
+    Text("Los nombres y el archivo se guardan solo en este Centro. Archivar oculta el equipo de Inicio; conserva sus eventos y no detiene los envíos.",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
+    val displayed=session.devices.filter { session.isArchived(it.deviceId)==showArchived }
+    if(displayed.isEmpty() && session.devices.isNotEmpty()) Text("No hay equipos para esta vista en la página cargada. Puedes cambiar de página si hay más resultados.")
+    val now by produceState(Instant.now()) { while(true) { delay(10_000);value=Instant.now() } }
+    displayed.forEach { device ->
         AuditPanel {
             Text(session.deviceName(device.deviceId), style = MaterialTheme.typography.titleMedium)
-            Text(enrollmentStatus(device), style = MaterialTheme.typography.titleSmall)
+            Text(deviceContactStatus(device,now), style = MaterialTheme.typography.titleSmall)
+            Text("Inscrito: ${displayFriendlyTime(device.enrolledAt)}",style=MaterialTheme.typography.bodySmall)
+            if(session.isArchived(device.deviceId)) Text("Archivado en este Centro",color=AuditColors.Muted)
             Text("Último contacto: ${device.lastSeenAt?.let(::displayFriendlyTime) ?: "Sin contacto"}", color = AuditColors.Muted)
             AuditButton("Ver dispositivo", { onDetail(device.deviceId) }, !session.busy, outlined = true)
         }
@@ -246,7 +255,10 @@ internal fun DeviceDetail(session: ControlSession, device: DeviceSummary?, scope
     if (device == null) { AuditEmpty("DISPOSITIVO NO DISPONIBLE", "Actualiza la lista de dispositivos para consultar su detalle."); return }
     AuditRule()
     Text(session.deviceName(device.deviceId),style=MaterialTheme.typography.titleLarge)
+    DevicePresentationActions(session,device,onBack)
     SectionLabel("Inscripción")
+    Text("Inscrito: ${displayFriendlyTime(device.enrolledAt)}")
+    Text(deviceContactStatus(device,Instant.now()))
     Text(enrollmentStatus(device), style = MaterialTheme.typography.titleLarge)
     Text("Último contacto: ${device.lastSeenAt?.let(::displayFriendlyTime) ?: "Sin contacto"}", color = AuditColors.Muted)
     AuditRule()
@@ -415,4 +427,33 @@ private fun DateChoice(label: String, value: String, exclusiveEnd: Boolean, enab
         modifier = modifier.heightIn(min = 50.dp), contentPadding = PaddingValues(8.dp)) {
         Text("$label: $display", style = MaterialTheme.typography.bodyMedium)
     }
+}
+
+internal fun deviceContactStatus(device: DeviceSummary,now: Instant): String {
+    if(!device.isActive) return "Revocado"
+    val last=device.lastSeenAt?.let { runCatching { Instant.parse(it) }.getOrNull() }
+        ?: return "Sin contacto registrado"
+    val age=java.time.Duration.between(last,now).seconds
+    return if(age in 0..120) "Contacto reciente · Inscripción activa" else "Sin contacto reciente · Inscripción activa"
+}
+
+@Composable
+private fun DevicePresentationActions(session: ControlSession,device: DeviceSummary,onArchived: () -> Unit) {
+    var editing by remember(device.deviceId) { mutableStateOf(false) }
+    var label by remember(device.deviceId) { mutableStateOf("") }
+    var error by remember(device.deviceId) { mutableStateOf<String?>(null) }
+    var confirming by remember(device.deviceId) { mutableStateOf(false) }
+    val archived=session.isArchived(device.deviceId)
+    AuditLink("Cambiar nombre",{label=session.deviceName(device.deviceId);editing=true},!session.busy)
+    Text("Nombre y archivo locales a este Centro de control.",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
+    if(archived) Text("ARCHIVADO · Sus eventos siguen disponibles")
+    AuditButton(if(archived) "Restaurar dispositivo" else "Archivar dispositivo",{confirming=true},!session.busy,outlined=true)
+    if(editing) AlertDialog(onDismissRequest={editing=false;error=null},title={Text("Nombre del dispositivo")},text={
+        Column { AuditField("Nombre (1 a 60 caracteres)",label,{label=it;error=null},true)
+            error?.let {Text(it,color=AuditColors.Red)} }
+    },confirmButton={AuditLink("Guardar",{if(session.renameDevice(device.deviceId,label)) {editing=false;error=null} else error="Usa entre 1 y 60 caracteres sin saltos de línea. Comprueba el almacenamiento local."})},dismissButton={AuditLink("Cancelar",{editing=false;error=null})})
+    if(confirming) AlertDialog(onDismissRequest={confirming=false},title={Text(if(archived) "Restaurar dispositivo" else "Archivar dispositivo")},text={Text(if(archived)
+        "Volverá a aparecer en Inicio y en la lista habitual de este Centro."
+        else "Se ocultará de Inicio y de la lista habitual de este Centro. Su historial se conserva y puede seguir enviando eventos. Para bloquear los envíos utiliza Revocar.")},
+        confirmButton={AuditLink("Confirmar",{if(session.archiveDevice(device.deviceId,!archived)) {confirming=false;onArchived()}})},dismissButton={AuditLink("Cancelar",{confirming=false})})
 }
