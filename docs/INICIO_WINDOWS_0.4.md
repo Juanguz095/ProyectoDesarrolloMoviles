@@ -148,5 +148,6 @@ El propietario de A inicia y detiene la sesión; B no la inicia remotamente.
   Forzar la detención o reiniciar el teléfono exige volver a autorizar las sesiones.
 
 La PC, API, Docker y Tailscale deben seguir funcionando. Son APK debug de prueba.
-Esta versión pasó pruebas con dos emuladores y entradas de notificación sintéticas;
-Windows, teléfonos físicos y publicación por WhatsApp real quedan por comprobar.
+En 0.5 se registran compilación, revisión estática, migración de desarrollo y revisión
+visual de tarjetas. Las suites automáticas y el recorrido WhatsApp real de esta
+revisión no se ejecutaron. Windows y teléfonos físicos quedan por comprobar.
