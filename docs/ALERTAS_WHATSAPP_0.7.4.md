@@ -51,3 +51,22 @@ deduplicación, sesión detenida, timestamps inválidos/caducados/futuros, limpi
 local del núcleo compartido y regresión de autenticación. Sin prueba de notificaciones
 reales ni servicio mantenido en teléfonos. Pendiente P7.6: ambos dispositivos con
 WhatsApp instalado, Centro en segundo plano, detener/revocar y ahorro de batería.
+
+### Comprobación nativa posterior
+
+Un recorrido Android API26 aprobado con APK publicado: aviso con texto en segundo
+plano (Home), ocultación en bloqueo, deduplicación, abrir Eventos al tocar, Detener,
+reactivar y retirar avisos al terminar la sesión fuente. Entrada ficticia vía API
+real; no WhatsApp instalado ni listener del Agente. [Evidencia nativa](evidencias/ALERTAS-NATIVAS-0.7.4-2026-10-29.json).
+No sustituye la prueba en teléfonos ni valida Android13/15 o ejecución prolongada.
+
+Para repetir en un AVD de QA sin sesión previa, con el fixture local ya activo:
+
+```bash
+python3 scripts/gradle.py :apps:control:assembleDebug :apps:control:assembleDebugAndroidTest --offline --max-workers=2
+python3 scripts/check_whatsapp_alerts.py --control-serial emulator-5594
+```
+
+No se borra la app para preparar la prueba; aborta si existe una sesión previa.
+Se crean una inscripción y sesiones QA en el fixture. Configuración privada
+inyectada por stdin y retirada al terminar; no pegar credenciales en comandos.

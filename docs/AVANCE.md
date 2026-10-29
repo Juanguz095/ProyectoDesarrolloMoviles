@@ -4,6 +4,28 @@ Actualización: 29 de octubre de 2026, UTC. Los registros anteriores conservan s
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
+## Alertas nativas Android verificadas — 29 de octubre de 2026 (America/Lima)
+
+- P6.6/P7.6: solo se detectaron AVD API28/API26, sin teléfonos físicos ni WhatsApp
+  instalado. No es posible declarar recepción real de WhatsApp con estos recursos.
+- Instrumentación en API26 contra Ktor/PostgreSQL real de QA usando el APK 0.7.4
+  publicado, SHA256 instalado comprobado. Entrada de mensajes ficticia por API
+  autenticada de dispositivo inscrito; no se ejercita el listener WhatsApp del Agente.
+- Primera preparación falló por quoting ADB; corregido antes de instrumentar. Primer
+  recorrido aprobado; segunda ejecución amplía las aserciones de navegación y Detener:
+  1 test nativo aprobado en 43.877 s. Aviso con texto real Android, Centro en Home,
+  contenido secreto en bloqueo, deduplicación, apertura de Eventos, detención manual,
+  nueva activación y retirada al terminar sesión fuente aprobados.
+- [Evidencia](evidencias/ALERTAS-NATIVAS-0.7.4-2026-10-29.json), prueba
+  `NativeWhatsAppAlertsTest` y runner `scripts/check_whatsapp_alerts.py`. El runner
+  público incorpora la preparación usada; solo se comprueba su sintaxis/ayuda en
+  esta sesión, la ejecución se realizó con el helper privado equivalente.
+- Sin cambios al APK/API ni nueva versión. Credenciales QA inyectadas por stdin,
+  configuración temporal retirada y sesión de prueba cerrada, sin borrar datos de app.
+  AVD del Agente restaurado tras pausarlo para ahorrar CPU.
+- Pendiente P7.6: WhatsApp real en teléfonos; permiso Android13, límites Android15,
+  batería/Doze y funcionamiento prolongado no están validados por esta prueba API26.
+
 ## Alertas WhatsApp sin Firebase — 29 de octubre de 2026 (America/Lima)
 
 - P6.6/P6.4: Centro 0.7.4, código 13. Al no disponer de proyecto Firebase se

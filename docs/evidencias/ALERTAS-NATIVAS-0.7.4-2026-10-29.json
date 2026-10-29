@@ -1,0 +1,40 @@
+{
+  "passed": true,
+  "message_notification": true,
+  "text_matches": true,
+  "home_background": true,
+  "lockscreen_secret": true,
+  "deduplicated": true,
+  "tap_opens_events": true,
+  "stop_button_clears_notifications": true,
+  "source_stop_clears_notifications": true,
+  "synthetic_input": true,
+  "real_whatsapp": false,
+  "date": "2026-10-29",
+  "timezone": "America/Lima",
+  "tasks": [
+    "P6.6",
+    "P7.6"
+  ],
+  "android_api": 26,
+  "device_type": "emulator",
+  "physical_phone_connected": false,
+  "whatsapp_installed": false,
+  "input": "Synthetic previews submitted through authenticated API as a QA enrolled device; not a WhatsApp notification callback",
+  "api": "Real isolated Ktor/PostgreSQL QA fixture",
+  "apk_sha256": "d4f69bfc470bc6ca484d4a94cf128fb470b983b5cfec360dfd6c943ff570cf55",
+  "published_apk_matches": true,
+  "instrumentation_tests": 1,
+  "instrumentation_failures": 0,
+  "duration_seconds": 43.877,
+  "not_verified": [
+    "Real WhatsApp delivery on a physical phone",
+    "Android 13 notification permission prompt",
+    "Android 15 dataSync timeout and battery/Doze endurance"
+  ],
+  "private_logs": [
+    ".tooling/alerts-native-build.log",
+    ".tooling/alerts-native-run.log"
+  ],
+  "preparation_failure": "First attempt failed to quote ADB run-as configuration command; corrected before instrumentation; no product defect observed"
+}

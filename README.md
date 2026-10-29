@@ -26,6 +26,9 @@ Servicio visible para avisos con texto recibido autorizado, consulta cada 5 segu
 sin Firebase. Activar y detener en el detalle del equipo. Android puede interrumpirlo;
 no captura lo enviado dentro del chat. [Activación y límites](docs/ALERTAS_WHATSAPP_0.7.4.md).
 [Comprobaciones y entrega 0.7.4](docs/evidencias/ENTREGA-CENTRO-0.7.4-2026-10-29.json).
+[Prueba nativa de avisos API26](docs/evidencias/ALERTAS-NATIVAS-0.7.4-2026-10-29.json):
+texto, segundo plano, deduplicación, navegación y detención aprobados con entradas
+ficticias por API; recepción WhatsApp real en teléfonos pendiente.
 
 ## Descargas
 
