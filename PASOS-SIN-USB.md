@@ -7,14 +7,14 @@ puertos del router. Ambos teléfonos deben poder acceder al mismo servidor.
 
 ## 1. Descargas
 
-Descarga las tres piezas **0.6.0-preview**:
+Descarga las tres piezas **0.7.0-preview**:
 
-- [Agente 0.6](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.6.0-preview.apk).
-- [Centro 0.6](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.6.0-preview.apk).
-- [Servidor Windows 0.6](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.6.0-preview.zip).
+- [Agente 0.7](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.7.0-preview.apk).
+- [Centro 0.7](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.7.0-preview.apk).
+- [Servidor Windows 0.7](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.7.0-preview.zip).
 
-El ZIP también contiene ambos APK actuales en `apks/`. Para el nuevo historial de comunicaciones y los números opcionales se necesita
-servidor 0.6 con V8; actualizar solo el Centro no habilita la captura del Agente. [Guía y límites de la actualización](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/blob/main/docs/ACTUALIZACION_0.6.md).
+El ZIP también contiene ambos APK actuales en `apks/`. Para el nuevo historial de comunicaciones y el texto SMS opcional se necesita
+servidor 0.7 con V9; actualizar solo el Centro no habilita la captura del Agente. [Guía y límites de la actualización](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/blob/main/docs/ACTUALIZACION_0.7.md).
 
 ## 2. Preparar la PC Windows
 
@@ -36,7 +36,7 @@ Extrae **todo** el ZIP en `C:\AuditLab`. Deben aparecer `Iniciar-AuditLab.ps1`,
 Si ya usabas AuditLab: detén primero la API con Ctrl+C. Conserva
 `C:\AuditLab\.auditlab-windows` y los volúmenes Docker. Guarda la carpeta `api`
 anterior como respaldo antes de extraer la nueva en la misma ubicación. El
-lanzador reutiliza la configuración y contraseña y aplica las migraciones V4–V8.
+lanzador reutiliza la configuración y contraseña y aplica las migraciones V4–V9.
 No borres la base ni la configuración para resolver errores de inicio.
 
 En PowerShell:
@@ -107,8 +107,8 @@ para editar su URL. No uses `127.0.0.1` en los teléfonos en esta modalidad.
 En el Agente, desplázate a la sección de captura real, marca su autorización y
 pulsa **Autorizar e iniciar captura real**. Acepta los permisos opcionales que
 necesites. Comprueba que las fuentes indiquen permiso concedido. SMS/llamadas
-registran tipo y fecha. El número se comparte solo si marcas su casilla adicional
-antes de iniciar; no se leen cuerpos de SMS, agenda ni audio. Los registros
+registran tipo y fecha. El número y el texto se comparten solo si marcas sus casillas adicionales
+antes de iniciar; el texto autorizado se guarda con los eventos y puede exportarse en CSV. No se lee agenda ni audio. Los registros
 anteriores no se completan. En el Centro usa Eventos → SMS/Llamadas.
 
 ### Texto de notificaciones nuevas de WhatsApp
@@ -142,7 +142,7 @@ El propietario de A inicia y detiene la sesión; B no la inicia remotamente.
 - **Credenciales rechazadas:** comprueba primero `/ready` en ambos teléfonos.
   Usa `admin` y la contraseña de la misma instalación del servidor Windows. Una
   sesión de otra instalación/URL requiere cerrar sesión y volver a iniciar.
-- **Actualiza el servidor:** estás usando el backend anterior. Instala el ZIP 0.6
+- **Actualiza el servidor:** estás usando el backend anterior. Instala el ZIP 0.7
   conservando la configuración y ejecuta el lanzador nuevo.
 - **No llegan notificaciones:** confirma sesión activa, acceso Android concedido,
   notificaciones WhatsApp habilitadas y texto disponible. Un chat abierto puede
@@ -151,6 +151,6 @@ El propietario de A inicia y detiene la sesión; B no la inicia remotamente.
   Forzar la detención o reiniciar el teléfono exige volver a autorizar las sesiones.
 
 La PC, API, Docker y Tailscale deben seguir funcionando. Son APK debug de prueba.
-En 0.6 se registran compilación, revisión estática, migración de desarrollo y revisión
+En 0.7 se registran compilación, revisión estática, migración de desarrollo y revisión
 visual de tarjetas. Las suites automáticas y el recorrido WhatsApp real de esta
 revisión no se ejecutaron. Windows y teléfonos físicos quedan por comprobar.

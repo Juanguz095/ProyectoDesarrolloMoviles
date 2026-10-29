@@ -1,0 +1,31 @@
+{
+  "version": "0.7.0-preview",
+  "source_commit": "cae5f9f8adc9ab130472a83176d3ff35ed6cd410",
+  "files": [
+    {
+      "name": "auditlab-agent-0.7.0-preview.apk",
+      "bytes": 10276841,
+      "sha256": "6d9da3ad8ca5be56fa6b73996fc2c99d066dfb42f794962e12533b73defcefbd",
+      "url": "https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.7.0-preview.apk"
+    },
+    {
+      "name": "auditlab-control-0.7.0-preview.apk",
+      "bytes": 9583347,
+      "sha256": "0ed145ff9370fb4cd5a415643e7e0f97d70c0a597e163c89d6b17e98a3035112",
+      "url": "https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.7.0-preview.apk"
+    },
+    {
+      "name": "AuditLab-Servidor-Windows-0.7.0-preview.zip",
+      "bytes": 38336916,
+      "sha256": "280b7e57579d22c9ee97a65d060e6250a882b23665fa91a8f737cce353439778",
+      "url": "https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.7.0-preview.zip"
+    }
+  ],
+  "migration": "V9",
+  "build_and_static_checks_passed": true,
+  "automated_tests_executed": false,
+  "native_review_this_revision": false,
+  "real_whatsapp_verified": false,
+  "windows_verified": false,
+  "pilot_approved": false
+}
