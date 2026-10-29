@@ -1,56 +1,56 @@
 # AuditLab — Descargas
 
-Monitoreo visible y autorizado de dispositivos Android propios o administrados.
+Monitoreo visible y autorizado para dispositivos Android propios o administrados.
 
-## Aplicaciones 0.4.1-preview
+## Versión actual: 0.5.0-preview
 
 | Componente | Descargar |
 | --- | --- |
-| Agente para el teléfono supervisado | [APK Agente](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.4.1-preview.apk) |
-| Centro de control | [APK Centro](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.4.1-preview.apk) |
-| Servidor Windows compatible 0.4.0 | [Servidor Windows](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.4.0-preview.zip) |
+| Agente | [APK Agente](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.5.0-preview.apk) |
+| Centro de control | [APK Centro](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.5.0-preview.apk) |
+| Servidor Windows, apps y fuentes | [Servidor 0.5](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.5.0-preview.zip) |
 
-**Android 8.0 o superior. Instala ambos APK 0.4.1 conservando sus datos.** Puedes
-mantener el servidor 0.4.0, la misma URL y tu inscripción. El ZIP del servidor
-incluye APKs anteriores 0.4.0: descarga por separado los dos APK actuales de arriba.
-Un servidor 0.3 requiere actualizarse a 0.4.0 para las funciones de pantalla y WhatsApp.
+**Actualiza las tres piezas a 0.5. Android 8.0 o superior.** Conserva los datos
+locales de las apps, `.auditlab-windows`, sus claves y los datos Docker. Extrae el
+servidor nuevo en la misma ubicación, conservando un respaldo de la API anterior.
+El lanzador aplica V7; no es necesario cambiar la URL de Tailscale ni la cuenta.
 
-[Instalación Windows sin USB](PASOS-SIN-USB.md) ·
-[Guía de actualización y batería](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/blob/main/docs/ACTUALIZACION_0.4.1.md) ·
-[SHA256](SHA256SUMS-0.4.1-preview)
+[Instalación sin USB](PASOS-SIN-USB.md) ·
+[Qué detectar y cómo activar WhatsApp](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/blob/main/docs/ACTUALIZACION_0.5.md) ·
+[SHA256](SHA256SUMS-0.5.0-preview)
 
-## Cambios en 0.4.1
+## Cambios en 0.5
 
-- Centro: actualización automática cada 10 segundos y botón Actualizar ahora.
-- Batería con porcentaje grande, hora de lectura y aviso si el dato es antiguo.
-- Eventos con títulos legibles, fecha local y agrupación por día; filtros desplegables.
-- Agente: activación de batería/eventos visible y botón Enviar estado ahora.
-- Batería a partir del estado de Android; confirmación al minuto aunque el valor
-  no cambie y aislamiento de errores en proveedores SMS/llamadas.
+- Tarjetas completas: se corrige el recorte circular de títulos y textos.
+- Filtros rápidos de Eventos: Todos, WhatsApp, SMS, Llamadas y Batería.
+- Eventos de notificación WhatsApp recibida y respuesta propia observada, con
+  tipo/fecha/dirección y sin texto, nombres ni números en la cola, historial o CSV.
+- Nueva autorización local v2. El texto de vistas previas sigue siendo temporal:
+  hasta 20 elementos/5 minutos en memoria, sin guardarse en eventos ni SQL/Room.
+- Se conserva la actualización automática del Centro y de batería/eventos del Agente.
 
-En el Agente activa **Batería y eventos del teléfono**; en el Centro deja
-**Automático** encendido. Actualizar el Centro consulta el servidor; el propietario
-activa la captura en el otro teléfono. La conexión y Android pueden retrasar envíos.
+## Activar actividad WhatsApp
 
-## Funciones
+En el Agente abre Configurar vistas previas de WhatsApp, concede acceso Android,
+vuelve, marca la autorización de vistas previas y registro de actividad e inicia
+la sesión. En el Centro abre **Eventos → WhatsApp** y actualiza.
 
-Batería/conexión, metadatos autorizados de SMS y llamadas, notificaciones nuevas de
-WhatsApp/Business, pantalla compartida, historial, filtros, CSV de eventos, roles,
-auditoría e inscripción/revocación. El contenido de pantalla/WhatsApp exige otra
-sesión autorizada con indicador visible y acción DETENER. No recupera historial de chats.
+La respuesta se detecta solo cuando Android la expone en una notificación. No
+confirma entrega ni detecta todos los envíos escritos dentro del chat abierto.
+No se importa historial; el propietario puede detener la sesión desde la app o
+la notificación visible. SMS y llamadas requieren sus permisos propios.
 
-## Estado de verificación
+## Estado de la entrega
 
-APKs con firma debug. En 0.4.1 finalizaron compilación, lint sin errores y auditoría
-estática de los APK; se revisaron visualmente las pantallas iniciales en emuladores.
-**No se ejecutaron las pruebas automáticas ni el recorrido funcional completo de
-esta revisión**. Los 197 casos y el recorrido de notificaciones de 0.4.0 son históricos.
-Pendiente validar 0.4.1 entre teléfonos, red, permisos, segundo plano y paginación.
+Compilación de ambas apps/API, lint sin errores, contratos y auditoría estática de
+APK satisfactorios. V7 aplicada al servidor de desarrollo conservando datos;
+revisión visual de tarjetas autenticadas en un emulador con datos QA.
+No se ejecutaron suites automáticas ni recepción desde WhatsApp instalado en
+esta revisión. Windows y teléfonos físicos siguen pendientes. APK con firma debug;
+paquete de desarrollo, sin aprobación de piloto o firma de distribución.
 
-Mantén la PC/API encendida y usa HTTPS. Para conectar redes diferentes, la guía
-incluye Tailscale. Conserva `.auditlab-windows` y los datos Docker al actualizar.
+[Estado y evidencias](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/blob/main/docs/AVANCE.md) ·
+[Registro de descarga](ENTREGA-0.5.0-preview.json) ·
+[Código](https://github.com/Juanguz095/ProyectoDesarrolloMoviles)
 
-[Código y documentación](https://github.com/Juanguz095/ProyectoDesarrolloMoviles) ·
-[Registro de publicación](ENTREGA-0.4.1-preview.json)
-
-Los archivos de versiones anteriores se conservan en esta rama.
+Versiones anteriores conservadas en esta rama.

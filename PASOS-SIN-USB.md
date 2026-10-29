@@ -1,4 +1,4 @@
-# AuditLab 0.4 — Windows y dos celulares, sin USB
+# AuditLab — Windows y dos celulares, sin USB
 
 Necesitas **una PC Windows encendida y dos teléfonos Android 8 o superior**, con
 Internet. La PC ejecuta el servidor; el teléfono A lleva el Agente y B el Centro.
@@ -7,15 +7,15 @@ puertos del router. Ambos teléfonos deben poder acceder al mismo servidor.
 
 ## 1. Descargas
 
-Descarga los APK 0.4.1 y el servidor compatible 0.4.0:
+Descarga las tres piezas **0.5.0-preview**:
 
-- [Agente 0.4.1-preview](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.4.1-preview.apk).
-- [Centro 0.4.1-preview](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.4.1-preview.apk).
-- [Servidor Windows 0.4.0-preview](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.4.0-preview.zip).
+- [Agente 0.5](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.5.0-preview.apk).
+- [Centro 0.5](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.5.0-preview.apk).
+- [Servidor Windows 0.5](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.5.0-preview.zip).
 
-El ZIP contiene los APK 0.4.0 anteriores en `apks/`; instala los APK 0.4.1
-de los enlaces anteriores. Si ya tienes el servidor 0.4.0, conserva la instalación. El servidor 0.3 anterior no incluye
-las rutas nuevas de WhatsApp/pantalla: **actualiza los tres componentes**.
+El ZIP también contiene ambos APK actuales en `apks/`. Para registrar actividad
+WhatsApp se necesita servidor 0.5 con V7; actualizar solo el Centro no agrega los
+eventos. [Guía y límites de la actualización](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/blob/main/docs/ACTUALIZACION_0.5.md).
 
 ## 2. Preparar la PC Windows
 
@@ -37,7 +37,7 @@ Extrae **todo** el ZIP en `C:\AuditLab`. Deben aparecer `Iniciar-AuditLab.ps1`,
 Si ya usabas AuditLab: detén primero la API con Ctrl+C. Conserva
 `C:\AuditLab\.auditlab-windows` y los volúmenes Docker. Guarda la carpeta `api`
 anterior como respaldo antes de extraer la nueva en la misma ubicación. El
-lanzador reutiliza la configuración y contraseña y aplica las migraciones V4–V6.
+lanzador reutiliza la configuración y contraseña y aplica las migraciones V4–V7.
 No borres la base ni la configuración para resolver errores de inicio.
 
 En PowerShell:
@@ -115,12 +115,14 @@ registran tipo y fecha, sin cuerpos, números ni audio. En el Centro usa el hist
 1. En el Agente, baja hasta **Configurar vistas previas de WhatsApp**.
 2. Abre **Configurar acceso de Android** y habilita AuditLab en los ajustes de
    acceso a notificaciones. Vuelve al Agente y espera a que diga conectado.
-3. Marca la autorización adicional y pulsa **Autorizar e iniciar sesión**.
-4. En el Centro, abre **Equipos → Ver dispositivo → Ver notificaciones de WhatsApp**.
+3. Marca la autorización adicional de vistas previas y registro de actividad y pulsa **Autorizar e iniciar sesión**.
+4. En el Centro, abre **Eventos → WhatsApp** para tipo/fecha; para texto temporal, **Equipos → Ver dispositivo → Ver notificaciones de WhatsApp**.
 5. Con WhatsApp en segundo plano en A, recibe un mensaje nuevo de un contacto de
    prueba para que WhatsApp publique una notificación con texto visible.
 
 No aparece el historial del chat ni mensajes sin notificación o con texto oculto.
+Las respuestas enviadas dentro del chat no se detectan de forma general; solo se
+registra una respuesta propia cuando Android la expone en una notificación.
 Hasta 20 vistas previas/5 minutos en memoria; no se exportan a CSV. Conceder el
 permiso Android por sí solo no activa la sesión. Para detener, pulsa **DETENER**
 en la notificación persistente o el botón del Agente. Cada sesión exige autorización.
@@ -137,7 +139,7 @@ El propietario de A inicia y detiene la sesión; B no la inicia remotamente.
 - **Credenciales rechazadas:** comprueba primero `/ready` en ambos teléfonos.
   Usa `admin` y la contraseña de la misma instalación del servidor Windows. Una
   sesión de otra instalación/URL requiere cerrar sesión y volver a iniciar.
-- **Actualiza el servidor:** estás usando el backend anterior. Instala el ZIP 0.4
+- **Actualiza el servidor:** estás usando el backend anterior. Instala el ZIP 0.5
   conservando la configuración y ejecuta el lanzador nuevo.
 - **No llegan notificaciones:** confirma sesión activa, acceso Android concedido,
   notificaciones WhatsApp habilitadas y texto disponible. Un chat abierto puede
@@ -146,5 +148,6 @@ El propietario de A inicia y detiene la sesión; B no la inicia remotamente.
   Forzar la detención o reiniciar el teléfono exige volver a autorizar las sesiones.
 
 La PC, API, Docker y Tailscale deben seguir funcionando. Son APK debug de prueba.
-Esta versión pasó pruebas con dos emuladores y entradas de notificación sintéticas;
-Windows, teléfonos físicos y publicación por WhatsApp real quedan por comprobar.
+En 0.5 se registran compilación, revisión estática, migración de desarrollo y revisión
+visual de tarjetas. Las suites automáticas y el recorrido WhatsApp real de esta
+revisión no se ejecutaron. Windows y teléfonos físicos quedan por comprobar.
