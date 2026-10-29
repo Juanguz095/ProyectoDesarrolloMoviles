@@ -3,6 +3,7 @@
 .kotlin/
 .tooling/
 .venv/
+.auditlab-windows/
 **/build/
 __pycache__/
 backend/api/data/

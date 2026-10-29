@@ -12,6 +12,9 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 
 fun Application.module(database: Database? = null, authConfig: AuthConfig? = null,
                        retentionDays: Int = Retention.daysFromEnvironment(),
@@ -19,9 +22,13 @@ fun Application.module(database: Database? = null, authConfig: AuthConfig? = nul
                        maintenanceDatabase: Database? = null,
                        auditRetentionDays: Int = Retention.auditDaysFromEnvironment()) {
     val auth = if (database != null && authConfig != null) AuthService(database, authConfig) else null
+    val screenHub = ScreenShareHub()
+    val whatsAppHub = WhatsAppPreviewHub()
+    val screenCleanup = launch { while (isActive) { delay(1000); screenHub.purgeExpired(); whatsAppHub.purgeExpired() } }
     // Retention runs with the maintenance account; without it the scheduled job stays disabled.
     val retention = Retention.start(maintenanceDatabase, retentionDays, retentionIntervalSeconds, auditRetentionDays)
     monitor.subscribe(ApplicationStopped) {
+        screenCleanup.cancel(); screenHub.clear(); whatsAppHub.clear()
         retention?.cancel()
         maintenanceDatabase?.close()
         database?.close()
@@ -31,6 +38,8 @@ fun Application.module(database: Database? = null, authConfig: AuthConfig? = nul
         deviceRoutes(auth)
         eventRoutes(auth)
         auditRoutes(auth)
+        screenShareRoutes(auth, screenHub)
+        whatsAppPreviewRoutes(auth, whatsAppHub)
         get("/health") {
             call.respondText("""{"status":"ok","service":"auditlab-api","stage":"foundation"}""", ContentType.Application.Json)
         }

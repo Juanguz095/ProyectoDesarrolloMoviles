@@ -2,6 +2,17 @@
 
 Versión: 1.0 · Fecha: 17 de octubre de 2026.
 
+**Ampliación del 29 de octubre (UTC):** vistas previas independientes de
+notificaciones nuevas de WhatsApp/Business con autorización adicional por sesión y
+permiso Android. [WHATSAPP_NOTIFICACIONES.md](WHATSAPP_NOTIFICACIONES.md) define
+los límites. P3.8/P5.6/P6.6/P7.6 se registran aparte; no implican historial de chats
+ni recepción real verificada por una entrada sintética de prueba.
+
+**Ampliación del 28 de octubre:** compartir pantalla iniciado localmente, con permiso
+MediaProjection por sesión, notificación persistente y parada accesible. Se rige por
+[COMPARTIR_PANTALLA.md](COMPARTIR_PANTALLA.md). P3.7/P5.5/P6.5/P7.5 son tareas
+adicionales, cuyo cierre exige ejecución nativa; no modifican evidencias anteriores.
+
 **Ampliación vigente del 27 de octubre (America/Lima):** el usuario requiere eventos
 reales de SMS/llamadas. P3.3, P5.3, P6.2 y P7/P8 se amplían según
 [CAPTURA_REAL.md](CAPTURA_REAL.md): permisos opcionales, autorización adicional,
@@ -202,6 +213,19 @@ El cierre de esta fase produce el primer MVP Android integrado. Todavía requier
 | P7.2 | Casos de token inválido, rol incorrecto, dispositivo ajeno, doble inscripción, revocación concurrente, red intermitente, proceso muerto y disco/cola limitada. | Sin aceptación indebida ni pérdida silenciosa; defectos reproducibles corregidos y pruebas afectadas repetidas. |
 | P7.3 | Comprobar 10000 eventos ficticios y consultas paginadas en un entorno registrado. | Objetivo inicial: p95 de consulta paginada menor de 2 s con 5 consultas concurrentes; informar recursos y resultados, y resolver incumplimientos antes de fijar capacidad de piloto. |
 | P7.4 | Auditoría de permisos, logs, almacenamiento local, errores, CSV y dependencias. | Sin defectos críticos/altos pendientes; revisión concreta de riesgos de fórmula CSV, exposición de datos y credenciales. |
+
+### Ampliación — Pantalla compartida autorizada
+
+| ID | Trabajo y entregable | Criterio de cierre |
+| --- | --- | --- |
+| P3.7 | Relay efímero de cuadros autenticados, caducidad y auditoría. | Aislamiento, límites, borrado y revocación comprobados con PostgreSQL. |
+| P5.5 | MediaProjection con autorización local por sesión y notificación con DETENER. | Captura real Android, cancelación sin captura y detención verificadas. |
+| P6.5 | Visor autenticado del Centro. | Imagen decodificada, sesión/errores/estado vacío y cierre comprobados. |
+| P7.5 | Pruebas de la ampliación de pantalla. | Recorrido nativo y de API con evidencia, límites y resultados diferenciados. |
+| P3.8 | Sesiones efímeras de vistas previas de WhatsApp con autorización y auditoría sin texto. | Aislamiento, revocación, caducidad, límites y sesiones anteriores rechazadas en API/PostgreSQL. |
+| P5.6 | Acceso Android a notificaciones y consentimiento adicional por sesión, servicio visible con DETENER. | Sin autorización no procesa; filtra paquetes, descarta historial/resúmenes y se detiene al retirar permiso. |
+| P6.6 | Consulta autenticada de vistas previas desde detalle del dispositivo. | Actualización, estados vacíos/errores y borrado al detener o pasar al fondo; sin CSV. |
+| P7.6 | Validación de notificaciones independientes. | Pruebas de parser/API y recorrido nativo con entradas sintéticas; diferenciar del ensayo pendiente con WhatsApp real. |
 
 ### Fase 8 — Entrega y operación
 

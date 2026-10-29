@@ -30,6 +30,10 @@ EXPECTED = {
             "Lcom/auditlab/agent/KeystoreCredentialStore;",
             "Lcom/auditlab/agent/RealMonitoringService;",
             "Lcom/auditlab/agent/PhoneMetadata;",
+            "Lcom/auditlab/agent/WhatsAppShareActivity;",
+            "Lcom/auditlab/agent/WhatsAppNotificationListener;",
+            "Lcom/auditlab/agent/WhatsAppSharingService;",
+            "Lcom/auditlab/agent/WhatsAppNotificationParser;",
             "Lcom/auditlab/common/AgentCore;",
             "Lcom/auditlab/common/ApiClient;",
         ],
@@ -41,6 +45,7 @@ EXPECTED = {
             "Lcom/auditlab/control/MainActivity;",
             "Lcom/auditlab/control/ControlSession;",
             "Lcom/auditlab/control/KeystoreSessionStore;",
+            "Lcom/auditlab/control/WhatsAppPreviewsViewKt;",
             "Lcom/auditlab/common/ControlCore;",
             "Lcom/auditlab/common/ApiClient;",
         ],
@@ -162,7 +167,8 @@ def audit(apk: Path, profile: str) -> None:
         allowed.update({"android.permission.ACCESS_NETWORK_STATE", "android.permission.POST_NOTIFICATIONS",
                         "android.permission.WAKE_LOCK", "android.permission.RECEIVE_BOOT_COMPLETED",
                         "android.permission.READ_SMS", "android.permission.READ_CALL_LOG",
-                        "android.permission.FOREGROUND_SERVICE", "android.permission.FOREGROUND_SERVICE_SPECIAL_USE"})
+                        "android.permission.FOREGROUND_SERVICE", "android.permission.FOREGROUND_SERVICE_SPECIAL_USE",
+                        "android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION"})
     unexpected = [p for p in permissions if p not in allowed]
     if unexpected:
         fail(f"permisos no previstos: {', '.join(unexpected)}")
@@ -229,6 +235,7 @@ def audit(apk: Path, profile: str) -> None:
         if not (c["name"] == name + ".MainActivity" or
                 (c["name"] == "androidx.profileinstaller.ProfileInstallReceiver" and c["permission"] == "android.permission.DUMP") or
                 (name == "com.auditlab.agent" and c["name"] == "androidx.work.impl.diagnostics.DiagnosticsReceiver" and c["permission"] == "android.permission.DUMP") or
+                (name == "com.auditlab.agent" and c["name"] == "com.auditlab.agent.WhatsAppNotificationListener" and c["permission"] == "android.permission.BIND_NOTIFICATION_LISTENER_SERVICE") or
                 (name == "com.auditlab.agent" and c["name"] == "androidx.work.impl.background.systemjob.SystemJobService" and c["permission"] == "android.permission.BIND_JOB_SERVICE"))
     ]
     if unexpected_exported:

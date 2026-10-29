@@ -17,6 +17,8 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.auditlab.common.*
 import com.auditlab.design.*
@@ -31,7 +33,7 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 internal fun Dashboard(session: ControlSession, device: DeviceSummary?, scope: CoroutineScope,
-    onChoose: (String) -> Unit, onEvents: () -> Unit, onDevices: () -> Unit, onDetail: () -> Unit) {
+    onEvents: () -> Unit) {
     // Never show a previous device's snapshot while the next request is being scheduled.
     val reading = session.overviewReading?.takeIf { it.sourceDevice == device?.deviceId && session.overviewDevice == device?.deviceId }
     val recent = session.overviewEvents.filter { it.sourceDevice == device?.deviceId && session.overviewDevice == device?.deviceId }
@@ -39,8 +41,6 @@ internal fun Dashboard(session: ControlSession, device: DeviceSummary?, scope: C
     AuditHeader("AUDITLAB", "CENTRO DE CONTROL / ${if (session.isAdmin) "ADMIN" else "AUDITOR"}")
     Spacer(Modifier.height(2.dp))
     SectionLabel("Vista de dispositivos")
-    if (session.devices.size > 1) AuditChoice("Dispositivo seleccionado", device?.deviceId.orEmpty(),
-        session.devices.map { it.deviceId to it.deviceId }, !session.busy, onChoose)
     AuditPanel {
         SectionLabel("Dispositivo")
         Text(device?.let { "${it.deviceId.take(8)}…${it.deviceId.takeLast(4)}" } ?: "Sin datos recibidos", style = MaterialTheme.typography.titleLarge)
@@ -62,19 +62,22 @@ internal fun Dashboard(session: ControlSession, device: DeviceSummary?, scope: C
         BatteryMeter((reading?.metadata?.get("batteryPercent") as? Number)?.toInt())
         SectionLabel("Conexión")
         Text(networkLabel(reading?.metadata?.get("networkState")), style = MaterialTheme.typography.titleSmall)
-        if (device != null) AuditLink("Ver detalle del dispositivo →", onDetail, !session.busy)
     }
     Spacer(Modifier.height(2.dp))
     SectionLabel("Eventos recientes")
     AuditPanel {
-        Text("ÚLTIMOS EVENTOS RECIBIDOS", style = MaterialTheme.typography.titleMedium)
-        AuditLink("Ver historial de eventos →", onEvents, !session.busy)
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text("ÚLTIMOS EVENTOS RECIBIDOS", Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
+            TextButton(onEvents, enabled = !session.busy, shape = RectangleShape,
+                colors = ButtonDefaults.textButtonColors(containerColor = AuditColors.Muted, contentColor = AuditColors.Panel),
+                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 5.dp)) {
+                Text("VER HISTORIAL\nDE EVENTOS", style = MaterialTheme.typography.labelSmall)
+            }
+        }
         if (recent.isEmpty()) {
             if (!session.overviewLoaded && device != null) AuditEmpty("SIN DATOS RECIBIDOS", "Consulta los eventos del servidor para este dispositivo.")
             else AuditEmpty()
-        } else recent.take(3).forEach { event ->
-            EventRow(event, !session.busy) { session.showDetail(event, scope) }
-        }
+        } else recent.take(3).forEach { event -> CompactEventRow(event, !session.busy) { session.showDetail(event, scope) } }
         AuditRule()
         Text("Batería · Conexión · SMS · Llamadas", color = AuditColors.Muted, style = MaterialTheme.typography.bodySmall)
     }
@@ -90,8 +93,6 @@ internal fun Dashboard(session: ControlSession, device: DeviceSummary?, scope: C
         Text(device?.let(::enrollmentStatus) ?: "Sin datos recibidos", style = MaterialTheme.typography.titleSmall)
         Text("La inscripción activa no confirma que el teléfono esté conectado.", color = AuditColors.Muted)
     }
-    if (device != null) AuditButton("Actualizar estado recibido", { session.loadOverview(device.deviceId, scope) }, !session.busy, outlined = true)
-    AuditButton("Ver todos los dispositivos", onDevices, !session.busy, outlined = true)
 }
 
 @Composable
@@ -118,13 +119,6 @@ internal fun EventExplorer(session: ControlSession, scope: CoroutineScope, onExp
         DateChoice("Desde", start, false, !session.busy, { start = it }, Modifier.weight(1f))
         DateChoice("Hasta", end, true, !session.busy, { end = it }, Modifier.weight(1f))
     }
-    Text("Incluye los días seleccionados en UTC.", color = AuditColors.Muted, style = MaterialTheme.typography.bodySmall)
-    AuditLink(if (preciseDates) "Ocultar edición de horas" else "Editar fechas y horas exactas", { preciseDates = !preciseDates }, !session.busy)
-    if (preciseDates) {
-        AuditField("Desde (incluida)", start, { start = it }, !session.busy, placeholder = "Sin límite")
-        AuditField("Hasta (excluida)", end, { end = it }, !session.busy, placeholder = "Sin límite")
-        Text("Formato UTC: 2026-10-28T00:00:00Z. Deja vacío para no limitar.", color = AuditColors.Muted, style = MaterialTheme.typography.bodySmall)
-    }
     AuditField("ID o código exacto", search, { search = it }, !session.busy, placeholder = "Todos")
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
       AuditButton("Aplicar filtros", {
@@ -136,27 +130,48 @@ internal fun EventExplorer(session: ControlSession, scope: CoroutineScope, onExp
       }, !session.busy, modifier = Modifier.weight(1f))
       onExport?.let { AuditButton("Exportar CSV", it, !session.busy && session.eventsLoaded, outlined = true, modifier = Modifier.weight(1f)) }
     }
-    AuditLink("Limpiar filtros", {
-        filterError = null; manualDevice = false; device = ""; category = ""; start = ""; end = ""; search = ""
-        session.applyFilters(EventQuery(), scope)
-    }, !session.busy)
     filterError?.let { Text(it, color = AuditColors.Red) }
-    if (device.trim().ifEmpty { null } != session.query.device || category.ifEmpty { null } != session.query.category ||
-        start.trim().ifEmpty { null } != session.query.from || end.trim().ifEmpty { null } != session.query.to || search.trim().ifEmpty { null } != session.query.q) {
-        Text("Hay cambios sin aplicar. La lista y el CSV usan los últimos filtros aplicados.", color = AuditColors.Warning)
-    }
     AuditRule()
     SectionLabel("Resultados")
     if (session.events.isEmpty()) AuditEmpty(message = if (session.eventsLoaded)
         "No se recibieron eventos para los filtros aplicados." else "Aplica filtros o actualiza la consulta para recibir eventos.")
-    session.events.forEach { event -> EventRow(event, !session.busy) { session.showDetail(event, scope) } }
+    session.events.forEach { event -> CompactEventRow(event, !session.busy) { session.showDetail(event, scope) } }
     Text("La consulta queda registrada en auditoría.", style = MaterialTheme.typography.bodySmall)
     SectionLabel("Página ${session.eventPageNumber} · ${session.events.size} recibidos · Hasta 50 eventos")
+    AuditRule()
+    SectionLabel("Opciones adicionales")
+    AuditLink(if (preciseDates) "Ocultar edición de horas" else "Editar fechas y horas exactas", { preciseDates = !preciseDates }, !session.busy)
+    if (preciseDates) {
+        AuditField("Desde (incluida)", start, { start = it }, !session.busy, placeholder = "Sin límite")
+        AuditField("Hasta (excluida)", end, { end = it }, !session.busy, placeholder = "Sin límite")
+        Text("Formato UTC: 2026-10-28T00:00:00Z. Deja vacío para no limitar.", color = AuditColors.Muted, style = MaterialTheme.typography.bodySmall)
+    }
+    AuditLink("Limpiar filtros", {
+        filterError = null; manualDevice = false; device = ""; category = ""; start = ""; end = ""; search = ""
+        session.applyFilters(EventQuery(), scope)
+    }, !session.busy)
+    if (device.trim().ifEmpty { null } != session.query.device || category.ifEmpty { null } != session.query.category ||
+        start.trim().ifEmpty { null } != session.query.from || end.trim().ifEmpty { null } != session.query.to || search.trim().ifEmpty { null } != session.query.q) {
+        Text("Hay cambios sin aplicar. La lista y el CSV usan los últimos filtros aplicados.", color = AuditColors.Warning)
+    }
     Text("El CSV incluye todos los resultados de los filtros aplicados, hasta 10 000 eventos. Si se supera el límite, se informa un error.",
         color = AuditColors.Muted, style = MaterialTheme.typography.bodySmall)
     if (session.eventCursor != null) AuditButton("Siguiente página", { session.moreEvents(scope) }, !session.busy)
     AuditLink("Volver a la primera página", { session.applyFilters(session.query, scope) }, !session.busy)
     if (session.lastReportUri != null && onOpenReport != null) AuditButton("Abrir último CSV guardado", onOpenReport, !session.busy, outlined = true)
+}
+
+@Composable
+private fun CompactEventRow(event: AuditEvent, enabled: Boolean, onClick: () -> Unit) {
+    TextButton(onClick, Modifier.fillMaxWidth().semantics { contentDescription = "Ver detalle →" }, enabled = enabled,
+        contentPadding = PaddingValues(vertical = 8.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(displayClock(event.timestamp).removeSuffix(" UTC"), Modifier.width(58.dp), style = MaterialTheme.typography.bodySmall)
+            Text(event.category, Modifier.weight(1f), color = AuditColors.Muted, style = MaterialTheme.typography.bodySmall, maxLines = 1)
+            Text((event.metadata["appEventCode"] ?: event.direction).toString(), Modifier.widthIn(min = 78.dp),
+                color = AuditColors.Muted, style = MaterialTheme.typography.bodySmall, maxLines = 1)
+        }
+    }
     AuditRule()
 }
 
@@ -185,8 +200,9 @@ internal fun DeviceList(session: ControlSession, scope: CoroutineScope, onDetail
 
 @Composable
 internal fun DeviceDetail(session: ControlSession, device: DeviceSummary?, scope: CoroutineScope,
-    onBack: () -> Unit, onEvents: () -> Unit, onAudit: () -> Unit) {
+    onBack: () -> Unit, onEvents: () -> Unit, onAudit: () -> Unit, onWhatsApp: () -> Unit = {}) {
     val clipboard = LocalClipboard.current
+    val context = LocalContext.current
     val composeScope = rememberCoroutineScope()
     AuditHeader("DISPOSITIVO", "ESTADO, CONSENTIMIENTO Y ACCIONES")
     AuditLink("← Volver a dispositivos", onBack, !session.busy)
@@ -212,6 +228,10 @@ internal fun DeviceDetail(session: ControlSession, device: DeviceSummary?, scope
         Text("El usuario puede retirar el consentimiento desde el agente. El servidor no confirma si la notificación está visible en este momento.", color = AuditColors.Muted)
     }
     SectionLabel("Acciones")
+    if(device.isActive) AuditButton("Ver notificaciones de WhatsApp",onWhatsApp,!session.busy)
+    if (device.isActive) AuditButton("Ver pantalla compartida", {
+        context.startActivity(android.content.Intent(context, ScreenViewerActivity::class.java).putExtra("device", device.deviceId))
+    }, !session.busy)
     AuditButton("Ver eventos", onEvents, !session.busy)
     AuditButton("Ver auditoría del grupo", onAudit, !session.busy, outlined = true)
     if (session.isAdmin && device.isActive) AuditButton("Revocar dispositivo", { session.requestRevoke(device.deviceId) }, !session.busy)

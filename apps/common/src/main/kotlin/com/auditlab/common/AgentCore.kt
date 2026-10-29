@@ -225,6 +225,10 @@ class AgentCore(
         if (confirmed) RevokeOutcome.NOTIFIED else RevokeOutcome.LOCAL_ONLY
     }
 
+    /** Use only after DEVICE_REVOKED for this same credential; stale optional sessions cannot retire a new enrollment. */
+    fun confirmRemoteRevocation(deviceId: String) = synchronized(gate) {
+        if(credentials.load()?.deviceId==deviceId && journal.registration()?.deviceId==deviceId) retireRemote(deviceId)
+    }
     private fun retireRemote(id: String) {
         gate.withdrawalRequested = true
         try { journal.beginRevocation(id, serverUrl, remote = true) }

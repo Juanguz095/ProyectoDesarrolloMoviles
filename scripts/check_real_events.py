@@ -24,6 +24,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--serial', required=True, type=validate_serial)
     parser.add_argument('--resume-owned', action='store_true', help='Resume only an interrupted run marked by this checker')
+    parser.add_argument('--reuse-empty-qa', action='store_true', help='Reuse an AuditLab QA emulator only when its Room registration and queue are empty')
     parser.add_argument('--output-directory', type=Path, default=ROOT / '.tooling/real-events-validation')
     args = parser.parse_args()
     serial = args.serial
@@ -40,7 +41,8 @@ def main():
         return result
 
     avd = adb('emu', 'avd', 'name').stdout.decode().splitlines()[0]
-    if not avd.startswith('auditlab-real-'): raise RuntimeError('A dedicated auditlab-real-* AVD is required')
+    if not avd.startswith('auditlab-real-') and not (args.reuse_empty_qa and avd.startswith('auditlab-')):
+        raise RuntimeError('A dedicated AuditLab QA AVD is required')
     if adb('shell', 'getprop', 'sys.boot_completed').stdout.strip() != b'1': raise RuntimeError('AVD not booted')
     config = fixture.settings()
     label = fixture.run(config, fixture.DOCKER + ['inspect', '--format',
@@ -50,7 +52,13 @@ def main():
     old = adb('shell', 'run-as', 'com.auditlab.agent', 'ls', 'databases/auditlab-outbox.db', check=False)
     previous_marker = adb('shell', 'run-as', 'com.auditlab.agent', 'sh', '-c', 'test -f files/qa-real-ready', check=False)
     resume = old.returncode == 0 and args.resume_owned and previous_marker.returncode == 0
-    if old.returncode == 0 and not resume: raise RuntimeError('Existing agent database preserved; use another empty dedicated AVD')
+    empty = False
+    if old.returncode == 0 and args.reuse_empty_qa:
+        rows = adb('shell', 'run-as', 'com.auditlab.agent', '/system/bin/sqlite3', 'databases/auditlab-outbox.db',
+                   'SELECT (SELECT count(*) FROM agent_registration)+(SELECT count(*) FROM agent_outbox);')
+        empty = rows.stdout.strip() == b'0'
+    if old.returncode == 0 and not resume and not empty:
+        raise RuntimeError('Existing agent database preserved; use another empty dedicated AVD')
     for apk in ['apps/agent/build/outputs/apk/debug/agent-debug.apk',
                 'apps/agent/build/outputs/apk/androidTest/debug/agent-debug-androidTest.apk']:
         adb('install', '-r', ROOT / apk, timeout=120)

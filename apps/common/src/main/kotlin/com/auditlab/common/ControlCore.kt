@@ -90,6 +90,7 @@ class ControlCore(
     @Synchronized fun detail(device: String, event: String) = authorized { api.eventDetail(it, device, event) }
     @Synchronized fun export(query: EventQuery) = authorized { api.exportEvents(it, query) }
     @Synchronized fun audit(cursor: String? = null) = authorized { api.auditPage(it, cursor) }
+    @Synchronized fun whatsAppPreviews(device: String) = authorized { api.whatsAppPreviews(it, device) }
 
     private fun validateSession(value: Session) {
         check(value.role in setOf("admin", "auditor") && value.tokenType == "Bearer")

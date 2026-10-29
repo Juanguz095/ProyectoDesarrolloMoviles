@@ -87,7 +87,7 @@ internal fun ControlScreen(session: ControlSession, onExport: (() -> Unit)? = nu
             session.loadOverview(currentDevice.deviceId, scope)
     }
     BackHandler(session.signedIn && screen != "inicio") {
-        screen = when (screen) { "dispositivo" -> "dispositivos"; "auditoria", "inscripcion" -> "mas"; else -> "inicio" }
+        screen = when (screen) { "whatsapp" -> "dispositivo"; "dispositivo" -> "dispositivos"; "auditoria", "inscripcion" -> "mas"; else -> "inicio" }
     }
     if (session.logoutConfirmation && session.signedIn) AlertDialog(onDismissRequest = session::cancelLogout,
         title = { Text("Cerrar sesión", style = MaterialTheme.typography.titleLarge) },
@@ -106,7 +106,7 @@ internal fun ControlScreen(session: ControlSession, onExport: (() -> Unit)? = nu
         if (session.busy) return
         session.applyFilters(EventQuery(device = device), scope); screen = "eventos"
     }
-    val selectedTab = when (screen) { "dispositivo" -> "dispositivos"; "inscripcion", "auditoria" -> "mas"; else -> screen }
+    val selectedTab = when (screen) { "whatsapp", "dispositivo" -> "dispositivos"; "inscripcion", "auditoria" -> "mas"; else -> screen }
     AuditPage(key = if (session.signedIn) screen else "login", feedback = session.message, working = session.busy, bottom = if (session.signedIn) ({
         ControlNavigation(selectedTab, !session.busy) { next ->
             screen = next
@@ -128,14 +128,14 @@ internal fun ControlScreen(session: ControlSession, onExport: (() -> Unit)? = nu
             Text("Acceso por rol: administrador o auditor. Todas las consultas quedan registradas.", color = AuditColors.Muted)
         } else {
             when (screen) {
-                "inicio" -> Dashboard(session, currentDevice, scope, onChoose = { chosenDevice = it }, onEvents = { openEvents(currentDevice?.deviceId) },
-                    onDevices = { screen = "dispositivos" }, onDetail = { screen = "dispositivo" })
+                "inicio" -> Dashboard(session, currentDevice, scope, onEvents = { openEvents(currentDevice?.deviceId) })
                 "eventos" -> EventExplorer(session, scope, onExport, onOpenReport)
+                "whatsapp" -> WhatsAppPreviewsView(session,currentDevice?.deviceId) { screen="dispositivo" }
                 "dispositivos" -> DeviceList(session, scope) { id -> chosenDevice = id; screen = "dispositivo" }
                 "dispositivo" -> {
                     DeviceDetail(session, currentDevice, scope, onBack = { screen = "dispositivos" },
                         onEvents = { openEvents(currentDevice?.deviceId) },
-                        onAudit = { session.loadAudit(scope); screen = "auditoria" })
+                        onAudit = { session.loadAudit(scope); screen = "auditoria" }, onWhatsApp = { screen="whatsapp" })
                 }
                 "auditoria" -> AuditHistory(session, scope) { screen = "mas" }
                 "inscripcion" -> EnrollmentView(session, scope) { screen = "mas" }

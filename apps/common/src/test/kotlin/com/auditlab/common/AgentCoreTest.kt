@@ -15,6 +15,17 @@ class AgentCoreTest {
     private val core = AgentCore(api, store, clock = { Instant.parse("2026-10-24T10:05:00Z") })
 
     @Test
+    fun `revocation from an optional session retires only its matching enrollment`() {
+        core.acceptConsent();core.enroll("x".repeat(40))
+        core.confirmRemoteRevocation("old-device")
+        assertNotNull(store.load())
+        assertTrue(core.state is AgentCore.State.Enrolled)
+        core.confirmRemoteRevocation("d-1")
+        assertNull(store.load())
+        assertEquals(AgentCore.State.Revoked("d-1",AgentCore.RevokeReason.REMOTE),core.state)
+    }
+
+    @Test
     fun `sin consentimiento no se inscribe ni llama a la API`() {
         assertThrows(IllegalStateException::class.java) { core.enroll("x".repeat(40)) }
         assertTrue(api.calls.isEmpty())

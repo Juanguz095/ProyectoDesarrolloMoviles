@@ -8,6 +8,13 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class ControlCoreTest {
+    @Test fun `WhatsApp preview uses the same refresh and encrypted session lifecycle`() {
+        core.login("admin","fixture")
+        api.unauthenticatedOnce=true
+        assertTrue(core.whatsAppPreviews("device").active)
+        assertEquals("access-2",store.load()!!.accessToken)
+        assertEquals(listOf("login","previews","refresh","previews"),api.calls)
+    }
     private val api = FakeApi()
     private val store = InMemorySessionStore()
     private val core = ControlCore(api, store)
@@ -170,6 +177,11 @@ class ControlCoreTest {
         override fun listEvents(accessToken: String, deviceId: String?, limit: Int): EventPage {
             calls += "events"
             return EventPage(emptyList(), null)
+        }
+        override fun whatsAppPreviews(token: String,device: String): WhatsAppPreviewSnapshot {
+            calls += "previews"
+            if(unauthenticatedOnce) { unauthenticatedOnce=false;throw ApiException(401,"UNAUTHENTICATED",null,"expired") }
+            return WhatsAppPreviewSnapshot(true,"session",emptyList())
         }
 
         override fun revokeDevice(accessToken: String, deviceId: String) {

@@ -2,6 +2,17 @@
 
 Sistema de monitoreo autorizado para dispositivos Android propios o administrados: **agente Android + centro de control Android + API Ktor/PostgreSQL**. Candidata **0.3.0-rc1**: amplía la 0.2 con metadatos reales de SMS/llamadas cuando Android concede los permisos, además de batería/conexión y eventos de prueba. Requiere consentimiento e indicador visible. [Activación, alcance y límites](docs/CAPTURA_REAL.md).
 
+## Versión 0.4.0-preview
+
+Incluye el diseño Android de los mockups, pantalla compartida con autorización
+MediaProjection por sesión y vistas previas de notificaciones nuevas de WhatsApp
+con consentimiento adicional y permiso Android. No recupera historial de chats.
+**Actualizar ambos APK y el servidor**: la API anterior no incluye estas rutas.
+
+- [Descargas y pasos para Windows y dos teléfonos, sin USB](docs/INICIO_WINDOWS_0.4.md).
+- [Pantalla compartida](docs/COMPARTIR_PANTALLA.md) y [notificaciones de WhatsApp](docs/WHATSAPP_NOTIFICACIONES.md).
+- [Validación 0.4](docs/evidencias/WHATSAPP-0.4.0-2026-10-29.md): 197 pruebas JVM/Robolectric/PostgreSQL y recorrido en dos AVD aprobados con entradas de notificación sintéticas. Pendiente WhatsApp instalado y teléfonos físicos.
+
 ## Qué hace el MVP
 
 - **Agente:** consentimiento e inscripción con código de un uso; Room con cola persistente, retención de siete días y capacidad de 10 000; WorkManager con lotes/reintentos; pausa visible; revocación local incluso sin red; credencial cifrada con Keystore.

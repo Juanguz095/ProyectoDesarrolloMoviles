@@ -106,9 +106,9 @@ class NativeControlFlowTest {
                 tap("INICIAR SESIÓN"); waitFor("VISTA DE DISPOSITIVOS")
                 val stored = KeystoreSessionStore(context).load()
                 assertNotNull(stored); assertEquals(cfg.getString("url"), stored!!.serverUrl)
-                tap("Ver historial de eventos →")
-                waitFor("Actividad del agente")
-                tap("Ver detalle →"); waitFor("DETALLE DE EVENTO")
+                tap("VER HISTORIAL\nDE EVENTOS")
+                waitFor("app_lifecycle")
+                compose.onNodeWithContentDescription("Ver detalle →").performScrollTo().performClick(); waitFor("DETALLE DE EVENTO")
                 assertTrue(compose.onAllNodesWithText(cfg.getString("device")).fetchSemanticsNodes().isNotEmpty())
                 assertTrue(compose.onAllNodesWithText(cfg.getString("event")).fetchSemanticsNodes().isNotEmpty())
                 tap("Cerrar detalle")
@@ -128,12 +128,12 @@ class NativeControlFlowTest {
                 waitFor("VISTA DE DISPOSITIVOS")
                 assertNotNull(KeystoreSessionStore(context).load())
                 tap("EQUIPOS"); tap("ACTUALIZAR DISPOSITIVOS"); waitFor("Actualizado:")
-                tap("INICIO"); tap("Ver historial de eventos →")
-                waitFor("Actividad del agente")
+                tap("INICIO"); tap("VER HISTORIAL\nDE EVENTOS")
+                waitFor("app_lifecycle")
             }
             "export-rotation" -> {
-                waitFor("VISTA DE DISPOSITIVOS"); tap("Ver historial de eventos →")
-                waitFor("Actividad del agente")
+                waitFor("VISTA DE DISPOSITIVOS"); tap("VER HISTORIAL\nDE EVENTOS")
+                waitFor("app_lifecycle")
                 tap("Todas las categorías"); tap("Actividad de la app")
                 compose.onNode(hasSetTextAction() and hasContentDescription("ID o código exacto"))
                     .performScrollTo().performTextReplacement(cfg.getString("event"))
@@ -239,7 +239,7 @@ class NativeControlFlowTest {
                 }
             }
             "revoke" -> {
-                waitFor("VISTA DE DISPOSITIVOS"); tap("Ver detalle del dispositivo →")
+                waitFor("VISTA DE DISPOSITIVOS"); tap("EQUIPOS"); tap("VER DISPOSITIVO")
                 tap("REVOCAR DISPOSITIVO")
                 compose.onNodeWithText("Confirmar revocación").assertExists()
                 compose.onNodeWithText("Cancelar").performClick()

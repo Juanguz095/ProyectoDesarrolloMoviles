@@ -22,7 +22,7 @@ El plan describe el producto objetivo. El registro contiene el estado real; no t
 
 - Producto final: agente Android + centro de control Android + API Ktor/PostgreSQL con HTTPS. La web/Python actual es un prototipo local de referencia.
 - Una herramienta ausente requiere investigar su instalación y compatibilidad. No justifica reemplazar silenciosamente las apps Android por una web.
-- Solo eventos simulados, eventos propios de AuditLab y metadatos de la lista permitida. Sin contenido de SMS, llamadas, chats ni otras apps.
+- Alcance base: eventos simulados, eventos propios de AuditLab y metadatos permitidos; sin contenido de SMS ni llamadas. Las ampliaciones expresamente autorizadas posteriores son `docs/CAPTURA_REAL.md`, `docs/COMPARTIR_PANTALLA.md` y `docs/WHATSAPP_NOTIFICACIONES.md`: requieren permisos/consentimiento adicionales, indicador visible y detención local. La última admite solo texto de notificaciones nuevas de WhatsApp/Business, en sesiones efímeras, sin acceso a bases de chats ni historial. No extender esta excepción a otras aplicaciones o captura oculta.
 - Consentimiento explícito, monitoreo visible, revocación accesible, retención y borrado desde el diseño.
 - Autorización en el servidor, aislamiento por dispositivo, idempotencia y auditoría de acceso son requisitos funcionales.
 - Usa bibliotecas mantenidas para autenticación y criptografía; no lleves el JWT artesanal del prototipo al backend definitivo.

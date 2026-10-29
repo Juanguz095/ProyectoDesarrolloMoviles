@@ -22,6 +22,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.auditlab.common.AgentCore
@@ -61,6 +62,10 @@ class MainActivity : ComponentActivity() {
                         startActivity(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, packageName))
                     }, onRequestRealMonitoring = {
                         phonePermissions.launch(arrayOf(Manifest.permission.READ_SMS, Manifest.permission.READ_CALL_LOG))
+                    }, onShareScreen = {
+                        startActivity(Intent(this, ScreenShareActivity::class.java))
+                    }, onShareWhatsApp = {
+                        startActivity(Intent(this, WhatsAppShareActivity::class.java))
                     })
                 }
             }
@@ -75,7 +80,9 @@ class MainActivity : ComponentActivity() {
 @Composable
 internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> Unit)? = null,
                          onNotificationSettings: (() -> Unit)? = null, workScope: CoroutineScope? = null,
-                         onRequestRealMonitoring: (() -> Unit)? = null) {
+                         onRequestRealMonitoring: (() -> Unit)? = null,
+                         onShareScreen: (() -> Unit)? = null,
+                         onShareWhatsApp: (() -> Unit)? = null) {
     val composeScope = rememberCoroutineScope()
     val scope = workScope ?: composeScope
     var policy by rememberSaveable { mutableStateOf(false) }
@@ -150,7 +157,8 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
             SectionLabel("Datos permitidos")
             Text("Batería y conexión. Si das una autorización adicional y Android concede los permisos: tipo y fecha de SMS y llamadas. Las llamadas aparecen al finalizar.")
             SectionLabel("Datos que no se recopilan")
-            Text("Contenido de mensajes, números telefónicos, contactos, audio, chats, WhatsApp o RCS.")
+            Text("La captura de metadatos no lee mensajes ni contactos. Compartir pantalla es opcional y requiere otra autorización: permite ver lo que abras, incluidos chats de WhatsApp. No comparte audio ni guarda video.")
+            Text("También puedes autorizar, por separado, compartir el texto de notificaciones nuevas de WhatsApp. Requiere acceso de Android y consentimiento por sesión. No recupera historial ni archivos; conserva hasta 20 vistas previas durante 5 minutos en memoria, sin exportarlas ni guardarlas en la base de datos.")
             SectionLabel("Destino y conservación")
             Text("Servidor configurado: ${session.serverUrl}")
             Text("Los eventos se envían al servidor configurado y los consultan administradores y auditores autorizados de tu grupo. Se conserva el contexto de consentimiento y se registran los accesos.")
@@ -163,16 +171,14 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
                 if (session.consent == null) {
                     AuditHeader("AUDITLAB")
                     AuditPanel {
-                        Text("AUDITLAB NO LEE EL CONTENIDO DE OTRAS APLICACIONES.", style = MaterialTheme.typography.titleLarge)
+                        Text("TÚ DECIDES QUÉ COMPARTES CON AUDITLAB.", style = MaterialTheme.typography.titleLarge)
                     }
                     Spacer(Modifier.height(2.dp))
                     Text("ANTES DE EMPEZAR", color = AuditColors.Warning, style = MaterialTheme.typography.labelMedium)
                     Text("¿Quieres activar el monitoreo visible en este dispositivo?", style = MaterialTheme.typography.titleLarge)
                     Text("Puedes retirarlo cuando quieras.")
-                    Text("Registra batería y conexión. SMS y llamadas requieren autorización adicional; solo se consulta tipo y fecha.", color = AuditColors.Muted)
                     AuditButton(if (session.busy) "Registrando…" else "Aceptar consentimiento", { session.acceptConsent(scope) }, !session.busy)
                     AuditButton("Ver política de datos", { policy = true })
-                    AuditLink("Configurar conexión", { serverDraft = session.serverUrl; serverError = null; configureServer = true }, !session.busy)
                 } else {
                     AuditHeader("INSCRIBIR DISPOSITIVO", "PASO 2 · CONECTA CON TU CENTRO")
                     AuditPanel {
@@ -208,6 +214,7 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
                     AuditHeader("MONITOREO")
                     AuditPanel {
                         val active = session.visibleAvailable && session.realCaptureRunning && !session.revoking
+                        val lastSent = session.recentEvents.firstOrNull { it.delivery == "SENT" }
                         AuditStatus(when {
                             session.revoking -> "DETENIENDO"
                             !session.visibleAvailable -> "PAUSADO"
@@ -215,7 +222,7 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
                             session.realMonitoring -> "INICIANDO CAPTURA"
                             else -> "LISTO PARA ACTIVAR"
                         }, active)
-                        Text("Sincronización: ${session.stats.pending} pendientes · ${session.stats.sent} enviados", style = MaterialTheme.typography.bodySmall)
+                        Text("Última sincronización ${displayClock(lastSent?.event?.timestamp)}", style = MaterialTheme.typography.bodySmall.copy(fontSize = 10.sp))
                         if (session.stats.failed > 0) Text("${session.stats.failed} eventos rechazados", color = AuditColors.Red)
                     }
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -224,14 +231,25 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
                             style = MaterialTheme.typography.titleSmall)
                     }
                     Column {
-                        Text("ACTIVIDAD RECIENTE", style = MaterialTheme.typography.titleMedium)
+                        BoxWithConstraints(Modifier.fillMaxWidth()) {
+                            if (maxWidth < 320.dp) Column(Modifier.fillMaxWidth()) {
+                                Text("ACTIVIDAD RECIENTE", style = MaterialTheme.typography.titleMedium)
+                                TextButton({ history = true }, Modifier.align(Alignment.End), contentPadding = PaddingValues(0.dp)) {
+                                    Text(">Ver todos los eventos", color = AuditColors.Red, style = MaterialTheme.typography.bodySmall)
+                                }
+                            } else Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                Text("ACTIVIDAD RECIENTE", Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
+                                TextButton({ history = true }, contentPadding = PaddingValues(0.dp)) {
+                                    Text(">Ver todos los eventos", color = AuditColors.Red, style = MaterialTheme.typography.bodySmall)
+                                }
+                            }
+                        }
                         AuditRule()
                         if (session.recentEvents.isEmpty()) {
                             Spacer(Modifier.height(10.dp))
                             Text("Sin actividad registrada.", color = AuditColors.Muted)
                         }
-                        session.recentEvents.take(4).forEach { row -> LocalEventRow(row) { selectedEvent = row } }
-                        AuditLink("Ver todos los eventos →", { history = true })
+                        session.recentEvents.take(4).forEach { row -> MockupEventRow(row) { selectedEvent = row } }
                     }
                     if (session.visibleAvailable) AuditButton("Pausar monitoreo", { session.pause(scope) }, !session.busy)
                     else {
@@ -242,6 +260,20 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
                     AuditButton(if (session.revoking) "Retirando consentimiento…" else "Retirar consentimiento",
                         { confirmWithdrawal = true }, !session.revoking)
 
+                    Spacer(Modifier.height(180.dp))
+                    SectionLabel("Notificaciones de WhatsApp")
+                    Text(WhatsAppSharingState.message)
+                    Text("Opción separada de compartir pantalla: solo texto de notificaciones nuevas, con autorización adicional y notificación visible.")
+                    onShareWhatsApp?.let { AuditButton("Configurar vistas previas de WhatsApp",it,session.visibleAvailable && !session.busy && !WhatsAppSharingState.active) }
+                    AuditButton("Detener vistas previas de WhatsApp",session::stopWhatsAppSharing,outlined=true)
+                    SectionLabel("Compartir pantalla")
+                    Text(ScreenSharingState.message)
+                    Text("Comparte únicamente lo que muestras. Los mensajes de WhatsApp se ven si los abres durante la sesión. Android pedirá autorización en cada sesión.")
+                    onShareScreen?.let { AuditButton("Compartir pantalla en vivo", it, session.visibleAvailable && !session.busy && !ScreenSharingState.active) }
+                    AuditButton("Detener pantalla compartida", {
+                        // Also available from the persistent notification.
+                        session.stopScreenSharing()
+                    }, outlined = true)
                     SectionLabel("Estado del dispositivo")
                     AuditPanel {
                         val reading = session.lastDeviceStatus
@@ -295,6 +327,20 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
             }
         }
     }
+}
+
+@Composable
+private fun MockupEventRow(row: AgentSession.LocalEvent, onClick: () -> Unit) {
+    TextButton(onClick, modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(vertical = 8.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+            val code = row.event.metadata["appEventCode"] ?: row.event.metadata["networkState"]
+                ?: row.event.metadata["batteryPercent"] ?: row.event.direction
+            Text("${row.event.category} / $code", Modifier.weight(1f), color = AuditColors.Muted,
+                style = MaterialTheme.typography.bodySmall, maxLines = 1)
+            Text(row.delivery, style = MaterialTheme.typography.labelMedium)
+        }
+    }
+    AuditRule()
 }
 
 private fun deliveryLabel(value: String): String = when (value) {

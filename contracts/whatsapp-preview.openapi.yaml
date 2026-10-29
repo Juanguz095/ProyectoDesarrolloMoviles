@@ -1,0 +1,135 @@
+openapi: 3.1.0
+info:
+  title: AuditLab optional WhatsApp notification previews
+  version: 0.1.0
+  description: Explicit local session only. Last 20 previews in RAM for up to 300 seconds; idle sessions close after 30 seconds. No chat history, attachments or CSV export.
+servers:
+  - url: /v1
+paths:
+  /devices/{deviceId}/whatsapp-sharing:
+    parameters:
+      - $ref: '#/components/parameters/DeviceId'
+    post:
+      summary: Start an explicitly authorized local preview session
+      security: [{DeviceBearer: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [sessionId, acceptedAt, policyVersion, consentContext]
+              properties:
+                sessionId: {type: string, format: uuid}
+                acceptedAt: {type: string, format: date-time, description: Fresh local consent within 300 seconds of server time}
+                policyVersion: {type: string, const: whatsapp-preview-1}
+                consentContext:
+                  type: object
+                  additionalProperties: false
+                  required: [consentId, policyVersion, acceptedAt]
+                  properties:
+                    consentId: {type: string, format: uuid}
+                    policyVersion: {type: string}
+                    acceptedAt: {type: string, format: date-time}
+      responses:
+        '204': {description: Session started; consent metadata audited}
+        '400': {description: 'Invalid policy, fields or consent time'}
+        '401': {description: Invalid or revoked device token}
+        '403': {description: Different device}
+        '409': {description: Consent mismatch or stale/ended session}
+        '429': {description: Active sharing capacity reached}
+  /devices/{deviceId}/whatsapp-sharing/{sharingId}:
+    parameters:
+      - $ref: '#/components/parameters/DeviceId'
+      - $ref: '#/components/parameters/SharingId'
+    delete:
+      summary: End this session and clear its previews; late close cannot end a newer session
+      security: [{DeviceBearer: []}]
+      responses:
+        '204': {description: Cleared or already ended; stop metadata audited}
+        '401': {description: Invalid or revoked device token}
+        '403': {description: Different device}
+  /devices/{deviceId}/whatsapp-sharing/{sharingId}/heartbeat:
+    parameters:
+      - $ref: '#/components/parameters/DeviceId'
+      - $ref: '#/components/parameters/SharingId'
+    post:
+      summary: Keep an active session alive without retaining expired previews
+      security: [{DeviceBearer: []}]
+      responses:
+        '204': {description: Active session renewed}
+        '401': {description: Invalid or revoked device token}
+        '403': {description: Different device}
+        '409': {description: Session ended or replaced}
+  /devices/{deviceId}/whatsapp-previews:
+    parameters:
+      - $ref: '#/components/parameters/DeviceId'
+    post:
+      summary: Publish a new authorized Android notification preview
+      security: [{DeviceBearer: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Preview'
+              type: object
+              required: [sessionId]
+              unevaluatedProperties: false
+              properties:
+                sessionId: {type: string, format: uuid}
+      responses:
+        '204': {description: Accepted or identical duplicate; text never written to SQL}
+        '400': {description: 'Invalid fields, package, length or timestamp'}
+        '401': {description: Invalid or revoked device token}
+        '403': {description: Different device}
+        '409': {description: Session ended or message identifier conflict}
+    get:
+      summary: Query latest ephemeral previews as admin/auditor; access metadata audited
+      security: [{UserBearer: []}]
+      responses:
+        '200':
+          description: Snapshot with Cache-Control no-store; inactive sessions have no items
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [active, sessionId, items]
+                properties:
+                  active: {type: boolean}
+                  sessionId: {type: [string, 'null'], format: uuid}
+                  items:
+                    type: array
+                    maxItems: 20
+                    items: {$ref: '#/components/schemas/Preview'}
+        '401': {description: Authentication required}
+        '404': {description: Device missing}
+        '409': {description: Device revoked; previews cleared}
+components:
+  securitySchemes:
+    DeviceBearer: {type: http, scheme: bearer}
+    UserBearer: {type: http, scheme: bearer, bearerFormat: JWT}
+  parameters:
+    DeviceId:
+      name: deviceId
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+    SharingId:
+      name: sharingId
+      in: path
+      required: true
+      schema: {type: string, format: uuid}
+  schemas:
+    Preview:
+      type: object
+      required: [messageId, timestamp, packageName, title, text]
+      properties:
+        messageId: {type: string, format: uuid}
+        timestamp: {type: string, format: date-time}
+        packageName: {type: string, enum: [com.whatsapp, com.whatsapp.w4b]}
+        title: {type: string, maxLength: 200}
+        text: {type: string, minLength: 1, maxLength: 2000}

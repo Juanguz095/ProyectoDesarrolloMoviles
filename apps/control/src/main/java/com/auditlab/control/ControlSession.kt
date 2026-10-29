@@ -48,6 +48,17 @@ class ControlSession internal constructor(private val store: SessionStore, priva
     var storageBlocked by mutableStateOf(restored.isFailure || (boundOrigin && restored.getOrNull()?.serverUrl == null && restored.getOrNull() != null)); private set
     fun updateServerUrl(value: String) { if (!signedIn && !busy && !storageBlocked) { serverUrl = value; engine = null } }
     private fun core() = engine ?: ControlCore(apiFactory(serverUrl), store, if (boundOrigin) serverUrl else null).also { engine = it }
+    suspend fun whatsAppPreviewSnapshot(device: String): WhatsAppPreviewSnapshot {
+        check(signedIn && !storageBlocked)
+        val engine=core()
+        try { return withContext(Dispatchers.IO) { engine.whatsAppPreviews(device) } }
+        catch(error: StorageFailure) { storageBlocked=true;throw error }
+        finally {
+            signedIn=engine.isSignedIn && !storageBlocked
+            role=engine.session?.role.orEmpty();username=engine.session?.username.orEmpty()
+            if(!signedIn) clearViews()
+        }
+    }
     fun login(user: String, password: String, scope: CoroutineScope) = run(scope) {
         core().login(user, password)
         val page = core().devices()

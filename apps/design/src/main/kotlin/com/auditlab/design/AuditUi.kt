@@ -221,6 +221,11 @@ fun displayTime(value: String?): String = value?.let {
         .getOrDefault(it)
 } ?: "Sin datos recibidos"
 
+fun displayClock(value: String?): String = value?.let {
+    runCatching { DateTimeFormatter.ofPattern("HH:mm:ss 'UTC'").withZone(ZoneOffset.UTC).format(Instant.parse(it)) }
+        .getOrDefault(it)
+} ?: "Sin datos recibidos"
+
 fun networkLabel(value: Any?): String = when (value) {
     "online" -> "Conexión disponible"
     "offline" -> "Sin conexión"

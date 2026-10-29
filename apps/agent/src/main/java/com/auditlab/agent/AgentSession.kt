@@ -96,6 +96,8 @@ class AgentSession internal constructor(
         else "Evento guardado localmente. Pendientes: ${it.stats().pending}."
     }
     fun revoke(scope: CoroutineScope) {
+        platform?.stopWhatsAppSharing()
+        platform?.stopScreenSharing()
         if (revoking) return
         engine?.requestWithdrawal()
         platform?.gate?.withdrawalRequested = true
@@ -123,10 +125,14 @@ class AgentSession internal constructor(
         if (platform != null && !platform.indicator.show()) throw MonitoringPaused()
         "Indicador habilitado. La sincronización puede continuar."
     }
-    fun pause(scope: CoroutineScope) = perform(scope) {
+    fun pause(scope: CoroutineScope) {
+        platform?.stopWhatsAppSharing()
+        perform(scope) {
+        platform?.stopScreenSharing()
         platform?.realEvents?.stop()
         platform?.indicator?.hide()
         "Monitoreo pausado. Los pendientes se conservan; no se generan ni envían eventos."
+        }
     }
     fun startRealMonitoring(scope: CoroutineScope) = perform(scope) {
         check(platform != null) { "La captura real necesita un dispositivo Android." }
@@ -137,6 +143,8 @@ class AgentSession internal constructor(
         platform?.realEvents?.stop()
         "Captura real detenida. No se consultan nuevos registros del teléfono."
     }
+    fun stopScreenSharing() { platform?.stopScreenSharing() }
+    fun stopWhatsAppSharing() { platform?.stopWhatsAppSharing() }
     private fun core(): AgentCore = engine ?: (platform?.core(serverUrl) ?: AgentCore(apiFactory(serverUrl), store))
         .also { engine = it }
     private data class Snapshot(val state: AgentCore.State, val consent: ConsentContext?, val stats: QueueStats,

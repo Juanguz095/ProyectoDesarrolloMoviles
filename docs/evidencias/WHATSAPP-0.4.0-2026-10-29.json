@@ -1,0 +1,137 @@
+{
+  "date_utc": "2026-10-29T00:40:41.982976+00:00",
+  "base_commit": "4e58131bf85b1f86e9a8371280f7136cf1277759",
+  "revision": "working tree with uncommitted tracked and new files",
+  "version": "0.4.0-preview",
+  "version_code": 5,
+  "tasks": [
+    "P3.8",
+    "P5.6",
+    "P6.6",
+    "P7.6"
+  ],
+  "suites": {
+    "common": {
+      "tests": 79,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "agent": {
+      "tests": 33,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "control": {
+      "tests": 14,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "backend_unit": {
+      "tests": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "postgres_integration": {
+      "tests": 56,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "tools_tests": 32,
+  "contract_tests": 49,
+  "live_contract_responses": 23,
+  "openapi_documents": 4,
+  "native_pair": {
+    "approved": true,
+    "kind": "notification-preview-synthetic-callback",
+    "results": {
+      "agent": {
+        "started": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "approved": true
+      },
+      "control": {
+        "started": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "approved": true
+      }
+    },
+    "devices": {
+      "agent": {
+        "serial": "emulator-5592",
+        "sdk": 28,
+        "boot_completed": "1"
+      },
+      "control": {
+        "serial": "emulator-5594",
+        "sdk": 26,
+        "boot_completed": "1"
+      }
+    },
+    "artifacts": [
+      {
+        "component": "agent",
+        "file": "agent-debug.apk",
+        "bytes": 10246915,
+        "sha256": "1d12a0d03c5c6ac92fcec38d454e5edf722a9401c72385c5b142ec5601f7d33d"
+      },
+      {
+        "component": "agent",
+        "file": "agent-debug-androidTest.apk",
+        "bytes": 1122078,
+        "sha256": "45de4dd2846a55478876be7bb66c073c0d513a3e09348bbe889d00c648ab7417"
+      },
+      {
+        "component": "control",
+        "file": "control-debug.apk",
+        "bytes": 9667000,
+        "sha256": "bfb099de6748d706ae44d25af910d003e4f579d4161a58e0643a8cf3106f5777"
+      },
+      {
+        "component": "control",
+        "file": "control-debug-androidTest.apk",
+        "bytes": 1122829,
+        "sha256": "4ea78d5003fbdbaf193ba73a1c95b8bc32fec3f3d4fcea8c8b223cb889f2cd32"
+      }
+    ],
+    "synthetic_content_only": true,
+    "source": "Synthetic WhatsApp-shaped StatusBarNotification via production parser and sender",
+    "foreground_survives_leaving_activity": true,
+    "viewer_cleared_after_local_stop": true
+  },
+  "lint": {
+    "agent": {
+      "errors": 0,
+      "warnings": 12
+    },
+    "control": {
+      "errors": 0,
+      "warnings": 5,
+      "information": 1
+    }
+  },
+  "limits": [
+    "Synthetic WhatsApp-shaped notification callback input; no real WhatsApp account tested",
+    "Android API28 source and API26 control; no physical phones or newer Android tested",
+    "Debug-signed APKs, not owner-signed distribution",
+    "No public HTTPS deployment or Windows pilot performed in this extension"
+  ],
+  "private_evidence": [
+    ".tooling/whatsapp-pair",
+    ".tooling/whatsapp-pair-round1-approved",
+    ".tooling/whatsapp-pair-attempt1",
+    ".tooling/whatsapp-pair-attempt2",
+    ".tooling/whatsapp-database-summary.log",
+    ".tooling/whatsapp-apk-audit.log",
+    ".tooling/whatsapp-live-contract.log"
+  ]
+}

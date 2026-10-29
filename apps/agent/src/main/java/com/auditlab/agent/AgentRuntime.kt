@@ -102,6 +102,8 @@ class AgentRuntime private constructor(private val context: android.app.Applicat
     val indicator = MonitoringIndicator(context)
     val scheduler = SyncScheduler(context)
     val realEvents = RealEventMonitor(context, this)
+    fun stopScreenSharing() { context.stopService(Intent(context, ScreenShareService::class.java)) }
+    fun stopWhatsAppSharing() { WhatsAppSharingRuntime.stop(context) }
     val changes = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     fun target(preferred: String = AgentSession.DEFAULT_URL): String =
@@ -117,9 +119,11 @@ class AgentRuntime private constructor(private val context: android.app.Applicat
         val state = core.refresh()
         val row = runCatching { journal.registration() }.getOrNull()
         if (state is AgentCore.State.Enrolled && row != null) {
-            if (!indicator.isVisible()) realEvents.stop()
+            if (!indicator.isVisible()) { realEvents.stop();stopWhatsAppSharing() }
             scheduler.active(row.deviceId, indicator.isVisible() && journal.stats().pending > 0)
         } else {
+            stopWhatsAppSharing()
+            stopScreenSharing()
             realEvents.stop()
             indicator.hide(); scheduler.stopEvents()
             if (row?.phase == AgentPhase.REVOKING) scheduler.privacy(row.deviceId)

@@ -71,7 +71,7 @@ class DatabaseIntegrationTest {
     }
 
     @Test fun `migration applies on empty PostgreSQL and repeats without modifications`() {
-        assertEquals(3, initialMigrations)
+        assertEquals(6, initialMigrations)
         assertEquals(0, DatabaseTools.migrate(owner))
         DatabaseTools.connection(owner) { connection ->
             for (table in listOf("auth_rate_limits","users","user_sessions","refresh_tokens","enrollment_codes","devices","consents","events","audit_log")) {

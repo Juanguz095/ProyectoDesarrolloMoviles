@@ -1,0 +1,54 @@
+openapi: 3.1.0
+info:
+  title: AuditLab screen sharing extension
+  version: 0.1.0
+servers:
+  - url: /v1
+paths:
+  /screen-share/{deviceId}/frame:
+    parameters:
+      - name: deviceId
+        in: path
+        required: true
+        schema: {type: string, format: uuid}
+    post:
+      summary: Publish one ephemeral frame from a locally authorized capture session
+      security: [{DeviceBearer: []}]
+      requestBody:
+        required: true
+        content:
+          image/jpeg:
+            schema: {type: string, format: binary, maxLength: 524288}
+      responses:
+        '204': {description: Accepted; no frame history is retained}
+        '401': {description: Invalid or revoked device credential}
+        '403': {description: Device scope mismatch}
+        '413': {description: Frame too large}
+    get:
+      summary: Read latest nonexpired frame; access is audited
+      security: [{UserBearer: []}]
+      responses:
+        '200':
+          description: Ephemeral frame; Cache-Control no-store
+          content:
+            image/jpeg:
+              schema: {type: string, format: binary}
+        '204': {description: No active frame}
+        '401': {description: Authentication required}
+        '409': {description: Device revoked}
+  /screen-share/{deviceId}:
+    parameters:
+      - name: deviceId
+        in: path
+        required: true
+        schema: {type: string, format: uuid}
+    delete:
+      summary: Clear the device's ephemeral frame
+      security: [{DeviceBearer: []}]
+      responses:
+        '204': {description: Cleared}
+        '401': {description: Invalid or revoked device credential}
+components:
+  securitySchemes:
+    DeviceBearer: {type: http, scheme: bearer}
+    UserBearer: {type: http, scheme: bearer, bearerFormat: JWT}

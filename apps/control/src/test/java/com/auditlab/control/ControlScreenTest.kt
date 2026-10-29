@@ -50,8 +50,31 @@ class ControlScreenTest {
         waitFor("VISTA DE DISPOSITIVOS")
         return api
     }
-    private fun detail() { tap("Ver detalle del dispositivo →") }
-    private fun events() { tap("Ver historial de eventos →"); waitFor("RESULTADOS") }
+    private fun detail() { tap("EQUIPOS"); tap("VER DISPOSITIVO") }
+    private fun events() { tap("VER HISTORIAL\nDE EVENTOS"); waitFor("RESULTADOS") }
+    private fun eventDetail() { compose.onNodeWithContentDescription("Ver detalle →").performScrollTo().performClick(); settle() }
+
+    @Test fun `auditor can view ephemeral previews and local stop clears text and secure flag on exit`() {
+        val api=signIn("auditor")
+        detail();tap("VER NOTIFICACIONES DE WHATSAPP")
+        waitFor("private preview fixture")
+        assertTrue(compose.activity.window.attributes.flags and android.view.WindowManager.LayoutParams.FLAG_SECURE != 0)
+        api.previewSnapshot=WhatsAppPreviewSnapshot(false,null,emptyList())
+        waitFor("SESIÓN DETENIDA")
+        compose.onNodeWithText("private preview fixture").assertDoesNotExist()
+        tap("← Volver al dispositivo")
+        assertEquals(0,compose.activity.window.attributes.flags and android.view.WindowManager.LayoutParams.FLAG_SECURE)
+    }
+
+    @Test fun `preview network failure hides previously received content`() {
+        val api=signIn()
+        detail();tap("VER NOTIFICACIONES DE WHATSAPP")
+        waitFor("private preview fixture")
+        api.previewError=true
+        waitFor("Sin conexión con el servicio. Se ocultaron las vistas previas.")
+        compose.onNodeWithText("private preview fixture").assertDoesNotExist()
+        compose.onNodeWithText("EXPORTAR CSV").assertDoesNotExist()
+    }
 
     @Test fun `el admin ve dispositivos y puede revocar con confirmacion`() {
         val api = signIn()
@@ -73,8 +96,9 @@ class ControlScreenTest {
     @Test fun `SMS real muestra titulo y origen`() {
         val api = signIn(real = true)
         events()
+        eventDetail()
         compose.onNodeWithText("SMS enviado").assertExists()
-        compose.onNodeWithText("Real").assertExists()
+        compose.onNodeWithText("Evento real del dispositivo").assertExists()
         compose.onNodeWithText("Simulado").assertDoesNotExist()
         assertEquals("device-1", api.eventsFor)
     }
@@ -83,8 +107,9 @@ class ControlScreenTest {
         // The mock has a simulated event with metadata; it must not populate battery telemetry.
         assertNull(current!!.overviewReading)
         events()
+        eventDetail()
         compose.onNodeWithText("Actividad del agente").assertExists()
-        compose.onNodeWithText("Simulado").assertExists()
+        compose.onNodeWithText("Evento simulado").assertExists()
     }
     @Test fun `cancelar revocacion y cerrar sesion requieren confirmacion`() {
         val api = signIn()
@@ -102,7 +127,7 @@ class ControlScreenTest {
         val api = signIn()
         events(); tap("SIGUIENTE PÁGINA")
         assertEquals(2, current!!.eventPageNumber)
-        tap("Ver detalle →")
+        eventDetail()
         compose.onNodeWithText("DETALLE DE EVENTO").assertExists()
         assertEquals("event-2", api.detailFor)
         tap("Cerrar detalle")
@@ -166,6 +191,13 @@ class ControlScreenTest {
         } finally { scope.cancel() }
     }
     private class FakeApi(private val role: String) : AuditApi {
+        @Volatile var previewError=false
+        @Volatile var previewSnapshot=WhatsAppPreviewSnapshot(true,"sharing-1",listOf(
+            WhatsAppPreview("preview-1","2026-10-29T00:00:00Z","com.whatsapp","QA contact","private preview fixture")))
+        override fun whatsAppPreviews(token: String,device: String):WhatsAppPreviewSnapshot {
+            if(previewError) throw ApiException(0,"NETWORK_ERROR",null,"fixture")
+            return previewSnapshot
+        }
         var realEvents = false
         var lastQuery: com.auditlab.common.EventQuery? = null
         var loginError = false

@@ -1,0 +1,187 @@
+{
+  "recorded_utc": "2026-10-28T23:50:13.607562+00:00",
+  "unit_and_database_tests": {
+    "common": {
+      "tests": 77,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "agent": {
+      "tests": 30,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "control": {
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "backend_unit": {
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "backend_integration": {
+      "tests": 55,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "tool_tests": {
+    "passed": 32,
+    "failed": 0
+  },
+  "native_base": {
+    "approved": true,
+    "expected_stages": 17,
+    "executed_stages": 17,
+    "passed": 17,
+    "failed": 0,
+    "not_executed": 0
+  },
+  "native_screen_capture": {
+    "approved": true,
+    "started": 1,
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "serial": "emulator-5592",
+    "avd": "auditlab-redesign-r3-api28"
+  },
+  "native_viewer": {
+    "started": 1,
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "approved": true
+  },
+  "native_real_metadata": {
+    "started": 1,
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "approved": true,
+    "process_exit": 0
+  },
+  "capacity": {
+    "events": 10000,
+    "pages": 100,
+    "concurrency": 5,
+    "queries": 100,
+    "p50_ms": 20.73,
+    "p95_ms": 34.5,
+    "max_ms": 48.03,
+    "target_p95_ms": 2000,
+    "csv_rows": 10000,
+    "passed": true,
+    "host": "Linux-6.18.55-x86_64-with-glibc2.41",
+    "cpu_max": "400000 100000",
+    "memory_max": "34359738368",
+    "emulators_running": 2,
+    "recorded_at": "2026-10-28T22:42:14.088083+00:00"
+  },
+  "restore": {
+    "passed": true,
+    "tables_compared": 10,
+    "all_table_fingerprints_equal": true,
+    "restored_events": 40074,
+    "backup_sha256": "46045f171e0b697c704d74eab818cc35df1d212c6bf2466572bdbe4f672ac4ad",
+    "backup_bytes": 12454202,
+    "source_preserved": true,
+    "target_database": "qa_restore_d33d9a02c57148be",
+    "runtime_read_confirmed": true,
+    "maintenance_grants_confirmed": true,
+    "maintenance_retention_confirmed": true,
+    "api_page_rows": 100,
+    "api_page_ids_equal": true,
+    "api_on_restored_database": "ready, login and exact event page passed"
+  },
+  "live_contract_checks": {
+    "passed": 23,
+    "failed": 0
+  },
+  "contracts_validated": 3,
+  "documentation_tasks": 38,
+  "apk_sha256": {
+    "apps/agent/build/outputs/apk/debug/agent-debug.apk": "0c58250df90c30d8190f8c9a3a84cdc8697a9e07d2d5b6c5a0a3105991176816",
+    "apps/control/build/outputs/apk/debug/control-debug.apk": "f4ddf1322b7aaa8d9b8b9ee2cbd80b8e044c849670c61320c0822e4f93864b95"
+  },
+  "limits": [
+    "Independent WhatsApp notification/history extraction is not implemented.",
+    "No physical phones, Android API 34+, Windows/Tailscale or public HTTPS deployment tested.",
+    "Screen sharing is 480px JPEG frames around 1fps, not smooth video."
+  ],
+  "source_state": "Existing uncommitted working tree. Base/native-metadata retain their recorded builds; screen regression and simultaneous pair use the final artifacts listed here. Backend unchanged results reused.",
+  "simultaneous_live_screen_pair": {
+    "approved": true,
+    "kind": "simultaneous-live-projection",
+    "results": {
+      "agent": {
+        "started": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "approved": true
+      },
+      "control": {
+        "started": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "approved": true
+      }
+    },
+    "devices": {
+      "agent": {
+        "serial": "emulator-5592",
+        "sdk": 28,
+        "boot_completed": "1"
+      },
+      "control": {
+        "serial": "emulator-5594",
+        "sdk": 26,
+        "boot_completed": "1"
+      }
+    },
+    "artifacts": [
+      {
+        "component": "agent",
+        "file": "agent-debug.apk",
+        "bytes": 10442248,
+        "sha256": "0c58250df90c30d8190f8c9a3a84cdc8697a9e07d2d5b6c5a0a3105991176816"
+      },
+      {
+        "component": "agent",
+        "file": "agent-debug-androidTest.apk",
+        "bytes": 1116335,
+        "sha256": "7e2dd9dee5d188762d3c5fd0944357e921185d8d57da8bb0ab9ed8c5c486c966"
+      },
+      {
+        "component": "control",
+        "file": "control-debug.apk",
+        "bytes": 9877401,
+        "sha256": "f4ddf1322b7aaa8d9b8b9ee2cbd80b8e044c849670c61320c0822e4f93864b95"
+      },
+      {
+        "component": "control",
+        "file": "control-debug-androidTest.apk",
+        "bytes": 1118715,
+        "sha256": "28973bd8bfa160b9b6c07a044ac4ffb17310dd17715840cc8e69fad8278283f6"
+      }
+    ],
+    "synthetic_content_only": true,
+    "source": "Android Settings captured with real per-session OS permission",
+    "static_screen_heartbeat_seconds": 12,
+    "viewer_cleared_after_local_stop": true
+  },
+  "corrections": [
+    "Static-screen heartbeat and lost transition frame fixed with periodic latest-image sampling and RAM-only resend.",
+    "Narrow-screen activity header no longer wraps inside words.",
+    "Consent recreation and test dialog transition synchronization corrected."
+  ]
+}

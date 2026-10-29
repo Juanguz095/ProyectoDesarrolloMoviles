@@ -1,8 +1,73 @@
 # AuditLab — Registro de avance
 
-Actualización: 28 de octubre de 2026, America/Lima. Los registros anteriores conservan su fecha y zona indicadas.
+Actualización: 29 de octubre de 2026, UTC. Los registros anteriores conservan su fecha y zona indicadas.
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
+
+## Publicación solicitada — 29 de octubre de 2026 (UTC)
+
+- P8.2/P8.3: el usuario autoriza subir cambios y descargar ambos APK. Se prepara
+  `0.4.0-preview`, con servidor Windows actualizado, guía sin USB y lanzador
+  reproducible conservando configuración y base existentes.
+- `scripts/package_preview.py` vincula los cuatro hashes al recorrido de la
+  ampliación y verifica migraciones compiladas. No sustituye ni relaja la condición
+  de 17 etapas de `package_qa.py`; identifica explícitamente el paquete como preview,
+  con Windows, WhatsApp real y piloto aún no verificados.
+- [Descargas y pasos completos](INICIO_WINDOWS_0.4.md). Publicación y comprobación
+  de enlaces en curso; no declarar entregados los enlaces hasta verificarlos.
+
+## Ampliación: notificaciones independientes de WhatsApp — 29 de octubre de 2026 (UTC)
+
+- Alcance autorizado por el usuario: vistas previas nuevas con permiso Android y
+  consentimiento local adicional, servicio visible con DETENER. No historial de chats.
+  [Uso, datos y límites](WHATSAPP_NOTIFICACIONES.md).
+- P3.8: API con sesiones UUID, heartbeat, aislamiento por dispositivo, máximo 20
+  vistas previas/5 minutos en RAM, cierre por inactividad de 30 segundos y auditoría
+  sin cuerpos. Migraciones V5/V6; no se modifica una migración ya aplicada.
+- P5.6: listener filtrado a WhatsApp/Business, autorización separada y por sesión,
+  descarte de datos anteriores, resúmenes, adjuntos y respuestas propias reconocibles.
+  Sin persistencia de texto ni arranque automático. Pausa, retirada y permiso revocado
+  detienen el servicio.
+- P6.6: vista del Centro integrada con su sesión/refresh existentes, consulta cada
+  3 segundos, estados explícitos y FLAG_SECURE; contenido eliminado al salir o fallar.
+- P7.6: 197 pruebas JVM/Robolectric/PostgreSQL aprobadas sin fallos ni omitidas,
+  32 de herramientas y 49 de contrato; 23 respuestas del contrato en vivo válidas.
+  Dos pruebas nativas simultáneas aprobadas sobre los APK finales: consentimiento,
+  permiso real Android, filtrado/deduplicación, envío desde el Agente en segundo
+  plano, texto mostrado en el Centro, DETENER, borrado y retirada de permiso.
+  La entrada es una notificación sintética; no acredita WhatsApp instalado ni
+  teléfonos físicos. P7.6 queda parcial hasta ese ensayo real.
+- APKs debug 0.4.0-preview, código 5. Compilación, auditoría de artefactos y lint
+  satisfactorios (0 errores, con avisos). Corregidos interoperabilidad de notificaciones,
+  metadatos de auditoría, acceso a Activity y respuesta tardía al pasar al fondo.
+  Dos intentos iniciales del selector nativo fallaron; se corrigieron y conservaron.
+- [Informe, comandos, resultados y hashes](evidencias/WHATSAPP-0.4.0-2026-10-29.md).
+  Fuentes sin commit/publicación en esta ampliación. No hay nuevas dependencias.
+  Siguiente: instalar las tres piezas actualizadas y repetir con WhatsApp real,
+  Android reciente/teléfonos y el piloto HTTPS pendiente.
+
+## Validación funcional solicitada — 28 de octubre de 2026
+
+- P7.1/P7.5: recorrido principal aprobado 17/17 en dos emuladores (API28/26), captura MediaProjection real y visor nativo aprobados por separado y simultáneamente, más SMS/llamadas/estado emulados con API/CSV/deduplicación/retirada aprobados. La prueba simultánea usa los APK finales.
+- 185 pruebas JVM/Robolectric/PostgreSQL y 32 de herramientas aprobadas. Contrato en vivo: 23 respuestas; 3 contratos OpenAPI y documentación de 38 tareas válidos. Se reutilizan resultados vigentes del backend que no cambió durante esta comprobación.
+- P7.3: 10 000 eventos/CSV, 5 lectores, p95 34,5 ms. P8.1 QA: restauración de 10 tablas y 40 074 eventos, fingerprints iguales, consulta API y origen preservado.
+- Corregidos selectores nativos y verificadores documental/contractual; restauración del diálogo de captura tras recreación, sincronización de cancelación y bandera de envío entre hilos. Compilación/lint/auditoría APK finales satisfactorias; lint mantiene advertencias sin errores.
+- P5.5/P7.5: corregido el vencimiento de la imagen estática: muestreo y reenvío periódico del último cuadro en RAM, regresión de 12 segundos y comprobación del contenido real en el Centro. También se corrigió el título de actividad en ancho reducido. Ambos APK compilan, 30 pruebas del Agente y lint aprobados tras los ajustes.
+- [Informe y límites](evidencias/VALIDACION-FUNCIONAL-2026-10-28.md). No se ejecutó WhatsApp independiente, Android reciente, teléfonos o despliegue Windows/HTTPS público. No se cierran esas entregas como aprobadas.
+
+## Ampliación: compartir pantalla — 28 de octubre de 2026
+
+- Alcance solicitado: pantalla visible con autorización del propietario y consulta desde el Centro. Requisitos, uso y contrato en [COMPARTIR_PANTALLA.md](COMPARTIR_PANTALLA.md) y `contracts/screen-share.openapi.yaml`.
+- P3.7 (ampliación): relay efímero con token de dispositivo, sesión admin/auditor, comprobación de revocación, límites y auditoría. Migración V4 para la nueva acción de auditoría.
+- P5.5 (ampliación): Activity de consentimiento adicional, permiso MediaProjection por sesión, servicio visible con DETENER, cuadros JPEG sin cola/disco, parada por pausa/retirada y fallo de conexión.
+- P6.5 (ampliación): visor autenticado desde detalle del dispositivo. Actualización aproximada de un cuadro por segundo; cierre del visor al salir de su actividad.
+- P7.5 (ampliación): `python3 scripts/check_database.py` satisfactorio: 55 pruebas de integración sin omitidas, migraciones repetibles, CLI y fallos de disponibilidad. El ensayo encontró y corrigió la falta de V4 y un conteo de migraciones desactualizado. Pruebas de transporte: no seguir redirecciones, origen TLS y rechazo de inyección de rutas. Prueba de consentimiento local con Robolectric.
+- Verificación posterior: MediaProjection real aprobada en API28 y visor en API26 con cuadros sintéticos y con el mismo flujo real simultáneo vía API. Pendiente Android reciente/físico.
+- WhatsApp: la pantalla compartida permite ver mensajes que la persona abra. No se implementó extracción independiente de notificaciones ni historial de WhatsApp; esa petición sigue pendiente. No presentar ambas funciones como terminadas.
+- Comprobación final: 184 pruebas automáticas sin fallos ni omitidas (77 común, 29 Agente, 12 Centro, 11 unitarias backend y 55 integración PostgreSQL). `lintDebug` de ambas apps finalizó sin errores y con advertencias; reconstrucción de ambos APK y `installDist` satisfactoria. `python3 scripts/check_apk.py` salida 0. `git diff --check` sin errores.
+- Intento nativo: el AVD `auditlab-redesign-r3-api28` no arrancó: `hasSufficientDiskSpace` falló; el volumen dispone de 1,2 GiB. No se borraron evidencias ni datos para forzar el arranque. No hay prueba real de MediaProjection en esta ampliación.
+- Limpieza autorizada posterior: eliminada únicamente la caché descargable de Trivy (`.tooling/security/cache/db`), aproximadamente 1,6 GiB; disponibles 2,7 GiB. Conservados fuentes, bases, claves, APK y evidencias. El emulador supera ahora `hasSufficientDiskSpace`. Se retiraron dos archivos `.lock` del AVD pertenecientes al PID 40707, confirmado terminado; el emulador inició arranque completo y ADB lo detecta como `emulator-5592`. Esto no acredita todavía el arranque completo ni una prueba de captura.
+- Siguiente: Android reciente/físico y completar la ampliación separada de notificaciones. Conservar los límites registrados en el informe de validación.
 
 ## Rediseño Android según mockups — 28 de octubre de 2026 (America/Lima)
 

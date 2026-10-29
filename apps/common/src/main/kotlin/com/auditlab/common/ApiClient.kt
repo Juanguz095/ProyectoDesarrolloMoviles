@@ -42,6 +42,11 @@ interface AuditApi {
     fun auditPage(token: String, cursor: String? = null): AuditPage = throw UnsupportedOperationException()
     fun revokeDevice(accessToken: String, deviceId: String)
     fun revokeConsent(deviceToken: String, deviceId: String)
+    fun beginWhatsApp(token: String, device: String, session: String, acceptedAt: String, consent: ConsentContext) { throw UnsupportedOperationException() }
+    fun sendWhatsAppPreview(token: String, device: String, session: String, preview: WhatsAppPreview) { throw UnsupportedOperationException() }
+    fun heartbeatWhatsApp(token: String, device: String, session: String) { throw UnsupportedOperationException() }
+    fun endWhatsApp(token: String, device: String, session: String) { throw UnsupportedOperationException() }
+    fun whatsAppPreviews(token: String, device: String): WhatsAppPreviewSnapshot = throw UnsupportedOperationException()
 }
 
 /**
@@ -93,6 +98,30 @@ class ApiClient(
 
     override fun logout(accessToken: String) {
         request("POST", "/v1/auth/logout", token = accessToken)
+    }
+    override fun beginWhatsApp(token: String, device: String, session: String, acceptedAt: String, consent: ConsentContext) {
+        request("POST", "/v1/devices/${encode(device)}/whatsapp-sharing", token, body=JSONObject()
+            .put("sessionId", session).put("acceptedAt", acceptedAt).put("policyVersion", WhatsAppPreviewPolicy.VERSION)
+            .put("consentContext", consent.toJson()).toString())
+    }
+    override fun sendWhatsAppPreview(token: String, device: String, session: String, preview: WhatsAppPreview) {
+        request("POST", "/v1/devices/${encode(device)}/whatsapp-previews", token, body=JSONObject()
+            .put("sessionId", session).put("messageId", preview.messageId).put("timestamp", preview.timestamp)
+            .put("packageName", preview.packageName).put("title", preview.title).put("text", preview.text).toString())
+    }
+    override fun heartbeatWhatsApp(token: String, device: String, session: String) {
+        request("POST", "/v1/devices/${encode(device)}/whatsapp-sharing/${encode(session)}/heartbeat", token)
+    }
+    override fun endWhatsApp(token: String, device: String, session: String) {
+        request("DELETE", "/v1/devices/${encode(device)}/whatsapp-sharing/${encode(session)}", token)
+    }
+    override fun whatsAppPreviews(token: String, device: String): WhatsAppPreviewSnapshot {
+        val value = JSONObject(request("GET", "/v1/devices/${encode(device)}/whatsapp-previews", token))
+        val items = value.getJSONArray("items")
+        return WhatsAppPreviewSnapshot(value.getBoolean("active"), value.optStringOrNull("sessionId"),
+            (0 until items.length()).map { i -> items.getJSONObject(i).let { node ->
+                WhatsAppPreview(node.getString("messageId"),node.getString("timestamp"),node.getString("packageName"),node.getString("title"),node.getString("text"))
+            } })
     }
 
     override fun createEnrollmentCode(accessToken: String): EnrollmentCode {

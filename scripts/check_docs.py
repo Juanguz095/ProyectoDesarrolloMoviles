@@ -10,7 +10,7 @@ for source in sources:
             assert (source.parent / destination.split('#')[0]).exists(), f'{source.relative_to(root)}: missing {destination}'
 plan = (root / 'docs/PLAN_MAESTRO.md').read_text()
 tasks = re.findall(r'^\| (P\d+\.\d+) \|', plan, re.M)
-assert len(tasks) == len(set(tasks)) == 34
+assert len(tasks) == len(set(tasks)) == 42
 progress = set(re.findall(r'P\d+\.\d+', (root / 'docs/AVANCE.md').read_text()))
 assert set(tasks) == progress, 'Progress and plan task IDs differ'
 criteria = set(re.findall(r'^\| (CA-\d+) \|', plan, re.M))
