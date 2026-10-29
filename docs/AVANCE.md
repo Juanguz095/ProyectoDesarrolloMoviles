@@ -4,6 +4,22 @@ Actualización: 29 de octubre de 2026, UTC. Los registros anteriores conservan s
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
+## Bloqueo de Defender en ZIP Windows 0.7 — 29 de octubre de 2026 (America/Lima)
+
+- P7.4/P8.1/P8.3: el usuario reporta `Trojan:Script/Ulthar.A!ml`, estado Removed,
+  sobre el ZIP Windows publicado. Se suspende la recomendación/enlace de instalación
+  del ZIP en los documentos actuales. No se recomienda restaurar ni excluir.
+- Descarga pública revisada sin ejecución: SHA256 coincide con la entrega original,
+  449 entradas coinciden con manifiesto y 311 fuentes coinciden con `cae5f9f`.
+  Lanzador raíz coincide con su fuente; revisados PowerShell y lanzador Java.
+  Esto es procedencia/integridad, no un dictamen de ausencia de malware.
+- No se dispone de Defender, mdatp o clamscan en esta máquina. Pendiente análisis
+  antimalware que identifique el miembro detectado y resolución con el proveedor.
+  No se genera otro ZIP para evitar la detección ni se declara falso positivo.
+- [Informe](REVISION_DEFENDER_0.7.md) y
+  [evidencia](evidencias/DEFENDER-0.7.0-2026-10-29.json). No se modifican binarios,
+  scripts de arranque, configuración del usuario ni datos de PostgreSQL.
+
 ## Texto SMS y estabilidad de sesiones — 28 de octubre de 2026 (America/Lima)
 
 - P5.3/P6.2: 0.7.0-preview, código Android 9. BODY de SMS nuevos solo tras casilla

@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-29",
+  "timezone": "America/Lima",
+  "reported_detection": "Trojan:Script/Ulthar.A!ml",
+  "reported_status": "Removed",
+  "reported_affected_artifact": "AuditLab-Servidor-Windows-0.7.0-preview.zip",
+  "flagged_member": "Not identified by supplied screenshot",
+  "published_sha256": "280b7e57579d22c9ee97a65d060e6250a882b23665fa91a8f737cce353439778",
+  "published_http_status": 200,
+  "published_matches_recorded_delivery": true,
+  "archive_entries": 449,
+  "all_manifest_entries_verified": true,
+  "source_commit": "cae5f9f8adc9ab130472a83176d3ff35ed6cd410",
+  "source_files_match_git_commit": true,
+  "launcher_matches_git_commit": true,
+  "scripts_and_windows_binaries": {
+    "Iniciar-AuditLab.ps1": "9e1d54b98fe05f153dabd4c1eeeacb2f547fa9207c1e27d02cd34fe68bf6a608",
+    "api/bin/ktor.bat": "cb138f276dcd7a3321d185e52c4a3d8fd8d53f33446d01c04b0f8e128b081795",
+    "source/academic/gradlew.bat": "fedad02c18e266ec094995a5751b7fe1eb6e74f66bf75db64fae2e50eb22c234",
+    "source/delivery/windows/Iniciar-AuditLab.ps1": "9e1d54b98fe05f153dabd4c1eeeacb2f547fa9207c1e27d02cd34fe68bf6a608",
+    "source/gradlew.bat": "57931b17dd228e5c24dac90e815d0bf82477e831a4618dfab4136f5446b42a9f"
+  },
+  "script_review": "Reviewed launcher and generated Windows Java launcher; no identified obfuscated command download, Defender exclusion or scheduled persistence in the reviewed launchers. This is not an antivirus verdict.",
+  "antivirus_scan_executed": false,
+  "available_local_scanners": {
+    "clamscan": false,
+    "mdatp": false
+  },
+  "defender_validation": "Not available on this Linux environment",
+  "security_status": "blocked_pending_antimalware_review",
+  "safe_to_restore_or_execute_confirmed": false
+}

@@ -1,5 +1,13 @@
 # AuditLab
 
+> **Servidor Windows 0.7 suspendido — 29/10/2026 (America/Lima).**
+> Un usuario reportó que Microsoft Defender bloqueó el ZIP con
+> `Trojan:Script/Ulthar.A!ml`. No restaurar, ejecutar ni añadir exclusiones.
+> La integridad del paquete coincide con la entrega, pero no hay dictamen
+> antivirus que descarte la detección. Las instrucciones de instalación quedan
+> pausadas. [Estado de la revisión](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/blob/main/docs/REVISION_DEFENDER_0.7.md).
+
+
 **Monitoreo visible y autorizado para dispositivos Android propios o administrados.**
 
 AuditLab conecta un Agente instalado en el dispositivo supervisado con un Centro
@@ -14,7 +22,7 @@ Una API central autentica las conexiones, recibe los eventos y registra las cons
 | --- | --- | --- |
 | Agente | Dispositivo que comparte información | [APK Agente](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.7.0-preview.apk) |
 | Centro de control | Dispositivo desde el que se consulta | [APK Centro](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.7.0-preview.apk) |
-| Servidor Windows | PC que ejecuta la API y la base de datos | [Servidor y aplicaciones](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.7.0-preview.zip) |
+| Servidor Windows | PC que ejecuta la API y la base de datos | **ZIP suspendido: revisión de Defender pendiente** |
 
 **Actualiza las dos aplicaciones y el servidor a 0.7.** El historial de
 comunicaciones y los números opcionales requieren la API nueva y V9.
