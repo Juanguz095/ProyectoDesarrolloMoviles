@@ -26,6 +26,14 @@ object WhatsAppSharingState {
     var active by mutableStateOf(false)
     var listenerConnected by mutableStateOf(false)
     var message by mutableStateOf("No se comparten notificaciones de WhatsApp.")
+    var notificationsObserved by mutableStateOf(0)
+    var observationsAccepted by mutableStateOf(0)
+    var previewsUploaded by mutableStateOf(0)
+    var parserFailures by mutableStateOf(0)
+    var lastHeartbeat by mutableStateOf<String?>(null)
+    fun resetDiagnostics() {
+        notificationsObserved=0;observationsAccepted=0;previewsUploaded=0;parserFailures=0;lastHeartbeat=null
+    }
 }
 
 object WhatsAppAccess {
@@ -78,10 +86,39 @@ class WhatsAppShareActivity : ComponentActivity() {
 
 /** The OS may bind this listener after a restart; a fresh local session is still required. */
 class WhatsAppNotificationListener : NotificationListenerService() {
-    override fun onListenerConnected() { WhatsAppSharingState.listenerConnected=true }
+    override fun onListenerConnected() {
+        connected=this
+        WhatsAppSharingState.listenerConnected=true
+    }
     override fun onListenerDisconnected() {
-        WhatsAppSharingState.listenerConnected=false
-        WhatsAppSharingRuntime.stop(this)
+        if(connected===this) {
+            connected=null
+            WhatsAppSharingState.listenerConnected=false
+            WhatsAppSharingRuntime.stop(this)
+        }
+    }
+    override fun onDestroy() {
+        if(connected===this) {
+            connected=null
+            WhatsAppSharingState.listenerConnected=false
+            WhatsAppSharingRuntime.stop(this)
+        }
+        super.onDestroy()
+    }
+    companion object {
+        @Volatile private var connected: WhatsAppNotificationListener?=null
+        /** Catch notifications posted during the authenticated handshake, not earlier history. */
+        fun collectDuringHandshake(startedAt: Long) {
+            val listener=connected ?: return
+            runCatching {
+                listener.activeNotifications.orEmpty()
+                    .filter { it.packageName in WhatsAppPreviewPolicy.PACKAGES && it.postTime>=startedAt }
+                    .sortedBy { it.postTime }.takeLast(20)
+                    .forEach { WhatsAppSharingRuntime.offer(listener,it) }
+            }.onFailure {
+                WhatsAppSharingState.message="No se pudieron consultar notificaciones nuevas durante la conexión. Esperando la siguiente notificación."
+            }
+        }
     }
     override fun onNotificationPosted(sbn: StatusBarNotification) { WhatsAppSharingRuntime.offer(this,sbn) }
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
@@ -111,7 +148,11 @@ object WhatsAppSharingRuntime {
         if(!allowed(context)) { stop(context);return }
         if(sbn.packageName !in WhatsAppPreviewPolicy.PACKAGES || sbn.postTime<session.startedAt || sbn.postTime>System.currentTimeMillis()+300000 ||
             sbn.notification.flags and Notification.FLAG_GROUP_SUMMARY!=0) return
-        val rows=runCatching { WhatsAppNotificationParser.observe(sbn,session.id,session.startedAt) }.getOrElse { emptyList() }.toMutableList()
+        WhatsAppSharingState.notificationsObserved++
+        val rows=runCatching { WhatsAppNotificationParser.observe(sbn,session.id,session.startedAt) }.getOrElse {
+            WhatsAppSharingState.parserFailures++
+            emptyList()
+        }.toMutableList()
         synchronized(session) {
             if(current!==session) return
             // RemoteInputHistory has no per-message timestamp. Establish a baseline
@@ -127,7 +168,9 @@ object WhatsAppSharingRuntime {
                 }
                 while(session.replyHistory.size>128) session.replyHistory.remove(session.replyHistory.keys.first())
             }
-            for(row in rows) if(session.seen.add(row.key)) session.queue.trySend(row)
+            for(row in rows) if(session.seen.add(row.key)) {
+                if(session.queue.trySend(row).isSuccess) WhatsAppSharingState.observationsAccepted++
+            }
             while(session.seen.size>512) session.seen.remove(session.seen.first())
         }
     }
@@ -158,6 +201,7 @@ class WhatsAppSharingService : Service() {
             .setContentTitle("AuditLab · Actividad y vistas previas de WhatsApp")
             .setContentText("Vistas previas nuevas autorizadas. Pulsa DETENER para finalizar.")
             .setOngoing(true).setOnlyAlertOnce(true).addAction(0,"DETENER",stop).build())
+        WhatsAppSharingState.resetDiagnostics()
         WhatsAppSharingState.message="Iniciando la sesión autorizada…"
         sender=scope.launch {
             val api=ApiClient(stored.serverUrl!!)
@@ -167,29 +211,51 @@ class WhatsAppSharingService : Service() {
                 if(!isActive || !WhatsAppSharingRuntime.allowed(this@WhatsAppSharingService)) return@launch
                 WhatsAppSharingRuntime.activate(session)
                 WhatsAppSharingState.message="Compartiendo notificaciones nuevas de WhatsApp."
-                while(isActive && WhatsAppSharingRuntime.current===session) {
-                    if(!WhatsAppSharingRuntime.allowed(this@WhatsAppSharingService)) { stopSelf();break }
-                    val observation=withTimeoutOrNull(10000) { session.queue.receive() }
-                    if(!isActive || WhatsAppSharingRuntime.current!==session) break
-                    if(observation==null) sharingRequest { api.heartbeatWhatsApp(stored.deviceToken,stored.deviceId,id) }
-                    else {
-                        sharingRequest { api.heartbeatWhatsApp(stored.deviceToken,stored.deviceId,id) }
-                        val recorded=synchronized(runtime.gate) {
-                            if(WhatsAppSharingRuntime.current!==session || !WhatsAppSharingRuntime.allowed(this@WhatsAppSharingService)) return@synchronized false
-                            val credential=runtime.credentials.load()
-                            check(credential?.deviceId==stored.deviceId && credential.consent==stored.consent)
-                            val eventId=UUID.nameUUIDFromBytes("${stored.deviceId}|${stored.consent.consentId}|${observation.key}".toByteArray(Charsets.UTF_8)).toString()
-                            if(!runtime.database.dao().containsEvent(eventId)) runtime.core().captureRealEvent("whatsapp",observation.direction,
-                                mapOf("appEventCode" to observation.code),Instant.parse(observation.timestamp),eventId)
-                            runtime.after(runtime.core())
-                            true
+                WhatsAppNotificationListener.collectDuringHandshake(acceptedAt)
+                coroutineScope {
+                    // Independent of runtime.gate, which the durable outbox holds during HTTP.
+                    val heartbeat = launch {
+                        while (isActive && WhatsAppSharingRuntime.current === session) {
+                            delay(8000)
+                            if (!WhatsAppSharingRuntime.allowed(this@WhatsAppSharingService)) {
+                                WhatsAppSharingRuntime.stop(this@WhatsAppSharingService)
+                                break
+                            }
+                            sharingRequest { api.heartbeatWhatsApp(stored.deviceToken, stored.deviceId, id) }
+                            WhatsAppSharingState.lastHeartbeat = Instant.now().toString()
                         }
-                        if(!recorded || WhatsAppSharingRuntime.current!==session || !isActive || !WhatsAppSharingRuntime.allowed(this@WhatsAppSharingService)) break
-                        observation.preview?.let { preview -> sharingRequest { api.sendWhatsAppPreview(stored.deviceToken,stored.deviceId,id,preview) } }
-                        // Metadata uses the consent-bound durable outbox; preview text never enters it.
-                        // runtime.after already schedules the durable outbox via WorkManager.
-                        // A transient outbox failure must not terminate this separate preview session.
-                        WhatsAppSharingState.message="Actividad de WhatsApp enviada. Último evento: ${displayLocalTime(observation.timestamp)}"
+                    }
+                    try {
+                        while (isActive && WhatsAppSharingRuntime.current === session) {
+                            if (!WhatsAppSharingRuntime.allowed(this@WhatsAppSharingService)) { stopSelf(); break }
+                            val observation = session.queue.receive()
+                            if (!isActive || WhatsAppSharingRuntime.current !== session) break
+                            WhatsAppSharingState.message = "Notificación observada; registrando su evento local."
+                            val recorded = synchronized(runtime.gate) {
+                                if (WhatsAppSharingRuntime.current !== session || !WhatsAppSharingRuntime.allowed(this@WhatsAppSharingService)) return@synchronized false
+                                val credential = runtime.credentials.load()
+                                check(credential?.deviceId == stored.deviceId && credential.consent == stored.consent)
+                                val eventId = UUID.nameUUIDFromBytes("${stored.deviceId}|${stored.consent.consentId}|${observation.key}".toByteArray(Charsets.UTF_8)).toString()
+                                if (!runtime.database.dao().containsEvent(eventId)) {
+                                    runtime.core().captureRealEvent("whatsapp", observation.direction,
+                                        mapOf("appEventCode" to observation.code), Instant.parse(observation.timestamp), eventId)
+                                }
+                                runtime.after(runtime.core())
+                                true
+                            }
+                            if (!recorded || WhatsAppSharingRuntime.current !== session || !isActive || !WhatsAppSharingRuntime.allowed(this@WhatsAppSharingService)) break
+                            observation.preview?.let { preview ->
+                                WhatsAppSharingState.message = "Enviando vista previa al servidor."
+                                sharingRequest { api.sendWhatsAppPreview(stored.deviceToken, stored.deviceId, id, preview) }
+                                WhatsAppSharingState.previewsUploaded++
+                            }
+                            // WorkManager handles durable metadata separately; preview text stays in RAM.
+                            WhatsAppSharingState.message = if (observation.preview != null)
+                                "Vista previa enviada al servidor. Última: ${displayFriendlyTime(observation.timestamp)}"
+                            else "Respuesta observada; evento en cola. No se comparte su texto."
+                        }
+                    } finally {
+                        heartbeat.cancelAndJoin()
                     }
                 }
             } catch(cancelled: CancellationException) { throw cancelled }

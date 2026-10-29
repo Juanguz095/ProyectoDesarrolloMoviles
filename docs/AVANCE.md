@@ -4,6 +4,28 @@ Actualización: 29 de octubre de 2026, UTC. Los registros anteriores conservan s
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
+## WhatsApp: actividad independiente y recepción visible — 29 de octubre de 2026 (America/Lima)
+
+- P5.6/P6.6/P6.4: apps 0.7.1-preview, código 10, compatibles con servidor 0.7.
+  El heartbeat antes recorría el mismo consumidor que espera runtime.gate para
+  registrar eventos. La cola durable mantiene ese bloqueo durante HTTP y puede
+  superar la expiración de 30 segundos. Se separa una tarea cada 8 segundos que
+  no adquiere ese bloqueo; fallos/cancelación cierran la sesión estructuradamente.
+- Se recoge desde el listener conectado un máximo de 20 notificaciones publicadas
+  después del consentimiento durante el handshake. No se importa historial previo.
+  Parser admite MessagingStyle vacío con extras y categoría ausente con respuesta
+  libre, manteniendo filtros de paquete/fecha/consentimiento.
+- Agente muestra contadores sin contenido sensible y estado del envío. Centro añade
+  selector de teléfono visible, actualización manual/última consulta y errores más
+  específicos. Se mantiene texto entrante efímero y límites sobre mensajes salientes.
+- Compilación y lint correctos (sin errores), auditoría APK correcta y firma
+  igual a 0.7 en ambas apps para permitir actualizar conservando datos.
+  [Registro](evidencias/WHATSAPP-0.7.1-2026-10-29.json).
+  No se ejecutan suites automáticas ni recepción real en teléfonos en esta revisión.
+  No se declara causa confirmada del dispositivo del usuario.
+- [Guía](CORRECCION_WHATSAPP_0.7.1.md). P8.2/P8.3: preparar los dos APK; no hay API,
+  BD ni ZIP Windows nuevo. Siguiente P7.6: confirmar recepción autorizada real.
+
 ## Revisión completa del ZIP en Defender — 29 de octubre de 2026 (America/Lima)
 
 - P7.4/P8.3: ejecución `40825372845` completada en Windows Server 2022 sobre el

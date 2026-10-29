@@ -21,7 +21,8 @@ object WhatsAppNotificationParser {
         val n=sbn.notification
         if(n.flags and Notification.FLAG_GROUP_SUMMARY!=0) return emptyList()
         val style=NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(n)
-        if(style==null && n.category!=Notification.CATEGORY_MESSAGE) return emptyList()
+        val replyable=n.actions?.any { action -> action.remoteInputs?.any { it.allowFreeFormInput }==true }==true
+        if(style==null && n.category!=Notification.CATEGORY_MESSAGE && !(n.category==null && replyable)) return emptyList()
         fun observation(time: Long,title: String,text: CharSequence?,local: Boolean): WhatsAppObservation? {
             if(time<startedAt || time>now+300000 || text.isNullOrBlank()) return null
             val timestamp=Instant.ofEpochMilli(time).toString()
@@ -36,7 +37,7 @@ object WhatsAppNotificationParser {
             return WhatsAppObservation(key,timestamp,direction,
                 if(local) "whatsapp_reply_observed" else "whatsapp_notification_received",preview)
         }
-        if(style!=null) return style.messages.mapNotNull { message ->
+        if(style!=null && style.messages.isNotEmpty()) return style.messages.mapNotNull { message ->
             val sender=message.person
             // A name match alone is ambiguous: a contact may have the same name
             // as the owner. Only a null sender or explicit matching keys identify self.

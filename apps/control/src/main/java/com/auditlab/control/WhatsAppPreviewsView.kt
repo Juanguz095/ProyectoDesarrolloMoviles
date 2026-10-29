@@ -35,8 +35,10 @@ private fun WhatsAppMessagesContent(session: ControlSession,device: String?,onBa
         window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         onDispose { if(!alreadySecure) window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE) }
     }
+    var refreshKey by remember(device) { mutableStateOf(0) }
+    var lastChecked by remember(device) { mutableStateOf<String?>(null) }
     var error by remember(device) { mutableStateOf<String?>(null) }
-    LaunchedEffect(device,session.signedIn,foreground) {
+    LaunchedEffect(device,session.signedIn,foreground,refreshKey) {
         if(device!=null && session.signedIn && foreground) while(isActive && foreground && session.signedIn) {
             try {
                 val latest=session.whatsAppPreviewSnapshot(device)
@@ -44,6 +46,7 @@ private fun WhatsAppMessagesContent(session: ControlSession,device: String?,onBa
                 // Never repopulate sensitive state after the lifecycle cleared it.
                 snapshot=if(foreground && session.signedIn) latest else null
                 error=null
+                lastChecked=java.time.Instant.now().toString()
             }
             catch(cancelled: CancellationException) { throw cancelled }
             catch(failure: Exception) {
@@ -51,7 +54,9 @@ private fun WhatsAppMessagesContent(session: ControlSession,device: String?,onBa
                 error=when {
                     failure is ApiException && failure.code=="DEVICE_REVOKED" -> "Dispositivo revocado. Las vistas previas dejaron de estar disponibles."
                     failure is ApiException && failure.status==401 -> "Sesión vencida. Inicia sesión de nuevo."
-                    failure is ApiException && failure.status==404 -> "Actualiza el servidor de AuditLab para consultar estas vistas previas."
+                    failure is ApiException && failure.status==404 -> "El servidor no encontró este teléfono o la función WhatsApp (404). Comprueba el teléfono seleccionado y la versión del servidor."
+                    failure is ApiException && failure.status==403 -> "Tu sesión no tiene permiso para consultar este teléfono (403)."
+                    failure is ApiException && failure.status>=500 -> "Error del servidor (${failure.status}). Revisa que la API siga funcionando."
                     failure is ApiException && failure.isNetwork -> "Sin conexión con el servicio. Se ocultaron las vistas previas."
                     else -> "No se pudieron consultar las vistas previas. Revisa la sesión y la conexión."
                 }
@@ -62,6 +67,8 @@ private fun WhatsAppMessagesContent(session: ControlSession,device: String?,onBa
     if(!compact) {AuditHeader("WHATSAPP","VISTAS PREVIAS AUTORIZADAS");AuditLink("← Volver al dispositivo",onBack)}
     else Text("Mensajes recientes de WhatsApp",style=MaterialTheme.typography.titleMedium)
     Text("Texto disponible en notificaciones nuevas; no es el historial completo del chat. Solo se comparte si el propietario activa la sesión en el Agente.")
+    AuditLink("Actualizar WhatsApp",{refreshKey++},device!=null && !session.busy)
+    lastChecked?.let {Text("Última consulta: ${displayFriendlyTime(it)}",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)}
     AuditRule()
     error?.let { AuditNotice(it) }
     if(device==null) AuditEmpty("SIN DISPOSITIVO","Selecciona un dispositivo inscrito.")

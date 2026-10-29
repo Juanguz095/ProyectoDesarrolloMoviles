@@ -128,8 +128,13 @@ internal fun EventExplorer(session: ControlSession, scope: CoroutineScope, onExp
     }
     if(session.query.category=="whatsapp") {
         val target=session.query.device ?: session.devices.singleOrNull {it.isActive}?.deviceId
-        if(target==null) Text("Selecciona un teléfono en Filtrar eventos para consultar sus mensajes de WhatsApp.")
+        AuditChoice("Teléfono para WhatsApp", target?.let(session::deviceName) ?: "Selecciona un teléfono",
+            session.devices.filter { it.isActive }.map { it.deviceId to session.deviceName(it.deviceId) },!session.busy) {
+            session.applyFilters(session.query.copy(device=it),scope)
+        }
+        if(target==null) Text("Selecciona el teléfono que tiene el Agente para consultar sus notificaciones autorizadas.")
         else WhatsAppMessagesInline(session,target)
+        AuditLink("Actualizar teléfonos",{session.refresh(scope)},!session.busy)
     }
     AuditButton(if(showFilters) "Ocultar filtros" else "Filtrar eventos",{showFilters=!showFilters},!session.busy,outlined=true)
     if(showFilters) {

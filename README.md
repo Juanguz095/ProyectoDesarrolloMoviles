@@ -17,22 +17,23 @@ Una API central autentica las conexiones, recibe los eventos y registra las cons
 
 ## Descargas
 
-**Versión actual: 0.7.0-preview · Android 8.0 o superior.**
+**Apps actuales: 0.7.1-preview · Servidor compatible: 0.7 · Android 8.0 o superior.**
 
 | Componente | Instalación | Descargar |
 | --- | --- | --- |
-| Agente | Dispositivo que comparte información | [APK Agente](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.7.0-preview.apk) |
-| Centro de control | Dispositivo desde el que se consulta | [APK Centro](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.7.0-preview.apk) |
+| Agente | Dispositivo que comparte información | [APK Agente](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.7.1-preview.apk) |
+| Centro de control | Dispositivo desde el que se consulta | [APK Centro](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.7.1-preview.apk) |
 | Servidor Windows | PC que ejecuta la API y la base de datos | [Servidor Windows 0.7](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.7.0-preview.zip) |
 
-**Actualiza las dos aplicaciones y el servidor a 0.7.** El historial de
-comunicaciones y los números opcionales requieren la API nueva y V9.
-Conserva `.auditlab-windows`, su configuración y los datos al actualizar.
+**Corrección WhatsApp 0.7.1:** instala los dos APK como actualización. Compatible
+con servidor 0.7 y datos/configuración existentes. El ZIP Windows 0.7 conserva los
+APK anteriores; para este cambio usa los enlaces separados de Agente y Centro.
+[Qué corrige y cómo activarlo](docs/CORRECCION_WHATSAPP_0.7.1.md).
 Las APK publicadas usan firma debug; la firma de distribución sigue pendiente.
 
 [Instalación paso a paso en Windows, sin USB](docs/INICIO_WINDOWS_0.4.md) ·
 [Archivos y checksums](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/tree/descargas-auditlab) ·
-[Registro de publicación](docs/evidencias/ENTREGA-0.7.0-2026-10-28.json)
+[Registro de las apps 0.7.1](docs/evidencias/WHATSAPP-0.7.1-2026-10-29.json)
 
 ## Cambios en 0.7
 
@@ -138,6 +139,11 @@ Consulta la [guía de desarrollo](docs/desarrollo.md) para las herramientas y la
 HTTPS, respaldo y restauración.
 
 ## Estado de la versión
+
+Apps 0.7.1: compilación, lint, auditoría estática y firma de actualización correctos.
+No se ejecutaron suites automáticas ni recepción real en teléfonos en esta revisión;
+[alcance y registro](docs/evidencias/WHATSAPP-0.7.1-2026-10-29.json).
+
 
 La entrega 0.7 documenta compilación, lint, revisión estática y migración del servidor
 de desarrollo. La recepción desde WhatsApp instalado y el

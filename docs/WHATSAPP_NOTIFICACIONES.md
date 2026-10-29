@@ -1,5 +1,8 @@
 # WhatsApp — vistas previas y actividad autorizada
 
+Corrección Android 0.7.1: [actividad independiente, notificaciones durante la
+conexión y diagnóstico visible](CORRECCION_WHATSAPP_0.7.1.md). Compatible con servidor 0.7.
+
 ## Qué comparte
 
 Con la autorización del propietario del Agente, comparte el remitente/título y el

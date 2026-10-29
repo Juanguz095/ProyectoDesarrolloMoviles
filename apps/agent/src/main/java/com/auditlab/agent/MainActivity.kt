@@ -293,6 +293,13 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
                         Text("2. Notificaciones de WhatsApp",style=MaterialTheme.typography.titleMedium)
                         Text("Comparte vistas previas y registra eventos de notificaciones nuevas. Las respuestas propias se detectan solo si Android las muestra en una notificación. No recupera historial ni todos los envíos dentro del chat.")
                         Text(WhatsAppSharingState.message,color=AuditColors.Muted)
+                        if(WhatsAppSharingState.active || WhatsAppSharingState.notificationsObserved>0) {
+                            Text("Notificaciones observadas: ${WhatsAppSharingState.notificationsObserved} · Eventos reconocidos: ${WhatsAppSharingState.observationsAccepted}",style=MaterialTheme.typography.bodySmall)
+                            Text("Textos enviados al servidor: ${WhatsAppSharingState.previewsUploaded}",style=MaterialTheme.typography.bodySmall)
+                            WhatsAppSharingState.lastHeartbeat?.let {Text("Conexión confirmada: ${displayFriendlyTime(it)}",style=MaterialTheme.typography.bodySmall)}
+                            if(WhatsAppSharingState.active && WhatsAppSharingState.notificationsObserved==0) Text("Android aún no entregó una notificación nueva de WhatsApp. Los mensajes dentro de un chat abierto pueden no generar notificación.",style=MaterialTheme.typography.bodySmall)
+                            if(WhatsAppSharingState.parserFailures>0) Text("No se pudo interpretar ${WhatsAppSharingState.parserFailures} notificación(es).",color=AuditColors.Red)
+                        }
                         if(WhatsAppSharingState.active) AuditButton("Detener vistas previas de WhatsApp",session::stopWhatsAppSharing,outlined=true)
                         else onShareWhatsApp?.let {AuditButton("Configurar vistas previas de WhatsApp",it,session.visibleAvailable && !session.busy)}
                     }

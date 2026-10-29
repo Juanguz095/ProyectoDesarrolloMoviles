@@ -1,0 +1,69 @@
+{
+  "date": "2026-10-29",
+  "timezone": "America/Lima",
+  "apps_version": "0.7.1-preview",
+  "compatible_server_version": "0.7.0-preview",
+  "tasks": [
+    "P5.6",
+    "P6.6",
+    "P6.4",
+    "P8.2",
+    "P8.3"
+  ],
+  "source_base_commit": "4a800a007acee1c6b94d675505ef3b5d1c5ec49f",
+  "artifacts": [
+    {
+      "component": "agent",
+      "versionCode": 10,
+      "file": "auditlab-agent-0.7.1-preview.apk",
+      "bytes": 10281044,
+      "sha256": "629eca43164365ba59af6bae307319de17c8d25294b2d6fae4917cdaf0890c35"
+    },
+    {
+      "component": "control",
+      "versionCode": 10,
+      "file": "auditlab-control-0.7.1-preview.apk",
+      "bytes": 9712231,
+      "sha256": "4121570369db6b07e4967ac148630cd6cebbe861c4e574a042753db2a3414ca8"
+    }
+  ],
+  "checks": {
+    "build_exit_code": 0,
+    "apk_audit_exit_code": 0,
+    "lint": {
+      "agent": {
+        "Warning": 12,
+        "Information": 4
+      },
+      "control": {
+        "Warning": 6,
+        "Information": 3
+      }
+    },
+    "automated_tests_executed": false,
+    "real_whatsapp_verified": false,
+    "new_native_functional_review_executed": false,
+    "upgrade_signature_checks": {
+      "agent": {
+        "previous_and_current_signer_match": true,
+        "certificate_sha256": "970a74d96448bdf8f1efdb65396d88ac1bba6126acac4f2e40508390574cd853"
+      },
+      "control": {
+        "previous_and_current_signer_match": true,
+        "certificate_sha256": "970a74d96448bdf8f1efdb65396d88ac1bba6126acac4f2e40508390574cd853"
+      }
+    }
+  },
+  "changes": [
+    "Independent 8-second heartbeat avoids waiting for the durable event journal network gate",
+    "Collect at most 20 notifications posted during the authenticated handshake after local session consent",
+    "Message notification fallback for empty MessagingStyle or category-less explicit free-form reply action",
+    "Visible non-content diagnostics on Agent; device selection, manual refresh and last query in WhatsApp view"
+  ],
+  "limits": [
+    "Phone root cause not confirmed or reproduced remotely",
+    "No general capture of messages sent inside an open chat",
+    "Only new authorized Android notifications; previews remain ephemeral",
+    "No API/database migration or new Windows archive in this patch"
+  ]
+}
