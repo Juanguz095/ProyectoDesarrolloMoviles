@@ -21,8 +21,10 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
   [revisión 0.7.2](evidencias/WHATSAPP-EVENTOS-0.7.2-2026-10-29.json).
 - Sin suites automáticas, ejecución en dispositivos ni recepción WhatsApp real
   en esta revisión. Siguiente P7.6: verificar una notificación nueva autorizada en
-  los teléfonos del usuario. P8.2/P8.3: preparar publicación del APK y guía, sin ZIP
-  Windows nuevo. La revisión Defender histórica no cubre este APK.
+  los teléfonos del usuario. P8.2/P8.3: fuente publicada `96bd611`, APK y guía en
+  descargas `3313366`; enlace HTTP 200, tamaño y SHA256 coincidentes. Sin ZIP Windows
+  nuevo; ZIP y Agente 0.7.1 conservados sin cambios. La revisión Defender histórica
+  no cubre este APK. [Entrega](evidencias/ENTREGA-CENTRO-0.7.2-2026-10-29.json).
 
 ## Documentación consolidada y material PPT — 29 de octubre de 2026 (America/Lima)
 
