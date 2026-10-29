@@ -12,8 +12,8 @@ android {
         minSdk = 26
         targetSdk = 35
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        versionCode = 5
-        versionName = "0.4.0-preview"
+        versionCode = 6
+        versionName = "0.4.1-preview"
     }
     buildFeatures { compose = true }
     sourceSets.getByName("main").java.srcDir("../design/src/main/kotlin")

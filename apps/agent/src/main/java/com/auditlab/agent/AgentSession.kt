@@ -143,6 +143,11 @@ class AgentSession internal constructor(
         platform?.realEvents?.stop()
         "Captura real detenida. No se consultan nuevos registros del teléfono."
     }
+    fun refreshDeviceStatus(scope: CoroutineScope) = perform(scope) {
+        check(platform!=null) { "Esta función necesita el teléfono del Agente." }
+        platform.realEvents.refreshNow()
+        "Actualización solicitada. El Agente leerá la batería y enviará el estado al servidor."
+    }
     fun stopScreenSharing() { platform?.stopScreenSharing() }
     fun stopWhatsAppSharing() { platform?.stopWhatsAppSharing() }
     private fun core(): AgentCore = engine ?: (platform?.core(serverUrl) ?: AgentCore(apiFactory(serverUrl), store))

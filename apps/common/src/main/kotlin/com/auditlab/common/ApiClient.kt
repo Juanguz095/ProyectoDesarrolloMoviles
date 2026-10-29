@@ -30,6 +30,9 @@ interface AuditApi {
     fun enroll(code: String, consent: ConsentContext, appVersion: String): EnrolledDevice
     fun sendEvents(deviceToken: String, events: List<EventDraft>): IngestResult
     fun listDevices(accessToken: String, status: String? = null, limit: Int = 50): DevicePage
+    fun deviceDetail(token: String, deviceId: String): DeviceSummary =
+        listDevices(token).items.firstOrNull { it.deviceId == deviceId }
+            ?: throw ApiException(404, "RESOURCE_NOT_FOUND", null, "Dispositivo no disponible")
     fun listEvents(accessToken: String, deviceId: String? = null, limit: Int = 50): EventPage
     fun devicePage(token: String, status: String?, cursor: String?, limit: Int = 50): DevicePage {
         check(cursor == null); return listDevices(token, status, limit)
@@ -159,6 +162,9 @@ class ApiClient(
             body = JSONObject().put("events", array).toString()))
         return IngestResult(accepted = node.optInt("accepted"), duplicates = node.optInt("duplicates"))
     }
+
+    override fun deviceDetail(token: String, deviceId: String): DeviceSummary =
+        JSONArray().put(JSONObject(request("GET", "/v1/devices/${encode(deviceId)}", token))).toDevices().single()
 
     override fun listDevices(accessToken: String, status: String?, limit: Int): DevicePage {
         val query = buildString {

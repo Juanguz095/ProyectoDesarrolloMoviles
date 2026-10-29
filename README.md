@@ -8,21 +8,33 @@ Una API central autentica las conexiones, recibe los eventos y registra las cons
 
 ## Descargas
 
-**Versión actual: 0.4.0-preview · Android 8.0 o superior.**
+**Aplicaciones 0.4.1-preview · Servidor compatible 0.4.0-preview · Android 8.0 o superior.**
 
 | Componente | Instalación | Descargar |
 | --- | --- | --- |
-| Agente | Dispositivo que comparte información | [APK Agente](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.4.0-preview.apk) |
-| Centro de control | Dispositivo desde el que se consulta | [APK Centro](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.4.0-preview.apk) |
+| Agente | Dispositivo que comparte información | [APK Agente](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.4.1-preview.apk) |
+| Centro de control | Dispositivo desde el que se consulta | [APK Centro](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.4.1-preview.apk) |
 | Servidor Windows | PC que ejecuta la API y la base de datos | [Servidor y aplicaciones](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.4.0-preview.zip) |
 
-**Actualiza las dos aplicaciones y el servidor a la misma versión.** El servidor
-0.3 no incluye los endpoints de pantalla compartida y notificaciones de WhatsApp.
+**Actualiza ambos APK a 0.4.1. Puedes conservar tu servidor 0.4.0, su URL y los datos.**
+El ZIP del servidor contiene los APK 0.4.0 anteriores: descarga los APK 0.4.1 de
+esta tabla. El servidor 0.3 requiere actualizarse a 0.4.0 para pantalla y WhatsApp.
 Las APK publicadas usan firma debug; la firma de distribución sigue pendiente.
 
 [Instalación paso a paso en Windows, sin USB](docs/INICIO_WINDOWS_0.4.md) ·
 [Archivos y checksums](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/tree/descargas-auditlab) ·
 [Registro de publicación](docs/evidencias/ENTREGA-0.4.0-2026-10-29.json)
+
+## Cambios en 0.4.1
+
+- Centro con actualización automática cada 10 segundos y botón **Actualizar ahora**.
+- Batería con porcentaje grande, hora de lectura y aviso cuando el dato es antiguo.
+- Eventos en tarjetas con nombres legibles, fecha local y filtros desplegables.
+- Agente con activación visible de batería/eventos y botón **Enviar estado ahora**.
+- Lectura de batería mediante el estado de Android, renovación cada minuto aunque
+  el valor no cambie y captura independiente de errores de los proveedores SMS/llamadas.
+
+[Cómo activar la actualización y qué comprobar](docs/ACTUALIZACION_0.4.1.md).
 
 ## Funciones
 
@@ -115,7 +127,11 @@ HTTPS, respaldo y restauración.
 
 ## Estado de la versión
 
-La validación registrada para 0.4 incluye **197 pruebas JVM/Robolectric/PostgreSQL**,
+En 0.4.1 se completaron compilación, lint y auditoría de los APK. Se revisó la
+apertura de las pantallas iniciales en emuladores. No se ejecutaron pruebas
+automáticas ni el recorrido funcional completo de esta actualización.
+
+La validación registrada para **0.4.0** incluye **197 pruebas JVM/Robolectric/PostgreSQL**,
 32 de herramientas, 49 de contrato y 23 respuestas verificadas contra el contrato
 con la API en ejecución. El recorrido de notificaciones entre dos emuladores aprobó
 consentimiento, permiso Android, envío, visualización y detención con entradas

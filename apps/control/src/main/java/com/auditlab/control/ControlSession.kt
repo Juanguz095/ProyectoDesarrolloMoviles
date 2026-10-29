@@ -37,6 +37,85 @@ class ControlSession internal constructor(private val store: SessionStore, priva
     var eventsLoaded by mutableStateOf(false); private set
     var auditLoaded by mutableStateOf(false); private set
     var devicesUpdatedAt by mutableStateOf<String?>(null); private set
+    var dataUpdatedAt by mutableStateOf<String?>(null); private set
+    var eventsUpdatedAt by mutableStateOf<String?>(null); private set
+    var refreshing by mutableStateOf(false); private set
+    var refreshError by mutableStateOf<String?>(null); private set
+    var autoRefresh by mutableStateOf(true); private set
+    var devicePageNumber by mutableStateOf(1); private set
+    private var refreshJob: Job? = null
+    private var refreshGeneration = 0L
+    fun updateAutoRefresh(enabled: Boolean) { autoRefresh=enabled; if(!enabled) cancelRefresh() }
+    fun cancelRefresh() { refreshGeneration++; refreshJob?.cancel(); refreshJob=null; refreshing=false }
+    fun canAutoRefresh(screen: String): Boolean = when(screen) {
+        "inicio", "dispositivo" -> true
+        "eventos" -> eventPageNumber==1
+        "dispositivos" -> devicePageNumber==1
+        else -> false
+    }
+
+    /** Refresh current data without erasing the previous successful view or filter drafts.
+     * User actions cancel this job; generations also reject late HTTP responses. */
+    fun refreshVisible(screen: String, deviceId: String?, scope: CoroutineScope, automatic: Boolean = false) {
+        if(!signedIn || storageBlocked || busy || refreshing || screen !in setOf("inicio","dispositivo","dispositivos","eventos")) return
+        if(automatic && !canAutoRefresh(screen)) return
+        val generation=++refreshGeneration
+        val filter=query
+        val engine=try { core() } catch(error: Exception) {
+            storageBlocked=true;clearViews()
+            refreshError="No se pudo abrir la sesión protegida. Borra la sesión local para volver a entrar."
+            return
+        }
+        refreshing=true; refreshError=null
+        refreshJob=scope.launch {
+            try {
+                val update=withContext(Dispatchers.IO) {
+                    val page=if(screen=="dispositivos" || screen=="inicio" && deviceId==null) engine.devicePage(status,null) else null
+                    val selected=if(screen in setOf("inicio","dispositivo"))
+                        deviceId?.let(engine::device) ?: page?.items?.firstOrNull() else null
+                    val recent=selected?.let { engine.eventPage(EventQuery(device=it.deviceId),null) }
+                    val reading=selected?.let { engine.eventPage(EventQuery(device=it.deviceId,category="device_status"),null) }
+                    val history=if(screen=="eventos") engine.eventPage(filter,null) else null
+                    FreshView(page,selected,recent,reading,history)
+                }
+                if(generation!=refreshGeneration || !signedIn) return@launch
+                val stamp=java.time.Instant.now().toString()
+                update.page?.let { devices=it.items;deviceCursor=it.nextCursor;devicesLoaded=true;devicePageNumber=1;devicesUpdatedAt=stamp }
+                update.selected?.let { selected ->
+                    devices=if(devices.any { it.deviceId==selected.deviceId }) devices.map { if(it.deviceId==selected.deviceId) selected else it }
+                        else devices+selected
+                    overviewDevice=selected.deviceId
+                    overviewEvents=update.recent?.items.orEmpty()
+                    overviewReading=update.readings?.items?.filter { !it.isSimulated }
+                        ?.maxByOrNull { java.time.Instant.parse(it.timestamp) }
+                    overviewLoaded=true
+                }
+                update.history?.let { events=it.items;eventCursor=it.nextCursor;eventsLoaded=true;eventPageNumber=1;eventsUpdatedAt=stamp }
+                dataUpdatedAt=stamp
+            } catch(cancelled: CancellationException) { throw cancelled }
+            catch(error: Exception) {
+                if(generation==refreshGeneration) {
+                    refreshError=when {
+                        error is StorageFailure -> "No se pudo leer la sesión protegida. Inicia sesión nuevamente."
+                        error is ApiException && error.status==401 -> "La sesión venció. Vuelve a iniciar sesión."
+                        error is ApiException && error.code=="TLS_ERROR" -> "El certificado del servidor fue rechazado."
+                        error is ApiException && error.status==404 -> "Este dispositivo ya no está disponible. Actualiza la lista de equipos."
+                        else -> "No se pudo actualizar. Comprueba Internet, Tailscale y el servidor. Se muestran los últimos datos recibidos."
+                    }
+                    if(error is StorageFailure) storageBlocked=true
+                }
+            } finally {
+                if(generation==refreshGeneration) {
+                    signedIn=engine.isSignedIn && !storageBlocked
+                    username=engine.session?.username.orEmpty();role=engine.session?.role.orEmpty()
+                    if(!signedIn) clearViews()
+                    refreshing=false
+                }
+            }
+        }
+    }
+    private data class FreshView(val page: DevicePage?, val selected: DeviceSummary?,
+        val recent: EventPage?, val readings: EventPage?, val history: EventPage?)
     var busy by mutableStateOf(false); private set
     var revokeTarget by mutableStateOf<String?>(null); private set
     var logoutConfirmation by mutableStateOf(false); private set
@@ -81,7 +160,7 @@ class ControlSession internal constructor(private val store: SessionStore, priva
     fun refresh(scope: CoroutineScope) = run(scope) {
         val page = core().devicePage(status, null)
         return@run { devices = page.items; deviceCursor = page.nextCursor; devicesLoaded = true
-            devicesUpdatedAt = java.time.Instant.now().toString(); clearOverview()
+            devicePageNumber=1;devicesUpdatedAt = java.time.Instant.now().toString(); clearOverview()
             message = "Actualizado: ${page.items.size} dispositivo(s) en esta página." }
     }
     fun filterDevices(value: String?, scope: CoroutineScope) {
@@ -92,7 +171,7 @@ class ControlSession internal constructor(private val store: SessionStore, priva
     fun moreDevices(scope: CoroutineScope) = run(scope) {
         val cursor = deviceCursor ?: error("No hay más dispositivos")
         val page = core().devicePage(status, cursor)
-        return@run { devices = page.items; deviceCursor = page.nextCursor; devicesLoaded = true
+        return@run { devices = page.items; deviceCursor = page.nextCursor; devicesLoaded = true; devicePageNumber++
             devicesUpdatedAt = java.time.Instant.now().toString() }
     }
     /** Separate dashboard data from history filters/cursors. Every query remains audited by the API. */
@@ -106,6 +185,7 @@ class ControlSession internal constructor(private val store: SessionStore, priva
                 overviewEvents = recent.items
                 overviewReading = readings.items.filter { !it.isSimulated }.maxByOrNull { java.time.Instant.parse(it.timestamp) }
                 overviewLoaded = true
+                dataUpdatedAt=java.time.Instant.now().toString()
             }
         }
     }
@@ -120,7 +200,7 @@ class ControlSession internal constructor(private val store: SessionStore, priva
     fun moreEvents(scope: CoroutineScope) = loadEvents(scope, true)
     private fun loadEvents(scope: CoroutineScope, more: Boolean) = run(scope) {
         val page = core().eventPage(query, if (more) eventCursor ?: error("No hay más eventos") else null)
-        return@run { events = page.items; eventsLoaded = true; if (more) eventPageNumber++
+        return@run { events = page.items; eventsLoaded = true; eventsUpdatedAt=java.time.Instant.now().toString(); if (more) eventPageNumber++
           eventCursor = page.nextCursor; message = "Historial actualizado: ${events.size} evento(s)." }
     }
     fun showDetail(event: AuditEvent, scope: CoroutineScope) = run(scope) {
@@ -158,10 +238,12 @@ class ControlSession internal constructor(private val store: SessionStore, priva
     private fun clearViews() { signedIn = false; username = ""; role = ""; devices = emptyList(); events = emptyList()
         audit = emptyList(); detail = null; lastReportUri = null; revokeTarget = null; logoutConfirmation = false; query = EventQuery(); selectedDevice = null; enrollmentCode = null
         deviceCursor = null; eventCursor = null; auditCursor = null; clearOverview()
-        eventPageNumber = 1; devicesLoaded = false; eventsLoaded = false; auditLoaded = false; devicesUpdatedAt = null }
+        eventPageNumber = 1;devicePageNumber=1; devicesLoaded = false; eventsLoaded = false; auditLoaded = false; devicesUpdatedAt = null
+        dataUpdatedAt=null;eventsUpdatedAt=null }
     private fun run(scope: CoroutineScope, block: () -> (() -> Unit)) {
         if (busy) return
-        busy = true; message = null
+        cancelRefresh()
+        busy = true; message = null;refreshError=null
         scope.launch {
             try { val publish = withContext(Dispatchers.IO) { block() }; publish() }
             catch (error: ApiException) {

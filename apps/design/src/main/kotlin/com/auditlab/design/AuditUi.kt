@@ -50,6 +50,10 @@ private fun mono(size: Int, line: Int, bold: Boolean = false) = TextStyle(
     fontFamily = FontFamily.Monospace, fontSize = size.sp, lineHeight = line.sp,
     fontWeight = if (bold) FontWeight.Bold else FontWeight.Normal,
 )
+private fun readable(size: Int, line: Int, bold: Boolean = false) = TextStyle(
+    fontFamily=FontFamily.SansSerif,fontSize=size.sp,lineHeight=line.sp,
+    fontWeight=if(bold) FontWeight.SemiBold else FontWeight.Normal,
+)
 
 @Composable
 fun AuditTheme(content: @Composable () -> Unit) {
@@ -77,10 +81,10 @@ fun AuditTheme(content: @Composable () -> Unit) {
         ),
         typography = Typography(
             headlineLarge = mono(26, 32, true), headlineMedium = mono(23, 29, true),
-            titleLarge = mono(19, 25, true), titleMedium = mono(16, 22, true),
-            titleSmall = mono(14, 20, true), bodyLarge = mono(14, 21),
-            bodyMedium = mono(12, 18), bodySmall = mono(11, 17),
-            labelLarge = mono(11, 16, true), labelMedium = mono(10, 15), labelSmall = mono(10, 15),
+            titleLarge = readable(21, 28, true), titleMedium = readable(18, 24, true),
+            titleSmall = readable(16, 22, true), bodyLarge = readable(16, 24),
+            bodyMedium = readable(14, 21), bodySmall = readable(12, 18),
+            labelLarge = readable(13, 18, true), labelMedium = readable(12, 17), labelSmall = readable(11, 16),
         ),
         shapes = Shapes(RoundedCornerShape(0.dp), RoundedCornerShape(0.dp), RoundedCornerShape(0.dp), RoundedCornerShape(0.dp), RoundedCornerShape(0.dp)),
         content = content,
@@ -142,7 +146,7 @@ fun AuditRule() = HorizontalDivider(color = AuditColors.Ink, thickness = 0.7.dp)
 
 @Composable
 fun AuditPanel(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
-    Column(modifier.fillMaxWidth().background(AuditColors.Panel).border(0.7.dp, AuditColors.Ink)
+    Column(modifier.fillMaxWidth().background(AuditColors.Panel,RoundedCornerShape(8.dp)).border(0.7.dp, AuditColors.Muted,RoundedCornerShape(8.dp))
         .padding(15.dp), verticalArrangement = Arrangement.spacedBy(10.dp), content = content)
 }
 
@@ -199,10 +203,11 @@ fun AuditStatus(text: String, active: Boolean) {
 
 @Composable
 fun BatteryMeter(percent: Int?) {
-    Box(Modifier.width(190.dp).height(12.dp).border(0.7.dp, AuditColors.Ink).padding(2.dp)) {
-        if (percent != null && percent > 0) Box(Modifier.fillMaxHeight().fillMaxWidth(percent.coerceIn(0, 100) / 100f).background(AuditColors.Ink))
+    val valid=percent?.takeIf { it in 0..100 }
+    Text(valid?.let { "$it %" } ?: "Sin lectura de batería",style=MaterialTheme.typography.headlineLarge)
+    Box(Modifier.fillMaxWidth().height(14.dp).border(0.7.dp, AuditColors.Muted,RoundedCornerShape(4.dp)).padding(2.dp)) {
+        if (valid != null && valid > 0) Box(Modifier.fillMaxHeight().fillMaxWidth(valid / 100f).background(if(valid<=20) AuditColors.Red else AuditColors.Green))
     }
-    Text(percent?.let { "$it %" } ?: "Sin datos recibidos", style = MaterialTheme.typography.titleSmall)
 }
 
 @Composable
@@ -225,6 +230,26 @@ fun displayClock(value: String?): String = value?.let {
     runCatching { DateTimeFormatter.ofPattern("HH:mm:ss 'UTC'").withZone(ZoneOffset.UTC).format(Instant.parse(it)) }
         .getOrDefault(it)
 } ?: "Sin datos recibidos"
+
+/** Presentation only; API timestamps and filter boundaries remain UTC. */
+fun displayLocalTime(value: String?): String = value?.let {
+    runCatching { DateTimeFormatter.ofPattern("dd/MM/yyyy · HH:mm:ss z",java.util.Locale.forLanguageTag("es"))
+        .withZone(java.time.ZoneId.systemDefault()).format(Instant.parse(it)) }.getOrDefault(it)
+} ?: "Aún sin lectura"
+
+fun displayLocalClock(value: String): String = runCatching {
+    DateTimeFormatter.ofPattern("HH:mm:ss").withZone(java.time.ZoneId.systemDefault()).format(Instant.parse(value))
+}.getOrDefault("hora no disponible")
+
+fun displayLocalDay(value: String): String = runCatching {
+    val day=Instant.parse(value).atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+    val today=java.time.LocalDate.now()
+    when(day) {
+        today -> "Hoy"
+        today.minusDays(1) -> "Ayer"
+        else -> day.format(DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy",java.util.Locale.forLanguageTag("es")))
+    }
+}.getOrDefault("Fecha no disponible")
 
 fun networkLabel(value: Any?): String = when (value) {
     "online" -> "Conexión disponible"

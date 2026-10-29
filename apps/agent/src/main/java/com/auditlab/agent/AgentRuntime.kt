@@ -7,6 +7,7 @@ import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.os.BatteryManager
@@ -140,7 +141,11 @@ class AgentRuntime private constructor(private val context: android.app.Applicat
         put("appEventCode", "agent_started")
         val connected = runCatching { context.getSystemService(ConnectivityManager::class.java).activeNetwork != null }.getOrNull()
         put("networkState", when (connected) { true -> "online"; false -> "offline"; null -> "unknown" })
-        val battery = context.getSystemService(BatteryManager::class.java).getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+        val sticky=runCatching { context.registerReceiver(null,IntentFilter(Intent.ACTION_BATTERY_CHANGED)) }.getOrNull()
+        val level=sticky?.getIntExtra(BatteryManager.EXTRA_LEVEL,-1) ?: -1
+        val scale=sticky?.getIntExtra(BatteryManager.EXTRA_SCALE,-1) ?: -1
+        val battery=if(level>=0 && scale>0) ((level.toDouble()/scale)*100).toInt()
+            else context.getSystemService(BatteryManager::class.java).getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
         if (battery in 0..100) put("batteryPercent", battery)
     }
     companion object {

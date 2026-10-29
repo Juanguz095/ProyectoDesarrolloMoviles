@@ -58,6 +58,9 @@ class AgentScreenTest {
 
     /** Desplaza hasta el control y lo pulsa: el contenido está en una columna con scroll. */
     private fun tap(text: String) {
+        if(text=="GENERAR EVENTO SIMULADO" && compose.onAllNodesWithText(text).fetchSemanticsNodes().isEmpty()) {
+            tap("Herramientas de conexión")
+        }
         val clickable = hasText(text) and hasClickAction()
         val scrollable = clickable and hasAnyAncestor(hasScrollAction())
         if (compose.onAllNodes(scrollable).fetchSemanticsNodes().isNotEmpty()) compose.onNode(scrollable).performScrollTo()
@@ -78,7 +81,7 @@ class AgentScreenTest {
         start(session)
         compose.onNodeWithText("ACEPTAR CONSENTIMIENTO").assertIsEnabled()
         compose.onAllNodes(hasSetTextAction()).assertCountEquals(0)
-        compose.onNodeWithText("MONITOREO").assertDoesNotExist()
+        compose.onNodeWithText("MI TELÉFONO").assertDoesNotExist()
         assertNull(session.consent); assertNull(store.load()); assertEquals(0, api.sentEvents)
         tap("ACEPTAR CONSENTIMIENTO")
         compose.onNode(hasSetTextAction() and hasContentDescription("Código de inscripción")).assertExists()
@@ -93,9 +96,9 @@ class AgentScreenTest {
         tap("ACEPTAR CONSENTIMIENTO")
         compose.onAllNodes(hasSetTextAction())[1].performScrollTo().performTextInput("x".repeat(40))
         tap("INSCRIBIR DISPOSITIVO")
-        waitFor("MONITOREO")
-        compose.onNodeWithText("LISTO PARA ACTIVAR").assertExists()
-        compose.onNodeWithText("ACTIVO").assertDoesNotExist()
+        waitFor("MI TELÉFONO")
+        compose.onNodeWithText("FALTA ACTIVAR LA CAPTURA").assertExists()
+        compose.onNodeWithText("MONITOREO ACTIVO").assertDoesNotExist()
         tap("GENERAR EVENTO SIMULADO")
         waitFor("Evento enviado: 1 aceptado(s), 0 duplicado(s).")
         assertEquals(1, api.sentEvents); assertEquals("device-token", api.sentToken)

@@ -4,6 +4,30 @@ Actualización: 29 de octubre de 2026, UTC. Los registros anteriores conservan s
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
+## Usabilidad y actualización de lecturas — 28 de octubre de 2026 (America/Lima)
+
+- P5.3/P6.2/P6.4: apps 0.4.1-preview, código 6. Paleta beige/negro conservada,
+  texto de lectura más grande, paneles, ayudas de conexión y funciones visibles.
+  Eventos con título legible, fecha/hora local, agrupación por día y filtros plegables.
+- Centro: consulta automática cada 10 segundos mientras está abierto y botón
+  Actualizar ahora. Conserva datos previos ante fallos, indica última consulta y
+  antigüedad de lectura; pausa en páginas históricas. Se cancelan respuestas tardías
+  al salir, cambiar de dispositivo o ejecutar acciones. JWT/refresh existentes.
+- Agente: captura explícita prominente, batería en Android BatteryChanged con
+  fallback BatteryManager, escucha de cambios y reconciliación cada 10 segundos;
+  renueva estado al minuto aunque sea igual. Enviar estado ahora solicita otra
+  lectura en el servicio autorizado. Errores de proveedores SMS/llamadas no omiten
+  la batería. No se amplían permisos ni se inicia captura sin autorización.
+- Compilación debug de ambas apps y lint completados (0 errores, con avisos).
+  Auditoría de APK correcta y revisión visual limitada a pantallas iniciales de AVD.
+  Selectores de pruebas existentes adaptados a la nueva navegación; no se añaden
+  casos ni se ejecutan pruebas automáticas o un recorrido funcional completo.
+- P8.2/P8.3: preparados APK 0.4.1. API y BD no cambian; servidor 0.4.0 compatible,
+  URL/credenciales/datos preservados. [Guía de actualización](ACTUALIZACION_0.4.1.md).
+  Los resultados 197/2 AVD de 0.4.0 permanecen históricos, no acreditan 0.4.1.
+- Siguiente P7.1: validar batería/eventos entre dos dispositivos con conexión real,
+  permisos denegados, fallos de red, segundo plano, filtros y cambio de páginas.
+
 ## Presentación del repositorio — 28 de octubre de 2026 (America/Lima)
 
 - P8.3: README actualizado a 0.4 con presentación de producto, funciones reales,

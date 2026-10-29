@@ -4,6 +4,8 @@ import android.Manifest
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.content.BroadcastReceiver
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.database.ContentObserver
@@ -80,6 +82,10 @@ class RealEventMonitor(private val context: Context, private val runtime: AgentR
         requested = false; running = false; deviceId = null
         context.stopService(serviceIntent)
     }
+    fun refreshNow() {
+        check(running && canCapture()) { "Activa primero la captura de batería y eventos en este teléfono." }
+        ContextCompat.startForegroundService(context,Intent(context,RealMonitoringService::class.java).setAction(RealMonitoringService.REFRESH))
+    }
     fun canCapture(): Boolean = requested && !runtime.gate.withdrawalRequested && runtime.indicator.isVisible() &&
         (runtime.core().refresh() as? AgentCore.State.Enrolled)?.deviceId == deviceId
 }
@@ -92,6 +98,8 @@ class RealMonitoringService : Service() {
     private val observers = mutableListOf<ContentObserver>()
     private var loop: Job? = null
     private var lastStatus: Map<String, Any?>? = null
+    private var lastStatusAt=0L
+    private var batteryReceiver: BroadcastReceiver?=null
     private val observedIds = mutableMapOf<String, Long>()
     private val sourceEnabledAt = mutableMapOf<Boolean, Long>()
     override fun onBind(intent: Intent?): IBinder? = null
@@ -113,8 +121,12 @@ class RealMonitoringService : Service() {
             }
             registerObserver(Telephony.Sms.CONTENT_URI)
             registerObserver(CallLog.Calls.CONTENT_URI)
+            batteryReceiver=object:BroadcastReceiver() {
+                override fun onReceive(context: Context?,intent: Intent?) { scope.launch { scan() } }
+            }.also { ContextCompat.registerReceiver(this,it,IntentFilter(Intent.ACTION_BATTERY_CHANGED),ContextCompat.RECEIVER_NOT_EXPORTED) }
             loop = scope.launch { while (isActive) { scan(); delay(10_000) } }
         }
+        if(intent?.action==REFRESH) scope.launch { scan(forceStatus=true) }
         return START_NOT_STICKY
     }
     private fun registerObserver(uri: android.net.Uri) {
@@ -124,22 +136,31 @@ class RealMonitoringService : Service() {
         try { contentResolver.registerContentObserver(uri, true, observer); observers += observer }
         catch (_: SecurityException) { /* denied sources remain explicitly unavailable */ }
     }
-    private suspend fun scan() = scanLock.withLock {
+    private suspend fun scan(forceStatus: Boolean=false) = scanLock.withLock {
         try {
             synchronized(runtime.gate) {
                 if (!runtime.realEvents.canCapture()) { runtime.realEvents.stop(); stopSelf(); return@withLock }
                 val now = System.currentTimeMillis()
                 val since = PhoneMetadata.captureSince(runtime.realEvents.startedAt, now)
                 observedIds.entries.removeAll { it.value < since }
-                readSource(true, since)
-                readSource(false, since)
+                val sourceWarnings=mutableListOf<String>()
+                for(sms in listOf(true,false)) {
+                    try { readSource(sms,since) }
+                    catch(error: SecurityException) { sourceWarnings += if(sms) "Android restringió los SMS." else "Android restringió las llamadas." }
+                    catch(error: android.database.sqlite.SQLiteException) { sourceWarnings += if(sms) "Proveedor de SMS no disponible." else "Proveedor de llamadas no disponible." }
+                    catch(error: IllegalArgumentException) { sourceWarnings += if(sms) "No se pudieron consultar SMS." else "No se pudieron consultar llamadas." }
+                    catch(error: UnsupportedOperationException) { sourceWarnings += if(sms) "Este teléfono no ofrece el proveedor de SMS." else "Este teléfono no ofrece el proveedor de llamadas." }
+                }
                 if (!runtime.realEvents.canCapture()) return@withLock
                 val status = runtime.metadata().filterKeys { it != "appEventCode" }
-                if (status != lastStatus) {
+                val elapsed=android.os.SystemClock.elapsedRealtime()
+                if (forceStatus || status != lastStatus || elapsed-lastStatusAt>=60_000) {
                     runtime.core().captureRealEvent("device_status", "occurred", status + ("appEventCode" to "device_status_changed"))
                     lastStatus = status
+                    lastStatusAt=elapsed
                 }
                 runtime.realEvents.message = "Captura real activa. ${runtime.realEvents.permissionsText()} Las llamadas aparecen al finalizar."
+                if(sourceWarnings.isNotEmpty()) runtime.realEvents.message += " "+sourceWarnings.joinToString(" ")
                 // Immediate delivery also works over USB loopback without Android's Internet
                 // validation. WorkManager retains the durable network/backoff fallback.
                 try { runtime.core().flushPending(maxBatches = 1) }
@@ -169,7 +190,7 @@ class RealMonitoringService : Service() {
         val uri = if (sms) Telephony.Sms.CONTENT_URI else CallLog.Calls.CONTENT_URI
         val active = runtime.core().refresh() as? AgentCore.State.Enrolled ?: return
         val cursor = contentResolver.query(uri, projection, "date>=?", arrayOf(maxOf(since, permittedSince).toString()), "date ASC, _id ASC")
-            ?: error("Proveedor de metadatos no disponible")
+            ?: throw IllegalArgumentException("Proveedor de metadatos no disponible")
         cursor.use {
             while (cursor.moveToNext()) {
                 if (!runtime.realEvents.hasPermission(permission) || !runtime.realEvents.canCapture()) return
@@ -191,6 +212,7 @@ class RealMonitoringService : Service() {
     override fun onDestroy() {
         scope.cancel()
         observers.forEach { runCatching { contentResolver.unregisterContentObserver(it) } }
+        batteryReceiver?.let { runCatching { unregisterReceiver(it) } };batteryReceiver=null
         runtime.realEvents.running = false
         // Detach the existing indicator; pause/withdrawal owns its explicit removal.
         stopForeground(STOP_FOREGROUND_DETACH)
@@ -198,4 +220,5 @@ class RealMonitoringService : Service() {
         runtime.changes.tryEmit(Unit)
         super.onDestroy()
     }
+    companion object { const val REFRESH="com.auditlab.agent.REFRESH_DEVICE_STATE" }
 }

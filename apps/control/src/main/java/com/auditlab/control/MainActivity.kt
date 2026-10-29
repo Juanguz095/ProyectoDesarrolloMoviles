@@ -6,6 +6,7 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -17,6 +18,8 @@ import androidx.compose.ui.unit.dp
 import com.auditlab.common.*
 import com.auditlab.design.*
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 
 class ControlViewModel(application: android.app.Application) : androidx.lifecycle.AndroidViewModel(application) {
     val session = ControlSession(application)
@@ -76,14 +79,33 @@ internal fun ControlScreen(session: ControlSession, onExport: (() -> Unit)? = nu
     var user by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val currentDevice = session.devices.firstOrNull { it.deviceId == chosenDevice } ?: session.devices.firstOrNull()
+    val lifecycle=(LocalActivity.current as? androidx.lifecycle.LifecycleOwner)?.lifecycle
+    var foreground by remember { mutableStateOf(lifecycle?.currentState?.isAtLeast(androidx.lifecycle.Lifecycle.State.STARTED)!=false) }
+    DisposableEffect(lifecycle) {
+        val observer=androidx.lifecycle.LifecycleEventObserver { _,event ->
+            if(event==androidx.lifecycle.Lifecycle.Event.ON_START) foreground=true
+            if(event==androidx.lifecycle.Lifecycle.Event.ON_STOP) { foreground=false;session.cancelRefresh() }
+        }
+        lifecycle?.addObserver(observer)
+        onDispose { lifecycle?.removeObserver(observer);session.cancelRefresh() }
+    }
+    LaunchedEffect(screen,currentDevice?.deviceId,session.signedIn,foreground,session.autoRefresh) {
+        session.cancelRefresh()
+        if(foreground && session.signedIn && session.autoRefresh) {
+            while(isActive && foreground) {
+                session.refreshVisible(screen,currentDevice?.deviceId,composeScope,automatic=true)
+                delay(10_000)
+            }
+        }
+    }
     LaunchedEffect(session.signedIn) {
         if (session.signedIn) {
             password = ""; user = ""
             if (!session.devicesLoaded && !session.busy) session.refresh(scope)
         } else { screen = "inicio"; chosenDevice = null }
     }
-    LaunchedEffect(screen, currentDevice?.deviceId, session.overviewDevice, session.busy, session.signedIn) {
-        if (screen == "inicio" && session.signedIn && !session.busy && currentDevice != null && session.overviewDevice != currentDevice.deviceId)
+    LaunchedEffect(screen, currentDevice?.deviceId, session.overviewDevice, session.busy, session.signedIn,foreground,session.refreshing) {
+        if (screen in setOf("inicio","dispositivo") && session.signedIn && foreground && !session.busy && !session.refreshing && currentDevice != null && session.overviewDevice != currentDevice.deviceId)
             session.loadOverview(currentDevice.deviceId, scope)
     }
     BackHandler(session.signedIn && screen != "inicio") {
@@ -117,9 +139,11 @@ internal fun ControlScreen(session: ControlSession, onExport: (() -> Unit)? = nu
             AuditHeader("AUDITLAB", "CENTRO DE CONTROL")
             Spacer(Modifier.height(10.dp))
             Text("INICIAR SESIÓN", style = MaterialTheme.typography.titleLarge)
-            Text("Consulta los dispositivos y eventos autorizados de tu grupo.", color = AuditColors.Muted)
+            Text("Conecta con el servidor para ver tus dispositivos.", color = AuditColors.Muted)
+            session.refreshError?.let { AuditNotice(it) }
             AuditField("URL del servicio", session.serverUrl, session::updateServerUrl, !session.busy && !session.storageBlocked,
                 placeholder = "https://tu-servidor")
+            Text("Pega la dirección HTTPS de tu PC, sin /ready ni /v1. En los teléfonos, 127.0.0.1 apunta al propio teléfono.",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
             AuditField("Usuario", user, { user = it }, !session.busy)
             AuditField("Contraseña", password, { password = it }, !session.busy, secret = true)
             AuditButton(if (session.busy) "Conectando…" else "Iniciar sesión", { session.login(user.trim(), password, scope) },
@@ -128,7 +152,8 @@ internal fun ControlScreen(session: ControlSession, onExport: (() -> Unit)? = nu
             Text("Acceso por rol: administrador o auditor. Todas las consultas quedan registradas.", color = AuditColors.Muted)
         } else {
             when (screen) {
-                "inicio" -> Dashboard(session, currentDevice, scope, onEvents = { openEvents(currentDevice?.deviceId) })
+                "inicio" -> Dashboard(session, currentDevice, scope, onEvents = { openEvents(currentDevice?.deviceId) },
+                    onDevice={screen="dispositivo"},onChoose={chosenDevice=it})
                 "eventos" -> EventExplorer(session, scope, onExport, onOpenReport)
                 "whatsapp" -> WhatsAppPreviewsView(session,currentDevice?.deviceId) { screen="dispositivo" }
                 "dispositivos" -> DeviceList(session, scope) { id -> chosenDevice = id; screen = "dispositivo" }
@@ -140,11 +165,13 @@ internal fun ControlScreen(session: ControlSession, onExport: (() -> Unit)? = nu
                 "auditoria" -> AuditHistory(session, scope) { screen = "mas" }
                 "inscripcion" -> EnrollmentView(session, scope) { screen = "mas" }
                 else -> {
-                    AuditHeader("MÁS", "CUENTA Y ADMINISTRACIÓN")
+                    AuditHeader("AJUSTES", "CUENTA, SERVIDOR Y DISPOSITIVOS")
                     AuditPanel {
                         Text(session.username, style = MaterialTheme.typography.titleMedium)
                         Text("Rol: ${if (session.isAdmin) "administrador" else "auditor"}")
+                        Text("Servidor conectado",style=MaterialTheme.typography.labelMedium)
                         Text(session.serverUrl, color = AuditColors.Muted)
+                        Text("Para cambiar la dirección del servidor, cierra sesión y edita URL del servicio al volver a entrar.",style=MaterialTheme.typography.bodySmall)
                     }
                     AuditButton("Consultar auditoría", { session.loadAudit(scope); screen = "auditoria" }, !session.busy)
                     if (session.isAdmin) AuditButton("Crear código de inscripción", { screen = "inscripcion" }, !session.busy)
@@ -185,8 +212,8 @@ private fun EventDetail(event: AuditEvent, onClose: () -> Unit) {
             Text(eventTitle(event), style = MaterialTheme.typography.titleMedium)
             Text(if (event.isSimulated) "Evento simulado" else "Evento real del dispositivo")
             AuditRule()
-            SectionLabel("Fecha del evento"); Text(displayTime(event.timestamp))
-            SectionLabel("Recibido por el servidor"); Text(displayTime(event.receivedAt))
+            SectionLabel("Fecha del evento"); Text(displayLocalTime(event.timestamp))
+            SectionLabel("Recibido por el servidor"); Text(displayLocalTime(event.receivedAt))
             SectionLabel("Dispositivo"); Text(event.sourceDevice)
             SectionLabel("Identificador del evento"); Text(event.eventId)
             metadataDescription(event.metadata).takeIf { it.isNotEmpty() }?.let { Text(it) }

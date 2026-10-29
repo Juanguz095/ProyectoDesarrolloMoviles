@@ -31,6 +31,9 @@ class NativeAgentFlowTest {
     private fun api() = ApiClient(config().getString("url"))
     private fun control(): ControlCore = ControlCore(api()).also { it.login("qa_admin", config().getString("password")) }
     private fun tap(text: String) {
+        if(text=="GENERAR EVENTO SIMULADO" && compose.onAllNodesWithText(text).fetchSemanticsNodes().isEmpty()) {
+            tap("Herramientas de conexión")
+        }
         compose.waitUntil(45_000) {
             compose.onAllNodesWithText(text).fetchSemanticsNodes().any {
                 !it.config.contains(androidx.compose.ui.semantics.SemanticsProperties.Disabled)
@@ -95,6 +98,7 @@ class NativeAgentFlowTest {
             .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_REORDER_TO_FRONT))
     }
     private fun assertCaptureDisabled() {
+        if(compose.onAllNodesWithText("GENERAR EVENTO SIMULADO").fetchSemanticsNodes().isEmpty()) tap("Herramientas de conexión")
         compose.waitUntil(15_000) {
             compose.onAllNodesWithText("GENERAR EVENTO SIMULADO").fetchSemanticsNodes().any {
                 it.config.contains(androidx.compose.ui.semantics.SemanticsProperties.Disabled)
@@ -118,7 +122,7 @@ class NativeAgentFlowTest {
                     val code = admin.createEnrollmentCode().code
                                         tap("ACEPTAR CONSENTIMIENTO"); waitFor("CONSENTIMIENTO REGISTRADO")
                     compose.onNode(hasSetTextAction() and hasContentDescription("Código de inscripción")).performScrollTo().performTextInput(code)
-                    tap("INSCRIBIR DISPOSITIVO"); waitFor("MONITOREO")
+                    tap("INSCRIBIR DISPOSITIVO"); waitFor("MI TELÉFONO")
                     assertEquals(AgentPhase.ACTIVE, runtime.journal.registration()?.phase)
                     assertNotNull(runtime.credentials.load())
                     assertTrue(runtime.indicator.isVisible())
@@ -128,7 +132,7 @@ class NativeAgentFlowTest {
                 } finally { admin.logout() }
             }
             "prepare-new-consent" -> {
-                waitFor("MONITOREO")
+                waitFor("MI TELÉFONO")
                 tap("RETIRAR CONSENTIMIENTO"); tap("Confirmar retirada"); waitFor("Consentimiento revocado y servidor notificado.")
                 assertEquals(AgentPhase.REVOKED, runtime.journal.registration()?.phase)
                 assertNull(runtime.credentials.load()); assertEquals(QueueStats(), runtime.journal.stats())
@@ -136,7 +140,7 @@ class NativeAgentFlowTest {
                 compose.onNodeWithText("ACEPTAR CONSENTIMIENTO").assertIsEnabled()
             }
             "restore" -> {
-                waitFor("MONITOREO")
+                waitFor("MI TELÉFONO")
                 assertEquals(AgentPhase.ACTIVE, runtime.journal.registration()?.phase)
                 assertNotNull(runtime.credentials.load())
                 assertEquals(QueueStats(0, 1, 0), runtime.journal.stats())
@@ -147,13 +151,13 @@ class NativeAgentFlowTest {
                 assertTrue(runtime.indicator.isVisible())
             }
             "offline" -> {
-                waitFor("MONITOREO")
+                waitFor("MI TELÉFONO")
                 if (!runtime.indicator.isVisible()) { tap("HABILITAR INDICADOR Y REANUDAR"); waitFor("Indicador habilitado.") }
                 tap("GENERAR EVENTO SIMULADO"); waitFor("Sin confirmación del servicio.")
                 assertEquals(QueueStats(1, 1, 0), runtime.journal.stats())
             }
             "recover" -> {
-                waitFor("MONITOREO")
+                waitFor("MI TELÉFONO")
                 assertEquals(QueueStats(1, 1, 0), runtime.journal.stats())
                 val id = runtime.journal.pending(100).single().eventId
                 tap("HABILITAR INDICADOR Y REANUDAR"); waitFor("Indicador habilitado.")
@@ -168,7 +172,7 @@ class NativeAgentFlowTest {
                 assertCaptureDisabled()
             }
             "verify-recovery" -> {
-                waitFor("MONITOREO")
+                waitFor("MI TELÉFONO")
                 assertEquals(QueueStats(0, 2, 0), runtime.journal.stats())
                 val ids = mutableSetOf<String>()
                 runtime.database.openHelper.readableDatabase.query("SELECT event_id FROM agent_outbox").use {
@@ -183,7 +187,7 @@ class NativeAgentFlowTest {
                 assertCaptureDisabled()
             }
             "permission-denied" -> {
-                waitFor("MONITOREO")
+                waitFor("MI TELÉFONO")
                 assertTrue(runtime.indicator.allowed()); assertTrue(runtime.indicator.show())
                 try {
                     openNotificationSettings()
@@ -191,7 +195,7 @@ class NativeAgentFlowTest {
                     assertTrue(toggle.isChecked)
                     assertTrue(toggle.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK))
                     compose.waitUntil(15_000) { !runtime.indicator.allowed() }
-                    returnToAgent(); waitFor("MONITOREO")
+                    returnToAgent(); waitFor("MI TELÉFONO")
                     assertFalse(runtime.indicator.allowed()); assertFalse(runtime.indicator.isVisible())
                     assertCaptureDisabled()
                     var reads = 0
@@ -207,7 +211,7 @@ class NativeAgentFlowTest {
                 }
             }
             "remote-revoked" -> {
-                waitFor("MONITOREO")
+                waitFor("MI TELÉFONO")
                 if (!runtime.indicator.isVisible()) { tap("HABILITAR INDICADOR Y REANUDAR"); waitFor("Indicador habilitado.") }
                 tap("GENERAR EVENTO SIMULADO"); waitFor("El centro de control revocó este dispositivo.")
                 assertEquals(AgentPhase.REVOKED, runtime.journal.registration()?.phase)
@@ -217,7 +221,7 @@ class NativeAgentFlowTest {
                 compose.onNodeWithText("ACEPTAR CONSENTIMIENTO").assertIsEnabled()
             }
             "withdraw-offline" -> {
-                waitFor("MONITOREO")
+                waitFor("MI TELÉFONO")
                 // A delayed request from the already revoked enrollment must not
                 // prevent the current device's privacy job from running later.
                 val previous = config().getString("previousDevice")

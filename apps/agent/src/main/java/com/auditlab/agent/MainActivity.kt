@@ -129,7 +129,7 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
         title = { Text(metadataTitle(row.event.metadata), style = MaterialTheme.typography.titleLarge) },
         text = { Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(if (row.event.isSimulated) "Simulado" else "Real")
-            Text(displayTime(row.event.timestamp))
+            Text(displayLocalTime(row.event.timestamp))
             Text(deliveryLabel(row.delivery))
             Text(metadataDescription(row.event.metadata))
             Text("ID: ${row.event.eventId}")
@@ -211,98 +211,94 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
                     if (session.recentEvents.isEmpty()) AuditEmpty("SIN ACTIVIDAD REGISTRADA", "Los nuevos eventos aparecerán aquí durante el monitoreo autorizado.")
                     session.recentEvents.forEach { row -> LocalEventRow(row) { selectedEvent = row } }
                 } else {
-                    AuditHeader("MONITOREO")
+                    AuditHeader("MI TELÉFONO", "AGENTE AUDITLAB")
+                    val active=session.visibleAvailable && session.realCaptureRunning && !session.revoking
+                    val lastSent=session.recentEvents.firstOrNull {it.delivery=="SENT"}
                     AuditPanel {
-                        val active = session.visibleAvailable && session.realCaptureRunning && !session.revoking
-                        val lastSent = session.recentEvents.firstOrNull { it.delivery == "SENT" }
                         AuditStatus(when {
-                            session.revoking -> "DETENIENDO"
-                            !session.visibleAvailable -> "PAUSADO"
-                            active -> "ACTIVO"
+                            session.revoking -> "DETENIENDO EL MONITOREO"
+                            !session.visibleAvailable -> "MONITOREO PAUSADO"
+                            active -> "MONITOREO ACTIVO"
                             session.realMonitoring -> "INICIANDO CAPTURA"
-                            else -> "LISTO PARA ACTIVAR"
-                        }, active)
-                        Text("Última sincronización ${displayClock(lastSent?.event?.timestamp)}", style = MaterialTheme.typography.bodySmall.copy(fontSize = 10.sp))
-                        if (session.stats.failed > 0) Text("${session.stats.failed} eventos rechazados", color = AuditColors.Red)
-                    }
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text("DISPOSITIVO", style = MaterialTheme.typography.titleMedium)
-                        Text("${Build.MODEL} / ${state.deviceId.take(8)}…${state.deviceId.takeLast(4)}", color = AuditColors.Muted,
-                            style = MaterialTheme.typography.titleSmall)
-                    }
-                    Column {
-                        BoxWithConstraints(Modifier.fillMaxWidth()) {
-                            if (maxWidth < 320.dp) Column(Modifier.fillMaxWidth()) {
-                                Text("ACTIVIDAD RECIENTE", style = MaterialTheme.typography.titleMedium)
-                                TextButton({ history = true }, Modifier.align(Alignment.End), contentPadding = PaddingValues(0.dp)) {
-                                    Text(">Ver todos los eventos", color = AuditColors.Red, style = MaterialTheme.typography.bodySmall)
-                                }
-                            } else Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                                Text("ACTIVIDAD RECIENTE", Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
-                                TextButton({ history = true }, contentPadding = PaddingValues(0.dp)) {
-                                    Text(">Ver todos los eventos", color = AuditColors.Red, style = MaterialTheme.typography.bodySmall)
-                                }
-                            }
+                            else -> "FALTA ACTIVAR LA CAPTURA"
+                        },active)
+                        Text(when {
+                            active -> "Este teléfono comparte batería, conexión y los metadatos que autorizaste. Puedes detenerlo cuando quieras."
+                            !session.visibleAvailable -> "Habilita la notificación visible para poder compartir información."
+                            else -> "El teléfono está vinculado. Activa la captura de abajo para que el Centro reciba batería y eventos."
+                        })
+                        Text("${Build.MODEL} · ${state.deviceId.take(8)}…${state.deviceId.takeLast(4)}",color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
+                        if(session.visibleAvailable) AuditButton("Pausar monitoreo",{session.pause(scope)},!session.busy,outlined=true)
+                        else {
+                            AuditButton("Habilitar indicador y reanudar",{onRequestNotifications?.invoke() ?: session.resume(scope)},!session.busy)
+                            onNotificationSettings?.let {AuditLink("Ajustes de notificación",it)}
                         }
-                        AuditRule()
-                        if (session.recentEvents.isEmpty()) {
-                            Spacer(Modifier.height(10.dp))
-                            Text("Sin actividad registrada.", color = AuditColors.Muted)
-                        }
-                        session.recentEvents.take(4).forEach { row -> MockupEventRow(row) { selectedEvent = row } }
                     }
-                    if (session.visibleAvailable) AuditButton("Pausar monitoreo", { session.pause(scope) }, !session.busy)
-                    else {
-                        Text("La captura y los envíos están pausados. Habilita la notificación visible para continuar.")
-                        AuditButton("Habilitar indicador y reanudar", { onRequestNotifications?.invoke() ?: session.resume(scope) }, !session.busy)
-                        onNotificationSettings?.let { AuditLink("Ajustes de notificación", it) }
-                    }
-                    AuditButton(if (session.revoking) "Retirando consentimiento…" else "Retirar consentimiento",
-                        { confirmWithdrawal = true }, !session.revoking)
-
-                    Spacer(Modifier.height(180.dp))
-                    SectionLabel("Notificaciones de WhatsApp")
-                    Text(WhatsAppSharingState.message)
-                    Text("Opción separada de compartir pantalla: solo texto de notificaciones nuevas, con autorización adicional y notificación visible.")
-                    onShareWhatsApp?.let { AuditButton("Configurar vistas previas de WhatsApp",it,session.visibleAvailable && !session.busy && !WhatsAppSharingState.active) }
-                    AuditButton("Detener vistas previas de WhatsApp",session::stopWhatsAppSharing,outlined=true)
-                    SectionLabel("Compartir pantalla")
-                    Text(ScreenSharingState.message)
-                    Text("Comparte únicamente lo que muestras. Los mensajes de WhatsApp se ven si los abres durante la sesión. Android pedirá autorización en cada sesión.")
-                    onShareScreen?.let { AuditButton("Compartir pantalla en vivo", it, session.visibleAvailable && !session.busy && !ScreenSharingState.active) }
-                    AuditButton("Detener pantalla compartida", {
-                        // Also available from the persistent notification.
-                        session.stopScreenSharing()
-                    }, outlined = true)
-                    SectionLabel("Estado del dispositivo")
                     AuditPanel {
-                        val reading = session.lastDeviceStatus
-                        SectionLabel("Última lectura real guardada")
-                        SectionLabel("Batería")
-                        BatteryMeter((reading?.metadata?.get("batteryPercent") as? Number)?.toInt())
-                        SectionLabel("Conexión")
-                        Text(networkLabel(reading?.metadata?.get("networkState")), style = MaterialTheme.typography.titleSmall)
-                        AuditRule()
-                        Text(displayTime(reading?.timestamp), color = AuditColors.Muted)
-                    }
-                    SectionLabel("Captura autorizada")
-                    AuditPanel {
-                        Text("Batería · Conexión · SMS · Llamadas", style = MaterialTheme.typography.titleSmall)
-                        Text("Solo metadatos desde la activación. Sin contenido, números ni audio. Android puede restringir SMS y llamadas.")
-                        Text(session.realStatus, color = AuditColors.Muted)
-                        if (!session.realMonitoring) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Checkbox(realAccepted, { realAccepted = it }, enabled = !session.busy)
-                                Text("Autorizo la captura y envío de estos metadatos reales.", Modifier.weight(1f))
+                        Text("1. Batería y eventos del teléfono",style=MaterialTheme.typography.titleMedium)
+                        Text("Se lee el estado cada 10 segundos y se envía cuando cambia; también se confirma al menos una vez por minuto mientras hay conexión.")
+                        Text("SMS y llamadas comparten solo tipo y fecha si concedes sus permisos. La batería funciona aunque no autorices SMS o llamadas.",color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
+                        if(!session.realMonitoring) {
+                            Row(verticalAlignment=Alignment.CenterVertically) {
+                                Checkbox(realAccepted,{realAccepted=it},enabled=!session.busy)
+                                Text("Autorizo la captura y el envío de estos metadatos reales.",Modifier.weight(1f))
                             }
                             AuditButton("Autorizar e iniciar captura real",
-                                { onRequestRealMonitoring?.invoke() ?: session.startRealMonitoring(scope) },
+                                {onRequestRealMonitoring?.invoke() ?: session.startRealMonitoring(scope)},
                                 realAccepted && session.visibleAvailable && !session.busy && !session.revoking)
-                        } else AuditButton("Detener captura real", { session.stopRealMonitoring(scope) }, !session.busy, outlined = true)
+                        } else {
+                            AuditStatus(if(session.realCaptureRunning) "CAPTURA EN EJECUCIÓN" else "INICIANDO SERVICIO",session.realCaptureRunning)
+                            AuditButton("Detener captura real",{session.stopRealMonitoring(scope)},!session.busy,outlined=true)
+                        }
+                        Text(session.realStatus,color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
                     }
-                    AuditButton(if (session.busy) "Enviando…" else "Generar evento simulado", { session.sendSimulatedEvent(scope) },
-                        !session.busy && session.visibleAvailable && !session.revoking, outlined = true)
-                    AuditLink("Ver política de datos", { policy = true })
+                    AuditPanel {
+                        Text("Estado que comparte este teléfono",style=MaterialTheme.typography.titleMedium)
+                        val reading=session.lastDeviceStatus
+                        BatteryMeter((reading?.metadata?.get("batteryPercent") as? Number)?.toInt())
+                        Text(networkLabel(reading?.metadata?.get("networkState")))
+                        Text("Última lectura: ${displayLocalTime(reading?.timestamp)}",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
+                        Text("Último evento enviado: ${displayLocalTime(lastSent?.event?.timestamp)}",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
+                        Text("Pendientes de envío: ${session.stats.pending}",style=MaterialTheme.typography.bodyMedium)
+                        if(session.stats.failed>0) Text("${session.stats.failed} eventos rechazados; revisa la conexión y la inscripción.",color=AuditColors.Red)
+                        AuditButton(if(session.busy) "Solicitando…" else "Enviar estado ahora",{session.refreshDeviceStatus(scope)},
+                            session.realCaptureRunning && session.visibleAvailable && !session.busy)
+                        if(!session.realCaptureRunning) Text("Activa la captura de arriba para actualizar la batería.",color=AuditColors.Warning,style=MaterialTheme.typography.bodySmall)
+                        Text("En el Centro, usa Actualizar ahora o deja activada la actualización automática.",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
+                    }
+                    Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
+                        Text("Actividad reciente",Modifier.weight(1f),style=MaterialTheme.typography.titleMedium)
+                        TextButton({history=true}) {Text("Ver todos")}
+                    }
+                    if(session.recentEvents.isEmpty()) AuditEmpty("SIN EVENTOS TODAVÍA","Activa la captura para empezar. Aquí verás qué se registró y si se envió.")
+                    session.recentEvents.take(4).forEach {row->LocalEventRow(row) {selectedEvent=row}}
+                    AuditPanel {
+                        Text("2. Notificaciones de WhatsApp",style=MaterialTheme.typography.titleMedium)
+                        Text("Comparte vistas previas nuevas, con permiso y autorización propios. No recupera el historial del chat.")
+                        Text(WhatsAppSharingState.message,color=AuditColors.Muted)
+                        if(WhatsAppSharingState.active) AuditButton("Detener vistas previas de WhatsApp",session::stopWhatsAppSharing,outlined=true)
+                        else onShareWhatsApp?.let {AuditButton("Configurar vistas previas de WhatsApp",it,session.visibleAvailable && !session.busy)}
+                    }
+                    AuditPanel {
+                        Text("3. Compartir mi pantalla",style=MaterialTheme.typography.titleMedium)
+                        Text("El Centro podrá ver lo que muestras después de que aceptes el diálogo de Android. Sin audio ni grabación.")
+                        Text(ScreenSharingState.message,color=AuditColors.Muted)
+                        if(ScreenSharingState.active) AuditButton("Detener pantalla compartida",session::stopScreenSharing,outlined=true)
+                        else onShareScreen?.let {AuditButton("Compartir pantalla en vivo",it,session.visibleAvailable && !session.busy)}
+                    }
+                    AuditRule()
+                    var showTools by rememberSaveable {mutableStateOf(false)}
+                    AuditLink(if(showTools) "Ocultar herramientas de conexión" else "Herramientas de conexión",{showTools=!showTools})
+                    if(showTools) {
+                        Text("Servidor: ${session.serverUrl}",style=MaterialTheme.typography.bodySmall)
+                        AuditButton(if(session.busy) "Enviando…" else "Generar evento simulado",{session.sendSimulatedEvent(scope)},
+                            !session.busy && session.visibleAvailable && !session.revoking,outlined=true)
+                        Text("El evento simulado comprueba la conexión y se identifica como prueba en el Centro.",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
+                    }
+                    AuditLink("Ver política de datos",{policy=true})
+                    AuditButton(if(session.revoking) "Retirando consentimiento…" else "Retirar consentimiento",{confirmWithdrawal=true},!session.revoking,outlined=true)
+                    Text("Retirar el consentimiento detiene todas las funciones y elimina los eventos locales pendientes.",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
+
                 }
             }
             is AgentCore.State.Revoked -> {
@@ -329,20 +325,6 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
     }
 }
 
-@Composable
-private fun MockupEventRow(row: AgentSession.LocalEvent, onClick: () -> Unit) {
-    TextButton(onClick, modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(vertical = 8.dp)) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            val code = row.event.metadata["appEventCode"] ?: row.event.metadata["networkState"]
-                ?: row.event.metadata["batteryPercent"] ?: row.event.direction
-            Text("${row.event.category} / $code", Modifier.weight(1f), color = AuditColors.Muted,
-                style = MaterialTheme.typography.bodySmall, maxLines = 1)
-            Text(row.delivery, style = MaterialTheme.typography.labelMedium)
-        }
-    }
-    AuditRule()
-}
-
 private fun deliveryLabel(value: String): String = when (value) {
     "SENT" -> "Enviado"
     "FAILED" -> "Rechazado"
@@ -356,7 +338,7 @@ private fun LocalEventRow(row: AgentSession.LocalEvent, onClick: () -> Unit) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     Text(metadataTitle(row.event.metadata), style = MaterialTheme.typography.bodyMedium)
-                    Text("${if (row.event.isSimulated) "Simulado" else "Real"} · ${displayTime(row.event.timestamp)}",
+                    Text("${if (row.event.isSimulated) "Simulado" else "Real"} · ${displayLocalTime(row.event.timestamp)}",
                         color = AuditColors.Muted, style = MaterialTheme.typography.bodySmall)
                     metadataDescription(row.event.metadata).takeIf { it.isNotEmpty() }?.let {
                         Text(it, color = AuditColors.Muted, style = MaterialTheme.typography.bodySmall)

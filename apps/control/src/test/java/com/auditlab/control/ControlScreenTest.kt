@@ -47,11 +47,11 @@ class ControlScreenTest {
         compose.onAllNodes(hasSetTextAction())[1].performScrollTo().performTextInput("admin")
         compose.onAllNodes(hasSetTextAction())[2].performScrollTo().performTextInput("secreto")
         tap("INICIAR SESIÓN")
-        waitFor("VISTA DE DISPOSITIVOS")
+        waitFor("Tu dispositivo de un vistazo")
         return api
     }
     private fun detail() { tap("EQUIPOS"); tap("VER DISPOSITIVO") }
-    private fun events() { tap("VER HISTORIAL\nDE EVENTOS"); waitFor("RESULTADOS") }
+    private fun events() { tap("VER HISTORIAL DE EVENTOS"); waitFor("RESULTADOS"); tap("FILTRAR EVENTOS") }
     private fun eventDetail() { compose.onNodeWithContentDescription("Ver detalle →").performScrollTo().performClick(); settle() }
 
     @Test fun `auditor can view ephemeral previews and local stop clears text and secure flag on exit`() {
@@ -78,7 +78,7 @@ class ControlScreenTest {
 
     @Test fun `el admin ve dispositivos y puede revocar con confirmacion`() {
         val api = signIn()
-        compose.onNodeWithText("device-1").assertExists()
+        compose.onNodeWithText("Equipo device-1").assertExists()
         detail(); tap("REVOCAR DISPOSITIVO")
         assertNull(api.revoked)
         tap("Confirmar revocación")
@@ -97,7 +97,7 @@ class ControlScreenTest {
         val api = signIn(real = true)
         events()
         eventDetail()
-        compose.onNodeWithText("SMS enviado").assertExists()
+        compose.onAllNodesWithText("SMS enviado")[0].assertExists()
         compose.onNodeWithText("Evento real del dispositivo").assertExists()
         compose.onNodeWithText("Simulado").assertDoesNotExist()
         assertEquals("device-1", api.eventsFor)
@@ -108,7 +108,7 @@ class ControlScreenTest {
         assertNull(current!!.overviewReading)
         events()
         eventDetail()
-        compose.onNodeWithText("Actividad del agente").assertExists()
+        compose.onAllNodesWithText("Actividad del agente")[0].assertExists()
         compose.onNodeWithText("Evento simulado").assertExists()
     }
     @Test fun `cancelar revocacion y cerrar sesion requieren confirmacion`() {
@@ -159,7 +159,7 @@ class ControlScreenTest {
         tap("INICIAR SESIÓN")
         waitFor("Credenciales rechazadas o sesión vencida.")
         assertFalse(current!!.signedIn)
-        compose.onNodeWithText("VISTA DE DISPOSITIVOS").assertDoesNotExist()
+        compose.onNodeWithText("Tu dispositivo de un vistazo").assertDoesNotExist()
     }
     @Test fun `exportar con filtros modificados no escribe documento`() {
         val api = signIn()

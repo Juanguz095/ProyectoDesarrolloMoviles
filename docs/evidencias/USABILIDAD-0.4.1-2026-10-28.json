@@ -1,0 +1,80 @@
+{
+  "date": "2026-10-28",
+  "timezone": "America/Lima",
+  "version": "0.4.1-preview",
+  "source_base_commit": "700f65d9095834ba66addf036a7ca848905b0d6f",
+  "source_status": "working tree before publication",
+  "tasks": [
+    "P5.3",
+    "P6.2",
+    "P6.4",
+    "P8.2",
+    "P8.3"
+  ],
+  "source_files_sha256": {
+    "apps/agent/build.gradle.kts": "7a8b863bb53ab5051be85a25b752dd2231f8b984ae677952da213bec3ba22a75",
+    "apps/agent/src/androidTest/java/com/auditlab/agent/NativeAgentFlowTest.kt": "ff40870df00d076d2a717f30433eb7accc9394046b74b0bda18b2c2c766c5b10",
+    "apps/agent/src/main/java/com/auditlab/agent/AgentRuntime.kt": "ed7a4873a80c16e6dd983aabd4630d641c6b60d698dd57839f9b6657c4114af4",
+    "apps/agent/src/main/java/com/auditlab/agent/AgentSession.kt": "06c45bf981a94fcb698361b01fc643b874b7393aed6f62ccc00f0452f24cd353",
+    "apps/agent/src/main/java/com/auditlab/agent/MainActivity.kt": "f49327cfc34f22c08c1694247c629575b2b1195be42c56562d22035adf1259f9",
+    "apps/agent/src/main/java/com/auditlab/agent/RealEventMonitor.kt": "38fcaaf1a57265914e9f3e572f6a256e138e68dc1c8bcfb4c45745ab98c22456",
+    "apps/agent/src/test/java/com/auditlab/agent/AgentScreenTest.kt": "abff49c0b95698a0eee8d8fe6e6a5f96a5145ef404e4b605cd1931ff565b65b9",
+    "apps/common/src/main/kotlin/com/auditlab/common/ApiClient.kt": "6bc5b69c6b579e0e60623cc3fb6e3b3d8004049e57fcfcd5d133bbb82cb71948",
+    "apps/common/src/main/kotlin/com/auditlab/common/ControlCore.kt": "1be470d64c700659d7483315633cb9d251aba03f0d2982eacfd3795f59a0ea76",
+    "apps/control/build.gradle.kts": "2e24a9dc1693ec5851e56f32393435a274770d1179cefa47c2beda6ec2c412a8",
+    "apps/control/src/androidTest/java/com/auditlab/control/NativeControlFlowTest.kt": "36ccb7252d2125122d4763e34ac170292875ff835f90d6df87a65e8dc66e7c18",
+    "apps/control/src/main/java/com/auditlab/control/ControlSession.kt": "bd1378f71973c97929c0a62efd8dcdd9fad576ee54bde0652fd5a30cd809eee7",
+    "apps/control/src/main/java/com/auditlab/control/ControlViews.kt": "f2e020b68d901ef21080c934a13f0d3fff0a48915b3d804fac0496e7723e47fe",
+    "apps/control/src/main/java/com/auditlab/control/MainActivity.kt": "1287e50619d674559bcf9dde0c2306d77c87c96c0e60cdadd2ed3e1071e677c6",
+    "apps/control/src/test/java/com/auditlab/control/ControlScreenTest.kt": "233f5a057ef917964afa3204342640286d35fa39abff908e076e329e3123ebf9",
+    "apps/design/src/main/kotlin/com/auditlab/design/AuditUi.kt": "24f541236023642e7327ac8267f5ad3adf70cb3c667f5c128c3a497afdb8ff90"
+  },
+  "artifacts": [
+    {
+      "component": "agent",
+      "version": "0.4.1-preview",
+      "versionCode": 6,
+      "file": "auditlab-agent-0.4.1-preview.apk",
+      "bytes": 10246482,
+      "sha256": "eb64c7713344c800d08b1ab3854e558d493ca25a141e9cec90a266dba0525b88"
+    },
+    {
+      "component": "control",
+      "version": "0.4.1-preview",
+      "versionCode": 6,
+      "file": "auditlab-control-0.4.1-preview.apk",
+      "bytes": 9698271,
+      "sha256": "79c3f8c1f1f48f595885907dbffc4c151f2a6441f4ebaca36254a5dc31a822b7"
+    }
+  ],
+  "checks": {
+    "debug_build": {
+      "exit_code": 0,
+      "components": [
+        "agent",
+        "control"
+      ]
+    },
+    "lint": {
+      "agent": {
+        "Warning": 12
+      },
+      "control": {
+        "Warning": 5,
+        "Information": 2
+      }
+    },
+    "apk_audit_exit_code": 0,
+    "documentation_check_exit_code": 0,
+    "automatic_tests_executed": false,
+    "full_functional_flow_executed": false,
+    "visual_review": "Initial consent/login screens only on existing API28/26 emulators; no enrollment or authenticated data flow"
+  },
+  "compatible_server": "0.4.0-preview; no backend or database changes",
+  "pending": [
+    "Battery and event refresh across two phones",
+    "Permission denial, connection recovery, background lifecycle and paging",
+    "Regression of optional screen/WhatsApp sharing",
+    "Existing automated suites updated for labels but not executed"
+  ]
+}

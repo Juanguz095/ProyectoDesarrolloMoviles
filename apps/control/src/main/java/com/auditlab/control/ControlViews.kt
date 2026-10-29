@@ -32,67 +32,73 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 @Composable
-internal fun Dashboard(session: ControlSession, device: DeviceSummary?, scope: CoroutineScope,
-    onEvents: () -> Unit) {
-    // Never show a previous device's snapshot while the next request is being scheduled.
-    val reading = session.overviewReading?.takeIf { it.sourceDevice == device?.deviceId && session.overviewDevice == device?.deviceId }
-    val recent = session.overviewEvents.filter { it.sourceDevice == device?.deviceId && session.overviewDevice == device?.deviceId }
-    val now by produceState(Instant.now()) { while (true) { delay(60_000); value = Instant.now() } }
-    AuditHeader("AUDITLAB", "CENTRO DE CONTROL / ${if (session.isAdmin) "ADMIN" else "AUDITOR"}")
-    Spacer(Modifier.height(2.dp))
-    SectionLabel("Vista de dispositivos")
-    AuditPanel {
-        SectionLabel("Dispositivo")
-        Text(device?.let { "${it.deviceId.take(8)}…${it.deviceId.takeLast(4)}" } ?: "Sin datos recibidos", style = MaterialTheme.typography.titleLarge)
-        Text(device?.deviceId ?: if (session.devicesLoaded) "No hay dispositivos en esta página." else "Todavía no se consultó la lista.",
-            color = AuditColors.Muted, style = MaterialTheme.typography.bodySmall)
-        AuditRule()
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                SectionLabel("Inscripción")
-                Text(device?.let { enrollmentStatus(it) } ?: "Sin datos", style = MaterialTheme.typography.titleSmall)
-            }
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                SectionLabel("Último contacto")
-                Text(device?.lastSeenAt?.let { ageLabel(it, now) } ?: "Sin datos", style = MaterialTheme.typography.bodySmall)
-            }
+internal fun RefreshControls(session: ControlSession, screen: String, deviceId: String?, scope: CoroutineScope) {
+    Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+        OutlinedButton({session.refreshVisible(screen,deviceId,scope)},enabled=!session.busy && !session.refreshing,
+            modifier=Modifier.weight(1f).heightIn(min=48.dp)) {
+            Text(if(session.refreshing) "Actualizando…" else "Actualizar ahora")
         }
-        AuditRule()
-        SectionLabel("Batería")
+        Column(horizontalAlignment=Alignment.CenterHorizontally) {
+            Text("Automático",style=MaterialTheme.typography.labelMedium)
+            Switch(session.autoRefresh,session::updateAutoRefresh)
+        }
+    }
+    val stamp=when(screen) { "eventos"->session.eventsUpdatedAt;"dispositivos"->session.devicesUpdatedAt;else->session.dataUpdatedAt }
+    val mode=if(session.autoRefresh && session.canAutoRefresh(screen)) "Automático cada 10 s"
+        else if(session.autoRefresh) "Pausado en esta página; Actualizar ahora vuelve a los eventos recientes"
+        else "Actualización manual"
+    Text(mode+(stamp?.let {" · Consulta ${displayLocalClock(it)}"} ?: ""),style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
+    session.refreshError?.let { Text(it,color=AuditColors.Red,style=MaterialTheme.typography.bodyMedium) }
+}
+
+@Composable
+private fun DeviceReadingCard(reading: AuditEvent?, now: Instant) {
+    AuditPanel {
+        Text("Batería y conexión",style=MaterialTheme.typography.titleMedium)
         BatteryMeter((reading?.metadata?.get("batteryPercent") as? Number)?.toInt())
-        SectionLabel("Conexión")
-        Text(networkLabel(reading?.metadata?.get("networkState")), style = MaterialTheme.typography.titleSmall)
-    }
-    Spacer(Modifier.height(2.dp))
-    SectionLabel("Eventos recientes")
-    AuditPanel {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("ÚLTIMOS EVENTOS RECIBIDOS", Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
-            TextButton(onEvents, enabled = !session.busy, shape = RectangleShape,
-                colors = ButtonDefaults.textButtonColors(containerColor = AuditColors.Muted, contentColor = AuditColors.Panel),
-                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 5.dp)) {
-                Text("VER HISTORIAL\nDE EVENTOS", style = MaterialTheme.typography.labelSmall)
-            }
+        Text(networkLabel(reading?.metadata?.get("networkState")),style=MaterialTheme.typography.bodyLarge)
+        if(reading==null) {
+            Text("Todavía no recibimos una lectura real. En el otro teléfono abre Agente y activa la captura de batería y eventos.",color=AuditColors.Muted)
+        } else {
+            Text("Lectura del teléfono: ${displayLocalTime(reading.timestamp)} · ${ageLabel(reading.timestamp,now)}",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
+            val stale=runCatching { Duration.between(Instant.parse(reading.timestamp),now).seconds>120 }.getOrDefault(true)
+            if(stale) Text("Lectura antigua. Comprueba que el Agente siga activo y conectado. Actualizar consulta el servidor; no activa el otro teléfono.",color=AuditColors.Warning,style=MaterialTheme.typography.bodySmall)
         }
-        if (recent.isEmpty()) {
-            if (!session.overviewLoaded && device != null) AuditEmpty("SIN DATOS RECIBIDOS", "Consulta los eventos del servidor para este dispositivo.")
-            else AuditEmpty()
-        } else recent.take(3).forEach { event -> CompactEventRow(event, !session.busy) { session.showDetail(event, scope) } }
-        AuditRule()
-        Text("Batería · Conexión · SMS · Llamadas", color = AuditColors.Muted, style = MaterialTheme.typography.bodySmall)
     }
-    Spacer(Modifier.height(2.dp))
-    SectionLabel("Indicadores")
-    AuditPanel {
-        SectionLabel("Última lectura real recibida")
-        Text(displayTime(reading?.timestamp), style = MaterialTheme.typography.titleMedium)
-        Text(reading?.let { "${ageLabel(it.timestamp, now)}. Es el último estado disponible en la consulta, no una lectura en vivo." }
-            ?: "No se puede calcular la antigüedad sin una lectura real.", color = AuditColors.Muted)
-        AuditRule()
-        SectionLabel("Estado de inscripción")
-        Text(device?.let(::enrollmentStatus) ?: "Sin datos recibidos", style = MaterialTheme.typography.titleSmall)
-        Text("La inscripción activa no confirma que el teléfono esté conectado.", color = AuditColors.Muted)
+}
+
+@Composable
+internal fun Dashboard(session: ControlSession, device: DeviceSummary?, scope: CoroutineScope,
+    onEvents: () -> Unit, onDevice: () -> Unit = {}, onChoose: (String) -> Unit = {}) {
+    val reading=session.overviewReading?.takeIf { it.sourceDevice==device?.deviceId && session.overviewDevice==device.deviceId }
+    val recent=session.overviewEvents.filter { it.sourceDevice==device?.deviceId && session.overviewDevice==device.deviceId }
+    val now by produceState(Instant.now()) { while(true) { delay(10_000);value=Instant.now() } }
+    AuditHeader("AUDITLAB","CENTRO DE CONTROL")
+    Text("Tu dispositivo de un vistazo",style=MaterialTheme.typography.titleLarge)
+    if(session.devices.size>1) AuditChoice("Dispositivo seleccionado",device?.let(::deviceLabel) ?: "Selecciona un equipo",
+        session.devices.map { it.deviceId to deviceLabel(it) },!session.busy,onChoose)
+    RefreshControls(session,"inicio",device?.deviceId,scope)
+    if(device==null) {
+        AuditEmpty("SIN DISPOSITIVOS","Vincula el primer teléfono desde Más → Crear código de inscripción. Después introduce ese código en el Agente.")
+        return
     }
+    Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
+        Column(Modifier.weight(1f)) {
+            Text(deviceLabel(device),style=MaterialTheme.typography.titleMedium)
+            Text(if(device.isActive) "Inscripción activa" else "Dispositivo revocado",color=if(device.isActive) AuditColors.Green else AuditColors.Red)
+        }
+        TextButton(onDevice) { Text("Ver equipo →") }
+    }
+    Text("Último contacto: ${device.lastSeenAt?.let { ageLabel(it,now) } ?: "Aún sin contacto"}",color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
+    DeviceReadingCard(reading,now)
+    Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
+        Text("Actividad reciente",Modifier.weight(1f),style=MaterialTheme.typography.titleMedium)
+        TextButton(onEvents,enabled=!session.busy) { Text("Ver todos") }
+    }
+    if(recent.isEmpty()) AuditEmpty("SIN EVENTOS TODAVÍA","Activa la captura en el Agente. Los eventos aparecerán aquí cuando lleguen al servidor.")
+    recent.take(5).forEach { EventRow(it,!session.busy) {session.showDetail(it,scope)} }
+    AuditButton("Ver historial de eventos",onEvents,!session.busy,outlined=true)
+    Text("La batería cambia cuando el Agente envía una lectura y esta pantalla vuelve a consultar. Ambas apps necesitan conexión con el servidor.",color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
 }
 
 @Composable
@@ -105,9 +111,15 @@ internal fun EventExplorer(session: ControlSession, scope: CoroutineScope, onExp
     var filterError by remember { mutableStateOf<String?>(null) }
     var manualDevice by rememberSaveable { mutableStateOf(false) }
     var preciseDates by rememberSaveable { mutableStateOf(false) }
-    AuditHeader("EVENTOS", "CONSULTA EVENTOS RECIBIDOS · FILTRA Y EXPORTA")
-    AuditRule()
-    Spacer(Modifier.height(2.dp))
+    var showFilters by rememberSaveable { mutableStateOf(false) }
+    AuditHeader("EVENTOS", "ACTIVIDAD RECIBIDA DEL TELÉFONO")
+    RefreshControls(session,"eventos",session.query.device,scope)
+    Text("${session.events.size} eventos en esta página",style=MaterialTheme.typography.titleMedium)
+    val applied=listOfNotNull(session.query.device?.let { "Equipo ${shortDeviceId(it)}" },session.query.category?.let(::categoryName))
+    Text(if(applied.isEmpty()) "Todos los dispositivos · Todas las categorías" else applied.joinToString(" · "),color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
+    AuditButton(if(showFilters) "Ocultar filtros" else "Filtrar eventos",{showFilters=!showFilters},!session.busy,outlined=true)
+    if(showFilters) {
+    AuditPanel {
     AuditChoice("Dispositivo", if (manualDevice) "Escribir identificador" else device.ifEmpty { "Todos los dispositivos" },
         listOf("" to "Todos los dispositivos") + session.devices.map { it.deviceId to "${it.deviceId.take(8)}…${it.deviceId.takeLast(4)}" } + listOf("manual" to "Escribir identificador"),
         !session.busy) { value -> if (value == "manual") manualDevice = true else { device = value; manualDevice = false } }
@@ -131,14 +143,23 @@ internal fun EventExplorer(session: ControlSession, scope: CoroutineScope, onExp
       onExport?.let { AuditButton("Exportar CSV", it, !session.busy && session.eventsLoaded, outlined = true, modifier = Modifier.weight(1f)) }
     }
     filterError?.let { Text(it, color = AuditColors.Red) }
+    }
+    }
+    if(!showFilters && onExport!=null) AuditButton("Exportar CSV",onExport,!session.busy && session.eventsLoaded,outlined=true)
     AuditRule()
     SectionLabel("Resultados")
     if (session.events.isEmpty()) AuditEmpty(message = if (session.eventsLoaded)
         "No se recibieron eventos para los filtros aplicados." else "Aplica filtros o actualiza la consulta para recibir eventos.")
-    session.events.forEach { event -> CompactEventRow(event, !session.busy) { session.showDetail(event, scope) } }
+    var previousDay: String?=null
+    session.events.forEach { event ->
+        val day=displayLocalDay(event.timestamp)
+        if(day!=previousDay) { SectionLabel(day);previousDay=day }
+        EventRow(event,!session.busy) {session.showDetail(event,scope)}
+    }
     Text("La consulta queda registrada en auditoría.", style = MaterialTheme.typography.bodySmall)
     SectionLabel("Página ${session.eventPageNumber} · ${session.events.size} recibidos · Hasta 50 eventos")
     AuditRule()
+    if(showFilters) {
     SectionLabel("Opciones adicionales")
     AuditLink(if (preciseDates) "Ocultar edición de horas" else "Editar fechas y horas exactas", { preciseDates = !preciseDates }, !session.busy)
     if (preciseDates) {
@@ -154,6 +175,7 @@ internal fun EventExplorer(session: ControlSession, scope: CoroutineScope, onExp
         start.trim().ifEmpty { null } != session.query.from || end.trim().ifEmpty { null } != session.query.to || search.trim().ifEmpty { null } != session.query.q) {
         Text("Hay cambios sin aplicar. La lista y el CSV usan los últimos filtros aplicados.", color = AuditColors.Warning)
     }
+    }
     Text("El CSV incluye todos los resultados de los filtros aplicados, hasta 10 000 eventos. Si se supera el límite, se informa un error.",
         color = AuditColors.Muted, style = MaterialTheme.typography.bodySmall)
     if (session.eventCursor != null) AuditButton("Siguiente página", { session.moreEvents(scope) }, !session.busy)
@@ -162,33 +184,19 @@ internal fun EventExplorer(session: ControlSession, scope: CoroutineScope, onExp
 }
 
 @Composable
-private fun CompactEventRow(event: AuditEvent, enabled: Boolean, onClick: () -> Unit) {
-    TextButton(onClick, Modifier.fillMaxWidth().semantics { contentDescription = "Ver detalle →" }, enabled = enabled,
-        contentPadding = PaddingValues(vertical = 8.dp)) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(displayClock(event.timestamp).removeSuffix(" UTC"), Modifier.width(58.dp), style = MaterialTheme.typography.bodySmall)
-            Text(event.category, Modifier.weight(1f), color = AuditColors.Muted, style = MaterialTheme.typography.bodySmall, maxLines = 1)
-            Text((event.metadata["appEventCode"] ?: event.direction).toString(), Modifier.widthIn(min = 78.dp),
-                color = AuditColors.Muted, style = MaterialTheme.typography.bodySmall, maxLines = 1)
-        }
-    }
-    AuditRule()
-}
-
-@Composable
 internal fun DeviceList(session: ControlSession, scope: CoroutineScope, onDetail: (String) -> Unit) {
-    AuditHeader("DISPOSITIVOS", "INSCRIPCIÓN Y ÚLTIMO CONTACTO")
+    AuditHeader("DISPOSITIVOS", "SELECCIONA EL TELÉFONO QUE QUIERES CONSULTAR")
+    RefreshControls(session,"dispositivos",null,scope)
     AuditRule()
     AuditChoice("Estado de inscripción", when (session.status) { "active" -> "Activos"; "revoked" -> "Revocados"; else -> "Todos" },
         listOf("" to "Todos", "active" to "Activos", "revoked" to "Revocados"), !session.busy) {
         session.filterDevices(it.ifEmpty { null }, scope)
     }
-    AuditButton("Actualizar dispositivos", { session.refresh(scope) }, !session.busy)
     Text("Actualizado: ${displayTime(session.devicesUpdatedAt)}", color = AuditColors.Muted, style = MaterialTheme.typography.bodySmall)
     if (session.devices.isEmpty()) AuditEmpty("SIN DISPOSITIVOS", if (session.devicesLoaded) "No hay dispositivos en esta página para el filtro actual." else "Actualiza la lista para consultar tus dispositivos.")
     session.devices.forEach { device ->
         AuditPanel {
-            Text("${device.deviceId.take(8)}…${device.deviceId.takeLast(4)}", style = MaterialTheme.typography.titleMedium)
+            Text(deviceLabel(device), style = MaterialTheme.typography.titleMedium)
             Text(enrollmentStatus(device), style = MaterialTheme.typography.titleSmall)
             Text("Último contacto: ${displayTime(device.lastSeenAt)}", color = AuditColors.Muted)
             AuditButton("Ver dispositivo", { onDetail(device.deviceId) }, !session.busy, outlined = true)
@@ -206,6 +214,7 @@ internal fun DeviceDetail(session: ControlSession, device: DeviceSummary?, scope
     val composeScope = rememberCoroutineScope()
     AuditHeader("DISPOSITIVO", "ESTADO, CONSENTIMIENTO Y ACCIONES")
     AuditLink("← Volver a dispositivos", onBack, !session.busy)
+    RefreshControls(session,"dispositivo",device?.deviceId,scope)
     if (device == null) { AuditEmpty("DISPOSITIVO NO DISPONIBLE", "Actualiza la lista de dispositivos para consultar su detalle."); return }
     AuditRule()
     SectionLabel("Inscripción")
@@ -227,7 +236,10 @@ internal fun DeviceDetail(session: ControlSession, device: DeviceSummary?, scope
         Text("Aceptado: ${displayTime(device.consent.acceptedAt)}")
         Text("El usuario puede retirar el consentimiento desde el agente. El servidor no confirma si la notificación está visible en este momento.", color = AuditColors.Muted)
     }
-    SectionLabel("Acciones")
+    val now by produceState(Instant.now()) { while(true) { delay(10_000);value=Instant.now() } }
+    DeviceReadingCard(session.overviewReading?.takeIf { it.sourceDevice==device.deviceId },now)
+    SectionLabel("Consultar y compartir")
+    Text("Para ver WhatsApp o pantalla, el propietario debe iniciar la sesión correspondiente en el Agente.",color=AuditColors.Muted)
     if(device.isActive) AuditButton("Ver notificaciones de WhatsApp",onWhatsApp,!session.busy)
     if (device.isActive) AuditButton("Ver pantalla compartida", {
         context.startActivity(android.content.Intent(context, ScreenViewerActivity::class.java).putExtra("device", device.deviceId))
@@ -302,22 +314,23 @@ internal fun AuditChoice(label: String, value: String, options: List<Pair<String
 
 @Composable
 internal fun EventRow(event: AuditEvent, enabled: Boolean, onClick: () -> Unit) {
-    Column(Modifier.fillMaxWidth()) {
-        TextButton(onClick, Modifier.fillMaxWidth(), enabled = enabled, contentPadding = PaddingValues(vertical = 10.dp)) {
-            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(eventTitle(event), Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
-                    Text(if (event.isSimulated) "Simulado" else "Real", style = MaterialTheme.typography.labelMedium)
-                }
-                Text(displayTime(event.timestamp), color = AuditColors.Muted, style = MaterialTheme.typography.bodySmall)
-                Text("Dispositivo: ${event.sourceDevice.take(8)}…${event.sourceDevice.takeLast(4)}", color = AuditColors.Muted, style = MaterialTheme.typography.bodySmall)
-                metadataDescription(event.metadata).takeIf { it.isNotEmpty() }?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
-                Text("Ver detalle →", style = MaterialTheme.typography.labelMedium)
+    AuditPanel {
+        TextButton(onClick,Modifier.fillMaxWidth().semantics {contentDescription="Ver detalle →"},enabled=enabled,
+            contentPadding=PaddingValues(0.dp)) {
+            Column(Modifier.fillMaxWidth(),verticalArrangement=Arrangement.spacedBy(8.dp)) {
+                Text(eventTitle(event),style=MaterialTheme.typography.titleMedium,color=AuditColors.Ink)
+                Text("${categoryName(event.category)} · ${if(event.isSimulated) "Simulado" else "Real"}",style=MaterialTheme.typography.labelMedium,color=AuditColors.Muted)
+                metadataDescription(event.metadata).takeIf(String::isNotBlank)?.let { Text(it,style=MaterialTheme.typography.bodyLarge,color=AuditColors.Ink) }
+                Text(displayLocalTime(event.timestamp),style=MaterialTheme.typography.bodyMedium,color=AuditColors.Ink)
+                Text("Equipo ${shortDeviceId(event.sourceDevice)}",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
+                Text("Ver detalle →",style=MaterialTheme.typography.labelLarge)
             }
         }
-        AuditRule()
     }
 }
+
+internal fun shortDeviceId(id: String)=if(id.length<=12) id else "${id.take(8)}…${id.takeLast(4)}"
+internal fun deviceLabel(device: DeviceSummary)="Equipo ${shortDeviceId(device.deviceId)}"
 
 private fun enrollmentStatus(device: DeviceSummary): String = if (device.isActive) "Activa" else "Revocada"
 

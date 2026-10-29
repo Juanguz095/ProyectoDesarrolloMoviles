@@ -67,6 +67,7 @@ class ControlCore(
     }
 
     @Synchronized fun devices(status: String? = null): DevicePage = authorized { api.listDevices(it, status) }
+    @Synchronized fun device(deviceId: String): DeviceSummary = authorized { api.deviceDetail(it, deviceId) }
 
     @Synchronized fun events(deviceId: String? = null): EventPage = authorized { api.listEvents(it, deviceId) }
 
