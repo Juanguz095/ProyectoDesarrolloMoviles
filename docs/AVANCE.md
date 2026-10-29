@@ -28,8 +28,11 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
 - No se ejecutaron suites automáticas ni revisión nativa de esta versión. No se
   reutilizan resultados históricos como validación de 0.6. Windows, números de
   operadores reales y recepción real de WhatsApp en teléfonos siguen pendientes.
-- P8.2/P8.3: preparar/publicar dos APK y servidor compatibles con V8 siguiendo
-  [la guía](ACTUALIZACION_0.6.md). Siguiente P7.1/P7.6: recorrido real de permisos,
+- P8.2/P8.3: dos APK y servidor compatibles con V8 publicados. Fuente `75630b8`,
+  descargas `dbfdf62`; los tres archivos responden HTTP 200 y coinciden en tamaño
+  y SHA256. ZIP de 441 entradas con integridad/contenido verificados.
+  [Entrega](evidencias/ENTREGA-0.6.0-2026-10-28.json) y [guía](ACTUALIZACION_0.6.md).
+  Siguiente P7.1/P7.6: recorrido real de permisos,
   comunicaciones, red y revocación en teléfonos autorizados.
 
 ## Tarjetas y actividad WhatsApp — 28 de octubre de 2026 (America/Lima)

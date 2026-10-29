@@ -1,0 +1,42 @@
+{
+  "version": "0.6.0-preview",
+  "verified_at_utc": "2026-10-29T04:19:48.781639+00:00",
+  "source_commit": "75630b8a4a279580d267877ffb3d4f9dba99d9d5",
+  "delivery_commit": "dbfdf62bd696050fcf5cfd52200fa65242887e5d",
+  "files": [
+    {
+      "name": "auditlab-agent-0.6.0-preview.apk",
+      "bytes": 10255798,
+      "sha256": "393412195f89994ae14ae621713dd05acc0406e60290e2b7ce0575665608b6d6",
+      "url": "https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.6.0-preview.apk",
+      "http_status": 200,
+      "verified_sha256": "393412195f89994ae14ae621713dd05acc0406e60290e2b7ce0575665608b6d6",
+      "verified_bytes": 10255798
+    },
+    {
+      "name": "auditlab-control-0.6.0-preview.apk",
+      "bytes": 9708065,
+      "sha256": "0796293ddbbe6cc0317a3f82164202a95dcc7563c1e2cb2a8cf85b33943de842",
+      "url": "https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.6.0-preview.apk",
+      "http_status": 200,
+      "verified_sha256": "0796293ddbbe6cc0317a3f82164202a95dcc7563c1e2cb2a8cf85b33943de842",
+      "verified_bytes": 9708065
+    },
+    {
+      "name": "AuditLab-Servidor-Windows-0.6.0-preview.zip",
+      "bytes": 38310156,
+      "sha256": "ea799d31cc30819c79b079a00a69e6e49e0ed6e33602c9ae6f994dbbca43af03",
+      "url": "https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.6.0-preview.zip",
+      "http_status": 200,
+      "verified_sha256": "ea799d31cc30819c79b079a00a69e6e49e0ed6e33602c9ae6f994dbbca43af03",
+      "verified_bytes": 38310156
+    }
+  ],
+  "package_entries": 441,
+  "package_crc_and_contents_verified": true,
+  "functional_validation_pending": true,
+  "automated_tests_executed": false,
+  "real_whatsapp_verified": false,
+  "windows_verified": false,
+  "pilot_approved": false
+}
