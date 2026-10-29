@@ -29,7 +29,9 @@ try {
     $report.artifact = [ordered]@{ name = $archive.Name; bytes = $archive.Length; sha256 = $hash }
     if ($hash -ne $ExpectedSha256.ToLowerInvariant()) { throw 'Candidate SHA256 differs from the recorded delivery.' }
     # Retain Internet/Restricted zone protection and model a browser download.
-    $zone = Get-Content -LiteralPath $archive.FullName -Stream Zone.Identifier -Raw -ErrorAction SilentlyContinue
+    $zone = $null
+    try { $zone = Get-Content -LiteralPath $archive.FullName -Stream Zone.Identifier -Raw -ErrorAction Stop }
+    catch { $zone = $null } # Absence of an optional stream is expected on this download path.
     if ($zone -notmatch '(?m)^ZoneId=(3|4)\s*$') {
         Set-Content -LiteralPath $archive.FullName -Stream Zone.Identifier -Value "[ZoneTransfer]`r`nZoneId=3"
     }

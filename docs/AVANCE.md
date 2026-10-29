@@ -33,6 +33,9 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
   incluso en ProgramData y bloqueó la validación. Se eliminan las exclusiones de
   compilación en el runner desechable para fortalecer el análisis, sin modificar
   la PC del usuario. Se conserva/aplica zona Internet del archivo.
+- La ejecución `40825206478` se detuvo al leer una marca de zona Internet ausente,
+  antes de analizar. Se corrige la lectura opcional y se exige crear/verificar la
+  marca antes de continuar; este fallo tampoco cuenta como análisis satisfactorio.
 - Pendiente completar esa comprobación antes de decidir distribución.
 
 ## Bloqueo de Defender en ZIP Windows 0.7 — 29 de octubre de 2026 (America/Lima)
