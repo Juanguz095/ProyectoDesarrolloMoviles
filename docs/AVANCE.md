@@ -4,6 +4,22 @@ Actualización: 29 de octubre de 2026, UTC. Los registros anteriores conservan s
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
+## Vistas del Centro para Figma — 30 de octubre de 2026 (America/Lima)
+
+- P8.3: inventario de rutas y diálogos del Centro 0.7.4. Entregadas 41 vistas y
+  variantes con datos ficticios, SVG por vista, lámina general PNG y modelo JSON.
+- Importador nativo Figma crea una página nueva, frames/textos editables, muestras
+  de color y enlaces de navegación de referencia. Sin red ni claves. Generador
+  reproducible `scripts/build_control_design.py`; no modifica las apps.
+- JSON/SVG XML, límites de diseño, destinos de enlaces y CRC del ZIP comprobados;
+  sintaxis JS comprobada con Node y lámina revisada visualmente. Sin pruebas Android
+  por ser trabajo de documentación/diseño. [Evidencia](evidencias/FIGMA-CENTRO-2026-10-30.json).
+- No hay herramienta Figma conectada: no se crea un documento en la cuenta del usuario
+  ni se ejecuta el importador en Figma. Las vistas son referencias editables, no
+  capturas exactas; superficies Android y diálogos se identifican como ilustrativos.
+  [Importar y cobertura](diseno/centro-0.7.4/LEEME.md).
+- Siguiente P8.3: abrir el paquete en Figma y revisar los frames/prototipo allí.
+
 ## Alertas nativas Android verificadas — 29 de octubre de 2026 (America/Lima)
 
 - P6.6/P7.6: solo se detectaron AVD API28/API26, sin teléfonos físicos ni WhatsApp

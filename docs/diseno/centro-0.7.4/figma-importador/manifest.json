@@ -1,0 +1,14 @@
+{
+  "name": "AuditLab \u00b7 Centro 0.7.4",
+  "api": "1.0.0",
+  "main": "code.js",
+  "editorType": [
+    "figma"
+  ],
+  "documentAccess": "dynamic-page",
+  "networkAccess": {
+    "allowedDomains": [
+      "none"
+    ]
+  }
+}

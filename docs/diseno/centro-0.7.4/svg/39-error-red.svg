@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="854" viewBox="0 0 390 854"><title>39 · Fallo de red</title><rect width="390" height="854" fill="#DAD7C0"/>
+<text x="24" y="43" font-family="DejaVu Sans, Inter, sans-serif" font-size="11" font-weight="400" fill="#66675A">AUDITLAB / CENTRO DE CONTROL</text>
+<text x="24" y="84" font-family="DejaVu Sans, Inter, sans-serif" font-size="24" font-weight="700" fill="#10110C">EVENTOS</text>
+<rect x="24" y="101" width="342" height="1" fill="#66675A" stroke="none" stroke-width="0.7"/>
+<rect x="24" y="123" width="342" height="113" fill="#F0EDDB" stroke="#66675A" stroke-width="0.7"/>
+<text x="40" y="157" font-family="DejaVu Sans, Inter, sans-serif" font-size="18" font-weight="700" fill="#10110C">No se pudo actualizar</text>
+<text x="40" y="188" font-family="DejaVu Sans, Inter, sans-serif" font-size="14" font-weight="400" fill="#10110C">Comprueba Internet, Tailscale y el servidor.</text>
+<text x="40" y="209" font-family="DejaVu Sans, Inter, sans-serif" font-size="14" font-weight="400" fill="#10110C">Se muestran los últimos datos recibidos.</text>
+<rect x="24" y="256" width="342" height="48" fill="#DAD7C0" stroke="#66675A" stroke-width="0.7"/>
+<text x="38" y="281" font-family="DejaVu Sans, Inter, sans-serif" font-size="13" font-weight="700" fill="#10110C">ACTUALIZAR</text>
+<rect x="24" y="760" width="342" height="1" fill="#66675A" stroke="none" stroke-width="0.7"/>
+<rect x="24" y="782" width="82" height="42" fill="#DAD7C0" stroke="none" stroke-width="0.7"/>
+<text x="29" y="805" font-family="DejaVu Sans, Inter, sans-serif" font-size="11" font-weight="400" fill="#10110C">INICIO</text>
+<rect x="110" y="782" width="82" height="42" fill="#F0EDDB" stroke="none" stroke-width="0.7"/>
+<text x="115" y="805" font-family="DejaVu Sans, Inter, sans-serif" font-size="11" font-weight="700" fill="#10110C">EVENTOS</text>
+<rect x="196" y="782" width="82" height="42" fill="#DAD7C0" stroke="none" stroke-width="0.7"/>
+<text x="201" y="805" font-family="DejaVu Sans, Inter, sans-serif" font-size="11" font-weight="400" fill="#10110C">EQUIPOS</text>
+<rect x="282" y="782" width="82" height="42" fill="#DAD7C0" stroke="none" stroke-width="0.7"/>
+<text x="287" y="805" font-family="DejaVu Sans, Inter, sans-serif" font-size="11" font-weight="400" fill="#10110C">MÁS</text>
+</svg>

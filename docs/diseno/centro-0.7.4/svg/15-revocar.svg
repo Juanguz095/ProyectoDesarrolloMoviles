@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="816" viewBox="0 0 390 816"><title>15 · Confirmar revocación</title><rect width="390" height="816" fill="#DAD7C0"/>
+<text x="24" y="43" font-family="DejaVu Sans, Inter, sans-serif" font-size="11" font-weight="400" fill="#66675A">AUDITLAB / CENTRO DE CONTROL</text>
+<text x="24" y="84" font-family="DejaVu Sans, Inter, sans-serif" font-size="24" font-weight="700" fill="#10110C">Revocar dispositivo</text>
+<text x="24" y="113" font-family="DejaVu Sans, Inter, sans-serif" font-size="12" font-weight="400" fill="#66675A">DIÁLOGO · SOBRE LA VISTA DE ORIGEN</text>
+<rect x="24" y="130" width="342" height="1" fill="#66675A" stroke="none" stroke-width="0.7"/>
+<rect x="24" y="152" width="342" height="155" fill="#F0EDDB" stroke="#66675A" stroke-width="0.7"/>
+<text x="40" y="186" font-family="DejaVu Sans, Inter, sans-serif" font-size="18" font-weight="700" fill="#10110C">Revocar dispositivo</text>
+<text x="40" y="217" font-family="DejaVu Sans, Inter, sans-serif" font-size="14" font-weight="400" fill="#10110C">Se bloquearán nuevas transmisiones. Un</text>
+<text x="40" y="238" font-family="DejaVu Sans, Inter, sans-serif" font-size="14" font-weight="400" fill="#10110C">Agente sin conexión detectará la</text>
+<text x="40" y="259" font-family="DejaVu Sans, Inter, sans-serif" font-size="14" font-weight="400" fill="#10110C">revocación al volver a contactar. Reinscribir</text>
+<text x="40" y="280" font-family="DejaVu Sans, Inter, sans-serif" font-size="14" font-weight="400" fill="#10110C">exige consentimiento y código nuevos.</text>
+<rect x="24" y="327" width="342" height="48" fill="#10110C" stroke="#66675A" stroke-width="0.7"/>
+<text x="38" y="352" font-family="DejaVu Sans, Inter, sans-serif" font-size="13" font-weight="700" fill="#F0EDDB">Confirmar revocación</text>
+<rect x="24" y="389" width="342" height="48" fill="#DAD7C0" stroke="#66675A" stroke-width="0.7"/>
+<text x="38" y="414" font-family="DejaVu Sans, Inter, sans-serif" font-size="13" font-weight="700" fill="#10110C">Cancelar</text>
+<rect x="24" y="760" width="342" height="1" fill="#66675A" stroke="none" stroke-width="0.7"/>
+</svg>

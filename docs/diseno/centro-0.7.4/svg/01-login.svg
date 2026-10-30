@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="816" viewBox="0 0 390 816"><title>01 · Inicio de sesión</title><rect width="390" height="816" fill="#DAD7C0"/>
+<text x="24" y="43" font-family="DejaVu Sans, Inter, sans-serif" font-size="11" font-weight="400" fill="#66675A">AUDITLAB / CENTRO DE CONTROL</text>
+<text x="24" y="84" font-family="DejaVu Sans, Inter, sans-serif" font-size="24" font-weight="700" fill="#10110C">INICIAR SESIÓN</text>
+<text x="24" y="113" font-family="DejaVu Sans, Inter, sans-serif" font-size="12" font-weight="400" fill="#66675A">CONECTA CON TU SERVIDOR</text>
+<rect x="24" y="130" width="342" height="1" fill="#66675A" stroke="none" stroke-width="0.7"/>
+<text x="24" y="163" font-family="DejaVu Sans, Inter, sans-serif" font-size="11" font-weight="400" fill="#66675A">URL DEL SERVICIO</text>
+<rect x="24" y="180" width="342" height="46" fill="#F0EDDB" stroke="#66675A" stroke-width="0.7"/>
+<text x="36" y="203" font-family="DejaVu Sans, Inter, sans-serif" font-size="13" font-weight="400" fill="#10110C">https://tu-servidor.example:8443</text>
+<text x="24" y="252" font-family="DejaVu Sans, Inter, sans-serif" font-size="12" font-weight="400" fill="#66675A">Pega la URL HTTPS sin /ready ni /v1.</text>
+<text x="24" y="280" font-family="DejaVu Sans, Inter, sans-serif" font-size="11" font-weight="400" fill="#66675A">USUARIO</text>
+<rect x="24" y="297" width="342" height="46" fill="#F0EDDB" stroke="#66675A" stroke-width="0.7"/>
+<text x="36" y="320" font-family="DejaVu Sans, Inter, sans-serif" font-size="13" font-weight="400" fill="#10110C">administrador</text>
+<text x="24" y="368" font-family="DejaVu Sans, Inter, sans-serif" font-size="11" font-weight="400" fill="#66675A">CONTRASEÑA</text>
+<rect x="24" y="385" width="342" height="46" fill="#F0EDDB" stroke="#66675A" stroke-width="0.7"/>
+<text x="36" y="408" font-family="DejaVu Sans, Inter, sans-serif" font-size="13" font-weight="400" fill="#10110C">••••••••••••</text>
+<rect x="24" y="445" width="342" height="48" fill="#10110C" stroke="#66675A" stroke-width="0.7"/>
+<text x="38" y="470" font-family="DejaVu Sans, Inter, sans-serif" font-size="13" font-weight="700" fill="#F0EDDB">INICIAR SESIÓN</text>
+<text x="24" y="519" font-family="DejaVu Sans, Inter, sans-serif" font-size="12" font-weight="400" fill="#66675A">Acceso por rol: administrador o auditor.</text>
+<rect x="24" y="760" width="342" height="1" fill="#66675A" stroke="none" stroke-width="0.7"/>
+</svg>

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="816" viewBox="0 0 390 816"><title>02 · Error de acceso</title><rect width="390" height="816" fill="#DAD7C0"/>
+<text x="24" y="43" font-family="DejaVu Sans, Inter, sans-serif" font-size="11" font-weight="400" fill="#66675A">AUDITLAB / CENTRO DE CONTROL</text>
+<text x="24" y="84" font-family="DejaVu Sans, Inter, sans-serif" font-size="24" font-weight="700" fill="#10110C">INICIAR SESIÓN</text>
+<rect x="24" y="101" width="342" height="1" fill="#66675A" stroke="none" stroke-width="0.7"/>
+<rect x="24" y="123" width="342" height="113" fill="#F0EDDB" stroke="#66675A" stroke-width="0.7"/>
+<text x="40" y="157" font-family="DejaVu Sans, Inter, sans-serif" font-size="18" font-weight="700" fill="#10110C">No se pudo iniciar sesión</text>
+<text x="40" y="188" font-family="DejaVu Sans, Inter, sans-serif" font-size="14" font-weight="400" fill="#10110C">Revisa tus credenciales, la URL y la</text>
+<text x="40" y="209" font-family="DejaVu Sans, Inter, sans-serif" font-size="14" font-weight="400" fill="#10110C">conexión.</text>
+<text x="24" y="267" font-family="DejaVu Sans, Inter, sans-serif" font-size="11" font-weight="400" fill="#66675A">URL DEL SERVICIO</text>
+<rect x="24" y="284" width="342" height="46" fill="#F0EDDB" stroke="#66675A" stroke-width="0.7"/>
+<text x="36" y="307" font-family="DejaVu Sans, Inter, sans-serif" font-size="13" font-weight="400" fill="#10110C">https://tu-servidor.example:8443</text>
+<text x="24" y="355" font-family="DejaVu Sans, Inter, sans-serif" font-size="11" font-weight="400" fill="#66675A">USUARIO</text>
+<rect x="24" y="372" width="342" height="46" fill="#F0EDDB" stroke="#66675A" stroke-width="0.7"/>
+<text x="36" y="395" font-family="DejaVu Sans, Inter, sans-serif" font-size="13" font-weight="400" fill="#10110C">administrador</text>
+<text x="24" y="443" font-family="DejaVu Sans, Inter, sans-serif" font-size="11" font-weight="400" fill="#66675A">CONTRASEÑA</text>
+<rect x="24" y="460" width="342" height="46" fill="#F0EDDB" stroke="#66675A" stroke-width="0.7"/>
+<text x="36" y="483" font-family="DejaVu Sans, Inter, sans-serif" font-size="13" font-weight="400" fill="#10110C">••••••••••••</text>
+<rect x="24" y="520" width="342" height="48" fill="#10110C" stroke="#66675A" stroke-width="0.7"/>
+<text x="38" y="545" font-family="DejaVu Sans, Inter, sans-serif" font-size="13" font-weight="700" fill="#F0EDDB">REINTENTAR</text>
+<rect x="24" y="760" width="342" height="1" fill="#66675A" stroke="none" stroke-width="0.7"/>
+</svg>

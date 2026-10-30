@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="854" viewBox="0 0 390 854"><title>28 · Notificación Android</title><rect width="390" height="854" fill="#DAD7C0"/>
+<text x="24" y="43" font-family="DejaVu Sans, Inter, sans-serif" font-size="11" font-weight="400" fill="#66675A">AUDITLAB / CENTRO DE CONTROL</text>
+<text x="24" y="84" font-family="DejaVu Sans, Inter, sans-serif" font-size="24" font-weight="700" fill="#10110C">AVISO EN EL CENTRO</text>
+<text x="24" y="113" font-family="DejaVu Sans, Inter, sans-serif" font-size="12" font-weight="400" fill="#66675A">SUPERFICIE DEL SISTEMA · REFERENCIA</text>
+<rect x="24" y="130" width="342" height="1" fill="#66675A" stroke="none" stroke-width="0.7"/>
+<rect x="24" y="152" width="342" height="175" fill="#F0EDDB" stroke="#66675A" stroke-width="0.7"/>
+<text x="40" y="186" font-family="DejaVu Sans, Inter, sans-serif" font-size="18" font-weight="700" fill="#10110C">AuditLab · Alertas activas</text>
+<text x="40" y="217" font-family="DejaVu Sans, Inter, sans-serif" font-size="14" font-weight="400" fill="#10110C">Consultando Teléfono principal cada 5</text>
+<text x="40" y="238" font-family="DejaVu Sans, Inter, sans-serif" font-size="14" font-weight="400" fill="#10110C">segundos.</text>
+<rect x="24" y="255" width="342" height="48" fill="#DAD7C0" stroke="#66675A" stroke-width="0.7"/>
+<text x="38" y="280" font-family="DejaVu Sans, Inter, sans-serif" font-size="13" font-weight="700" fill="#10110C">DETENER</text>
+<rect x="24" y="347" width="342" height="179" fill="#F0EDDB" stroke="#66675A" stroke-width="0.7"/>
+<text x="40" y="381" font-family="DejaVu Sans, Inter, sans-serif" font-size="18" font-weight="700" fill="#10110C">Teléfono principal · Contacto</text>
+<text x="40" y="406" font-family="DejaVu Sans, Inter, sans-serif" font-size="18" font-weight="700" fill="#10110C">de prueba</text>
+<text x="40" y="437" font-family="DejaVu Sans, Inter, sans-serif" font-size="14" font-weight="400" fill="#10110C">Hola, llego en diez minutos.</text>
+<rect x="24" y="454" width="342" height="48" fill="#DAD7C0" stroke="#66675A" stroke-width="0.7"/>
+<text x="38" y="479" font-family="DejaVu Sans, Inter, sans-serif" font-size="13" font-weight="700" fill="#10110C">ABRIR EVENTOS</text>
+<text x="24" y="558" font-family="DejaVu Sans, Inter, sans-serif" font-size="12" font-weight="400" fill="#66675A">Contenido oculto en bloqueo. Los avisos de texto</text>
+<text x="24" y="577" font-family="DejaVu Sans, Inter, sans-serif" font-size="12" font-weight="400" fill="#66675A">caducan; el sistema puede modificar su presentación.</text>
+<rect x="24" y="760" width="342" height="1" fill="#66675A" stroke="none" stroke-width="0.7"/>
+<rect x="24" y="782" width="82" height="42" fill="#DAD7C0" stroke="none" stroke-width="0.7"/>
+<text x="29" y="805" font-family="DejaVu Sans, Inter, sans-serif" font-size="11" font-weight="400" fill="#10110C">INICIO</text>
+<rect x="110" y="782" width="82" height="42" fill="#DAD7C0" stroke="none" stroke-width="0.7"/>
+<text x="115" y="805" font-family="DejaVu Sans, Inter, sans-serif" font-size="11" font-weight="400" fill="#10110C">EVENTOS</text>
+<rect x="196" y="782" width="82" height="42" fill="#F0EDDB" stroke="none" stroke-width="0.7"/>
+<text x="201" y="805" font-family="DejaVu Sans, Inter, sans-serif" font-size="11" font-weight="700" fill="#10110C">EQUIPOS</text>
+<rect x="282" y="782" width="82" height="42" fill="#DAD7C0" stroke="none" stroke-width="0.7"/>
+<text x="287" y="805" font-family="DejaVu Sans, Inter, sans-serif" font-size="11" font-weight="400" fill="#10110C">MÁS</text>
+</svg>
