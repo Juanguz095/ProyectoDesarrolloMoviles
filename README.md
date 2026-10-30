@@ -39,13 +39,19 @@ Render real de Compose en emulador, con datos ficticios. Son imágenes, no capas
 nativas editables. El borrador ilustrativo de 41 vistas fue sustituido porque
 no reflejaba exactamente la aplicación. Capturas protegidas por Android pendientes.
 
+## Agente 0.7.5: estado básico y reinicio
+
+Batería y conexión en servicio visible. Recuperación opcional vinculada a la
+inscripción y consentimiento, con botón Detener. No reactiva SMS/llamadas, WhatsApp
+ni pantalla tras reiniciar. [Uso y recorrido del código](docs/MONITOREO_BASICO_0.7.5.md).
+
 ## Descargas
 
-**Agente: 0.7.1-preview · Centro: 0.7.4-preview · Servidor: 0.7 · Android 8.0 o superior.**
+**Agente: 0.7.5-preview · Centro: 0.7.4-preview · Servidor: 0.7 · Android 8.0 o superior.**
 
 | Componente | Instalación | Descargar |
 | --- | --- | --- |
-| Agente | Dispositivo que comparte información | [APK Agente](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.7.1-preview.apk) |
+| Agente | Dispositivo que comparte información | [APK Agente](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.7.5-preview.apk) |
 | Centro de control | Dispositivo desde el que se consulta | [APK Centro](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.7.4-preview.apk) |
 | Servidor Windows | PC que ejecuta la API y la base de datos | [Servidor Windows 0.7](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.7.0-preview.zip) |
 

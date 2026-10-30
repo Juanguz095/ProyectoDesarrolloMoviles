@@ -1,0 +1,91 @@
+{
+  "date": "2026-10-30",
+  "timezone": "America/Lima",
+  "tasks": [
+    "P5.3",
+    "P5.4",
+    "P7.1",
+    "P8.2",
+    "P8.3"
+  ],
+  "version": "0.7.5-preview",
+  "versionCode": 14,
+  "component": "agent",
+  "source_base_commit": "16cffb49abdd7eec98d6a2172c8d48974e3f4191",
+  "compatible_control": "0.7.4-preview",
+  "compatible_server": "0.7.0-preview",
+  "artifact": {
+    "file": "auditlab-agent-0.7.5-preview.apk",
+    "bytes": 10313331,
+    "sha256": "85d93ce69e5a67da6cdb270f96cee6bd45cc6134b6471035e7aa1c915e2e729d",
+    "signer_sha256": "970a74d96448bdf8f1efdb65396d88ac1bba6126acac4f2e40508390574cd853"
+  },
+  "checks": {
+    "build_and_lint_exit_code": 0,
+    "apk_audit_exit_code": 0,
+    "upgrade_signature_matches_071": true,
+    "installed_apk_matches_build": true,
+    "unit_suites": [
+      {
+        "suite": "BasicRecoveryPolicyTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "AgentSchedulingTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "RoomAgentJournalTest",
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "native_passed": 2,
+    "lint": {
+      "Warning": 16,
+      "Information": 4
+    }
+  },
+  "native_reboot": {
+    "actual_reboot": true,
+    "visible_basic_service": true,
+    "device_status_only": true,
+    "communication_capture_inactive": true,
+    "whatsapp_inactive": true,
+    "screen_share_inactive": true,
+    "stop_disables_recovery": true,
+    "service_reattached_for_instrumentation": true,
+    "service_started_before_test_runner": true,
+    "agent_serial": "emulator-5592",
+    "api": 28
+  },
+  "first_native_attempt": {
+    "preparation_passed": true,
+    "boot_service_observed": true,
+    "post_reboot_instrumentation_wait_failed": true,
+    "reason_and_correction": "Instrumentation interrupts the process under test; final host validates autonomous foreground startup before reattaching the same authorized service for native stop assertions",
+    "logs": ".tooling/basic-recovery-native-attempt1/"
+  },
+  "new_windows_archive": false,
+  "server_or_contract_changes": false,
+  "verified_scope": "Visible battery/network status only; opt-in recovery tied to enrollment/consent; communication sessions remain manually activated",
+  "not_verified": [
+    "Physical phones",
+    "Android 13 notification permission dialog on a device",
+    "Boot foreground restrictions on Android 14/15 and manufacturer battery policies",
+    "Long-running endurance and forced-stop behavior"
+  ],
+  "logs": [
+    ".tooling/basic-recovery-075-final-checks.log",
+    ".tooling/basic-recovery-075-apk-audit.log",
+    ".tooling/basic-recovery-075-native-run.log"
+  ]
+}

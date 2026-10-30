@@ -30,6 +30,7 @@ class MonitoringIndicator(private val context: Context) {
     fun allowed(): Boolean = manager.areNotificationsEnabled() &&
         manager.getNotificationChannel(CHANNEL)?.importance != NotificationManager.IMPORTANCE_NONE &&
         (Build.VERSION.SDK_INT < 33 || context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+    fun isPaused(): Boolean = paused
     fun isVisible(): Boolean = !paused && allowed() && manager.activeNotifications.any { it.id == ID }
     fun show(): Boolean {
         if (!allowed()) return false
@@ -103,6 +104,7 @@ class AgentRuntime private constructor(private val context: android.app.Applicat
     val indicator = MonitoringIndicator(context)
     val scheduler = SyncScheduler(context)
     val realEvents = RealEventMonitor(context, this)
+    val basicMonitoring = BasicMonitoring(context, this)
     fun stopScreenSharing() { context.stopService(Intent(context, ScreenShareService::class.java)) }
     fun stopWhatsAppSharing() { WhatsAppSharingRuntime.stop(context) }
     val changes = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
@@ -120,9 +122,15 @@ class AgentRuntime private constructor(private val context: android.app.Applicat
         val state = core.refresh()
         val row = runCatching { journal.registration() }.getOrNull()
         if (state is AgentCore.State.Enrolled && row != null) {
-            if (!indicator.isVisible()) { realEvents.stop();stopWhatsAppSharing() }
+            if (!indicator.isVisible()) {
+                // Notification presence is transient after process creation. A worker may run
+                // before the opted-in boot service promotes itself; do not erase its receipt.
+                if(indicator.isPaused() || !indicator.allowed()) runCatching {basicMonitoring.stop()}
+                realEvents.stop();stopWhatsAppSharing()
+            }
             scheduler.active(row.deviceId, indicator.isVisible() && journal.stats().pending > 0)
         } else {
+            runCatching {basicMonitoring.stop()}
             stopWhatsAppSharing()
             stopScreenSharing()
             realEvents.stop()

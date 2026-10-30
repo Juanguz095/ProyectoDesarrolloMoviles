@@ -4,6 +4,33 @@ Actualización: 29 de octubre de 2026, UTC. Los registros anteriores conservan s
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
+## Estado básico visible y recuperación tras reinicio — 30 de octubre de 2026 (America/Lima)
+
+- P5.3/P5.4: Agente 0.7.5, código 14. Servicio básico separado, limitado a
+  device_status (batería/conexión), notificación propia con acción Detener e icono
+  visible de AuditLab. Sin inicio de lectores SMS/llamadas ni sesiones de contenido.
+- Recibo local opt-in inicialmente desactivado, vinculado al equipo/consentimiento.
+  BOOT_COMPLETED sin Direct Boot: permisos, pausa, inscripción y bloqueos se validan
+  antes de iniciar/reanudar. START_STICKY únicamente con recuperación habilitada.
+  Pausar, retirar consentimiento o activar captura real borra la recuperación.
+- Permiso de notificación solicitado una vez tras la primera inscripción válida en
+  Android13+; el botón permite solicitarlo si falta. No se solicitan permisos de
+  comunicaciones para el estado básico. Guía de uso y ubicación de fragmentos:
+  [MONITOREO_BASICO_0.7.5](MONITOREO_BASICO_0.7.5.md).
+- Se evita que un worker borre el recibo solo por la ausencia transitoria de la
+  notificación al crear el proceso. El bucle sí exige visibilidad antes de capturar.
+- Compilación/lint y auditoría APK correctas; firma compatible e instalado idéntico
+  por SHA256. 18 pruebas JVM/Robolectric y 2 invocaciones nativas aprobadas. Reinicio
+  real de AVD API28: FGS observado por host antes de abrir actividad/instrumentación;
+  eventos solo device_status y otras capturas inactivas. Detener elimina recuperación.
+- Primer intento: preparación y arranque observados, espera dentro de instrumentación
+  fallida (90 s). Se conservan logs. Comprobación final separa arranque autónomo desde
+  host y reenganche del servicio para probar Detener dentro del proceso instrumentado.
+  [Evidencia y límites](evidencias/BASICO-0.7.5-2026-10-30.json).
+- No se valida Android13/14/15 en dispositivo, permisos de fabricantes ni ejecución
+  prolongada; no se promete proceso permanente. P7.1 sigue pendiente en teléfonos.
+  P8.2/P8.3: preparar publicación del Agente; Centro/API y ZIP Windows no cambian.
+
 ## Corrección: vistas reales del Centro — 30 de octubre de 2026 (America/Lima)
 
 - P8.3: el usuario señaló que el paquete anterior no correspondía a las vistas.

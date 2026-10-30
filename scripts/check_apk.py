@@ -29,6 +29,8 @@ EXPECTED = {
             "Lcom/auditlab/agent/AgentSession;",
             "Lcom/auditlab/agent/KeystoreCredentialStore;",
             "Lcom/auditlab/agent/RealMonitoringService;",
+            "Lcom/auditlab/agent/BasicMonitoringService;",
+            "Lcom/auditlab/agent/BasicBootReceiver;",
             "Lcom/auditlab/agent/PhoneMetadata;",
             "Lcom/auditlab/agent/WhatsAppShareActivity;",
             "Lcom/auditlab/agent/WhatsAppNotificationListener;",

@@ -1,6 +1,6 @@
 # AuditLab — arquitectura actual
 
-Actualizado: 29 de octubre de 2026, America/Lima. Agente 0.7.1, Centro 0.7.4, API 0.7/V9.
+Actualizado: 29 de octubre de 2026, America/Lima. Agente 0.7.5, Centro 0.7.4, API 0.7/V9.
 Centro 0.7.2 cambia la presentación de vistas previas en Eventos, sin cambiar
 el contrato ni la persistencia. [Detalle](WHATSAPP_EVENTOS_0.7.2.md).
 
@@ -205,3 +205,9 @@ Centro 0.7.4 añade un servicio dataSync visible que consulta vistas previas cad
 y construye avisos Android locales. Comparte ControlCore con la actividad para
 serializar la rotación de credenciales. No usa FCM ni cambia API/SQL.
 [Operación y límites](ALERTAS_WHATSAPP_0.7.4.md).
+
+Agente 0.7.5 separa `BasicMonitoringService` de `RealMonitoringService`: no consulta
+proveedores de comunicaciones. `BasicBootReceiver` solo acepta BOOT_COMPLETED y
+comprueba el recibo local del mismo equipo/consentimiento antes de solicitar un
+servicio visible. No hay Direct Boot, ocultación ni excepciones al ahorro de batería.
+[Condiciones y límites](MONITOREO_BASICO_0.7.5.md).

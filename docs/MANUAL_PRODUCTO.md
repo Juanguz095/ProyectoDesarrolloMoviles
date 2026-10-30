@@ -1,7 +1,7 @@
 # AuditLab — manual del producto
 
 Actualizado: 29 de octubre de 2026, America/Lima.
-Agente **0.7.1-preview**, Centro **0.7.4-preview**; servidor **0.7**, PostgreSQL con migraciones **V1–V9**.
+Agente **0.7.5-preview**, Centro **0.7.4-preview**; servidor **0.7**, PostgreSQL con migraciones **V1–V9**.
 Es una entrega de desarrollo. [Estado comprobado](AVANCE.md) y
 [contexto general](CONTEXTO_PRODUCTO.md).
 
@@ -157,3 +157,5 @@ en la versión actual. Compilación/lint/firma no acreditan ese recorrido.
 Identificación y archivo local de equipos: [Centro 0.7.4](DISPOSITIVOS_0.7.3.md).
 
 Alertas con servicio visible sin Firebase: [activar Centro 0.7.4](ALERTAS_WHATSAPP_0.7.4.md).
+
+Agente 0.7.5: [batería/conexión y recuperación visible opcional](MONITOREO_BASICO_0.7.5.md).

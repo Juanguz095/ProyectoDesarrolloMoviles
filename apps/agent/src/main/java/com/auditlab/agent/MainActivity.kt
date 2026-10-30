@@ -52,6 +52,15 @@ class MainActivity : ComponentActivity() {
         )
         model = ViewModelProvider(this)[AgentViewModel::class.java]
         setContent {
+            LaunchedEffect(model.session.state,model.session.ready,model.session.busy) {
+                if(model.session.ready && !model.session.busy && model.session.state is AgentCore.State.Enrolled) {
+                    val onboarding=getSharedPreferences("auditlab_permission_onboarding",MODE_PRIVATE)
+                    if(!onboarding.getBoolean("notificationsAsked",false) && onboarding.edit().putBoolean("notificationsAsked",true).commit()) {
+                        if(Build.VERSION.SDK_INT>=33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)!=PackageManager.PERMISSION_GRANTED)
+                            notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    }
+                }
+            }
             AuditTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     AgentScreen(model.session, workScope = model.scope, onRequestNotifications = {
@@ -61,7 +70,8 @@ class MainActivity : ComponentActivity() {
                     }, onNotificationSettings = {
                         startActivity(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, packageName))
                     }, onRequestRealMonitoring = {
-                        phonePermissions.launch(arrayOf(Manifest.permission.READ_SMS, Manifest.permission.READ_CALL_LOG))
+                        val missing=arrayOf(Manifest.permission.READ_SMS, Manifest.permission.READ_CALL_LOG).filter {checkSelfPermission(it)!=PackageManager.PERMISSION_GRANTED}
+                        if(missing.isEmpty()) model.session.startRealMonitoring(model.scope) else phonePermissions.launch(missing.toTypedArray())
                     }, onShareScreen = {
                         startActivity(Intent(this, ScreenShareActivity::class.java))
                     }, onShareWhatsApp = {
@@ -279,8 +289,8 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
                         Text("Pendientes de envío: ${session.stats.pending}",style=MaterialTheme.typography.bodyMedium)
                         if(session.stats.failed>0) Text("${session.stats.failed} eventos rechazados; revisa la conexión y la inscripción.",color=AuditColors.Red)
                         AuditButton(if(session.busy) "Solicitando…" else "Enviar estado ahora",{session.refreshDeviceStatus(scope)},
-                            session.realCaptureRunning && session.visibleAvailable && !session.busy)
-                        if(!session.realCaptureRunning) Text("Activa la captura de arriba para actualizar la batería.",color=AuditColors.Warning,style=MaterialTheme.typography.bodySmall)
+                            (session.realCaptureRunning || BasicMonitoringState.running) && session.visibleAvailable && !session.busy)
+                        if(!session.realCaptureRunning && !BasicMonitoringState.running) Text("Activa batería y conexión o la captura de arriba para actualizar el estado.",color=AuditColors.Warning,style=MaterialTheme.typography.bodySmall)
                         Text("En el Centro, usa Actualizar ahora o deja activada la actualización automática.",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
                     }
                     Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
@@ -312,6 +322,7 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
                     }
                     AuditRule()
                     var showTools by rememberSaveable {mutableStateOf(false)}
+                    BasicMonitoringControls()
                     AuditLink(if(showTools) "Ocultar herramientas de conexión" else "Herramientas de conexión",{showTools=!showTools})
                     if(showTools) {
                         Text("Servidor: ${session.serverUrl}",style=MaterialTheme.typography.bodySmall)

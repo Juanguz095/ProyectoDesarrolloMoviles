@@ -63,6 +63,7 @@ class RealEventMonitor(private val context: Context, private val runtime: AgentR
         check(runtime.indicator.isVisible()) { "Habilita primero el indicador visible." }
         check(!runtime.gate.withdrawalRequested)
         if (requested) return@synchronized
+        runtime.basicMonitoring.stop()
         includeNumbers=numbers
         includeSmsText=smsText
         startedAt = System.currentTimeMillis()

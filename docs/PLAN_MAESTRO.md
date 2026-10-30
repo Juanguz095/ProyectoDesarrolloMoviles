@@ -5,6 +5,10 @@ Contexto y arquitectura actualizados al 29 de octubre: [producto](CONTEXTO_PRODU
 [arquitectura](ARQUITECTURA.md) y [presentación](PRESENTACION_PPT.md). Las ampliaciones
 fechadas conservan el historial; el alcance actual consolida las versiones posteriores.
 
+**Agente 0.7.5 — 30 de octubre (America/Lima):** P5.3/P5.4 separan estado básico
+de comunicaciones. Recuperación opcional tras boot solo para batería/conexión,
+con recibo del mismo consentimiento y servicio visible. [Uso y código](MONITOREO_BASICO_0.7.5.md).
+
 **Centro 0.7.4 — 29 de octubre (America/Lima):** P6.6/P6.4 añaden alertas locales
 mediante servicio visible, sin Firebase. No son push ni se garantiza ejecución
 permanente. [Activación y límites](ALERTAS_WHATSAPP_0.7.4.md). P7.6 pendiente en teléfonos.

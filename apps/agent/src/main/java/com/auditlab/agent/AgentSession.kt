@@ -96,6 +96,7 @@ class AgentSession internal constructor(
         else "Evento guardado localmente. Pendientes: ${it.stats().pending}."
     }
     fun revoke(scope: CoroutineScope) {
+        runCatching { platform?.basicMonitoring?.stop() }
         platform?.stopWhatsAppSharing()
         platform?.stopScreenSharing()
         if (revoking) return
@@ -126,6 +127,7 @@ class AgentSession internal constructor(
         "Indicador habilitado. La sincronización puede continuar."
     }
     fun pause(scope: CoroutineScope) {
+        runCatching { platform?.basicMonitoring?.stop() }
         platform?.stopWhatsAppSharing()
         perform(scope) {
         platform?.stopScreenSharing()
@@ -150,7 +152,7 @@ class AgentSession internal constructor(
     }
     fun refreshDeviceStatus(scope: CoroutineScope) = perform(scope) {
         check(platform!=null) { "Esta función necesita el teléfono del Agente." }
-        platform.realEvents.refreshNow()
+        if(BasicMonitoringState.running) platform.basicMonitoring.refreshNow() else platform.realEvents.refreshNow()
         "Actualización solicitada. El Agente leerá la batería y enviará el estado al servidor."
     }
     fun stopScreenSharing() { platform?.stopScreenSharing() }
