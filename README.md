@@ -44,6 +44,7 @@ no reflejaba exactamente la aplicación. Capturas protegidas por Android pendien
 Batería y conexión en servicio visible. Recuperación opcional vinculada a la
 inscripción y consentimiento, con botón Detener. No reactiva SMS/llamadas, WhatsApp
 ni pantalla tras reiniciar. [Uso y recorrido del código](docs/MONITOREO_BASICO_0.7.5.md).
+[Pruebas y entrega del Agente 0.7.5](docs/evidencias/ENTREGA-AGENTE-0.7.5-2026-10-30.json).
 
 ## Descargas
 

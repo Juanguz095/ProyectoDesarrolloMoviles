@@ -29,7 +29,9 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
   [Evidencia y límites](evidencias/BASICO-0.7.5-2026-10-30.json).
 - No se valida Android13/14/15 en dispositivo, permisos de fabricantes ni ejecución
   prolongada; no se promete proceso permanente. P7.1 sigue pendiente en teléfonos.
-  P8.2/P8.3: preparar publicación del Agente; Centro/API y ZIP Windows no cambian.
+  P8.2/P8.3: fuente `26cffcb` y APK/guía publicados en descargas `e891fbe`;
+  HTTP 200 y tamaño/SHA256 verificados. [Entrega](evidencias/ENTREGA-AGENTE-0.7.5-2026-10-30.json).
+  Centro/API y ZIP Windows sin cambios.
 
 ## Corrección: vistas reales del Centro — 30 de octubre de 2026 (America/Lima)
 

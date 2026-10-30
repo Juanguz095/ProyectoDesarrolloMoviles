@@ -1,6 +1,6 @@
 # AuditLab — manual del producto
 
-Actualizado: 29 de octubre de 2026, America/Lima.
+Actualizado: 30 de octubre de 2026, America/Lima.
 Agente **0.7.5-preview**, Centro **0.7.4-preview**; servidor **0.7**, PostgreSQL con migraciones **V1–V9**.
 Es una entrega de desarrollo. [Estado comprobado](AVANCE.md) y
 [contexto general](CONTEXTO_PRODUCTO.md).
