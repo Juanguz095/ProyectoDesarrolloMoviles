@@ -16,9 +16,9 @@ puertos del router. Ambos teléfonos deben poder acceder al mismo servidor.
 
 ## 1. Descargas
 
-Descarga **Agente 0.7.1-preview y Centro 0.7.4-preview** y, si necesitas instalar el servidor, el paquete **0.7.0-preview**:
+Descarga **Agente 0.7.5-preview y Centro 0.7.4-preview** y, si necesitas instalar el servidor, el paquete **0.7.0-preview**:
 
-- [Agente 0.7.1](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.7.1-preview.apk).
+- [Agente 0.7.5](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.7.5-preview.apk).
 - [Centro 0.7.4](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.7.4-preview.apk).
 - [Servidor Windows 0.7](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.7.0-preview.zip).
 
@@ -164,3 +164,5 @@ La PC, API, Docker y Tailscale deben seguir funcionando. Son APK debug de prueba
 En 0.7 se registran compilación, revisión estática, migración de desarrollo y revisión
 visual de tarjetas. Las suites automáticas y el recorrido WhatsApp real de esta
 revisión no se ejecutaron. Windows y teléfonos físicos quedan por comprobar.
+
+Para recuperar solo batería/conexión al encender, [activar el modo básico del Agente 0.7.5](MONITOREO_BASICO_0.7.5.md). Las sesiones de comunicaciones/pantalla conservan su activación manual.

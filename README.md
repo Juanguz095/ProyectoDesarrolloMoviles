@@ -2,56 +2,48 @@
 
 | Componente | Descargar |
 | --- | --- |
-| Agente 0.7.1 | [APK Agente](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.7.1-preview.apk) |
+| Agente 0.7.5 | [APK Agente](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.7.5-preview.apk) |
 | Centro 0.7.4 | [APK Centro](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.7.4-preview.apk) |
 | Servidor Windows 0.7 | [ZIP original revisado](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.7.0-preview.zip) |
 
-## Alertas WhatsApp sin Firebase
+## Batería y conexión con recuperación visible
 
-Equipos → Ver dispositivo → Activar alertas para este teléfono. Permitir
-notificaciones y mantener la sesión autorizada en el Agente. Servicio visible
-que consulta cada 5 segundos, con texto recibido y botón Detener. Una fuente
-por vez. Tocar un aviso abre Eventos del equipo. Sin captura de envíos del chat.
-Android puede interrumpirlo por batería/Doze o límites dataSync; sin reinicio
-oculto ni garantía de avisos permanentes. No usa Firebase ni cambia el servidor.
+Actualizar Agente sobre el anterior conservando sus datos. Compatible con Centro
+0.7.4 y servidor 0.7; no requiere volver a inscribir ni cambiar URL.
 
-## Identificar y archivar equipos
+En el Agente inscrito abrir Batería y conexión, elegir si se desea reanudar al
+encender y pulsar Activar batería y conexión. La elección está inicialmente
+desactivada y se guarda solo al activar. Notificación visible y botón Detener.
+Pausar, retirar consentimiento o activar captura real deshabilita la recuperación.
 
-Equipos → Ver dispositivo → Cambiar nombre o Archivar dispositivo. Los nombres y
-el archivo permanecen en este Centro, separados por servidor e inscripción.
-Equipos → Mostrar → Archivados permite restaurarlos. Se muestran inscripción y
-último contacto; contacto reciente significa como máximo 2 minutos.
-Archivar conserva los eventos y permite que sigan llegando; Revocar bloquea envíos.
-Los cambios locales no se sincronizan con otros Centros.
+Solo device_status: batería/conexión. No se reactivan SMS/llamadas, WhatsApp ni
+pantalla tras boot. No funciona apagado ni se promete ejecución permanente.
+Forzar detención, permisos, fabricante o restricciones Android pueden impedirlo.
 
-## WhatsApp en Eventos
+[Uso, fragmentos y pruebas](MONITOREO-BASICO-0.7.5.md) ·
+[Pasos Windows](PASOS-SIN-USB.md) · [SHA256 Agente](SHA256SUMS-0.7.5-preview) ·
+[Entrega](ENTREGA-0.7.5-preview.json).
 
-Actualizar el Centro sobre la instalación anterior. Compatible con Agente 0.7.1
-y servidor 0.7, sin volver a inscribir ni cambiar la URL.
+Compilación/lint/auditoría de APK/firma correctos; 18 pruebas JVM/Robolectric y
+2 invocaciones nativas con reinicio real del AVD API28 aprobadas. Servicio observado
+antes de abrir actividad/instrumentación; el proceso se reengancha para probar Detener.
+Sin prueba en teléfonos, permiso inicial Android13 o arranque Android14/15.
 
-En Eventos → Todo o WhatsApp aparecen las vistas previas de notificaciones
-entrantes autorizadas, con título, texto expandible y hora. Si hay varios teléfonos,
-seleccionar uno. Usar sin filtros de fecha o ID para ver texto en vivo.
+## Centro 0.7.4
 
-Requiere permiso de notificaciones, indicador visible y sesión autorizada localmente
-en el Agente. No obtiene el texto enviado dentro del chat ni todo el historial.
-Texto temporal: 20 vistas previas/5 minutos, fuera de Room/PostgreSQL/CSV.
-Historial persistente de actividad solo contiene tipo/fecha para WhatsApp.
+Alertas WhatsApp entrantes autorizadas mediante servicio visible, consulta cada
+5 segundos, texto disponible y botón Detener. Tocar abre Eventos del equipo.
+No usa Firebase ni captura el texto enviado dentro del chat. Android puede detenerlo.
+Vistas previas en memoria hasta 5 minutos, sin Room/PostgreSQL/CSV.
 
-[Guía de la actualización](ALERTAS-WHATSAPP-0.7.4.md) ·
-[Instalación Windows](PASOS-SIN-USB.md) ·
-[Registro Centro 0.7.4](ENTREGA-0.7.4-preview.json) ·
-[SHA256 Centro](SHA256SUMS-0.7.4-preview) ·
-[SHA256 Agente](SHA256SUMS-0.7.1-preview).
-
-Compilación, lint, revisión estática y firma de actualización correctos. 20 pruebas unitarias/Robolectric aprobadas; sin recepción real en teléfonos para esta revisión.
+Nombres y archivo locales de equipos; archivarlos conserva eventos y no revoca.
 
 ## Servidor Windows
 
-No hay ZIP nuevo. El ZIP 0.7 contiene APK anteriores: usar los enlaces separados
-actuales. El ZIP original pasó un análisis Defender en Windows Server 2022 sin
-hallazgos; no hay confirmación del proveedor de falso positivo. Si Defender vuelve
-a bloquearlo, mantener el bloqueo sin restaurarlo ni añadir exclusiones.
-[Informe](REVISION-DEFENDER-0.7.md). El análisis histórico no cubre este APK nuevo.
+No hay ZIP nuevo. El ZIP 0.7 conserva APK anteriores: usar los enlaces separados.
+El ZIP original pasó análisis Defender sin hallazgos en el entorno documentado;
+no hay confirmación del proveedor de falso positivo. Si Defender vuelve a bloquearlo,
+mantener el bloqueo sin restaurarlo ni añadir exclusiones. El informe histórico
+no cubre este APK nuevo. [Informe](REVISION-DEFENDER-0.7.md).
 
 Versiones anteriores conservadas como historial.
