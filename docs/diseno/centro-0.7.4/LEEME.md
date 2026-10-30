@@ -1,3 +1,7 @@
+> **BORRADOR SUSTITUIDO.** Estas 41 vistas fueron reconstruidas y no coinciden
+> exactamente con el APK. Usa las [capturas Android comprobadas](../centro-capturas-0.7.4/LEEME.md).
+> El enlace ZIP original ahora entrega el paquete de capturas corregido.
+
 # AuditLab — vistas del Centro para Figma
 
 Referencia de diseño de la app 0.7.4 · 30 de octubre de 2026, America/Lima.

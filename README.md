@@ -30,13 +30,14 @@ no captura lo enviado dentro del chat. [Activación y límites](docs/ALERTAS_WHA
 texto, segundo plano, deduplicación, navegación y detención aprobados con entradas
 ficticias por API; recepción WhatsApp real en teléfonos pendiente.
 
-## Diseño del Centro en Figma
+## Vistas correctas del Centro para Figma
 
-[Paquete editable: 41 vistas](docs/diseno/AuditLab-Centro-Figma-0.7.4.zip) ·
-[Cómo importarlo](docs/diseno/centro-0.7.4/LEEME.md) ·
-[Vista general](docs/diseno/centro-0.7.4/vista-general.png).
-Referencias de diseño de 0.7.4, con datos ficticios. No son capturas del APK
-ni un documento ya creado en una cuenta de Figma.
+[Descargar capturas Android](docs/diseno/AuditLab-Centro-Capturas-0.7.4.zip) ·
+[Cómo abrirlas en Figma](docs/diseno/centro-capturas-0.7.4/LEEME.md) ·
+[Vista general](docs/diseno/centro-capturas-0.7.4/vista-general.png).
+Render real de Compose en emulador, con datos ficticios. Son imágenes, no capas
+nativas editables. El borrador ilustrativo de 41 vistas fue sustituido porque
+no reflejaba exactamente la aplicación. Capturas protegidas por Android pendientes.
 
 ## Descargas
 

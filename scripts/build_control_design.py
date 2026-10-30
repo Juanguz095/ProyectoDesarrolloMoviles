@@ -10,7 +10,7 @@ import zipfile
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / 'docs/diseno/centro-0.7.4'
+OUT = ROOT / 'docs/diseno/centro-borrador-0.7.4'
 OUT.mkdir(parents=True, exist_ok=True)
 COLORS = dict(paper='#DAD7C0', panel='#F0EDDB', ink='#10110C', muted='#66675A', red='#9A3027', green='#287336')
 FONT = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
@@ -278,7 +278,7 @@ No se ejecutan pruebas de Android porque este trabajo modifica solo diseño/docs
 
 '''+''.join(f'- {s.name} — `{s.source}`'+(' · superficie del sistema' if s.system else '')+'\n' for s in SCREENS)
 (OUT/'LEEME.md').write_text(readme)
-archive=ROOT/'docs/diseno/AuditLab-Centro-Figma-0.7.4.zip'
+archive=ROOT/'docs/diseno/AuditLab-Centro-Borrador-0.7.4.zip'
 with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as z:
     for p in sorted(OUT.rglob('*')):
         if p.is_file():z.write(p,Path('AuditLab-Centro-Figma')/p.relative_to(OUT))

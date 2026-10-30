@@ -1,0 +1,172 @@
+{
+  "product_version": "0.7.4-preview",
+  "android_api": 26,
+  "capture_method": "UiAutomation.takeScreenshot; production ControlScreen and native dialogs, synthetic in-process API fixture",
+  "redrawn": false,
+  "screens": [
+    {
+      "name": "01-login",
+      "width": 720,
+      "height": 1280,
+      "sha256": "76f0cd9623412ccc75819a0b58bedff71b9a3ec4ff1d9d56c4e32b1bf272ab7c"
+    },
+    {
+      "name": "02-inicio",
+      "width": 720,
+      "height": 1280,
+      "sha256": "84a7954a7f859c0e1c9a1aed123fb5f658cfba24b12a8301d654eb2b844ed8cd"
+    },
+    {
+      "name": "03-equipos",
+      "width": 720,
+      "height": 1280,
+      "sha256": "aac7ae7dd6415aa627b868608649563bfc4330c574f1f8d864666b04d7681756"
+    },
+    {
+      "name": "04-detalle-superior",
+      "width": 720,
+      "height": 1280,
+      "sha256": "5a1cb0f43be31f999fc3cb0b7d5760c07240a62a9a62f025d2c982f9095e0717"
+    },
+    {
+      "name": "05-cambiar-nombre",
+      "width": 720,
+      "height": 1280,
+      "sha256": "6f61bf23de4f67cd0da3cd500e20a7948f8983185219bb0d4d441f6ec4e5952e"
+    },
+    {
+      "name": "06-confirmar-archivo",
+      "width": 720,
+      "height": 1280,
+      "sha256": "01b314f38ebe5a89521c76ae6c656ba7c396c2aab109a8d5bf9edd408a785a92"
+    },
+    {
+      "name": "07-confirmar-revocacion",
+      "width": 720,
+      "height": 1280,
+      "sha256": "a822db0461c35397c66c61d30ff53bfa21ff0617bcbfcb1df8974d8c5771d79b"
+    },
+    {
+      "name": "08-informacion-tecnica",
+      "width": 720,
+      "height": 1280,
+      "sha256": "cb738525f5281da29d0d7b96d81ae1f9e77a6fecf9153583557f558a367a612d"
+    },
+    {
+      "name": "09-equipos-archivados",
+      "width": 720,
+      "height": 1280,
+      "sha256": "2c7c711c2f90aea785e155924f71c0e08f0627c05c44630449b34e0c480d04ac"
+    },
+    {
+      "name": "10-confirmar-restauracion",
+      "width": 720,
+      "height": 1280,
+      "sha256": "6934bb3c526f26920f55139f38d0a99f9da5a2b5e8c2d23720f35eb92fdaf2e0"
+    },
+    {
+      "name": "11-eventos-todo",
+      "width": 720,
+      "height": 1280,
+      "sha256": "f42301bbf6336caf351ea1d2e791a1f051a30fc2105871cfaf1bf270ea80801a"
+    },
+    {
+      "name": "12-eventos-sms",
+      "width": 720,
+      "height": 1280,
+      "sha256": "99795e6029537059c9294f941c6072f80681939559bd688a866b8428b0b7a010"
+    },
+    {
+      "name": "13-filtros",
+      "width": 720,
+      "height": 1280,
+      "sha256": "4b3cfdc71e627ada583c1010ba137ecd038bfa7e69f2ad8dc782ca85cadd74b4"
+    },
+    {
+      "name": "14-detalle-sms",
+      "width": 720,
+      "height": 1280,
+      "sha256": "d0a313d0ae9e8c8e3da7c95dda421528d597058bed6bd5f63aa60f3f3200f54d"
+    },
+    {
+      "name": "15-detalle-llamada",
+      "width": 720,
+      "height": 1280,
+      "sha256": "4af1a4080ca8c33096b0a530b2c03039bc07fd35a156466bf0cc527f5ad2d862"
+    },
+    {
+      "name": "16-ajustes-admin",
+      "width": 720,
+      "height": 1280,
+      "sha256": "109b6fec3262e8e3e92d3801f662442ea23ea324d92d9bb43310505791d9b01c"
+    },
+    {
+      "name": "17-auditoria",
+      "width": 720,
+      "height": 1280,
+      "sha256": "87f6bdd29d47ee41823fa4085ecd0e4cc4fc0ceb3fff5ea86bff6cc10866e00d"
+    },
+    {
+      "name": "18-inscripcion",
+      "width": 720,
+      "height": 1280,
+      "sha256": "27c1df4908bd8a0ff47a070b504c9e74ea2c2d3079a093d0f991cdb2abff22d9"
+    },
+    {
+      "name": "19-codigo-ejemplo",
+      "width": 720,
+      "height": 1280,
+      "sha256": "0f64b416076e9cce94b44c8b3748946542c8f41c3ae7954f6ea9a00842a711ec"
+    },
+    {
+      "name": "20-confirmar-cierre",
+      "width": 720,
+      "height": 1280,
+      "sha256": "79aa68539fa8276dd7eb5d8db437202e1605ad9192ac4f3f327e4e55c3c1613f"
+    },
+    {
+      "name": "21-ajustes-auditor",
+      "width": 720,
+      "height": 1280,
+      "sha256": "0f10b31906544d49c781d04d6075546009d7d20198477e601f0fc01dae4e88e8"
+    },
+    {
+      "name": "22-inicio-vacio",
+      "width": 720,
+      "height": 1280,
+      "sha256": "1d72ca933ad359ba226c77783504c005cf7031dece6f266fd288c739f74f869c"
+    },
+    {
+      "name": "23-inicio-inferior",
+      "width": 720,
+      "height": 1280,
+      "sha256": "1da4f64e22714d5e3868430f671e4d45b104c8d029ffa2dea16636ca314ca770"
+    },
+    {
+      "name": "24-detalle-alertas",
+      "width": 720,
+      "height": 1280,
+      "sha256": "f7f24e092c5301f23b869846f9fc22b61abfe9e160331a7a61bd930883dbaf15"
+    },
+    {
+      "name": "25-campos-filtros",
+      "width": 720,
+      "height": 1280,
+      "sha256": "8356bd6371d4f2117106ed26ee7f43a732446cc6f80919a164ac2e8dfaae8fa4"
+    },
+    {
+      "name": "26-tarjeta-sms",
+      "width": 720,
+      "height": 1280,
+      "sha256": "230cd17e9be352d26b72308a956345f35777542247836040a7487b4562f7965c"
+    }
+  ],
+  "not_captured": [
+    "WhatsApp preview windows protected by FLAG_SECURE",
+    "Live screen content and live notification permission dialogs",
+    "Every scroll position or every possible data/error combination"
+  ],
+  "figma_document_created": false,
+  "native_text_editable": false,
+  "figma_import_executed": false
+}

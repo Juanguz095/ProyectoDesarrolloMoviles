@@ -4,6 +4,30 @@ Actualización: 29 de octubre de 2026, UTC. Los registros anteriores conservan s
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
+## Corrección: vistas reales del Centro — 30 de octubre de 2026 (America/Lima)
+
+- P8.3: el usuario señaló que el paquete anterior no correspondía a las vistas.
+  Se retira como referencia exacta: eran reconstrucciones ilustrativas. El README
+  anterior queda marcado como obsoleto y el generador de borradores ya no sobrescribe
+  la descarga corregida. Se conserva la revisión histórica e37cd51 y su evidencia.
+- Capturadas 26 vistas/posiciones reales de producción Compose en Android API26,
+  con API ficticia inyectada solo en instrumentación: acceso, Inicio, equipos,
+  archivo/restauración, detalles, diálogos, filtros, SMS/llamadas, ajustes por rol,
+  auditoría vacía e inscripción. Incluye partes desplazables. Se cierra el aviso
+  de feedback mediante su botón real antes de capturar, para no tapar controles.
+- 1 test de captura aprobado en 101.619 s. PNG obtenidos con UiAutomation, sin
+  redibujar ni desactivar FLAG_SECURE. APK principal instalado idéntico por SHA256
+  al publicado 0.7.4. Sin modificaciones de comportamiento de apps/API.
+- ZIP corregido con PNG, vista general e importador Figma como imágenes dentro de
+  frames. No son textos/controles nativos editables ni existe archivo en la cuenta
+  del usuario; importador no ejecutado en Figma. Se sustituye también el ZIP de la
+  URL antigua. PNG, JSON, CRC y sintaxis JS comprobados, capturas revisadas visualmente.
+  [Evidencia](evidencias/CAPTURAS-CENTRO-2026-10-30.json) y
+  [paquete correcto](diseno/centro-capturas-0.7.4/LEEME.md).
+- Pendiente P8.3: ventanas protegidas de WhatsApp, contenido en vivo, superficies
+  del sistema y otras combinaciones no capturadas. No se afirma cobertura de todas
+  las variantes. No se inventan pantallas para cubrir estos huecos.
+
 ## Vistas del Centro para Figma — 30 de octubre de 2026 (America/Lima)
 
 - P8.3: inventario de rutas y diálogos del Centro 0.7.4. Entregadas 41 vistas y

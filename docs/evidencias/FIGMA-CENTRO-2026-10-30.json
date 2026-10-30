@@ -18,12 +18,16 @@
   "artifact": {
     "file": "docs/diseno/AuditLab-Centro-Figma-0.7.4.zip",
     "bytes": 1094372,
-    "sha256": "e488e1e51984f571e8c07feca175beccee1c76c345730b696a9d3b839ce245bf"
+    "sha256": "e488e1e51984f571e8c07feca175beccee1c76c345730b696a9d3b839ce245bf",
+    "git_revision": "e37cd51"
   },
   "limitations": [
     "Design references with synthetic content; not pixel-exact APK screenshots",
     "Figma tools unavailable; no document created in the user account",
     "Native importer syntax checked; real Figma import still pending",
     "System views and dialogs are illustrative reference frames"
-  ]
+  ],
+  "status": "superseded_illustrative_draft",
+  "superseded_by": "docs/diseno/AuditLab-Centro-Capturas-0.7.4.zip",
+  "correction": "Original ZIP URL now points to real Android screenshot package; original draft bytes and hash only match historical revision e37cd51"
 }

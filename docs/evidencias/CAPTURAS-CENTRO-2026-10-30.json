@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-30",
+  "timezone": "America/Lima",
+  "tasks": [
+    "P8.3"
+  ],
+  "corrects": "FIGMA-CENTRO-2026-10-30.json",
+  "method": "UiAutomation.takeScreenshot; production ControlScreen and native dialogs, synthetic in-process API fixture",
+  "screenshots": 26,
+  "instrumentation_test_passed": true,
+  "test_duration_seconds": 101.619,
+  "android_api": 26,
+  "main_apk_sha256": "d4f69bfc470bc6ca484d4a94cf128fb470b983b5cfec360dfd6c943ff570cf55",
+  "installed_main_apk_matches_published_074": true,
+  "png_integrity_verified": true,
+  "zip_crc_valid": true,
+  "figma_importer_js_syntax_valid": true,
+  "preview_visually_reviewed": true,
+  "figma_import_executed": false,
+  "figma_document_created": false,
+  "native_text_editable": false,
+  "redrawn": false,
+  "not_captured": [
+    "WhatsApp preview windows protected by FLAG_SECURE",
+    "Live screen content and live notification permission dialogs",
+    "Every scroll position or every possible data/error combination"
+  ],
+  "artifact": {
+    "file": "docs/diseno/AuditLab-Centro-Capturas-0.7.4.zip",
+    "bytes": 4357950,
+    "sha256": "538ffd1fd769b6b149c07279e48be6911029012d739071801a26e608c29208ce"
+  },
+  "private_logs": [
+    ".tooling/capture-native-build.log",
+    ".tooling/control-native-captures.log"
+  ]
+}
