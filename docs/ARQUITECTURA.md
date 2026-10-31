@@ -1,5 +1,13 @@
 # AuditLab — arquitectura actual
 
+**Ampliación local 0.8 (31 de octubre):** se conserva esta arquitectura. La API
+añade catálogo aprobado y solicitudes auditadas, persistidas con migración V10.
+El Centro solicita una versión; el Agente consulta metadatos y avisa. Solo una
+acción local descarga/verifica el APK y abre el instalador Android. No existe
+servicio ADB remoto ni instalación silenciosa. [Contrato](../contracts/app-updates.openapi.yaml),
+[operación](ACTUALIZACIONES_0.8.md) y [plan](PLAN_ADMINISTRACION_ANDROID.md).
+La versión publicada anterior y sus evidencias se describen a continuación.
+
 Actualizado: 30 de octubre de 2026, America/Lima. Agente 0.7.5, Centro 0.7.4, API 0.7/V9.
 Centro 0.7.2 cambia la presentación de vistas previas en Eventos, sin cambiar
 el contrato ni la persistencia. [Detalle](WHATSAPP_EVENTOS_0.7.2.md).

@@ -1,5 +1,6 @@
 # Local Windows development server. Uses the prebuilt API from the AuditLab ZIP.
 # No public ports, tunnels, source builds, APK changes or removal of existing data.
+param([string]$ReleaseCatalog = '')
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 $appRoot = $PSScriptRoot
@@ -39,6 +40,12 @@ function Invoke-Docker {
 if (-not (Test-Path -LiteralPath $apiBatch -PathType Leaf)) {
     throw 'Extrae todo el ZIP. Este archivo debe estar junto a las carpetas api, apks y source.'
 }
+$catalogPath = $null
+if (-not [string]::IsNullOrWhiteSpace($ReleaseCatalog)) {
+    $catalog = Get-Item -LiteralPath $ReleaseCatalog -ErrorAction Stop
+    if ($catalog.PSIsContainer -or $catalog.Length -gt 262144) { throw 'El catalogo debe ser un archivo JSON de hasta 256 KiB.' }
+    $catalogPath = $catalog.FullName
+}
 Get-Command docker.exe -ErrorAction Stop | Out-Null
 Get-Command java.exe -ErrorAction Stop | Out-Null
 $occupied = New-Object Net.Sockets.TcpClient
@@ -62,6 +69,7 @@ foreach ($name in $managedNames) {
 }
 
 try {
+    if ($catalogPath) { $env:AUDITLAB_RELEASE_CATALOG = $catalogPath }
     $javaDetails = Invoke-Tool -Program 'java.exe' -Arguments @('-XshowSettings:properties', '-version')
     if ($javaDetails -notmatch 'java\.specification\.version\s*=\s*21\s') { throw 'Instala Java 21 y abre una PowerShell nueva.' }
     $javaHomeLine = ($javaDetails -split "`r?`n" | Where-Object { $_ -match '^\s*java\.home\s*=' } | Select-Object -First 1)

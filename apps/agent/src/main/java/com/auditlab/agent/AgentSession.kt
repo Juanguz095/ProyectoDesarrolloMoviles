@@ -96,6 +96,7 @@ class AgentSession internal constructor(
         else "Evento guardado localmente. Pendientes: ${it.stats().pending}."
     }
     fun revoke(scope: CoroutineScope) {
+        platform?.updates?.clearNotice()
         runCatching { platform?.basicMonitoring?.stop() }
         platform?.stopWhatsAppSharing()
         platform?.stopScreenSharing()
@@ -127,6 +128,7 @@ class AgentSession internal constructor(
         "Indicador habilitado. La sincronización puede continuar."
     }
     fun pause(scope: CoroutineScope) {
+        platform?.updates?.clearNotice()
         runCatching { platform?.basicMonitoring?.stop() }
         platform?.stopWhatsAppSharing()
         perform(scope) {

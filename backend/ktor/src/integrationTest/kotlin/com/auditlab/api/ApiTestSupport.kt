@@ -32,10 +32,10 @@ abstract class ApiTestSupport {
     protected val owner get() = TestDatabase.owner
     protected val runtime get() = TestDatabase.runtime
 
-    protected fun http(block: suspend ApplicationTestBuilder.(AuthService) -> Unit) = testApplication {
+    protected fun http(catalog: ReleaseCatalog = ReleaseCatalog(emptyList()), block: suspend ApplicationTestBuilder.(AuthService) -> Unit) = testApplication {
         val database = Database(runtime)
         val service = AuthService(database, config)
-        application { module(database, config, retentionDays = 30) }
+        application { module(database, config, retentionDays = 30, releaseCatalog = catalog) }
         try { block(service) } finally { database.close() }
     }
 

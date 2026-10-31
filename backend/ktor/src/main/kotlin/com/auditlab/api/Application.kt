@@ -20,7 +20,8 @@ fun Application.module(database: Database? = null, authConfig: AuthConfig? = nul
                        retentionDays: Int = Retention.daysFromEnvironment(),
                        retentionIntervalSeconds: Long = 3600,
                        maintenanceDatabase: Database? = null,
-                       auditRetentionDays: Int = Retention.auditDaysFromEnvironment()) {
+                       auditRetentionDays: Int = Retention.auditDaysFromEnvironment(),
+                       releaseCatalog: ReleaseCatalog = ReleaseCatalog.fromEnvironment()) {
     val auth = if (database != null && authConfig != null) AuthService(database, authConfig) else null
     val screenHub = ScreenShareHub()
     val whatsAppHub = WhatsAppPreviewHub()
@@ -38,6 +39,7 @@ fun Application.module(database: Database? = null, authConfig: AuthConfig? = nul
         deviceRoutes(auth)
         eventRoutes(auth)
         auditRoutes(auth)
+        appUpdateRoutes(auth, releaseCatalog)
         screenShareRoutes(auth, screenHub)
         whatsAppPreviewRoutes(auth, whatsAppHub)
         get("/health") {

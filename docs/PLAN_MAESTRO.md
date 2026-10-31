@@ -1,6 +1,9 @@
 # AuditLab — Plan maestro de ejecución
 
 Versión del plan base: 1.0 · Fecha: 17 de octubre de 2026.
+Ampliación aceptada el 31 de octubre: [administración y actualizaciones Android](PLAN_ADMINISTRACION_ANDROID.md).
+Conserva Ktor/PostgreSQL y Centro Android; F1–F6 añaden validación de continuidad y
+actualizaciones confirmadas. Su estado real se registra separado de las entregas anteriores.
 Contexto y arquitectura actualizados al 29 de octubre: [producto](CONTEXTO_PRODUCTO.md),
 [arquitectura](ARQUITECTURA.md) y [presentación](PRESENTACION_PPT.md). Las ampliaciones
 fechadas conservan el historial; el alcance actual consolida las versiones posteriores.

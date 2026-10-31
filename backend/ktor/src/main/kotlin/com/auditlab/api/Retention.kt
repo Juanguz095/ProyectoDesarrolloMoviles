@@ -45,6 +45,10 @@ object Retention {
                 it.setTimestamp(1, Timestamp.from(auditCutoff))
                 it.executeUpdate()
             }
+            connection.prepareStatement("DELETE FROM auditlab.app_update_requests WHERE expires_at < ?").use {
+                it.setTimestamp(1, Timestamp.from(auditCutoff))
+                it.executeUpdate()
+            }
             Audit.record(connection, "system", null, "retention_executed", Audit.resource("system"),
                 correlation = UUID.randomUUID())
             deleted

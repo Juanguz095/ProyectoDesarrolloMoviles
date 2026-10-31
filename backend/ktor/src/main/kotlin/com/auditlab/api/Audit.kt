@@ -7,12 +7,14 @@ import java.util.UUID
 /** Transactional audit rows: callers write them inside the same transaction as the action. */
 internal object Audit {
     fun resource(type: String, deviceId: UUID? = null, eventId: UUID? = null, userId: UUID? = null,
-                 sessionId: UUID? = null): String = json.createObjectNode().apply {
+                 sessionId: UUID? = null, releaseId: UUID? = null, requestId: UUID? = null): String = json.createObjectNode().apply {
         put("type", type)
         deviceId?.let { put("deviceId", it.toString()) }
         eventId?.let { put("eventId", it.toString()) }
         userId?.let { put("userId", it.toString()) }
         sessionId?.let { put("sessionId", it.toString()) }
+        releaseId?.let { put("releaseId", it.toString()) }
+        requestId?.let { put("requestId", it.toString()) }
     }.toString()
 
     fun filters(device: String? = null, category: String? = null, from: String? = null, to: String? = null,

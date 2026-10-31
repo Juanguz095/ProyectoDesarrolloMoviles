@@ -1,5 +1,11 @@
 # AuditLab — contexto del producto
 
+**Ampliación local 0.8:** [administración Android y actualizaciones confirmadas](PLAN_ADMINISTRACION_ANDROID.md).
+Conserva las apps y Ktor/PostgreSQL. Catálogo aprobado, solicitud por administrador,
+aviso local, verificación de APK y confirmación del propietario; sin instalación
+oculta ni funcionamiento con el teléfono apagado. [Operación](ACTUALIZACIONES_0.8.md).
+Versiones publicadas anteriores y límites históricos a continuación.
+
 Actualizado: **30 de octubre de 2026, America/Lima**.
 Agente: **0.7.5-preview**, código 14. Centro: **0.7.4-preview**, código 13.
 Servidor compatible: **0.7**, esquema V9. Centro 0.7.2 integra las vistas previas

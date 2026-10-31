@@ -165,7 +165,7 @@ def audit(apk: Path, profile: str) -> None:
 
     # Permisos declarados en el manifiesto compilado.
     permissions = re.findall(r"uses-permission: name='([^']+)'", badging)
-    allowed = {"android.permission.INTERNET", name + DYNAMIC_RECEIVER_SUFFIX}
+    allowed = {"android.permission.INTERNET", "android.permission.REQUEST_INSTALL_PACKAGES", name + DYNAMIC_RECEIVER_SUFFIX}
     if name == "com.auditlab.control":
         allowed.update({"android.permission.POST_NOTIFICATIONS", "android.permission.FOREGROUND_SERVICE",
                         "android.permission.FOREGROUND_SERVICE_DATA_SYNC"})

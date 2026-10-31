@@ -45,6 +45,11 @@ interface AuditApi {
     fun auditPage(token: String, cursor: String? = null): AuditPage = throw UnsupportedOperationException()
     fun revokeDevice(accessToken: String, deviceId: String)
     fun revokeConsent(deviceToken: String, deviceId: String)
+    fun appReleases(token: String, app: String): List<AppRelease> { throw UnsupportedOperationException() }
+    fun requestAppUpdate(token: String, device: String, releaseId: String): AppUpdateRequest { throw UnsupportedOperationException() }
+    fun appUpdate(token: String, device: String): AppUpdateRequest? { throw UnsupportedOperationException() }
+    fun appUpdateResult(token: String, device: String, requestId: String, status: String,
+        versionCode: Long? = null, signer: String? = null, error: String? = null): AppUpdateRequest { throw UnsupportedOperationException() }
     fun beginWhatsApp(token: String, device: String, session: String, acceptedAt: String, consent: ConsentContext) { throw UnsupportedOperationException() }
     fun sendWhatsAppPreview(token: String, device: String, session: String, preview: WhatsAppPreview) { throw UnsupportedOperationException() }
     fun heartbeatWhatsApp(token: String, device: String, session: String) { throw UnsupportedOperationException() }
@@ -101,6 +106,23 @@ class ApiClient(
 
     override fun logout(accessToken: String) {
         request("POST", "/v1/auth/logout", token = accessToken)
+    }
+    override fun appReleases(token: String, app: String): List<AppRelease> {
+        require(app in setOf("agent","control"))
+        val array=JSONObject(request("GET","/v1/app-releases?app=$app",token)).getJSONArray("items")
+        return (0 until array.length()).map { appReleaseFromJson(array.getJSONObject(it)) }
+    }
+    override fun requestAppUpdate(token: String, device: String, releaseId: String): AppUpdateRequest =
+        appUpdateFromJson(JSONObject(request("POST","/v1/devices/${encode(device)}/update-requests",token,
+            body=JSONObject().put("releaseId",releaseId).toString())))
+    override fun appUpdate(token: String, device: String): AppUpdateRequest? =
+        JSONObject(request("GET","/v1/devices/${encode(device)}/update-requests",token)).optJSONObject("request")?.let(::appUpdateFromJson)
+    override fun appUpdateResult(token: String, device: String, requestId: String, status: String,
+        versionCode: Long?, signer: String?, error: String?): AppUpdateRequest {
+        require(status in UpdatePolicy.results)
+        val body=JSONObject().put("status",status)
+        versionCode?.let { body.put("versionCode",it) };signer?.let { body.put("signerSha256",it) };error?.let { body.put("errorCode",it) }
+        return appUpdateFromJson(JSONObject(request("POST","/v1/devices/${encode(device)}/update-requests/${encode(requestId)}/result",token,body=body.toString())))
     }
     override fun beginWhatsApp(token: String, device: String, session: String, acceptedAt: String, consent: ConsentContext) {
         request("POST", "/v1/devices/${encode(device)}/whatsapp-sharing", token, body=JSONObject()

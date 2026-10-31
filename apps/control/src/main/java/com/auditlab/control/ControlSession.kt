@@ -157,6 +157,22 @@ class ControlSession internal constructor(private val store: SessionStore, priva
     private data class FreshView(val page: DevicePage?, val selected: DeviceSummary?,
         val recent: EventPage?, val readings: EventPage?, val history: EventPage?)
     var busy by mutableStateOf(false); private set
+    var appReleases by mutableStateOf<List<AppRelease>>(emptyList()); private set
+    var updateRequest by mutableStateOf<AppUpdateRequest?>(null); private set
+    var updateDevice by mutableStateOf<String?>(null); private set
+    fun loadAppUpdates(app: String, device: String?, scope: CoroutineScope) = run(scope) {
+        val releases=try {core().appReleases(app)} catch(error: ApiException) {
+            if(error.status==404) throw ApiException(404,"UPDATE_API_UNAVAILABLE",error.correlationId,"Actualiza la API para gestionar versiones.")
+            throw error
+        }
+        val request=device?.let {core().appUpdate(it)}
+        return@run {appReleases=releases;updateRequest=request;updateDevice=device
+            message=if(releases.isEmpty()) "El servidor todavía no tiene versiones aprobadas en el catálogo." else "Versiones consultadas."}
+    }
+    fun requestAppUpdate(device: String, release: String, scope: CoroutineScope) = run(scope) {
+        val result=core().requestAppUpdate(device,release)
+        return@run {updateRequest=result;updateDevice=device;message="Solicitud registrada. El propietario debe confirmar en su teléfono."}
+    }
     var revokeTarget by mutableStateOf<String?>(null); private set
     var logoutConfirmation by mutableStateOf(false); private set
     fun requestRevoke(device: String) { if (isAdmin && !busy) revokeTarget = device }
@@ -259,7 +275,7 @@ class ControlSession internal constructor(private val store: SessionStore, priva
     fun revoke(deviceId: String, scope: CoroutineScope) = run(scope) {
         core().revoke(deviceId)
         val page = core().devicePage(status, null)
-        return@run { devices = page.items; deviceCursor = page.nextCursor; devicesLoaded = true; clearOverview()
+        return@run { devices = page.items; deviceCursor = page.nextCursor; devicesLoaded = true
             devicesUpdatedAt = java.time.Instant.now().toString(); message = "Dispositivo revocado. Los nuevos lotes serán rechazados." }
     }
     // The picker holds no report or token. An export ticket is invalid after filter/session changes.
@@ -279,7 +295,7 @@ class ControlSession internal constructor(private val store: SessionStore, priva
         audit = emptyList(); detail = null; lastReportUri = null; revokeTarget = null; logoutConfirmation = false; query = EventQuery(category="communication"); selectedDevice = null; enrollmentCode = null
         deviceCursor = null; eventCursor = null; auditCursor = null; clearOverview()
         eventPageNumber = 1;devicePageNumber=1; devicesLoaded = false; eventsLoaded = false; auditLoaded = false; devicesUpdatedAt = null
-        dataUpdatedAt=null;eventsUpdatedAt=null }
+        dataUpdatedAt=null;eventsUpdatedAt=null;appReleases=emptyList();updateRequest=null;updateDevice=null }
     private fun run(scope: CoroutineScope, block: () -> (() -> Unit)) {
         if (busy) return
         cancelRefresh()
@@ -288,6 +304,10 @@ class ControlSession internal constructor(private val store: SessionStore, priva
             try { val publish = withContext(Dispatchers.IO) { block() }; publish() }
             catch (error: ApiException) {
                 message = when {
+                    error.code == "UPDATE_API_UNAVAILABLE" -> "El servidor necesita la API 0.8 para gestionar actualizaciones."
+                    error.code == "UPDATE_ALREADY_PENDING" -> "Ya hay otra actualización pendiente en este teléfono. Consulta su estado."
+                    error.code == "UPDATE_STATE_CONFLICT" -> "La solicitud cambió o venció. Consulta otra vez."
+                    error.code == "RESOURCE_NOT_FOUND" -> "El dispositivo o la versión ya no están disponibles. Actualiza la consulta."
                     error.code == "TLS_ERROR" -> "Certificado TLS rechazado. Revisa el servicio."
                     error.isNetwork -> "Sin conexión con el servicio. Revisa la URL y la red."
                     error.status == 401 -> "Credenciales rechazadas o sesión vencida."

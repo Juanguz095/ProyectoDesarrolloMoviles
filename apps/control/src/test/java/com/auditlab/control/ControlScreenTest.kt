@@ -78,7 +78,7 @@ class ControlScreenTest {
 
     @Test fun `el admin ve dispositivos y puede revocar con confirmacion`() {
         val api = signIn()
-        compose.onNodeWithText("Equipo device-1").assertExists()
+        compose.onNodeWithText("Teléfono ce-1").assertExists()
         detail(); tap("REVOCAR DISPOSITIVO")
         assertNull(api.revoked)
         tap("Confirmar revocación")
@@ -93,6 +93,24 @@ class ControlScreenTest {
         compose.onNodeWithText("CREAR CÓDIGO DE INSCRIPCIÓN").assertDoesNotExist()
         compose.onNodeWithText("Rol: auditor").assertExists()
     }
+    @Test fun `admin confirms update request and can inspect its result`() {
+        val api=signIn()
+        detail();tap("CONSULTAR VERSIONES Y SOLICITUD")
+        waitFor("Disponible: 0.8.0-preview. La instalación necesita confirmación en el otro teléfono.")
+        tap("SOLICITAR ACTUALIZACIÓN")
+        assertNull(api.requestedUpdate)
+        tap("Cancelar")
+        assertNull(api.requestedUpdate)
+        tap("SOLICITAR ACTUALIZACIÓN");tap("Enviar solicitud")
+        waitFor("Esperando confirmación en el teléfono")
+        assertEquals("device-1",api.requestedUpdate)
+    }
+    @Test fun `auditor can inspect update catalog but cannot request installation`() {
+        signIn("auditor")
+        detail();tap("CONSULTAR VERSIONES Y SOLICITUD")
+        waitFor("Versiones consultadas.")
+        compose.onNodeWithText("SOLICITAR ACTUALIZACIÓN").assertDoesNotExist()
+    }
     @Test fun `SMS real muestra titulo y origen`() {
         val api = signIn(real = true)
         events()
@@ -102,14 +120,13 @@ class ControlScreenTest {
         compose.onNodeWithText("Simulado").assertDoesNotExist()
         assertEquals("device-1", api.eventsFor)
     }
-    @Test fun `historial simulado no se confunde con estado real`() {
+    @Test fun `historial simulado no llena comunicaciones ni estado real`() {
         signIn()
         // The mock has a simulated event with metadata; it must not populate battery telemetry.
         assertNull(current!!.overviewReading)
         events()
-        eventDetail()
-        compose.onAllNodesWithText("Actividad del agente")[0].assertExists()
-        compose.onNodeWithText("Evento simulado").assertExists()
+        assertTrue(current!!.events.isEmpty())
+        compose.onNodeWithContentDescription("Ver detalle →").assertDoesNotExist()
     }
     @Test fun `cancelar revocacion y cerrar sesion requieren confirmacion`() {
         val api = signIn()
@@ -124,7 +141,7 @@ class ControlScreenTest {
         assertEquals("", fields[2].config[androidx.compose.ui.semantics.SemanticsProperties.EditableText].text)
     }
     @Test fun `pagina detalle y auditoria conservan endpoints`() {
-        val api = signIn()
+        val api = signIn(real=true)
         events(); tap("SIGUIENTE PÁGINA")
         assertEquals(2, current!!.eventPageNumber)
         eventDetail()
@@ -140,7 +157,7 @@ class ControlScreenTest {
         compose.onNode(hasSetTextAction() and hasContentDescription("ID o código exacto")).performScrollTo().performTextInput("sms_sent")
         tap("Limpiar filtros")
         assertEquals("", compose.onNode(hasSetTextAction() and hasContentDescription("ID o código exacto")).fetchSemanticsNode().config[androidx.compose.ui.semantics.SemanticsProperties.EditableText].text)
-        assertEquals(EventQuery(), current!!.query)
+        assertEquals(EventQuery(category="communication"), current!!.query)
     }
     @Test fun `fechas invalidas no sustituyen la consulta aplicada`() {
         signIn(); events()
@@ -191,6 +208,18 @@ class ControlScreenTest {
         } finally { scope.cancel() }
     }
     private class FakeApi(private val role: String) : AuditApi {
+        var requestedUpdate: String?=null
+        private var update: AppUpdateRequest?=null
+        private val release=AppRelease("646cadf9-ec37-47a7-99f2-d8b6d737f055","agent","com.auditlab.agent","0.8.0-preview",15,26,1000,
+            "a".repeat(64),"b".repeat(64),"https://raw.githubusercontent.com/Juanguz095/ProyectoDesarrolloMoviles/refs/heads/descargas-auditlab/auditlab-agent-0.8.0-preview.apk")
+        override fun appReleases(token: String,app: String)=if(app=="agent") listOf(release) else emptyList()
+        override fun appUpdate(token: String,device: String)=update
+        override fun requestAppUpdate(token: String,device: String,releaseId: String): AppUpdateRequest {
+            check(role=="admin" && releaseId==release.releaseId)
+            requestedUpdate=device
+            return AppUpdateRequest("56bdeedb-58db-4b78-a722-cc00e9f5fe97",device,release,"pending",
+                "2026-10-31T12:00:00Z","2026-11-07T12:00:00Z","2026-10-31T12:00:00Z").also {update=it}
+        }
         @Volatile var previewError=false
         @Volatile var previewSnapshot=WhatsAppPreviewSnapshot(true,"sharing-1",listOf(
             WhatsAppPreview("preview-1","2026-10-29T00:00:00Z","com.whatsapp","QA contact","private preview fixture")))
@@ -213,7 +242,8 @@ class ControlScreenTest {
         override fun eventPage(token: String, query: com.auditlab.common.EventQuery, cursor: String?, limit: Int): EventPage {
             lastQuery = query
             val page = listEvents(token, query.device, limit).let { page ->
-                page.copy(items = page.items.filter { query.category == null || it.category == query.category })
+                page.copy(items = page.items.filter { query.category == null ||
+                    query.category=="communication" && !it.isSimulated && it.category in setOf("sms","call","whatsapp") || it.category == query.category })
             }
             return if (cursor == null) page.copy(nextCursor = "opaque-next-page")
                 else page.copy(items = page.items.map { it.copy(eventId = "event-2") })

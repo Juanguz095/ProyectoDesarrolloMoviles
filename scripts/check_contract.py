@@ -18,7 +18,7 @@ def load_contract(source):
 
 if __name__ == '__main__':
     root = Path(__file__).resolve().parents[1] / 'contracts'
-    for name in ('openapi.yaml', 'prototype-v0.1.yaml', 'screen-share.openapi.yaml', 'whatsapp-preview.openapi.yaml'):
+    for name in ('openapi.yaml', 'prototype-v0.1.yaml', 'screen-share.openapi.yaml', 'whatsapp-preview.openapi.yaml', 'app-updates.openapi.yaml'):
         contract = load_contract(root / name)
-        validate(contract)
+        validate(contract, base_uri=(root / name).as_uri())
         print(f'{name} valid: {contract["info"]["version"]}, {len(contract["paths"])} paths')

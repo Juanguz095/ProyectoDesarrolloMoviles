@@ -105,6 +105,7 @@ class AgentRuntime private constructor(private val context: android.app.Applicat
     val scheduler = SyncScheduler(context)
     val realEvents = RealEventMonitor(context, this)
     val basicMonitoring = BasicMonitoring(context, this)
+    val updates = AgentUpdates(context, this)
     fun stopScreenSharing() { context.stopService(Intent(context, ScreenShareService::class.java)) }
     fun stopWhatsAppSharing() { WhatsAppSharingRuntime.stop(context) }
     val changes = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
@@ -130,6 +131,7 @@ class AgentRuntime private constructor(private val context: android.app.Applicat
             }
             scheduler.active(row.deviceId, indicator.isVisible() && journal.stats().pending > 0)
         } else {
+            updates.clear()
             runCatching {basicMonitoring.stop()}
             stopWhatsAppSharing()
             stopScreenSharing()

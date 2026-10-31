@@ -15,6 +15,7 @@ private val auditActions = setOf(
     "device_enrolled", "devices_listed", "device_queried", "events_received", "events_queried", "event_queried",
     "report_exported", "device_revoked", "consent_revoked", "audit_log_queried", "retention_executed",
     "bootstrap_user_created", "screen_frame_queried", "whatsapp_sharing_started", "whatsapp_sharing_stopped", "whatsapp_previews_queried",
+    "app_releases_read", "app_update_requested", "app_update_read", "app_update_result",
 )
 
 fun Route.auditRoutes(auth: AuthService?) {

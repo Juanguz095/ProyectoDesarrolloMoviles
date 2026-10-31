@@ -1,0 +1,161 @@
+openapi: 3.1.0
+info:
+  title: AuditLab — actualizaciones confirmadas por el propietario
+  version: 0.8.0
+  description: >-
+    Extensión de la API Ktor. Sin instalación silenciosa, comandos remotos ni APK arbitrarias.
+    Catálogo aprobado por el operador mediante AUDITLAB_RELEASE_CATALOG, vacío por defecto.
+    Solo paquetes com.auditlab.agent y com.auditlab.control; solicitudes remotas solo del Agente.
+    Las respuestas usan Cache-Control no-store y X-Correlation-ID. Resultados y lecturas auditados.
+    Una instalación verificada significa versión/firma comprobadas y reportadas por el Agente,
+    no atestación de hardware. Sesiones de contenido no se activan al actualizar.
+servers:
+  - url: /v1
+security:
+  - UserBearer: []
+paths:
+  /app-releases:
+    get:
+      operationId: appReleases
+      description: Usuarios admin/auditor consultan ambos catálogos; credencial de dispositivo activo solo agent.
+      security: [{UserBearer: []}, {DeviceBearer: []}]
+      parameters:
+        - {name: app, in: query, schema: {type: string, enum: [agent, control], default: agent}}
+      responses:
+        '200':
+          description: Catálogo ordenado por versionCode descendente; puede estar vacío.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                additionalProperties: false
+                properties:
+                  items: {type: array, maxItems: 100, items: {$ref: '#/components/schemas/Release'}}
+        '400': {$ref: '#/components/responses/Error'}
+        '401': {$ref: '#/components/responses/Error'}
+        '403': {$ref: '#/components/responses/Error'}
+        '503': {$ref: '#/components/responses/Error'}
+  /devices/{deviceId}/update-requests:
+    parameters:
+      - {$ref: '#/components/parameters/DeviceId'}
+    get:
+      operationId: appUpdate
+      description: Última solicitud; admin/auditor o el propio dispositivo activo. No cambia lastSeenAt.
+      security: [{UserBearer: []}, {DeviceBearer: []}]
+      responses:
+        '200':
+          description: Solicitud o null. Las solicitudes activas vencen a los siete días.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [request]
+                additionalProperties: false
+                properties:
+                  request: {oneOf: [{$ref: '#/components/schemas/UpdateRequest'}, {type: 'null'}]}
+        '400': {$ref: '#/components/responses/Error'}
+        '401': {$ref: '#/components/responses/Error'}
+        '403': {$ref: '#/components/responses/Error'}
+        '404': {$ref: '#/components/responses/Error'}
+        '503': {$ref: '#/components/responses/Error'}
+    post:
+      operationId: requestAppUpdate
+      description: >-
+        Solo admin, dispositivo activo y versión agent del catálogo. Una solicitud activa por dispositivo.
+        Repetir el mismo releaseId devuelve la solicitud existente; otro releaseId produce 409.
+        Solicitar no instala ni concede permisos. No admite parámetros de consulta.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [releaseId]
+              additionalProperties: false
+              properties:
+                releaseId: {type: string, format: uuid}
+      responses:
+        '202':
+          description: Solicitud registrada o repetición idempotente.
+          content: {application/json: {schema: {$ref: '#/components/schemas/UpdateRequest'}}}
+        '400': {$ref: '#/components/responses/Error'}
+        '401': {$ref: '#/components/responses/Error'}
+        '403': {$ref: '#/components/responses/Error'}
+        '404': {$ref: '#/components/responses/Error'}
+        '409': {$ref: '#/components/responses/Error'}
+        '503': {$ref: '#/components/responses/Error'}
+  /devices/{deviceId}/update-requests/{requestId}/result:
+    parameters:
+      - {$ref: '#/components/parameters/DeviceId'}
+      - {name: requestId, in: path, required: true, schema: {type: string, format: uuid}}
+    post:
+      operationId: appUpdateResult
+      security: [{DeviceBearer: []}]
+      description: >-
+        Solo el dispositivo activo destinatario. Repetición del mismo estado permitida.
+        Desde pending o installer_opened se admite installed, declined o failed; estados finales no retroceden.
+        installed exige versionCode y signerSha256 exactos de la versión solicitada.
+        Esos dos campos no se admiten para otros estados. Sin parámetros de consulta.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              additionalProperties: false
+              properties:
+                status: {type: string, enum: [installer_opened, installed, declined, failed]}
+                versionCode: {type: integer, minimum: 1, maximum: 2147483647}
+                signerSha256: {type: string, pattern: '^[0-9a-f]{64}$'}
+                errorCode: {type: string, enum: [DOWNLOAD_FAILED, VERIFICATION_FAILED, INSTALLER_UNAVAILABLE, LOCAL_CANCELLED]}
+      responses:
+        '200':
+          description: Resultado guardado; installed actualiza appVersion del dispositivo.
+          content: {application/json: {schema: {$ref: '#/components/schemas/UpdateRequest'}}}
+        '400': {$ref: '#/components/responses/Error'}
+        '401': {$ref: '#/components/responses/Error'}
+        '403': {$ref: '#/components/responses/Error'}
+        '404': {$ref: '#/components/responses/Error'}
+        '409': {$ref: '#/components/responses/Error'}
+        '503': {$ref: '#/components/responses/Error'}
+components:
+  securitySchemes:
+    UserBearer: {type: http, scheme: bearer, bearerFormat: JWT}
+    DeviceBearer: {type: http, scheme: bearer, bearerFormat: opaque}
+  parameters:
+    DeviceId: {name: deviceId, in: path, required: true, schema: {type: string, format: uuid}}
+  responses:
+    Error:
+      description: Error uniforme de la API principal; nunca contiene secretos.
+      content: {application/problem+json: {schema: {$ref: './openapi.yaml#/components/schemas/Problem'}}}
+  schemas:
+    Release:
+      type: object
+      additionalProperties: false
+      required: [releaseId, app, packageName, versionName, versionCode, minSdk, bytes, sha256, signerSha256, downloadUrl]
+      properties:
+        releaseId: {type: string, format: uuid}
+        app: {type: string, enum: [agent, control]}
+        packageName: {type: string, enum: [com.auditlab.agent, com.auditlab.control]}
+        versionName: {type: string, pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{0,39}$'}
+        versionCode: {type: integer, minimum: 1, maximum: 2147483647}
+        minSdk: {type: integer, minimum: 26, maximum: 100}
+        bytes: {type: integer, minimum: 1, maximum: 67108864}
+        sha256: {type: string, pattern: '^[0-9a-f]{64}$'}
+        signerSha256: {type: string, pattern: '^[0-9a-f]{64}$'}
+        downloadUrl: {type: string, format: uri, description: HTTPS, APK de este repositorio en descargas-auditlab, sin credenciales ni parámetros.}
+    UpdateRequest:
+      type: object
+      additionalProperties: false
+      required: [requestId, deviceId, release, status, requestedAt, expiresAt, updatedAt, errorCode]
+      properties:
+        requestId: {type: string, format: uuid}
+        deviceId: {type: string, format: uuid}
+        release: {$ref: '#/components/schemas/Release'}
+        status: {type: string, enum: [pending, installer_opened, installed, declined, failed, expired]}
+        requestedAt: {type: string, format: date-time}
+        expiresAt: {type: string, format: date-time}
+        updatedAt: {type: string, format: date-time}
+        errorCode: {type: [string, 'null'], enum: [null, DOWNLOAD_FAILED, VERIFICATION_FAILED, INSTALLER_UNAVAILABLE, LOCAL_CANCELLED]}

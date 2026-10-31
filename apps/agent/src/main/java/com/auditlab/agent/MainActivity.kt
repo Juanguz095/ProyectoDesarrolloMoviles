@@ -76,7 +76,7 @@ class MainActivity : ComponentActivity() {
                         startActivity(Intent(this, ScreenShareActivity::class.java))
                     }, onShareWhatsApp = {
                         startActivity(Intent(this, WhatsAppShareActivity::class.java))
-                    })
+                    }, platformControls = { BasicMonitoringControls(); AgentUpdateControls() })
                 }
             }
         }
@@ -92,7 +92,8 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
                          onNotificationSettings: (() -> Unit)? = null, workScope: CoroutineScope? = null,
                          onRequestRealMonitoring: (() -> Unit)? = null,
                          onShareScreen: (() -> Unit)? = null,
-                         onShareWhatsApp: (() -> Unit)? = null) {
+                         onShareWhatsApp: (() -> Unit)? = null,
+                         platformControls: (@Composable () -> Unit)? = null) {
     val composeScope = rememberCoroutineScope()
     val scope = workScope ?: composeScope
     var policy by rememberSaveable { mutableStateOf(false) }
@@ -322,7 +323,7 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
                     }
                     AuditRule()
                     var showTools by rememberSaveable {mutableStateOf(false)}
-                    BasicMonitoringControls()
+                    platformControls?.invoke()
                     AuditLink(if(showTools) "Ocultar herramientas de conexión" else "Herramientas de conexión",{showTools=!showTools})
                     if(showTools) {
                         Text("Servidor: ${session.serverUrl}",style=MaterialTheme.typography.bodySmall)

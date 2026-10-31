@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: AuditLab API definitiva
-  version: 0.7.0
+  version: 0.8.0
   description: 'Contrato objetivo Ktor/PostgreSQL. Su definición no implica rutas ya implementadas. El prototipo
     Python mantiene su contrato separado en prototype-v0.1.yaml. Eventos propios, simulados y metadatos reales autorizados
     de tipo/fecha de SMS, llamadas y actividad de notificaciones WhatsApp, batería y conexión; texto SMS y número opcionales requieren autorizaciones locales adicionales. El texto WhatsApp permanece efímero.
@@ -1001,6 +1001,10 @@ components:
       - whatsapp_sharing_started
       - whatsapp_sharing_stopped
       - whatsapp_previews_queried
+      - app_releases_read
+      - app_update_requested
+      - app_update_read
+      - app_update_result
     AuditResult:
       type: string
       enum:
@@ -1405,7 +1409,15 @@ components:
           - user
           - system
           - whatsapp_preview
+          - app_release
+          - app_update
         deviceId:
+          type: string
+          format: uuid
+        releaseId:
+          type: string
+          format: uuid
+        requestId:
           type: string
           format: uuid
         eventId:
@@ -1594,6 +1606,8 @@ components:
           - FORBIDDEN
           - DEVICE_SCOPE_MISMATCH
           - RESOURCE_NOT_FOUND
+          - UPDATE_ALREADY_PENDING
+          - UPDATE_STATE_CONFLICT
           - DEVICE_REVOKED
           - CONSENT_MISMATCH
           - EVENT_ID_CONFLICT

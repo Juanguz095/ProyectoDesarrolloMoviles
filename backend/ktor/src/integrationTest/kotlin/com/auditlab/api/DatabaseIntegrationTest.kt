@@ -71,10 +71,10 @@ class DatabaseIntegrationTest {
     }
 
     @Test fun `migration applies on empty PostgreSQL and repeats without modifications`() {
-        assertEquals(9, initialMigrations)
+        assertEquals(10, initialMigrations)
         assertEquals(0, DatabaseTools.migrate(owner))
         DatabaseTools.connection(owner) { connection ->
-            for (table in listOf("auth_rate_limits","users","user_sessions","refresh_tokens","enrollment_codes","devices","consents","events","audit_log")) {
+            for (table in listOf("auth_rate_limits","users","user_sessions","refresh_tokens","enrollment_codes","devices","consents","events","audit_log","app_update_requests")) {
                 connection.createStatement().executeQuery("SELECT to_regclass('auditlab.$table') IS NOT NULL").use { it.next(); assertTrue(it.getBoolean(1)) }
             }
         }

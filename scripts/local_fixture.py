@@ -170,7 +170,7 @@ def ready(config):
         client.close()
 
 
-def start(config):
+def start(config, release_catalog=None):
     record_path = DIRECTORY / 'server.json'
     if record_path.exists() and owned_process(json.loads(record_path.read_text())):
         print('Owned fixture server already running; ready=' + str(ready(config)))
@@ -179,6 +179,11 @@ def start(config):
         probe.bind(('127.0.0.1', config['http_port']))
     env = {key: value for key, value in environment(config).items()
            if not key.startswith(('AUDITLAB_MIGRATION_', 'AUDITLAB_BOOTSTRAP_', 'AUDITLAB_TEST_')) and key != 'PGPASSWORD'}
+    if release_catalog is not None:
+        path = Path(release_catalog).resolve(strict=True)
+        if not path.is_relative_to(ROOT / '.tooling'):
+            raise RuntimeError('QA release catalog must remain under .tooling')
+        env['AUDITLAB_RELEASE_CATALOG'] = str(path)
     with (DIRECTORY / 'server.log').open('ab') as log:
         process = subprocess.Popen([str(BINARY)], cwd=ROOT, env=env, stdout=log,
                                    stderr=subprocess.STDOUT, start_new_session=True)

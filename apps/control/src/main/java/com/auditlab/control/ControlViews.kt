@@ -58,7 +58,7 @@ private fun DeviceReadingCard(reading: AuditEvent?, now: Instant) {
         BatteryMeter((reading?.metadata?.get("batteryPercent") as? Number)?.toInt())
         Text(networkLabel(reading?.metadata?.get("networkState")),style=MaterialTheme.typography.bodyLarge)
         if(reading==null) {
-            Text("Todavía no recibimos una lectura real. En el otro teléfono abre Agente y activa la captura de batería y eventos.",color=AuditColors.Muted)
+            Text("Todavía no recibimos una lectura real. En el otro teléfono abre Agente → Batería y conexión → Activar batería y conexión.",color=AuditColors.Muted)
         } else {
             Text("Lectura del teléfono: ${displayLocalTime(reading.timestamp)} · ${ageLabel(reading.timestamp,now)}",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
             val stale=runCatching { Duration.between(Instant.parse(reading.timestamp),now).seconds>120 }.getOrDefault(true)

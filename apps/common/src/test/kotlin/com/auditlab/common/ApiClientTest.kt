@@ -35,6 +35,32 @@ class ApiClientTest {
         ApiClient("https://auditlab.example.invalid")
     }
 
+    @Test fun `update catalog and requests use authenticated routes and preserve integrity metadata`() {
+        val release=AppRelease("646cadf9-ec37-47a7-99f2-d8b6d737f055","agent","com.auditlab.agent","0.8.0-preview",15,26,1000,
+            "a".repeat(64),"b".repeat(64),"https://raw.githubusercontent.com/Juanguz095/ProyectoDesarrolloMoviles/refs/heads/descargas-auditlab/auditlab-agent-0.8.0-preview.apk")
+        val client=ApiClient(server.baseUrl)
+        server.response=JSONObject().put("items",org.json.JSONArray().put(appReleaseJson(release))).toString()
+        assertEquals(listOf(release),client.appReleases("fixture-only","agent"))
+        assertEquals("/v1/app-releases?app=agent",server.requests.last().path)
+        assertEquals("Bearer fixture-only",server.requests.last().headers["authorization"])
+        val request=JSONObject().put("requestId","request-1").put("deviceId","device-1").put("release",appReleaseJson(release))
+            .put("status","pending").put("requestedAt","2026-10-31T12:00:00Z").put("expiresAt","2026-11-07T12:00:00Z")
+            .put("updatedAt","2026-10-31T12:00:00Z").put("errorCode",JSONObject.NULL)
+        server.response=request.toString()
+        assertEquals(release,client.requestAppUpdate("fixture-only","device-1",release.releaseId).release)
+        assertEquals(release.releaseId,JSONObject(server.requests.last().body).getString("releaseId"))
+        server.response=JSONObject().put("request",request).toString()
+        assertEquals("request-1",client.appUpdate("fixture-only","device-1")!!.requestId)
+        server.response=request.put("status","installed").toString()
+        client.appUpdateResult("fixture-only","device-1","request-1","installed",15,release.signerSha256)
+        assertEquals("/v1/devices/device-1/update-requests/request-1/result",server.requests.last().path)
+        val result=JSONObject(server.requests.last().body)
+        assertEquals(15,result.getLong("versionCode"))
+        assertEquals(release.signerSha256,result.getString("signerSha256"))
+        server.response="{\"request\":null}"
+        assertNull(client.appUpdate("fixture-only","device-1"))
+    }
+
     @Test
     fun `login envia credenciales en el cuerpo y lee la sesion`() {
         server.response = """

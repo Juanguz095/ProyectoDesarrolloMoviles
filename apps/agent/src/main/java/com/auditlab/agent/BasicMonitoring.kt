@@ -132,6 +132,7 @@ class BasicMonitoringService : Service() {
                         catch(_: ApiException) {BasicMonitoringState.message="Estado básico guardado. Sin confirmación de envío; se reintentará."}
                         runtime.after(runtime.core())
                     }
+                    runtime.updates.checkNow(automatic=true)
                     delay(10_000)
                 }
             } catch(cancelled: CancellationException) {throw cancelled}

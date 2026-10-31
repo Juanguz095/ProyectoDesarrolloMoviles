@@ -12,12 +12,13 @@ android {
         minSdk = 26
         targetSdk = 35
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        versionCode = 14
-        versionName = "0.7.5-preview"
+        versionCode = providers.gradleProperty("auditlabAgentVersionCode").orElse("15").get().toInt()
+        versionName = providers.gradleProperty("auditlabAgentVersionName").orElse("0.8.0-preview").get()
     }
     buildFeatures { compose = true }
     sourceSets.getByName("main").java.srcDir("../design/src/main/kotlin")
     sourceSets.getByName("main").res.srcDir("../design/src/main/res")
+    sourceSets.getByName("androidTest").java.srcDir("../design/src/androidTest/kotlin")
     testOptions { unitTests { isIncludeAndroidResources = true } }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

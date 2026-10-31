@@ -15,6 +15,15 @@ AuditLab conecta un Agente instalado en el dispositivo supervisado con un Centro
 de control para consultar su actividad, revisar eventos y gestionar accesos.
 Una API central autentica las conexiones, recibe los eventos y registra las consultas.
 
+## Ampliación 0.8 en desarrollo
+
+[Plan aceptado](docs/PLAN_ADMINISTRACION_ANDROID.md) ·
+[Actualizaciones confirmadas y configuración](docs/ACTUALIZACIONES_0.8.md).
+Se conservan las dos apps y Ktor/PostgreSQL. Código de catálogo aprobado,
+solicitudes auditadas y descarga verificada con confirmación Android.
+Las descargas publicadas de abajo siguen siendo 0.7; no contienen esta ampliación.
+Compatibilidad física, Windows8GB, firma de distribución y entrega operativa pendientes.
+
 ## Dispositivos en Centro 0.7.3
 
 Nombre editable, inscripción y contacto visibles; archivo/restauración local de equipos

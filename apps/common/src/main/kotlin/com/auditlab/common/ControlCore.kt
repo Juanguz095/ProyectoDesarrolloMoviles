@@ -96,6 +96,12 @@ class ControlCore(
     @Synchronized fun export(query: EventQuery) = authorized { api.exportEvents(it, query) }
     @Synchronized fun audit(cursor: String? = null) = authorized { api.auditPage(it, cursor) }
     @Synchronized fun whatsAppPreviews(device: String) = authorized { api.whatsAppPreviews(it, device) }
+    @Synchronized fun appReleases(app: String) = authorized { api.appReleases(it,app) }
+    @Synchronized fun appUpdate(device: String) = authorized { api.appUpdate(it,device) }
+    @Synchronized fun requestAppUpdate(device: String, release: String): AppUpdateRequest {
+        requireAdmin("solicitar actualizaciones")
+        return authorized(admin=true) { api.requestAppUpdate(it,device,release) }
+    }
 
     private fun validateSession(value: Session) {
         check(value.role in setOf("admin", "auditor") && value.tokenType == "Bearer")

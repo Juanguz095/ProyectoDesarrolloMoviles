@@ -173,6 +173,7 @@ internal fun ControlScreen(session: ControlSession, onExport: (() -> Unit)? = nu
                     DeviceDetail(session, currentDevice, scope, onBack = { screen = "dispositivos" },
                         onEvents = { openEvents(currentDevice?.deviceId) },
                         onAudit = { session.loadAudit(scope); screen = "auditoria" }, onWhatsApp = { screen="whatsapp" })
+                    currentDevice?.let {ControlAppUpdates(session,it.deviceId,scope)}
                 }
                 "auditoria" -> AuditHistory(session, scope) { screen = "mas" }
                 "inscripcion" -> EnrollmentView(session, scope) { screen = "mas" }
@@ -188,6 +189,7 @@ internal fun ControlScreen(session: ControlSession, onExport: (() -> Unit)? = nu
                     AuditButton("Consultar auditoría", { session.loadAudit(scope); screen = "auditoria" }, !session.busy)
                     if (session.isAdmin) AuditButton("Crear código de inscripción", { screen = "inscripcion" }, !session.busy)
                     AuditButton("Actualizar dispositivos", { session.refresh(scope) }, !session.busy, outlined = true)
+                    ControlAppUpdates(session,null,scope)
                     AuditRule()
                     Text("Última actualización de la lista", color = AuditColors.Muted)
                     Text(displayTime(session.devicesUpdatedAt))
@@ -286,5 +288,9 @@ internal fun auditActionName(action: String): String = when(action) {
     "whatsapp_sharing_started" -> "Sesión de WhatsApp iniciada"
     "whatsapp_sharing_stopped" -> "Sesión de WhatsApp detenida"
     "whatsapp_previews_queried" -> "Consulta de mensajes temporales de WhatsApp"
+    "app_releases_read" -> "Consulta de versiones de AuditLab"
+    "app_update_requested" -> "Actualización solicitada"
+    "app_update_read" -> "Consulta de una actualización"
+    "app_update_result" -> "Resultado de una actualización"
     else -> "Actividad registrada"
 }

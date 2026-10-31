@@ -9,6 +9,7 @@ java {
 kotlin { compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17) } }
 application { mainClass.set("com.auditlab.api.ApplicationKt") }
 dependencies {
+    implementation(project(":apps:common"))
     // Align Ktor's transport on the patched Netty 4.1 line (see P7 dependency evidence).
     implementation(platform("io.netty:netty-bom:4.1.137.Final"))
     implementation("io.ktor:ktor-server-netty-jvm:3.1.2")
