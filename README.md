@@ -23,6 +23,10 @@ Se conservan las dos apps y Ktor/PostgreSQL. Código de catálogo aprobado,
 solicitudes auditadas y descarga verificada con confirmación Android.
 Las descargas publicadas de abajo siguen siendo 0.7; no contienen esta ampliación.
 Compatibilidad física, Windows8GB, firma de distribución y entrega operativa pendientes.
+[Evidencia 0.8](docs/evidencias/ADMINISTRACION-0.8-2026-10-31.json): 217 pruebas
+JVM/BD, 9 invocaciones nativas, 37 de herramientas y 49 de contrato aprobadas.
+Incluye pantalla apagada, reinicio real, actualización confirmada conservando datos
+y restauración PostgreSQL. Windows físico y Android reciente siguen pendientes.
 
 ## Dispositivos en Centro 0.7.3
 

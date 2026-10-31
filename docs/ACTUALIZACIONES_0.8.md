@@ -70,6 +70,12 @@ Todo ZIP nuevo requiere el análisis y control de distribución del archivo exac
 
 ## Diagnóstico Windows de solo lectura
 
+El generador `scripts/package_development.py` prepara un candidato 0.8 con estas
+guías y exige el informe de pruebas de las APK exactas. El manifiesto mantiene
+`publish_allowed=false` y `windows_verified=false`: empaquetar no valida Windows
+ni sustituye el análisis Defender del ZIP exacto. La aceptación nativa completa
+de `package_qa.py` conserva sus requisitos.
+
 Desde CMD, en la carpeta del servidor actualizado:
 
 ```bat

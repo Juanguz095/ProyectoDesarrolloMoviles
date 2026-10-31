@@ -1,8 +1,64 @@
 # AuditLab — Registro de avance
 
-Actualización: 29 de octubre de 2026, UTC. Los registros anteriores conservan su fecha y zona indicadas.
+Actualización: 31 de octubre de 2026, America/Lima. Los registros anteriores conservan su fecha y zona indicadas.
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
+
+## Administración y actualizaciones 0.8 — 31 de octubre de 2026 (America/Lima)
+
+- Ejecutado el [plan F1–F6](PLAN_ADMINISTRACION_ANDROID.md) sobre las apps existentes,
+  conservando Ktor/PostgreSQL y Centro Android. Fuente de apps/API: `a1a2ef3`.
+  Agente código15, Centro código14; ambos 0.8.0-preview.
+- F2/F4/F5: catálogo aprobado vacío por defecto, solicitudes admin idempotentes,
+  aislamiento por dispositivo, vencimiento siete días y auditoría transaccional.
+  V10 es aditiva. Descarga HTTPS restringida a AuditLab, comprobación de tamaño/hash,
+  paquete/versión/Android/firma y confirmación mediante el instalador Android.
+  Sin instalación oculta, órdenes ADB remotas ni concesión automática de permisos.
+- Centro: consulta/confirmación, resultados legibles y actualización propia en Ajustes;
+  auditor sin acciones administrativas. Agente: aviso, instalación local y rechazo.
+  Solicitud, notificación Android, rechazo persistido y revocación deteniendo el
+  servicio comprobados con Ktor/PostgreSQL reales de QA.
+- F3: envío confirmado con Home y pantalla apagada API28, mediante refresco básico
+  forzado durante ese intervalo; no prueba Doze prolongado. Reinicio real: servicio
+  foreground observado por host antes de abrir actividad/instrumentación; Detener
+  desactiva recuperación. Solo batería/conexión y sesiones sensibles inactivas.
+- **217 pruebas JVM/Robolectric/PostgreSQL**, **9 invocaciones nativas**, **37 pruebas
+  de herramientas** y **49 fixtures de contrato** aprobados, sin fallos/omitidos
+  finales. Cinco OpenAPI válidos. Builds/lint/auditoría APK correctos: 0 errores lint;
+  Agente17 avisos/4 información, Centro10 avisos/3 información.
+- Instalador real API28/26: APK nueva firmada aceptada; alteración, otra firma y
+  downgrade rechazados. Reemplazo confirmado API28 con variante QA más nueva:
+  inscripción, credencial Keystore y evento pendiente Room conservados; SHA256
+  instalado comprobado. No se activan comunicaciones. Restaurados el APK normal y
+  el ajuste de fuente por el operador de QA, sin borrar la app.
+- Respaldo y migración conservaron cuentas de dispositivos/eventos/consentimientos.
+  Restauración en otra BD: **11 tablas idénticas, 40 088 eventos**, login/página de
+  API y permisos/retención de mantenimiento comprobados.
+- Corregidos: auditoría nueva causaba SQL503, lectura de firma de archivo APK en
+  Android9 necesitaba también GET_SIGNATURES, fixtures de filtros antiguos, controles
+  Android invocados desde sesiones falsas y aviso de revocación perdido al refrescar.
+  Ensayos fallidos/ANR de System UI conservados. La instrumentación de actualización
+  espera la copia del APK antes de terminar, pues cerrar antes revocaba sus URI;
+  FileProvider permanece privado. APK final recompilado vuelto a verificar por hash.
+- F1/F6: diagnóstico Windows de solo lectura y parámetro `-ReleaseCatalog` añadidos;
+  no ejecutados en Windows aquí. Empaquetado0.8 exige pruebas de APK exactas y fuente
+  runtime sin cambios; conserva los bloqueos de firma/piloto/antimalware.
+  [Guía](ACTUALIZACIONES_0.8.md) · [evidencia y hashes](evidencias/ADMINISTRACION-0.8-2026-10-31.json).
+
+| Fase | Estado real y siguiente paso |
+| --- | --- |
+| F1 | Fixture y diagnóstico preparados; falta Windows11Home/8GB y tres teléfonos/redes/Tailscale reales. |
+| F2 | Identificación/archivo conservados; claridad de lecturas, versiones, estados y error de consulta integrada. |
+| F3 | Segundo plano corto/pantalla apagada/reinicio comprobados API28. Android reciente, fabricantes y duración pendientes. |
+| F4 | API/verificación/instalación confirmada y conservación probadas por capas y variante QA. Falta descarga pública de URL0.8 aún no publicadas. |
+| F5 | Controles/roles integrados y probados; verificación compartida también en Centro API26. |
+| F6 | APK debug/API y evidencias locales; falta Windows físico, análisis del ZIP exacto, firma del responsable y piloto. |
+
+Las descargas públicas anteriores permanecen 0.7; el catálogo QA vuelve a vacío al
+terminar. No se declara funcionamiento universal, teléfono apagado, recuperación de
+detención forzada ni recepción WhatsApp real validada. Siguiente F1/F6: comprobar
+la PC/teléfonos y analizar el candidato Windows exacto antes de publicarlo; el
+informe Defender del ZIP 0.7 no se reutiliza.
 
 ## Estado básico visible y recuperación tras reinicio — 30 de octubre de 2026 (America/Lima)
 

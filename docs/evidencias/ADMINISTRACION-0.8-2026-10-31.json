@@ -1,0 +1,240 @@
+{
+  "date": "2026-10-31",
+  "timezone": "America/Lima",
+  "source_revision": "a1a2ef32330a2f8eb6cc52d80d670d8345fcf11e",
+  "plan": "docs/PLAN_ADMINISTRACION_ANDROID.md",
+  "version": "0.8.0-preview",
+  "database_schema": "V10",
+  "artifacts": [
+    {
+      "releaseId": "c190c430-4ba6-5a85-bf42-552ab648ffdc",
+      "app": "agent",
+      "packageName": "com.auditlab.agent",
+      "versionName": "0.8.0-preview",
+      "versionCode": 15,
+      "minSdk": 26,
+      "bytes": 10131156,
+      "sha256": "036caba7fca806083e77990647ebe9d9f404763e4273581a658ca807be053ffd",
+      "signerSha256": "970a74d96448bdf8f1efdb65396d88ac1bba6126acac4f2e40508390574cd853",
+      "downloadUrl": "https://raw.githubusercontent.com/Juanguz095/ProyectoDesarrolloMoviles/refs/heads/descargas-auditlab/auditlab-agent-0.8.0-preview.apk",
+      "local_apk": "apps/agent/build/outputs/apk/debug/agent-debug.apk",
+      "published": false
+    },
+    {
+      "releaseId": "65284af1-d102-5e62-8f87-33f5381d07c6",
+      "app": "control",
+      "packageName": "com.auditlab.control",
+      "versionName": "0.8.0-preview",
+      "versionCode": 14,
+      "minSdk": 26,
+      "bytes": 9831083,
+      "sha256": "b77211d49798eb3695cfa2702c0f6ed911f6f9d3cce4273ce5036566f7b1ee7f",
+      "signerSha256": "970a74d96448bdf8f1efdb65396d88ac1bba6126acac4f2e40508390574cd853",
+      "downloadUrl": "https://raw.githubusercontent.com/Juanguz095/ProyectoDesarrolloMoviles/refs/heads/descargas-auditlab/auditlab-control-0.8.0-preview.apk",
+      "local_apk": "apps/control/build/outputs/apk/debug/control-debug.apk",
+      "published": false
+    }
+  ],
+  "build_exit_code": 0,
+  "apk_static_audit_exit_code": 0,
+  "lint": {
+    "agent": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 17,
+      "Information": 4
+    },
+    "control": {
+      "Error": 0,
+      "Fatal": 0,
+      "Warning": 10,
+      "Information": 3
+    }
+  },
+  "jvm_and_database_suites": [
+    {
+      "component": "common",
+      "tests": 84,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "component": "agent",
+      "tests": 35,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "component": "control",
+      "tests": 21,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "component": "ktor",
+      "tests": 17,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "component": "postgresql",
+      "tests": 60,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "jvm_and_database_tests": 217,
+  "native_tests": 9,
+  "native_update_verification": [
+    {
+      "passed": true,
+      "app": "agent",
+      "serial": "emulator-5592",
+      "api": 28,
+      "base_sha256": "036caba7fca806083e77990647ebe9d9f404763e4273581a658ca807be053ffd",
+      "candidate_sha256": "0141a265efe1202cdb9affdc3f82c81fc1c47b027e949df1638d238fca7e428a",
+      "candidate_version": "0.8.1-qa",
+      "tests": 2,
+      "synthetic_candidate": true,
+      "signed_newer_apk_verified": true,
+      "corruption_signer_and_downgrade_rejected": true,
+      "system_installer_or_source_confirmation_shown": true,
+      "installation_confirmed": false,
+      "unknown_source_settings_changed": false,
+      "app_data_erased": false
+    },
+    {
+      "passed": true,
+      "app": "control",
+      "serial": "emulator-5594",
+      "api": 26,
+      "base_sha256": "b77211d49798eb3695cfa2702c0f6ed911f6f9d3cce4273ce5036566f7b1ee7f",
+      "candidate_sha256": "1d6e0feeb3e826dee5d0792f064c147b2a5e6220d0638de73af9f412cc7bb211",
+      "candidate_version": "0.8.1-qa",
+      "tests": 2,
+      "synthetic_candidate": true,
+      "signed_newer_apk_verified": true,
+      "corruption_signer_and_downgrade_rejected": true,
+      "system_installer_or_source_confirmation_shown": true,
+      "installation_confirmed": false,
+      "unknown_source_settings_changed": false,
+      "app_data_erased": false
+    }
+  ],
+  "native_administration_and_screen_off": {
+    "passed": true,
+    "real_qa_api": true,
+    "update_notification": true,
+    "local_decline_persisted": true,
+    "screen_off_transmission": true,
+    "home_background": true,
+    "revocation_stops_basic": true,
+    "sensitive_sessions_inactive": true,
+    "apk_downloaded": false,
+    "apk_installed": false,
+    "api": 28,
+    "tests": 1,
+    "synthetic_release": true
+  },
+  "native_boot_recovery": {
+    "actual_reboot": true,
+    "visible_basic_service": true,
+    "device_status_only": true,
+    "communication_capture_inactive": true,
+    "whatsapp_inactive": true,
+    "screen_share_inactive": true,
+    "stop_disables_recovery": true,
+    "service_reattached_for_instrumentation": true,
+    "service_started_before_test_runner": true,
+    "agent_serial": "emulator-5592",
+    "api": 28
+  },
+  "native_confirmed_upgrade": {
+    "passed": true,
+    "installation_confirmed": true,
+    "enrollment_preserved": true,
+    "keystore_credential_preserved": true,
+    "pending_event_preserved": true,
+    "sensitive_sessions_inactive": true,
+    "candidate_sha256": "25fb0fef607b2f2e6a4444641ef9f55edef6bfdafcabdceb5ac63871297e301a",
+    "candidate_version": "0.8.1-qa",
+    "tests": 2,
+    "synthetic_candidate": true,
+    "exact_installed_apk_sha256_checked_by_host": true,
+    "source_permission_restored_by_local_operator": true,
+    "normal_080_apk_restored_by_authorized_qa_debug_session": true
+  },
+  "migration_and_backup": {
+    "backup_sha256": "f8e1df511e08b2040eff1f35b9eece47c6d5617f62b9e1584528fd5538b84eb3",
+    "backup_bytes": 12694226,
+    "existing_device_event_consent_counts_equal": true,
+    "migration": "V10",
+    "data_preserved": true
+  },
+  "restore": {
+    "passed": true,
+    "tables_compared": 11,
+    "all_table_fingerprints_equal": true,
+    "restored_events": 40088,
+    "backup_sha256": "63695015cd48c7e0a381c1ea011256948a21d868853a5759701d168d18dbd21b",
+    "backup_bytes": 12697541,
+    "source_preserved": true,
+    "target_database": "qa_restore_33fb960ab11f444f",
+    "runtime_read_confirmed": true,
+    "maintenance_grants_confirmed": true,
+    "maintenance_retention_confirmed": true,
+    "api_page_rows": 100,
+    "api_page_ids_equal": true,
+    "api_on_restored_database": "ready, login and exact event page passed"
+  },
+  "installed_api_migrations_match_source": true,
+  "tooling_tests": {
+    "tests": 37,
+    "failed": 0
+  },
+  "contract_fixture_tests": {
+    "tests": 49,
+    "failed": 0
+  },
+  "openapi_documents_validated": 5,
+  "documentation_and_whitespace_checks_passed": true,
+  "corrected_findings": [
+    "Legacy Control fixtures expected obsolete labels and omitted communication filtering; assertions updated and revocation feedback preserved during refresh.",
+    "Agent fake UI sessions reached platform storage; MainActivity now supplies platform-only controls explicitly.",
+    "Initial V10 audit allowlists rejected update actions/resources with SQL 503; constrained allowlists extended transactionally.",
+    "Android 9 APK archive inspection required legacy signatures alongside signing certificates; exact approved certificate checks retained.",
+    "System UI ANR obscured software-emulator installer; local Wait recovered it. Failed attempts retained.",
+    "First administration fixture omitted the required event code; test input corrected without relaxing validation.",
+    "Finishing initial upgrade instrumentation revoked URI grants before APK staging; harness waits for the Install page. Provider stays private.",
+    "Windows launcher discarded inherited catalog configuration; explicit ReleaseCatalog parameter added. Java stderr handling corrected by static review.",
+    "Final Agent rebuilt after QA variant had a different APK digest; exact final artifact was reinstalled and native installer/reboot checks repeated."
+  ],
+  "distribution": {
+    "github_apks_080_published": false,
+    "public_windows_archive_080": false,
+    "windows_080_defender_scan": false,
+    "operator_distribution_signature": false,
+    "qa_catalog_restored_to_empty": true,
+    "candidate_archive_evidence_recorded_separately": true
+  },
+  "not_verified": [
+    "Windows 11 Home PowerShell launcher/preflight and memory load on the responsible computer",
+    "Physical phones, three real Agents, different Internet networks and the user Tailscale tailnet",
+    "Android 11+ manufacturer policies, Android 13 notification permission UI and Android 14/15 boot/service restrictions",
+    "Long Doze/endurance, forced-stop recovery or permanent process execution",
+    "Public HTTP download of unpublished 0.8 APK URLs; native update tests used signed private QA files",
+    "Real WhatsApp delivery on physical phones; existing capture limits unchanged",
+    "Responsible distribution signature and operational Windows delivery"
+  ],
+  "not_supported": [
+    "Capture/transmission while powered off",
+    "Hidden installation or agent impersonation",
+    "Automatic restart of private communication/screen sessions",
+    "Universal permanent execution across manufacturers"
+  ]
+}
