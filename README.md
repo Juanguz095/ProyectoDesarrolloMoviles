@@ -27,6 +27,8 @@ Compatibilidad física, Windows8GB, firma de distribución y entrega operativa p
 JVM/BD, 9 invocaciones nativas, 37 de herramientas y 49 de contrato aprobadas.
 Incluye pantalla apagada, reinicio real, actualización confirmada conservando datos
 y restauración PostgreSQL. Windows físico y Android reciente siguen pendientes.
+[Candidato Windows preparado](docs/evidencias/ENTREGA-0.8-CANDIDATO-2026-10-31.json),
+sin enlace público: requiere análisis Defender de ese ZIP exacto antes de distribución.
 
 ## Dispositivos en Centro 0.7.3
 

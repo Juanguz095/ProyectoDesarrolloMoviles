@@ -60,6 +60,11 @@ detención forzada ni recepción WhatsApp real validada. Siguiente F1/F6: compro
 la PC/teléfonos y analizar el candidato Windows exacto antes de publicarlo; el
 informe Defender del ZIP 0.7 no se reutiliza.
 
+- F6: candidato Windows generado desde `10811c8`, 53 393 129 bytes/653 archivos.
+  CRC, todos los SHA256 de payload, APK idénticas a las probadas y nuevas guías/
+  diagnóstico comprobados. Sigue **sin autorización de publicación**, sin prueba
+  Windows ni análisis Defender de este archivo. [Registro del candidato](evidencias/ENTREGA-0.8-CANDIDATO-2026-10-31.json).
+
 ## Estado básico visible y recuperación tras reinicio — 30 de octubre de 2026 (America/Lima)
 
 - P5.3/P5.4: Agente 0.7.5, código 14. Servicio básico separado, limitado a
