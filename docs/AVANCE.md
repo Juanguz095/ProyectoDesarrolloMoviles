@@ -4,6 +4,36 @@ Actualización: 4 de noviembre de 2026, UTC. Los registros anteriores conservan 
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
+## Reporte de segundo plano, SMS y WhatsApp — 4 de noviembre de 2026 (America/Lima)
+
+- P5.3/P5.6/P7.6: el usuario informa que SMS/WhatsApp dejaron de llegar y que las
+  autorizaciones se reinician al pasar a segundo plano. No se ha reproducido el
+  incidente en su teléfono. Los caminos de captura SMS, WhatsApp y permisos no
+  habían cambiado en 0.8.1; eso no demuestra que funcionen en su instalación.
+- Agente 0.8.2-preview, código17: una desconexión transitoria del listener Android
+  conserva como máximo30s la misma sesión RAM autorizada y pide rebind. Sin
+  observaciones nuevas durante desconexión; heartbeat controla vigencia. Retirada
+  de acceso, pausa y revocación siguen bloqueando. No se reactiva tras muerte de
+  proceso/boot ni se consulta historial anterior a la autorización.
+- Una nueva interfaz sincroniza número/texto SMS con la sesión de captura aún
+  activa. Se muestran esos alcances y se conserva el motivo de detención del
+  servicio en lugar de ocultarlo tras un mensaje genérico. No cambia permisos
+  Android ni persiste/reactiva sesiones de comunicaciones.
+- **127 pruebas JVM/Robolectric: 86 common y 41 Agente, sin fallos/omitidos**.
+  Nuevos casos: desconexión/reconexión en la misma sesión, retirada de permiso,
+  ventana acotada y recreación de interfaz con un servicio simulado activo.
+  APK compilada y auditoría estática correcta; documentación/enlaces válidos.
+- **SMS real sigue sin diagnóstico confirmado ni reparación acreditada**: se
+  mejoró la presentación de estado, no el algoritmo de lectura. Sin ejecución
+  nativa, SMS real, cuenta WhatsApp real ni evidencia del teléfono del usuario.
+  No se interpreta un test Robolectric como recepción real ni permanencia FGS.
+- Sin cambios del servidor ni Centro. APK candidata para prueba privada preparada;
+  revisión automática bloqueó subirla a Drive porque la autorización anterior
+  cubría el ZIP del servidor. Se solicitó autorización específica; no subida.
+- [Resultados y hash](evidencias/SEGUNDO-PLANO-0.8.2-2026-11-04.json).
+  Siguiente: recepción nativa real y diagnóstico del SMS, contrastando estado de
+  sesión, permisos, cola/error de API y conservación de BD/credenciales del servidor.
+
 ## Candidato servidor 0.8.1 para revisión privada — 4 de noviembre de 2026
 
 - P8.2/P8.3: por petición expresa del usuario, preparado el servidor Ktor/V11

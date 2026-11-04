@@ -22,7 +22,18 @@ import kotlinx.coroutines.channels.Channel
 import java.time.Instant
 import java.util.UUID
 
+/** A live, explicitly authorized session may wait for a short OS listener rebind.
+ * No receipt is persisted: process death, boot and explicit stop cannot resume it.
+ */
+internal class ListenerReconnectWindow(private val clock: () -> Long = SystemClock::elapsedRealtime) {
+    private var disconnectedAt: Long? = null
+    @Synchronized fun disconnected() { if (disconnectedAt == null) disconnectedAt = clock() }
+    @Synchronized fun connected() { disconnectedAt = null }
+    @Synchronized fun withinGrace(): Boolean = disconnectedAt?.let { clock() - it in 0 until 30_000 } == true
+}
+
 object WhatsAppSharingState {
+    internal val reconnect = ListenerReconnectWindow()
     var active by mutableStateOf(false)
     var listenerConnected by mutableStateOf(false)
     var message by mutableStateOf("No se comparten notificaciones de WhatsApp.")
@@ -89,19 +100,30 @@ class WhatsAppNotificationListener : NotificationListenerService() {
     override fun onListenerConnected() {
         connected=this
         WhatsAppSharingState.listenerConnected=true
+        WhatsAppSharingState.reconnect.connected()
     }
     override fun onListenerDisconnected() {
         if(connected===this) {
             connected=null
             WhatsAppSharingState.listenerConnected=false
-            WhatsAppSharingRuntime.stop(this)
+            WhatsAppSharingState.reconnect.disconnected()
+            if (!WhatsAppAccess.granted(this)) WhatsAppSharingRuntime.stop(this)
+            else {
+                WhatsAppSharingState.message="Android desconectó el servicio de notificaciones; esperando reconexión, sin capturar texto."
+                runCatching { requestRebind(ComponentName(this, WhatsAppNotificationListener::class.java)) }
+            }
         }
     }
     override fun onDestroy() {
         if(connected===this) {
             connected=null
             WhatsAppSharingState.listenerConnected=false
-            WhatsAppSharingRuntime.stop(this)
+            WhatsAppSharingState.reconnect.disconnected()
+            if (!WhatsAppAccess.granted(this)) WhatsAppSharingRuntime.stop(this)
+            else {
+                WhatsAppSharingState.message="Android desconectó el servicio de notificaciones; esperando reconexión, sin capturar texto."
+                runCatching { requestRebind(ComponentName(this, WhatsAppNotificationListener::class.java)) }
+            }
         }
         super.onDestroy()
     }
@@ -134,17 +156,18 @@ object WhatsAppSharingRuntime {
     }
     @Volatile var current: Session? = null; private set
     @Synchronized fun activate(session: Session) { current?.queue?.cancel();current=session;WhatsAppSharingState.active=true }
-    @Synchronized fun clear() { current?.queue?.cancel();current=null;WhatsAppSharingState.active=false }
+    @Synchronized fun clear() { current?.queue?.cancel();current=null;WhatsAppSharingState.active=false;WhatsAppSharingState.reconnect.connected() }
     fun allowed(context: Context): Boolean {
         val runtime=AgentRuntime.get(context)
         val manager=context.getSystemService(NotificationManager::class.java)
         return !runtime.gate.withdrawalRequested && runtime.indicator.isVisible() && WhatsAppAccess.granted(context) &&
-            WhatsAppSharingState.listenerConnected && manager.getNotificationChannel(WhatsAppSharingService.CHANNEL)?.importance?.let { it!=NotificationManager.IMPORTANCE_NONE }==true &&
+            (WhatsAppSharingState.listenerConnected || (WhatsAppSharingState.active && WhatsAppSharingState.reconnect.withinGrace())) && manager.getNotificationChannel(WhatsAppSharingService.CHANNEL)?.importance?.let { it!=NotificationManager.IMPORTANCE_NONE }==true &&
             (!WhatsAppSharingState.active || manager.activeNotifications.any { it.id==WhatsAppSharingService.ID })
     }
     fun stop(context: Context) { clear();context.stopService(Intent(context,WhatsAppSharingService::class.java)) }
     fun offer(context: Context,sbn: StatusBarNotification) {
         val session=current ?: return
+        if (!WhatsAppSharingState.listenerConnected) return
         if(!allowed(context)) { stop(context);return }
         if(sbn.packageName !in WhatsAppPreviewPolicy.PACKAGES || sbn.postTime<session.startedAt || sbn.postTime>System.currentTimeMillis()+300000 ||
             sbn.notification.flags and Notification.FLAG_GROUP_SUMMARY!=0) return
@@ -229,6 +252,7 @@ class WhatsAppSharingService : Service() {
                         while (isActive && WhatsAppSharingRuntime.current === session) {
                             if (!WhatsAppSharingRuntime.allowed(this@WhatsAppSharingService)) { stopSelf(); break }
                             val observation = session.queue.receive()
+                            while (isActive && !WhatsAppSharingState.listenerConnected && WhatsAppSharingRuntime.allowed(this@WhatsAppSharingService)) delay(200)
                             if (!isActive || WhatsAppSharingRuntime.current !== session) break
                             WhatsAppSharingState.message = "Notificación observada; registrando su evento local."
                             val recorded = synchronized(runtime.gate) {

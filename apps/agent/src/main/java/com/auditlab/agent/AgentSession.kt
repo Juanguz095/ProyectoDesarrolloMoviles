@@ -182,8 +182,12 @@ class AgentSession internal constructor(
         visibleAvailable = value.visible; serverUrl = value.url
         ready = true; recentEvents = value.events; lastDeviceStatus = value.deviceStatus
         realMonitoring = platform?.realEvents?.requested == true
+        if (realMonitoring) {
+            numberConsent = platform!!.realEvents.includeNumbers
+            smsTextConsent = platform.realEvents.includeSmsText
+        }
         realCaptureRunning = platform?.realEvents?.running == true
-        realStatus = platform?.realEvents?.let { if (it.requested) it.message else "Captura real detenida. ${it.permissionsText()}" }
+        realStatus = platform?.realEvents?.let { "${it.message} ${it.permissionsText()}" }
             ?: "Captura real no disponible en esta prueba."
     }
     private fun perform(scope: CoroutineScope, privacy: Boolean = false, notify: Boolean = true,

@@ -127,7 +127,7 @@ class AgentRuntime private constructor(private val context: android.app.Applicat
                 // Notification presence is transient after process creation. A worker may run
                 // before the opted-in boot service promotes itself; do not erase its receipt.
                 if(indicator.isPaused() || !indicator.allowed()) runCatching {basicMonitoring.stop()}
-                realEvents.stop();stopWhatsAppSharing()
+                realEvents.stop("Captura detenida porque el indicador visible no está disponible. Revisa las notificaciones de AuditLab.");stopWhatsAppSharing()
             }
             scheduler.active(row.deviceId, indicator.isVisible() && journal.stats().pending > 0)
         } else {

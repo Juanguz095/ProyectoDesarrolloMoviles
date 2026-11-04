@@ -92,3 +92,14 @@ una notificación sintética en el callback: **no acredita recepción desde una
 cuenta real de WhatsApp**. El ensayo final pendiente consiste en recibir un mensaje
 desde un tercer contacto en WhatsApp instalado en el teléfono del Agente y repetir
 la detención/revocación. No usar conversaciones de terceros sin autorización.
+
+## Reconexión del servicio Android — Agente 0.8.2
+
+Durante una sesión local ya activa, una desconexión transitoria del listener
+solicita rebind y conserva la misma sesión solo durante una ventana de 30 segundos.
+No se procesan nuevas observaciones mientras el listener está desconectado. El
+heartbeat verifica la caducidad y detiene el servicio si no se restablece el acceso.
+Retirar permiso, pausar, revocar o detener sigue bloqueando la sesión. No hay
+restauración de comunicaciones tras muerte del proceso/reinicio ni nuevas lecturas
+de historial. Las notificaciones no expuestas por Android siguen fuera del alcance.
+Esta corrección tiene pruebas Robolectric; no acredita WhatsApp real en un teléfono.

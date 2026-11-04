@@ -279,6 +279,7 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
                                 realAccepted && session.visibleAvailable && !session.busy && !session.revoking)
                         } else {
                             AuditStatus(if(session.realCaptureRunning) "CAPTURA EN EJECUCIÓN" else "INICIANDO SERVICIO",session.realCaptureRunning)
+                            Text("Número autorizado en esta sesión: ${if(session.numberConsent) "sí" else "no"}. Texto SMS autorizado: ${if(session.smsTextConsent) "sí" else "no"}.",style=MaterialTheme.typography.bodySmall)
                             AuditButton("Detener captura real",{session.stopRealMonitoring(scope)},!session.busy,outlined=true)
                         }
                         Text(session.realStatus,color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)

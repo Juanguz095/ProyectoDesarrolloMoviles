@@ -83,8 +83,10 @@ class RealEventMonitor(private val context: Context, private val runtime: AgentR
             error("Android no permitió iniciar la captura. Mantén la app abierta e inténtalo de nuevo.")
         }
     }
-    fun stop() {
+    fun stop(reason: String = "Captura real detenida.") {
+        val wasActive = requested || running
         requested = false; running = false; deviceId = null
+        if (wasActive) message = reason
         context.stopService(serviceIntent)
     }
     fun refreshNow() {
@@ -115,8 +117,7 @@ class RealMonitoringService : Service() {
             if (Build.VERSION.SDK_INT >= 34) startForeground(MonitoringIndicator.ID, runtime.indicator.notification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
             else startForeground(MonitoringIndicator.ID, runtime.indicator.notification())
         } catch (_: Exception) {
-            runtime.realEvents.message = "No se pudo mostrar el servicio visible; captura detenida."
-            runtime.realEvents.stop(); stopSelf(); return START_NOT_STICKY
+            runtime.realEvents.stop("No se pudo mostrar el servicio visible; captura detenida."); stopSelf(); return START_NOT_STICKY
         }
         runtime.realEvents.running = true
         if (loop == null) {
@@ -233,10 +234,9 @@ class RealMonitoringService : Service() {
         scope.cancel()
         observers.forEach { runCatching { contentResolver.unregisterContentObserver(it) } }
         batteryReceiver?.let { runCatching { unregisterReceiver(it) } };batteryReceiver=null
-        runtime.realEvents.running = false
         // Detach the existing indicator; pause/withdrawal owns its explicit removal.
         stopForeground(STOP_FOREGROUND_DETACH)
-        runtime.realEvents.stop()
+        runtime.realEvents.stop("Android cerró el servicio de captura. Los permisos no se han retirado por esta acción; revisa su estado y vuelve a iniciar la sesión local.")
         runtime.changes.tryEmit(Unit)
         super.onDestroy()
     }
