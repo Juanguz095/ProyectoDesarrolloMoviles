@@ -69,7 +69,7 @@ class NativeScreenViewerTest {
                 until { node { it.contentDescription?.toString() == "Pantalla compartida por el usuario" } != null }
                 publishing.set(false); publisher.join(10000)
                 relay.request(device.deviceId, device.deviceToken, "DELETE")
-                until { node { it.text?.toString() == "No hay una sesión de pantalla activa." } != null }
+                until { node { it.text?.toString() == WAITING_SCREEN_FRAME } != null }
                 assertNull(node { it.contentDescription?.toString() == "Pantalla compartida por el usuario" })
             } finally { scenario.close() }
         } finally {

@@ -20,6 +20,8 @@ import androidx.compose.runtime.*
 object ScreenSharingState {
     var message by mutableStateOf("Pantalla no compartida.")
     var active by mutableStateOf(false)
+    var confirmed by mutableStateOf(false)
+    var lastConfirmedAt by mutableStateOf<String?>(null)
 }
 
 /** Each session starts with the local person's confirmation and Android's own capture dialog. */
@@ -57,6 +59,9 @@ class ScreenShareService : Service() {
     private var reader: ImageReader? = null
     private var display: android.hardware.display.VirtualDisplay? = null
     private var upload: Job? = null
+    private var captureThread: HandlerThread? = null
+    private var captureHandler: Handler? = null
+    private var frames: ScreenFramePipeline? = null
     private var relay: ScreenRelayClient? = null
     private var credential: com.auditlab.common.StoredCredential? = null
     override fun onBind(intent: Intent?) = null
@@ -77,9 +82,11 @@ class ScreenShareService : Service() {
         val stop = PendingIntent.getService(this, 0, Intent(this, javaClass).setAction("stop"), PendingIntent.FLAG_IMMUTABLE)
         startForeground(5202, NotificationCompat.Builder(this, "screen_share").setSmallIcon(R.drawable.ic_auditlab)
             .setContentTitle("AuditLab · Pantalla compartida")
-            .setContentText("El Centro puede ver tu pantalla. Pulsa DETENER para finalizar.")
+            .setContentText("Captura autorizada; esperando imagen y confirmación del servidor.")
             .setOngoing(true).addAction(0, "DETENER", stop).build())
-        ScreenSharingState.message = "Compartiendo pantalla. El Centro puede ver lo que muestras."
+        ScreenSharingState.message = "Captura autorizada. Esperando la primera imagen de Android…"
+        ScreenSharingState.confirmed = false
+        ScreenSharingState.lastConfirmedAt = null
         ScreenSharingState.active = true
         try {
             @Suppress("DEPRECATION")
@@ -92,48 +99,94 @@ class ScreenShareService : Service() {
             val width = 480
             val height = (metrics.heightPixels.toDouble() / metrics.widthPixels * width).toInt()
             reader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 2)
+            val pipeline=ScreenFramePipeline(android.os.SystemClock::elapsedRealtime,
+                publish={relay!!.request(stored.deviceId,stored.deviceToken,"POST",it)},confirmed={
+                    if(!ScreenSharingState.confirmed) manager.notify(5202,NotificationCompat.Builder(this@ScreenShareService,"screen_share")
+                        .setSmallIcon(R.drawable.ic_auditlab).setContentTitle("AuditLab · Pantalla compartida")
+                        .setContentText("Imagen enviada al servidor. Pulsa DETENER para finalizar.")
+                        .setOngoing(true).setOnlyAlertOnce(true).addAction(0,"DETENER",stop).build())
+                    ScreenSharingState.confirmed=true
+                    ScreenSharingState.lastConfirmedAt=java.time.Instant.now().toString()
+                    ScreenSharingState.message="Imagen recibida por el servidor."
+                })
+            frames=pipeline
+            val thread=HandlerThread("AuditLab-screen-frames").also {it.start()};captureThread=thread
+            val handler=Handler(thread.looper);captureHandler=handler
+            val source=reader!!
+            var lastEncoded=-1000L
+            var scheduled=false
+            val encode=Runnable {
+                scheduled=false
+                if(ScreenSharingState.active) try {
+                    source.acquireLatestImage()?.use {image ->
+                        lastEncoded=android.os.SystemClock.elapsedRealtime()
+                        val plane=image.planes[0]
+                        val pixels=ScreenRgbaPixels.pack(plane.buffer,image.width,image.height,plane.rowStride,plane.pixelStride)
+                        val bitmap=Bitmap.createBitmap(image.width,image.height,Bitmap.Config.ARGB_8888)
+                        try {
+                            bitmap.copyPixelsFromBuffer(java.nio.ByteBuffer.wrap(pixels))
+                            val bytes=ByteArrayOutputStream().also {check(bitmap.compress(Bitmap.CompressFormat.JPEG,60,it))}.toByteArray()
+                            pipeline.offer(bytes)
+                        } finally {bitmap.recycle()}
+                    }
+                } catch(error: Exception) {
+                    if(ScreenSharingState.active) {
+                        pipeline.close()
+                        ScreenSharingState.active=false;ScreenSharingState.confirmed=false
+                        ScreenSharingState.message="No se pudo leer la imagen de Android. Detén y vuelve a autorizar la pantalla."
+                        stopSelf()
+                    }
+                }
+            }
+            source.setOnImageAvailableListener({
+                if(ScreenSharingState.active && !scheduled) {
+                    scheduled=true
+                    // Defer acquisition rather than discarding the last image of a quick change.
+                    handler.postDelayed(encode,maxOf(0L,1000-(android.os.SystemClock.elapsedRealtime()-lastEncoded)))
+                }
+            },handler)
+            // Register the listener first, so a static screen cannot lose its first frame.
             display = projection!!.createVirtualDisplay("AuditLab visible sharing", width, height, metrics.densityDpi,
                 DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, reader!!.surface, null, Handler(mainLooper))
+            check(display!=null) {"Android no creó la superficie de captura"}
             upload = scope.launch {
-                // ImageReader only reports changes. Poll the latest buffer and keep one
-                // frame in RAM so a static screen keeps its live session heartbeat.
-                var latest: ByteArray? = null
                 try {
-                    while (isActive) {
-                        if (!runtime.indicator.isVisible() || runtime.gate.withdrawalRequested ||
-                            manager.getNotificationChannel("screen_share").importance == NotificationManager.IMPORTANCE_NONE) {
-                            stopSelf(); break
-                        }
-                        val captured = withContext(Dispatchers.Main.immediate) {
-                            reader?.acquireLatestImage()?.use { image ->
-                                val plane = image.planes[0]
-                                val padded = Bitmap.createBitmap(plane.rowStride / plane.pixelStride, height, Bitmap.Config.ARGB_8888)
-                                try {
-                                    padded.copyPixelsFromBuffer(plane.buffer)
-                                    val bitmap = Bitmap.createBitmap(padded, 0, 0, width, height)
-                                    try {
-                                        ByteArrayOutputStream().also { bitmap.compress(Bitmap.CompressFormat.JPEG, 60, it) }.toByteArray()
-                                    } finally { if (bitmap !== padded) bitmap.recycle() }
-                                } finally { padded.recycle() }
-                            }
-                        }
-                        if (captured != null) latest = captured
-                        latest?.let { relay!!.request(stored.deviceId, stored.deviceToken, "POST", it) }
+                    while(isActive) {
+                        if(!runtime.indicator.isVisible() || runtime.gate.withdrawalRequested ||
+                            manager.getNotificationChannel("screen_share").importance==NotificationManager.IMPORTANCE_NONE) {stopSelf();break}
+                        pipeline.tick()
                         delay(1000)
                     }
-                } catch (cancelled: CancellationException) { throw cancelled }
-                catch (error: Exception) {
-                    ScreenSharingState.message = "Captura detenida: ${sharingFailure(error)}"
+                } catch(cancelled: CancellationException) {throw cancelled}
+                catch(error: Exception) {
+                    ScreenSharingState.confirmed=false
+                    ScreenSharingState.message=if(error is IllegalStateException) error.message ?: "Android no entregó imágenes."
+                        else "Envío de pantalla detenido: ${sharingFailure(error)}"
+                    if(error is com.auditlab.common.ApiException && error.isDeviceRevoked)
+                        runCatching {runtime.core().confirmRemoteRevocation(stored.deviceId);runtime.after(runtime.core())}
                     stopSelf()
-                } finally { latest = null }
+                }
             }
+
         } catch (_: Exception) { ScreenSharingState.message = "Android no permitió iniciar la captura. Vuelve a autorizarla desde el Agente."; stopSelf() }
         return START_NOT_STICKY
     }
     override fun onDestroy() {
         ScreenSharingState.active = false
-        if (ScreenSharingState.message.startsWith("Compartiendo")) ScreenSharingState.message = "Pantalla compartida detenida."
-        display?.release(); reader?.close(); projection?.stop(); projection = null
+        frames?.close();frames=null
+        ScreenSharingState.confirmed = false
+        if (ScreenSharingState.message.startsWith("Captura autorizada") || ScreenSharingState.message.startsWith("Imagen recibida")) ScreenSharingState.message = "Pantalla compartida detenida."
+        val oldReader=reader;reader=null
+        val oldDisplay=display;display=null
+        val oldThread=captureThread;captureThread=null
+        val oldHandler=captureHandler;captureHandler=null
+        oldReader?.setOnImageAvailableListener(null,null)
+        oldHandler?.removeCallbacksAndMessages(null)
+        // Serialize resource release after any frame already being copied on this thread.
+        if(oldHandler?.post {oldDisplay?.release();oldReader?.close();oldThread?.quitSafely()}!=true) {
+            oldDisplay?.release();oldReader?.close();oldThread?.quitSafely()
+        }
+        projection?.stop();projection=null
         scope.cancel()
         credential?.let { stored ->
             CoroutineScope(Dispatchers.IO).launch {

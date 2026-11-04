@@ -293,7 +293,7 @@ internal fun DeviceDetail(session: ControlSession, device: DeviceSummary?, scope
         AuditButton("Ver notificaciones de WhatsApp",onWhatsApp,!session.busy)
     }
     if (device.isActive) AuditButton("Ver pantalla compartida", {
-        context.startActivity(android.content.Intent(context, ScreenViewerActivity::class.java).putExtra("device", device.deviceId))
+        context.startActivity(android.content.Intent(context, ScreenViewerActivity::class.java).putExtra("device", device.deviceId).putExtra("deviceLabel",session.deviceName(device.deviceId)))
     }, !session.busy)
     AuditButton("Ver eventos", onEvents, !session.busy)
     AuditButton("Ver auditoría del grupo", onAudit, !session.busy, outlined = true)

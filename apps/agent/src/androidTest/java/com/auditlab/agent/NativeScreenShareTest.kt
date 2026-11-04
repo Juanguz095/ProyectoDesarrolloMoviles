@@ -57,6 +57,7 @@ class NativeScreenShareTest {
                 context.startActivity(Intent(context, ScreenShareActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
                 button("Cancelar")
                 assertNull(relay.request(enrolled.deviceId, session.accessToken))
+                assertFalse("Consent cancellation cannot confirm a frame",ScreenSharingState.confirmed)
                 // A new launch before the previous task finishes can be delivered to
                 // that finishing instance. Wait for the local dialog to disappear.
                 until { instrumentation.uiAutomation.rootInActiveWindow?.packageName?.toString()?.let {
@@ -68,6 +69,7 @@ class NativeScreenShareTest {
                 button("START NOW")
                 var frame: ByteArray? = null
                 until(90) { frame = relay.request(enrolled.deviceId, session.accessToken); frame != null }
+                until {ScreenSharingState.confirmed}
                 val image = BitmapFactory.decodeByteArray(frame, 0, frame!!.size)
                 assertNotNull(image); assertEquals(480, image.width); assertTrue(image.height > 100)
                 image.recycle()
@@ -96,6 +98,7 @@ class NativeScreenShareTest {
                 notice.notification.actions.first { it.title.toString() == "DETENER" }.actionIntent.send()
                 until { manager.activeNotifications.none { it.id == 5202 } }
                 until { relay.request(enrolled.deviceId, session.accessToken) == null }
+                assertFalse(ScreenSharingState.confirmed)
                 assertTrue(ScreenSharingState.message.contains("detenida", true))
                 if (cfg.optBoolean("livePairHold", false)) {
                     File(context.filesDir,"qa-screen-stopped").writeText("ready")

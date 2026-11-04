@@ -4,6 +4,35 @@ Actualización: 4 de noviembre de 2026, UTC. Los registros anteriores conservan 
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
+## Visor sin imágenes tras aceptar pantalla — 4 de noviembre de 2026 (America/Lima)
+
+- P5.5/P6.5/P7.5: el usuario aporta capturas donde el Agente dice compartiendo y
+  el Centro no encuentra sesión. Se verificó el anuncio prematuro antes de la
+  primera imagen y la interpretación incorrecta de GET204. Las capturas no prueban
+  por sí solas por qué no llegó un frame en el teléfono.
+- Agente0.8.4/código19: espera de primera imagen, estado/último envío confirmados
+  solo tras POST204. Listener registrado antes del display, lectura en hilo propio,
+  adquisición diferida de la última imagen y empaquetado rowStride/pixelStride sin
+  exigir padding de la última fila. Cierre serializado con copia y confirmaciones;
+  una imagen RAM para heartbeat estático, sin cola/disco. Sin primera imagen15s,
+  detención con causa visible. Se conservan autorización local, indicador y parada.
+- Centro0.8.4/código17: sin imágenes recientes en vez de afirmar que no se aceptó
+  sesión. Distingue errores HTTP, credenciales, TLS, red y decodificación. Se muestra
+  equipo/código corto para comparar con Detalles del Agente. Servidor0.8.1/V11 sin
+  cambios; no se genera otro paquete Windows ni se exige reinstalar servidor.
+- **160 pruebas JVM/Robolectric: 88 common + 50 Agente + 22 Centro; sin fallos ni
+  omitidas**. Round trip HTTP sintético, estados204/401, no redirects, planos RGBA
+  compactos/con stride y no-confirmación de frames ausentes/tardíos comprobados.
+  Ambas APK y AndroidTest compiladas. Lint0 errores y auditoría APK aprobados.
+- **Pendiente ejecución nativa** de MediaProjection/visor en el Huawei del usuario.
+  No se presenta el test de planos ni un JPEG sintético como captura real. La causa
+  original de ausencia de imagen no está confirmada sin verificar esta instalación.
+  El reporte anterior de SMS sigue separado de esta corrección.
+- [Guía de pantalla](COMPARTIR_PANTALLA.md) y
+  [resultados/hashes](evidencias/VISOR-0.8.4-2026-11-04.json).
+  Siguiente: comprobar primera imagen confirmada y mismo código de equipo con los
+  APK nuevos, conservando inscripción, firma, servidor y datos existentes.
+
 ## Interfaz simple y activación unificada — 4 de noviembre de 2026 (America/Lima)
 
 - P5.3/P5.6/P6.2/P6.4: solicitud de un solo control y menos texto atendida sobre

@@ -59,3 +59,33 @@ El verificador requiere la API privada preparada con `scripts/local_fixture.py` 
 los APK debug e instrumentación compilados. Abre el aviso del Agente y el diálogo
 real de Android sobre datos ficticios. Rechaza teléfonos físicos y registros existentes;
 no borra datos para conseguir un resultado satisfactorio.
+
+## Corrección 0.8.4 — 4 de noviembre de 2026 (America/Lima)
+
+Las capturas del usuario muestran el permiso aceptado y el Agente indicando
+«compartiendo», mientras el visor responde «No hay una sesión ... activa».
+Eso no identifica por sí solo la causa de la ausencia de imágenes. Se verificaron
+estos defectos de código y se corrigieron en los clientes, sin cambiar el servidor:
+
+- El Agente anunciaba compartición antes de recibir una imagen o un acuse HTTP.
+  Ahora muestra esperando imagen y confirma únicamente después del POST204.
+  En Detalles se indica la última imagen confirmada; la notificación se actualiza
+  después del primer acuse. Detener invalida confirmaciones tardías.
+- La lectura suponía disponible el relleno de la última fila del plano RGBA.
+  Se empaquetan los píxeles según rowStride/pixelStride y límites reales del buffer.
+  El listener se registra antes de crear el display; una tarea de adquisición
+  diferida obtiene la última imagen sin descartar el último cambio rápido.
+  Copia/cierre se serializan en un hilo propio y se conserva una sola imagen en RAM.
+- Si Android no entrega la primera imagen en15s, la sesión se detiene con causa
+  visible. No se mantiene indefinidamente un «compartiendo» sin ningún fotograma.
+- GET204 significa que no hay imagen reciente; no demuestra que la persona no
+  haya aceptado MediaProjection. El visor muestra ese estado, equipo/código y
+  errores diferenciados de autenticación, permisos, formato y red/Tailscale.
+
+Para comparar el destino, revisar el código corto de equipo en el visor y en
+Agente → Detalles. La URL base del servidor debe coincidir en ambas apps.
+No borrar inscripción/credenciales para intentar resolver una imagen ausente.
+
+Agente0.8.4/código19 y Centro0.8.4/código17; servidor0.8.1/V11 sin cambios.
+Las pruebas de buffers/HTTP/pipeline usan datos ficticios. No acreditan captura
+nativa en el Huawei del usuario; la recepción real sigue pendiente de verificar.

@@ -46,7 +46,7 @@ class NativeLiveScreenPairTest {
             try {
                 until { shown("Pantalla compartida por el usuario",true) }
                 File(context.filesDir,"qa-live-image-seen").writeText("ready")
-                until { shown("No hay una sesión de pantalla activa.") }
+                until { shown(WAITING_SCREEN_FRAME) }
                 assertFalse(shown("Pantalla compartida por el usuario",true))
             } finally { scenario.close() }
         } finally { api.logout(session.accessToken); store.clear() }

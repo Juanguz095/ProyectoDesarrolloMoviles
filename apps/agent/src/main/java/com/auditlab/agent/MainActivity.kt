@@ -227,7 +227,7 @@ internal fun AgentScreen(session: AgentSession, workScope: CoroutineScope? = nul
                     Text("SMS · ${if(!session.smsPermission) "sin permiso" else if(session.realCaptureRunning) "activo" else "detenido"}")
                     Text("Llamadas · ${if(!session.callPermission) "sin permiso" else if(session.realCaptureRunning) "activas" else "detenidas"}")
                     Text("WhatsApp · ${if(WhatsAppSharingState.active) "sesión activa" else "pendiente o detenido"}")
-                    Text("Pantalla · ${if(ScreenSharingState.active) "compartiendo" else "no compartida"}")
+                    Text("Pantalla · ${if(ScreenSharingState.active && ScreenSharingState.confirmed) "envío confirmado" else if(ScreenSharingState.active) "esperando imagen" else "no compartida"}")
                     Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
                         Text("Actividad reciente",Modifier.weight(1f),style=MaterialTheme.typography.titleMedium)
                         TextButton({history=true}) {Text("Ver todos")}
@@ -241,6 +241,8 @@ internal fun AgentScreen(session: AgentSession, workScope: CoroutineScope? = nul
                         Text(session.realStatus,style=MaterialTheme.typography.bodySmall)
                         Text(WhatsAppSharingState.message,style=MaterialTheme.typography.bodySmall)
                         Text(ScreenSharingState.message,style=MaterialTheme.typography.bodySmall)
+                        Text("Última imagen confirmada: ${ScreenSharingState.lastConfirmedAt?.let(::displayFriendlyTime) ?: "Ninguna"}",style=MaterialTheme.typography.bodySmall)
+                        Text("Equipo: ${state.deviceId.take(8)}",style=MaterialTheme.typography.bodySmall)
                         Text("Servidor: ${session.serverUrl}",style=MaterialTheme.typography.bodySmall)
                         AuditButton("Enviar estado ahora",{session.refreshDeviceStatus(scope)},active && session.visibleAvailable && !session.busy,outlined=true)
                         AuditButton("Generar evento simulado",{session.sendSimulatedEvent(scope)},!session.busy && session.visibleAvailable,outlined=true)
