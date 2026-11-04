@@ -92,5 +92,14 @@
     "DDL preservation fixture initially omitted consumed enrollment code relation; FK rejected it; fixture corrected, constraint retained."
   ],
   "native_acceptance": "pending",
-  "project_complete": false
+  "project_complete": false,
+  "source_commit": "6d737737b628f7edc932d7d6874fed0ba130091c",
+  "source_publication": {
+    "branches": [
+      "main",
+      "work"
+    ],
+    "verified_with": "git ls-remote --heads origin main work",
+    "binaries_published": false
+  }
 }

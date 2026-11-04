@@ -45,8 +45,8 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
   aún no implementadas. Las evidencias históricas 0.8 no se reutilizan para este cierre.
 - [Guía](COMPARTIR_TEXTO_MANUAL_0.8.1.md), [estado](ESTADO_ACTUAL.md),
   [evidencia, comandos y hashes](evidencias/TEXTO-MANUAL-0.8.1-2026-11-04.json).
-  Fuente/documentación preparadas para commit y push autorizado; confirmar el SHA
-  remoto en la entrega de esta sesión. No se anuncia terminado el proyecto.
+  Fuente/documentación publicadas en `main` y `work`: `6d73773`, confirmado mediante
+  git ls-remote tras push normal. No se publicaron binarios ni se anuncia terminado el proyecto.
 
 ## Administración y actualizaciones 0.8 — 31 de octubre de 2026 (America/Lima)
 
