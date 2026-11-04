@@ -4,6 +4,23 @@ Actualización: 4 de noviembre de 2026, UTC. Los registros anteriores conservan 
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
+## Candidato servidor 0.8.1 para revisión privada — 4 de noviembre de 2026
+
+- P8.2/P8.3: por petición expresa del usuario, preparado el servidor Ktor/V11
+  compilado desde `6d73773`, con fuente/documentación de `4c83e7b`, dependencias y
+  lanzador Windows existente. Sin APK, credenciales, datos ni claves privadas.
+- Archivo local para revisión del operador y análisis del ZIP exacto:
+  `AuditLab-Servidor-Windows-0.8.1-candidato.zip`, 34 164 078 bytes, 539 archivos;
+  SHA256 `be42a6476cfe44987ff617cf1410607e4f4ae7609ba9d1b426c800fa248e8b51`.
+  Comprobados CRC, hashes de payload, JAR idéntico al probado y presencia de V11.
+- **No publicado en GitHub ni aprobado para redistribución**. Manifest con
+  windows_verified=false, defender_verified=false y publish_allowed=false;
+  instrucciones de revisión privada y Analizar-Paquete.ps1 adjuntos. Sin ensayo
+  Windows ni análisis Defender nuevo: son requisitos pendientes antes de ejecutar/
+  publicar. El análisis 0.7 no se reutiliza; no se levanta ninguna protección.
+- Siguiente F1/F6/P8.3: analizar estos bytes exactos, revisar el informe y probar
+  instalación Windows y respaldo/restauración. Los ensayos nativos siguen pendientes.
+
 ## Texto manual 0.8.1 — reconstrucción, 4 de noviembre de 2026 (UTC)
 
 - P3.3/P5.3/P6.2: GitHub `main` y `work` confirmados en `0b1aa19` al iniciar.
