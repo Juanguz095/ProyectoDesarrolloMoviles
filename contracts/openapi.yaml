@@ -1,10 +1,10 @@
 openapi: 3.1.0
 info:
   title: AuditLab API definitiva
-  version: 0.8.0
+  version: 0.8.1
   description: 'Contrato objetivo Ktor/PostgreSQL. Su definición no implica rutas ya implementadas. El prototipo
     Python mantiene su contrato separado en prototype-v0.1.yaml. Eventos propios, simulados y metadatos reales autorizados
-    de tipo/fecha de SMS, llamadas y actividad de notificaciones WhatsApp, batería y conexión; texto SMS y número opcionales requieren autorizaciones locales adicionales. El texto WhatsApp permanece efímero.
+    de tipo/fecha de SMS, llamadas y actividad de notificaciones WhatsApp, batería y conexión; texto SMS y número opcionales requieren autorizaciones locales adicionales. El texto WhatsApp permanece efímero. El texto elegido manualmente usa manual_share con confirmación por envío y retención de eventos, sin atribución de origen.
     WhatsApp entrante describe una notificación observada; salida describe una respuesta propia mostrada en una notificación, sin confirmar entrega.
     TLS y validación de certificados obligatorios fuera de loopback. Credenciales solo por headers/cuerpos autenticados;
     respuestas con Cache-Control: no-store. Ejemplos y fixtures son ficticios.'
@@ -950,6 +950,7 @@ components:
       - sms
       - call
       - whatsapp
+      - manual_share
     Direction:
       type: string
       enum:
@@ -977,6 +978,7 @@ components:
       - device_status_changed
       - whatsapp_notification_received
       - whatsapp_reply_observed
+      - text_shared_manually
     AuditAction:
       type: string
       enum:
@@ -1189,6 +1191,13 @@ components:
           type: integer
           minimum: 0
           maximum: 100
+        sharedText:
+          type: string
+          minLength: 1
+          maxLength: 2000
+          description: Texto elegido y confirmado por envío; solo manual_share real, con retención y CSV de eventos.
+        shareConsentVersion:
+          const: manual-share-1
         smsText:
           type: string
           minLength: 1
@@ -1236,6 +1245,33 @@ components:
           type: boolean
         metadata:
           $ref: '#/components/schemas/Metadata'
+      allOf:
+      - if:
+          properties:
+            category:
+              const: manual_share
+          required: [category]
+        then:
+          required: [metadata]
+          properties:
+            direction:
+              const: occurred
+            isSimulated:
+              const: false
+            metadata:
+              required: [appEventCode, sharedText, shareConsentVersion]
+              properties:
+                appEventCode:
+                  const: text_shared_manually
+              propertyNames:
+                enum: [appEventCode, sharedText, shareConsentVersion]
+        else:
+          properties:
+            metadata:
+              not:
+                anyOf:
+                - required: [sharedText]
+                - required: [shareConsentVersion]
     EventRead:
       type: object
       additionalProperties: false

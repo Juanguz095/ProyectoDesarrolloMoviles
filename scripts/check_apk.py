@@ -26,6 +26,7 @@ EXPECTED = {
         "target_sdk": "35",
         "classes": [
             "Lcom/auditlab/agent/MainActivity;",
+            "Lcom/auditlab/agent/ManualTextShareActivity;",
             "Lcom/auditlab/agent/AgentSession;",
             "Lcom/auditlab/agent/KeystoreCredentialStore;",
             "Lcom/auditlab/agent/RealMonitoringService;",
@@ -210,8 +211,8 @@ def audit(apk: Path, profile: str) -> None:
     elif debuggable and debuggable.group(1) == "true":
         fail("el APK de release no debe ser depurable")
 
-    # Componentes exportados: solo la actividad de lanzamiento y el receptor de perfiles,
-    # este último protegido por el permiso de sistema DUMP.
+    # Exported entry points are explicit: launcher, manual ACTION_SEND confirmation,
+    # and the existing system-permission-protected adapters.
     components = []
     current = None
     for index, line in enumerate(tree):
@@ -239,6 +240,7 @@ def audit(apk: Path, profile: str) -> None:
     unexpected_exported = [
         c for c in exported
         if not (c["name"] == name + ".MainActivity" or
+                (name == "com.auditlab.agent" and c["name"] == "com.auditlab.agent.ManualTextShareActivity") or
                 (c["name"] == "androidx.profileinstaller.ProfileInstallReceiver" and c["permission"] == "android.permission.DUMP") or
                 (name == "com.auditlab.agent" and c["name"] == "androidx.work.impl.diagnostics.DiagnosticsReceiver" and c["permission"] == "android.permission.DUMP") or
                 (name == "com.auditlab.agent" and c["name"] == "com.auditlab.agent.WhatsAppNotificationListener" and c["permission"] == "android.permission.BIND_NOTIFICATION_LISTENER_SERVICE") or

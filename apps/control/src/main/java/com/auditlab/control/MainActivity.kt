@@ -260,6 +260,7 @@ internal fun categoryName(category: String): String = when (category) {
     "device_status" -> "Batería y conexión"
     "sms" -> "SMS"
     "call" -> "Llamadas"
+    "manual_share" -> "Compartidos"
     "whatsapp" -> "WhatsApp"
     "communication" -> "Mensajes y llamadas"
     "app_lifecycle" -> "Actividad de la app"

@@ -9,10 +9,12 @@ object EventCodec {
     fun consent(node: JSONObject) = ConsentContext(node.getString("consentId"), node.getString("policyVersion"), node.getString("acceptedAt"))
     fun encode(event: EventDraft): String {
         EventPolicy.validate(event.category, event.direction, event.metadata["appEventCode"], event.isSimulated)
+        ManualSharePolicy.validate(event.category, event.isSimulated, event.metadata)
         require(event.direction in setOf("inbound", "outbound", "occurred"))
-        require(event.metadata.keys.all { it in setOf("networkState", "batteryPercent", "appEventCode", "phoneNumber", "smsText", "smsTextTruncated") })
+        require(event.metadata.keys.all { it in setOf("networkState", "batteryPercent", "appEventCode", "phoneNumber", "smsText", "smsTextTruncated", "sharedText", "shareConsentVersion") })
         event.metadata.forEach { (key, value) ->
             require(when (key) {
+                "sharedText", "shareConsentVersion" -> event.category == "manual_share"
                 "smsText" -> !event.isSimulated && event.category=="sms" && value is String && value.isNotBlank() && value.length<=2000
                 "smsTextTruncated" -> !event.isSimulated && event.category=="sms" && value==true && event.metadata["smsText"] is String
                 "phoneNumber" -> !event.isSimulated && event.category in setOf("sms","call") && value is String && value.matches(Regex("[+0-9 ()*#.-]{1,40}"))

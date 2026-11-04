@@ -1,8 +1,52 @@
 # AuditLab — Registro de avance
 
-Actualización: 31 de octubre de 2026, America/Lima. Los registros anteriores conservan su fecha y zona indicadas.
+Actualización: 4 de noviembre de 2026, UTC. Los registros anteriores conservan su fecha y zona indicadas.
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
+
+## Texto manual 0.8.1 — reconstrucción, 4 de noviembre de 2026 (UTC)
+
+- P3.3/P5.3/P6.2: GitHub `main` y `work` confirmados en `0b1aa19` al iniciar.
+  Checkout limpio; no estaban los archivos locales 0.8.1 ni los cuatro documentos
+  informados por el usuario. Se reconstruyeron expresamente, sin alegar recuperación.
+  No se sustituyó el checkout ni se usó reset/clean. Las actualizaciones documentales
+  históricas desconocidas no se consideran recuperadas.
+- Agente código16/Centro código15, `0.8.1-preview`. ACTION_SEND text/plain y Pegar
+  solo por acción local; revisión de destino/dispositivo/retención y aceptación
+  independiente. Borrador RAM sin restauración, pantalla protegida, sin cola Room,
+  reintento automático, activación de monitoreo ni envío de eventos pendientes.
+  Reintento en la misma ventana conserva ID, fecha y texto. Revocación bloquea envío.
+- API/contrato/V11: categoría manual_share, dirección occurred, real; texto y versión
+  manual-share-1 obligatorios, máximo2000, sin metadatos adicionales ni atribución
+  WhatsApp. Campos manuales rechazados en otras categorías. Centro: Compartidos y
+  detalle; consulta/CSV con roles, auditoría, idempotencia y aislamiento existentes.
+- **222 pruebas JVM/Robolectric/PostgreSQL, 50 de contrato y 37 de herramientas**
+  aprobadas, ninguna omitida. Cinco contratos y documentación válidos. Ambas APK
+  debug y Ktor construidos; auditoría APK correcta. La prueba genérica RealEventTest
+  necesita texto/consentimiento para el nuevo tipo; se actualizó el fixture y se
+  añadieron casos negativos, manteniendo las validaciones. Sin los archivos perdidos
+  no se puede afirmar la causa exacta de la ejecución histórica.
+- Conservación: DDL V1–V10 con datos ficticios, respaldo antes de V11 y restauración
+  en otra BD: **10 tablas idénticas** antes/después y tras restaurar/migrar. Flyway,
+  repetición de migraciones, roles y comportamiento HTTP/reinicio probados por
+  check_database.py, 61 integraciones. Bases/respaldos/certificados QA conservados.
+- Fallos conservados en el registro: compilación de validación nueva, expectativas
+  HTTP incorrectas del test, fixture sin código consumido y disco lleno en javac/dex/
+  informes. Se corrigieron sin retirar restricciones. Disco total7.9GB: se retiraron
+  solo descargas/copias duplicadas y contenedores propios desechables; los volúmenes
+  se conservaron. No se recuperaron AVD/claves/bases anteriores; herramientas nuevas.
+- **No entregada como función validada nativamente**: faltan recorrido de ambas apps
+  en emuladores, rotación/cancelación/error/revocación en UI nativa y prueba integrada
+  del Centro. Sin KVM/AVD recuperados y capacidad insuficiente para imágenes/discos.
+  F1/F6 siguen pendientes en PC/teléfonos reales. No hay paquete Windows nuevo,
+  análisis Defender nuevo, firma de distribución ni publicación binaria validada.
+- Siguiente: ampliar capacidad para aceptación nativa 0.8.1 y después desarrollar
+  las propuestas de ubicación puntual, diagnósticos propios y estado ampliado;
+  aún no implementadas. Las evidencias históricas 0.8 no se reutilizan para este cierre.
+- [Guía](COMPARTIR_TEXTO_MANUAL_0.8.1.md), [estado](ESTADO_ACTUAL.md),
+  [evidencia, comandos y hashes](evidencias/TEXTO-MANUAL-0.8.1-2026-11-04.json).
+  Fuente/documentación preparadas para commit y push autorizado; confirmar el SHA
+  remoto en la entrega de esta sesión. No se anuncia terminado el proyecto.
 
 ## Administración y actualizaciones 0.8 — 31 de octubre de 2026 (America/Lima)
 

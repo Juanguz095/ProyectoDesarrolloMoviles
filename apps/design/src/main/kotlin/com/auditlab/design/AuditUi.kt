@@ -263,6 +263,7 @@ fun metadataTitle(metadata: Map<String, Any?>, fallback: String = "Evento de la 
     "call_rejected" -> "Llamada rechazada o bloqueada"
     "device_status_changed" -> "Estado del dispositivo"
     "whatsapp_notification_received" -> "Notificación de WhatsApp recibida"
+    "text_shared_manually" -> "Texto compartido manualmente"
     "whatsapp_reply_observed" -> "Respuesta de WhatsApp observada"
     "agent_started" -> "Actividad del agente"
     "sync_succeeded" -> "Sincronización completada"

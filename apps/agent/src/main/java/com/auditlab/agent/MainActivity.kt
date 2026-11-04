@@ -76,7 +76,10 @@ class MainActivity : ComponentActivity() {
                         startActivity(Intent(this, ScreenShareActivity::class.java))
                     }, onShareWhatsApp = {
                         startActivity(Intent(this, WhatsAppShareActivity::class.java))
-                    }, platformControls = { BasicMonitoringControls(); AgentUpdateControls() })
+                    }, platformControls = {
+                        BasicMonitoringControls(); AgentUpdateControls()
+                        AuditButton("Compartir un texto", { startActivity(Intent(this, ManualTextShareActivity::class.java)) })
+                    })
                 }
             }
         }

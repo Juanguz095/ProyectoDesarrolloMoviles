@@ -33,6 +33,19 @@ for case in CASES:
 
 
 class ContractInvariants(unittest.TestCase):
+    def test_manual_share_requires_its_own_text_and_consent(self):
+        event = copy.deepcopy(next(case['value'] for case in CASES if case['name'] == 'event_input'))
+        event.update(category='manual_share', direction='occurred', isSimulated=False,
+                     metadata={'appEventCode': 'text_shared_manually', 'sharedText': 'Texto ficticio',
+                               'shareConsentVersion': 'manual-share-1'})
+        self.assertTrue(validator('EventInput').is_valid(event))
+        for field in event['metadata']:
+            changed = copy.deepcopy(event)
+            del changed['metadata'][field]
+            self.assertFalse(validator('EventInput').is_valid(changed))
+        for key, value in [('category', 'whatsapp'), ('isSimulated', True), ('direction', 'inbound')]:
+            self.assertFalse(validator('EventInput').is_valid(dict(event, **{key: value})))
+
     def test_batch_limit(self):
         event = next(case['value'] for case in CASES if case['name'] == 'event_input')
         self.assertTrue(validator('EventBatch').is_valid({'events': [event] * 100}))

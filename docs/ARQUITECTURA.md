@@ -219,3 +219,9 @@ proveedores de comunicaciones. `BasicBootReceiver` solo acepta BOOT_COMPLETED y
 comprueba el recibo local del mismo equipo/consentimiento antes de solicitar un
 servicio visible. No hay Direct Boot, ocultación ni excepciones al ahorro de batería.
 [Condiciones y límites](MONITOREO_BASICO_0.7.5.md).
+
+## Reconstrucción 0.8.1 — 4 de noviembre de 2026
+
+[Texto compartido manualmente](COMPARTIR_TEXTO_MANUAL_0.8.1.md): flujo explícito por envío, sin cola ni
+reactivación del monitoreo; API/V11 y Centro Android conservan la arquitectura.
+Es trabajo reconstruido; su validación se registra separada de 0.8.

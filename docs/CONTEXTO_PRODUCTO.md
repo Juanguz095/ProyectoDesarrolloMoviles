@@ -146,3 +146,9 @@ bloqueo nuevo debe mantenerse. [Informe](REVISION_DEFENDER_0.7.md).
 No presentar lectura completa de WhatsApp, cámara remota, audio de llamadas,
 servicio imposible de detener ni producto validado sin errores: esas afirmaciones
 no corresponden al alcance/evidencia actuales.
+
+## Reconstrucción 0.8.1 — 4 de noviembre de 2026
+
+[Texto compartido manualmente](COMPARTIR_TEXTO_MANUAL_0.8.1.md): flujo explícito por envío, sin cola ni
+reactivación del monitoreo; API/V11 y Centro Android conservan la arquitectura.
+Es trabajo reconstruido; su validación se registra separada de 0.8.

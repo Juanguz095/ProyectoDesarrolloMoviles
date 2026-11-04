@@ -97,10 +97,33 @@ class AgentCore(
         State.Enrolled(device.deviceId, device.consent).also { state = it }
     }
 
+    fun prepareManualText(text: String): EventDraft = synchronized(gate) {
+        val active = activeCredential()
+        val event = EventDraft(UUID.randomUUID().toString(), clock().toString(), "manual_share", "occurred",
+            active.deviceId, active.consent, mapOf("appEventCode" to "text_shared_manually",
+                "sharedText" to text, "shareConsentVersion" to ManualSharePolicy.VERSION), false)
+        EventCodec.encode(event)
+        event
+    }
+    fun sendManualText(event: EventDraft): IngestResult = synchronized(gate) {
+        val active = activeCredential()
+        check(event.category == "manual_share" && event.sourceDevice == active.deviceId && event.consent == active.consent)
+        EventCodec.encode(event)
+        try {
+            val result = api.sendEvents(active.deviceToken, listOf(event))
+            check(result.accepted >= 0 && result.duplicates >= 0 && result.accepted + result.duplicates == 1)
+            result
+        } catch (e: ApiException) {
+            if (e.isDeviceRevoked) retireRemote(active.deviceId)
+            throw e
+        }
+    }
+
     fun sendSimulatedEvent(metadata: Map<String, Any?> = mapOf("appEventCode" to "agent_started", "networkState" to "online")): IngestResult = captureAndSend { metadata }
     /** Capture only; the Android adapter deduplicates provider rows before calling this gate. */
     fun captureRealEvent(category: String, direction: String, metadata: Map<String, Any?>,
                          timestamp: Instant = clock(), eventId: String = UUID.randomUUID().toString()) = synchronized(gate) {
+        require(category != "manual_share") { "Usa la confirmación manual por texto" }
         val active = activeCredential()
         if (!visible()) throw MonitoringPaused()
         check(!timestamp.isBefore(Instant.parse(active.consent.acceptedAt))) { "Evento anterior al consentimiento" }

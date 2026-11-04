@@ -20,7 +20,9 @@ class RealEventTest {
     }
     @Test fun `all authorized real event kinds and directions validate`() {
         EventPolicy.realCodes.forEach { (code, pair) ->
-            val e = event(code).copy(category = pair.first, direction = pair.second)
+            val base = event(code).copy(category = pair.first, direction = pair.second)
+            val e = if (pair.first == "manual_share") base.copy(metadata = base.metadata + mapOf(
+                "sharedText" to "Texto ficticio elegido", "shareConsentVersion" to ManualSharePolicy.VERSION)) else base
             assertEquals(e, EventCodec.decode(EventCodec.encode(e)))
         }
     }

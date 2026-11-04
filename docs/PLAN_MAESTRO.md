@@ -60,6 +60,12 @@ dispositivo y las evidencias nuevas se registran sin reutilizar el cierre histó
 
 Este documento guía la construcción del producto. Se utiliza junto con [AVANCE.md](AVANCE.md), donde se registran tareas, resultados y bloqueos. Las fases siguientes son trabajo previsto; una descripción o un archivo existente no demuestra su funcionamiento.
 
+**Ampliación 0.8.1 — 4 de noviembre de 2026:** P3.3/P5.3/P6.2 incorporan
+[texto compartido manualmente](COMPARTIR_TEXTO_MANUAL_0.8.1.md), confirmado por envío.
+Reconstrucción desde fuente 0.8; pruebas propias, sin atribución a WhatsApp ni cola.
+Ubicación puntual, diagnósticos propios y estado ampliado son propuestas posteriores;
+no se consideran terminados por la implementación del texto. Resultados en AVANCE.
+
 ## 1. Meta y definición de entrega
 
 Entregar dos aplicaciones Android instalables y una API HTTPS que permitan, en dispositivos propios o administrados, inscribir un agente con consentimiento explícito, registrar eventos permitidos, transmitirlos de forma autenticada y consultarlos desde un centro de control con roles y trazabilidad.

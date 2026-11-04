@@ -112,3 +112,17 @@ python3 scripts/package_qa.py --native-report .tooling/android-native/IDENTIFICA
 Reemplazar `IDENTIFICADOR` por la ejecución completa recién aprobada. El paquete incluye las dos APKs debug, la distribución Ktor con sus bibliotecas, los manuales públicos y una copia de los archivos versionados en `source/`, incluidos wrappers y pruebas. `LEEME.md`, `manifest.json` y `SHA256SUMS` permiten instalar e identificar los archivos. Al extraer con `unzip`, comprobar `sha256sum -c SHA256SUMS` desde la carpeta extraída; se conservan los permisos de ejecución del servidor y wrappers.
 
 El empaquetador rechaza una ejecución incompleta, un hash diferente en cualquiera de las cuatro APKs (apps e instrumentación), archivos ausentes/enlaces simbólicos y un destino ya existente. Comprueba además los bytes realmente incluidos para detectar una reconstrucción concurrente. No compila, firma, configura cuentas, incluye datos del fixture ni publica servicios. La firma debug permite desarrollo; la entrega del piloto requiere los pasos P8.1/P8.2/P8.4 descritos en el plan.
+
+## Texto manual 0.8.1
+
+Ejecutar la regresión JVM/Robolectric y `scripts/check_database.py` con V11.
+`python3 scripts/check_manual_migration.py` crea un fixture propio nuevo bajo
+`.tooling/manual-migration-fixture`: aplica DDL V1–V10, inserta datos ficticios,
+respalda antes de V11 y restaura en otra base. Conserva bases y backup privado.
+Comprueba DDL y conservación; Flyway se verifica por separado en check_database.
+
+La aceptación nativa debe cubrir Compartir → AuditLab, Pegar por acción explícita,
+inscripción ausente/revocada, cancelar sin transmisión, límite de texto, servidor
+caído, reintento idéntico, rotación/proceso perdido y Eventos → Compartidos en Centro.
+Comparar IDs/texto con API; demostrar que no se envió la cola anterior ni se activó
+monitoreo. Los tests Robolectric no sustituyen este recorrido en emuladores.

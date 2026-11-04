@@ -119,7 +119,7 @@ internal fun EventExplorer(session: ControlSession, scope: CoroutineScope, onExp
     val applied=listOfNotNull(session.query.device?.let { session.deviceName(it) },session.query.category?.let(::categoryName))
     Text(if(applied.isEmpty()) "Todos los dispositivos · Todas las categorías" else applied.joinToString(" · "),color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
     FlowRow(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp),verticalArrangement=Arrangement.spacedBy(4.dp)) {
-        listOf("communication" to "Todo","whatsapp" to "WhatsApp","sms" to "SMS","call" to "Llamadas").forEach { (value,label) ->
+        listOf("communication" to "Todo","whatsapp" to "WhatsApp","sms" to "SMS","call" to "Llamadas","manual_share" to "Compartidos").forEach { (value,label) ->
             FilterChip(selected=session.query.category==value,onClick={session.applyFilters(session.query.copy(category=value),scope)},
                 label={Text(label)},enabled=!session.busy,
                 colors=FilterChipDefaults.filterChipColors(containerColor=AuditColors.Panel,labelColor=AuditColors.Ink,
@@ -134,7 +134,7 @@ internal fun EventExplorer(session: ControlSession, scope: CoroutineScope, onExp
         !session.busy) { value -> if (value == "manual") manualDevice = true else { device = value; manualDevice = false } }
     if (manualDevice) AuditField("Identificador del dispositivo", device, { device = it }, !session.busy, placeholder = "UUID completo")
     AuditChoice("Categoría", if (category.isEmpty()) "Todas las categorías" else categoryName(category),
-        listOf("communication" to "Mensajes y llamadas","whatsapp" to "WhatsApp","sms" to "SMS","call" to "Llamadas"), !session.busy) { category = it }
+        listOf("communication" to "Mensajes y llamadas","whatsapp" to "WhatsApp","sms" to "SMS","call" to "Llamadas","manual_share" to "Compartidos"), !session.busy) { category = it }
     SectionLabel("Rango UTC")
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         DateChoice("Desde", start, false, !session.busy, { start = it }, Modifier.weight(1f))
@@ -375,6 +375,11 @@ internal fun EventRow(event: AuditEvent, enabled: Boolean, deviceName: String?=n
         (event.metadata["phoneNumber"] as? String)?.let {
             val label=when(event.direction) { "inbound"->"De"; "outbound"->"Para";else->"Número" }
             Text("$label: $it",style=MaterialTheme.typography.bodyLarge,color=AuditColors.Ink)
+        }
+        if(event.category=="manual_share") {
+            Text("Texto compartido manualmente")
+            Text(event.metadata["sharedText"] as? String ?: "Texto no disponible")
+            Text("Elegido y confirmado en el Agente; sin atribución de aplicación, remitente o dirección original.", color=AuditColors.Muted)
         }
         if(event.category=="sms") {
             val body=event.metadata["smsText"] as? String

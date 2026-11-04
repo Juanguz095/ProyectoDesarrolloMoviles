@@ -1,0 +1,96 @@
+{
+  "date_utc": "2026-11-04",
+  "base_commit": "0b1aa198e65e16764fb77ac4e474146ef328576e",
+  "reconstruction_not_recovery": true,
+  "task_ids": [
+    "P3.3",
+    "P5.3",
+    "P6.2"
+  ],
+  "jvm_robolectric_postgresql": {
+    "apps/common:test": {
+      "tests": 86,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "apps/agent:testDebugUnitTest": {
+      "tests": 37,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "apps/control:testDebugUnitTest": {
+      "tests": 21,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "backend/ktor:test": {
+      "tests": 17,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "backend/ktor:integrationTest": {
+      "tests": 61,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "contract_tests": 50,
+  "tool_tests": 37,
+  "commands_passed": [
+    "python3 scripts/check_docs.py",
+    ".venv/bin/python scripts/check_contract.py",
+    ".venv/bin/python -m unittest discover -s contracts/tests",
+    "python3 -m unittest discover -s scripts/tests",
+    "python3 scripts/gradle.py :apps:common:test :apps:agent:testDebugUnitTest :apps:control:testDebugUnitTest :backend:ktor:test :apps:agent:assembleDebug :apps:control:assembleDebug :backend:ktor:installDist --max-workers=1",
+    "python3 scripts/gradle.py :apps:agent:testDebugUnitTest :apps:agent:assembleDebug --max-workers=1",
+    "python3 scripts/check_database.py",
+    "python3 scripts/check_manual_migration.py",
+    "python3 scripts/check_apk.py"
+  ],
+  "final_exit_codes": 0,
+  "ddl_upgrade_restore": {
+    "passed": true,
+    "ddl_v10_to_v11": true,
+    "backup_before_migration": true,
+    "restore_then_v11": true,
+    "identical_tables": 10,
+    "synthetic_events": 1,
+    "flyway_check": "separate check_database.py",
+    "fixture_directory": ".tooling/manual-migration-fixture/manual-migration/manual_fe54ed7a60c8"
+  },
+  "artifacts": {
+    "apps/agent/build/outputs/apk/debug/agent-debug.apk": {
+      "bytes": 10404614,
+      "sha256": "1778d9d9969f7fc65de17ac95e27faabece736d70e174ba449d995d5a076d7f9"
+    },
+    "apps/control/build/outputs/apk/debug/control-debug.apk": {
+      "bytes": 9582737,
+      "sha256": "4e2b53e17bc5dc93dad31926d2836bdbd12b0f852666b4bd89d2be80d48848bb"
+    },
+    "backend/ktor/build/libs/ktor.jar": {
+      "bytes": 397004,
+      "sha256": "0b93409ed0b9a99529c5005242e383ade03499e88b537c480731332cdceb7550"
+    }
+  },
+  "ktor_distribution": "backend/ktor/build/install/ktor",
+  "limitations": [
+    "No native emulator/device run: total disk 7.9 GB, no recovered AVD or /dev/kvm; disk exhausted during earlier attempts.",
+    "APKs debug only, not distribution signed, not published as validated.",
+    "No new Windows ZIP or Defender evidence. F1/F6 physical tests remain pending.",
+    "Location, own diagnostics and expanded agent status remain proposals, not implemented.",
+    "Historical 0.8.1 failure cannot be reproduced byte-for-byte because local files were absent."
+  ],
+  "failed_attempts": [
+    "New metadata validation initially failed compilation: accidental extra has arguments; fixed.",
+    "New integration fixture expected HTTP 200 for withdrawal and 403 for revoked token; existing contract requires 204 and 401; assertions corrected, authorization unchanged.",
+    "Disk exhausted during javac/dex and report output; retained logs/volumes, removed own duplicate tool downloads and disposable containers, ran sequentially.",
+    "DDL preservation fixture initially omitted consumed enrollment code relation; FK rejected it; fixture corrected, constraint retained."
+  ],
+  "native_acceptance": "pending",
+  "project_complete": false
+}

@@ -159,3 +159,9 @@ Identificación y archivo local de equipos: [Centro 0.7.4](DISPOSITIVOS_0.7.3.md
 Alertas con servicio visible sin Firebase: [activar Centro 0.7.4](ALERTAS_WHATSAPP_0.7.4.md).
 
 Agente 0.7.5: [batería/conexión y recuperación visible opcional](MONITOREO_BASICO_0.7.5.md).
+
+## Reconstrucción 0.8.1 — 4 de noviembre de 2026
+
+[Texto compartido manualmente](COMPARTIR_TEXTO_MANUAL_0.8.1.md): flujo explícito por envío, sin cola ni
+reactivación del monitoreo; API/V11 y Centro Android conservan la arquitectura.
+Es trabajo reconstruido; su validación se registra separada de 0.8.

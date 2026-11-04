@@ -241,3 +241,9 @@ las versiones y el alcance de cada comprobación.
 - [Contrato de la API](contracts/openapi.yaml), [pantalla](contracts/screen-share.openapi.yaml) y [notificaciones](contracts/whatsapp-preview.openapi.yaml).
 - [Despliegue y operación](docs/despliegue.md).
 - [Registro de cambios y estado](docs/AVANCE.md).
+
+## Reconstrucción 0.8.1 — 4 de noviembre de 2026
+
+[Texto compartido manualmente](docs/COMPARTIR_TEXTO_MANUAL_0.8.1.md): flujo explícito por envío, sin cola ni
+reactivación del monitoreo; API/V11 y Centro Android conservan la arquitectura.
+Es trabajo reconstruido; su validación se registra separada de 0.8.
