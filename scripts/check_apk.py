@@ -27,6 +27,7 @@ EXPECTED = {
         "classes": [
             "Lcom/auditlab/agent/MainActivity;",
             "Lcom/auditlab/agent/ManualTextShareActivity;",
+            "Lcom/auditlab/agent/UnifiedMonitoringActivity;",
             "Lcom/auditlab/agent/AgentSession;",
             "Lcom/auditlab/agent/KeystoreCredentialStore;",
             "Lcom/auditlab/agent/RealMonitoringService;",

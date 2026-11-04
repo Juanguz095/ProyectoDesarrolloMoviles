@@ -24,6 +24,8 @@ class ControlScreenTest {
         compose.setContent { AuditTheme { ControlScreen(session) } }
     }
     private fun tap(text: String) {
+        if(text.uppercase()=="CONSULTAR VERSIONES Y SOLICITUD" &&
+            compose.onAllNodesWithText(text.uppercase()).fetchSemanticsNodes().isEmpty()) tap("Actualizaciones")
         val clickable = hasText(text) and hasClickAction()
         val scrollable = clickable and hasAnyAncestor(hasScrollAction())
         if (compose.onAllNodes(scrollable).fetchSemanticsNodes().isNotEmpty()) compose.onNode(scrollable).performScrollTo()
@@ -207,6 +209,16 @@ class ControlScreenTest {
             assertFalse(session.message?.contains("CSV guardado") == true)
         } finally { scope.cancel() }
     }
+    @Test fun `shared text remains readable in the compact list and full detail`() {
+        val api=signIn()
+        api.manualShare=true
+        tap("EVENTOS");tap("Compartidos")
+        waitFor("Texto compartido manualmente")
+        compose.onNodeWithContentDescription("Ver detalle →").performScrollTo().performClick()
+        waitFor("DETALLE DE EVENTO")
+        compose.onNode(isDialog()).assert(hasAnyDescendant(hasText("Texto ficticio compartido")))
+    }
+
     private class FakeApi(private val role: String) : AuditApi {
         var requestedUpdate: String?=null
         private var update: AppUpdateRequest?=null
@@ -227,6 +239,7 @@ class ControlScreenTest {
             if(previewError) throw ApiException(0,"NETWORK_ERROR",null,"fixture")
             return previewSnapshot
         }
+        var manualShare = false
         var realEvents = false
         var lastQuery: com.auditlab.common.EventQuery? = null
         var loginError = false
@@ -296,12 +309,12 @@ class ControlScreenTest {
                     com.auditlab.common.AuditEvent(
                         eventId = "event-1",
                         timestamp = "2026-10-24T10:00:00Z",
-                        category = if (realEvents) "sms" else "app_lifecycle",
+                        category = if(manualShare) "manual_share" else if (realEvents) "sms" else "app_lifecycle",
                         direction = if (realEvents) "outbound" else "occurred",
                         sourceDevice = "device-1",
                         consent = ConsentContext("c-1", "mvp-1", "2026-10-24T09:58:00Z"),
-                        isSimulated = !realEvents,
-                        metadata = mapOf("appEventCode" to if (realEvents) "sms_sent" else "agent_started"),
+                        isSimulated = !realEvents && !manualShare,
+                        metadata = if(manualShare) mapOf("appEventCode" to "text_shared_manually","sharedText" to "Texto ficticio compartido","shareConsentVersion" to "manual-share-1") else mapOf("appEventCode" to if (realEvents) "sms_sent" else "agent_started"),
                         receivedAt = "2026-10-24T10:00:01Z",
                     ),
                 ),

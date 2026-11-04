@@ -26,6 +26,7 @@ class NativeRealEventsTest {
         }
     }
     private fun tap(text: String) {
+        if(text=="RETIRAR CONSENTIMIENTO" && compose.onAllNodesWithText(text).fetchSemanticsNodes().isEmpty()) tap("Detalles y ajustes")
         compose.waitUntil(45_000) { compose.onAllNodesWithText(text).fetchSemanticsNodes().any {
             !it.config.contains(androidx.compose.ui.semantics.SemanticsProperties.Disabled)
         } }

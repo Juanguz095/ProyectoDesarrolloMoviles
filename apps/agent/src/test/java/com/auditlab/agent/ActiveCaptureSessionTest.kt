@@ -21,6 +21,20 @@ import org.robolectric.util.ReflectionHelpers
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk=[34])
 class ActiveCaptureSessionTest {
+    @Test fun `stop cancels an activation waiting on Android permission before any service starts`() {
+        val context=ApplicationProvider.getApplicationContext<Application>()
+        WorkManagerTestInitHelper.initializeTestWorkManager(context,Configuration.Builder().build())
+        val runtime=AgentRuntime.get(context)
+        val old=runtime.beginActivation()
+        runtime.cancelActivation()
+        assertFalse(runtime.activationValid(old))
+        assertThrows(IllegalStateException::class.java) {runtime.activateMonitoring(MonitoringSelection(communications=true,whatsApp=true,screen=true),old)}
+        assertFalse(runtime.realEvents.requested)
+        assertNull(shadowOf(context).nextStartedService)
+        val next=runtime.beginActivation()
+        assertTrue(runtime.activationValid(next));assertFalse(runtime.activationValid(old))
+    }
+
     @Test fun `new UI reflects the live SMS authorizations without requesting permissions again`() {
         val context=ApplicationProvider.getApplicationContext<Application>()
         WorkManagerTestInitHelper.initializeTestWorkManager(context,Configuration.Builder().build())

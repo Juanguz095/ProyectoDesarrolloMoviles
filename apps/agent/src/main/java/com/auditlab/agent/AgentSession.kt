@@ -30,6 +30,8 @@ class AgentSession internal constructor(
         private set
     var visibleAvailable by mutableStateOf(platform == null)
         private set
+    var smsPermission by mutableStateOf(false); private set
+    var callPermission by mutableStateOf(false); private set
     var realMonitoring by mutableStateOf(false); private set
     var realCaptureRunning by mutableStateOf(false); private set
     var ready by mutableStateOf(platform == null); private set
@@ -96,6 +98,7 @@ class AgentSession internal constructor(
         else "Evento guardado localmente. Pendientes: ${it.stats().pending}."
     }
     fun revoke(scope: CoroutineScope) {
+        platform?.cancelActivation()
         platform?.updates?.clearNotice()
         runCatching { platform?.basicMonitoring?.stop() }
         platform?.stopWhatsAppSharing()
@@ -128,6 +131,9 @@ class AgentSession internal constructor(
         "Indicador habilitado. La sincronización puede continuar."
     }
     fun pause(scope: CoroutineScope) {
+        platform?.cancelActivation()
+        // Close the visibility gate immediately, including an activation waiting on Android.
+        runCatching {platform?.indicator?.hide()}.onFailure {platform?.gate?.storageBlocked=true}
         platform?.updates?.clearNotice()
         runCatching { platform?.basicMonitoring?.stop() }
         platform?.stopWhatsAppSharing()
@@ -181,6 +187,8 @@ class AgentSession internal constructor(
         state = value.state; consent = value.consent; stats = value.stats; revocationPending = value.pending
         visibleAvailable = value.visible; serverUrl = value.url
         ready = true; recentEvents = value.events; lastDeviceStatus = value.deviceStatus
+        smsPermission = platform?.realEvents?.hasPermission(android.Manifest.permission.READ_SMS) == true
+        callPermission = platform?.realEvents?.hasPermission(android.Manifest.permission.READ_CALL_LOG) == true
         realMonitoring = platform?.realEvents?.requested == true
         if (realMonitoring) {
             numberConsent = platform!!.realEvents.includeNumbers

@@ -247,3 +247,9 @@ las versiones y el alcance de cada comprobación.
 [Texto compartido manualmente](docs/COMPARTIR_TEXTO_MANUAL_0.8.1.md): flujo explícito por envío, sin cola ni
 reactivación del monitoreo; API/V11 y Centro Android conservan la arquitectura.
 Es trabajo reconstruido; su validación se registra separada de 0.8.
+
+## Interfaz 0.8.3
+
+[Activación única y pantallas simplificadas](docs/INTERFAZ_SIMPLE_0.8.3.md): un control Activar/Detener
+todo en el Agente y detalles plegables en ambas apps. Revisión de prueba; estado
+nativo y resultados en el registro de avance. Servidor 0.8.1 sin cambios.

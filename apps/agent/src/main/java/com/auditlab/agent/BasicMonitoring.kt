@@ -54,6 +54,16 @@ class BasicMonitoring(private val context: Context,private val runtime: AgentRun
         try { ContextCompat.startForegroundService(context,Intent(context,BasicMonitoringService::class.java)) }
         catch(_: Exception) { stop();error("Android no permitió iniciar el servicio. Mantén la app abierta e inténtalo de nuevo.") }
     }
+    /** Store battery-only boot recovery without switching off an active communications service. */
+    internal fun configureRecovery(autoResume: Boolean) = synchronized(runtime.gate) {
+        val state=runtime.core().refresh() as? AgentCore.State.Enrolled ?: error("Primero inscribe este dispositivo.")
+        check(!runtime.gate.withdrawalRequested && !runtime.gate.storageBlocked)
+        val editor=preferences.edit()
+        if(autoResume) editor.putBoolean("enabled",true).putString("device",state.deviceId)
+            .putString("consent",state.consent.consentId).putBoolean("auto",true)
+        else editor.clear()
+        if(!editor.commit()) throw StorageFailure()
+    }
     fun stop() {
         if(!preferences.edit().clear().commit()) {
             runtime.gate.storageBlocked=true
@@ -147,41 +157,4 @@ class BasicMonitoringService : Service() {
         super.onDestroy()
     }
     companion object {const val ID=5110;const val STOP="com.auditlab.agent.STOP_BASIC"}
-}
-
-@Composable
-internal fun BasicMonitoringControls() {
-    val context=LocalContext.current
-    val scope=rememberCoroutineScope()
-    var autoResume by remember {mutableStateOf(runCatching {AgentRuntime.get(context).basicMonitoring.receipt()?.autoResume==true}.getOrDefault(false))}
-    var busy by remember {mutableStateOf(false)}
-    LaunchedEffect(BasicMonitoringState.running) {
-        if(!BasicMonitoringState.running && runCatching {AgentRuntime.get(context).basicMonitoring.receipt()==null}.getOrDefault(false)) autoResume=false
-    }
-    fun start() {scope.launch {
-        busy=true
-        try {withContext(Dispatchers.IO) {AgentRuntime.get(context).basicMonitoring.start(autoResume)}}
-        catch(_: Exception) {BasicMonitoringState.message="No se pudo iniciar. Revisa inscripción, consentimiento y permiso de notificaciones."}
-        finally {busy=false}
-    }}
-    val permission=rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        if(granted) start() else BasicMonitoringState.message="El estado básico necesita una notificación visible. Permiso denegado."
-    }
-    AuditPanel {
-        Text("Batería y conexión",style=MaterialTheme.typography.titleMedium)
-        Text("Solo estado básico, sin leer mensajes ni llamadas. Se mantiene un servicio visible y puedes detenerlo.")
-        Row {Checkbox(autoResume,{autoResume=it},enabled=!busy && !BasicMonitoringState.running);Text("Reanudar estado básico al encender, mientras siga vigente mi consentimiento.")}
-        Text("Esta opción se guarda al pulsar Activar batería y conexión.",style=MaterialTheme.typography.bodySmall)
-        Text("No funciona con el teléfono apagado. Android puede detenerlo por sus restricciones.",style=MaterialTheme.typography.bodySmall)
-        Text(BasicMonitoringState.message)
-        if(BasicMonitoringState.running) AuditButton("Detener estado básico",{scope.launch {
-            try {withContext(Dispatchers.IO) {AgentRuntime.get(context).basicMonitoring.stop()}}
-            catch(_: Exception) {BasicMonitoringState.message="No se pudo confirmar el guardado de la detención. Revisa el estado y retira el consentimiento si es necesario."}
-        }},!busy,outlined=true)
-        else AuditButton("Activar batería y conexión",{
-            if(Build.VERSION.SDK_INT>=33 && context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)!=PackageManager.PERMISSION_GRANTED)
-                permission.launch(Manifest.permission.POST_NOTIFICATIONS)
-            else start()
-        },!busy)
-    }
 }

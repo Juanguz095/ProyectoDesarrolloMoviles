@@ -48,19 +48,18 @@ class AgentScreenTest {
 
     private val consent = ConsentContext("c-1", "mvp-1", "2026-10-24T10:00:00Z")
 
-    private fun start(session: AgentSession) {
+    private fun start(session: AgentSession,onActivate: (() -> Unit)? = null) {
         compose.setContent {
             AuditTheme {
-                Surface { AgentScreen(session) }
+                Surface { AgentScreen(session,onActivateMonitoring=onActivate) }
             }
         }
     }
 
     /** Desplaza hasta el control y lo pulsa: el contenido está en una columna con scroll. */
     private fun tap(text: String) {
-        if(text=="GENERAR EVENTO SIMULADO" && compose.onAllNodesWithText(text).fetchSemanticsNodes().isEmpty()) {
-            tap("Herramientas de conexión")
-        }
+        if(text.uppercase() in setOf("GENERAR EVENTO SIMULADO","RETIRAR CONSENTIMIENTO") &&
+            compose.onAllNodesWithText(text.uppercase()).fetchSemanticsNodes().isEmpty()) tap("Detalles y ajustes")
         val clickable = hasText(text) and hasClickAction()
         val scrollable = clickable and hasAnyAncestor(hasScrollAction())
         if (compose.onAllNodes(scrollable).fetchSemanticsNodes().isNotEmpty()) compose.onNode(scrollable).performScrollTo()
@@ -97,7 +96,7 @@ class AgentScreenTest {
         compose.onAllNodes(hasSetTextAction())[1].performScrollTo().performTextInput("x".repeat(40))
         tap("INSCRIBIR DISPOSITIVO")
         waitFor("MI TELÉFONO")
-        compose.onNodeWithText("FALTA ACTIVAR LA CAPTURA").assertExists()
+        compose.onNodeWithText("DETENIDO").assertExists()
         compose.onNodeWithText("MONITOREO ACTIVO").assertDoesNotExist()
         tap("GENERAR EVENTO SIMULADO")
         waitFor("Evento enviado: 1 aceptado(s), 0 duplicado(s).")
@@ -161,6 +160,20 @@ class AgentScreenTest {
         compose.onNodeWithText("POLÍTICA DE DATOS").assertExists()
         tap("VOLVER")
         compose.onNodeWithText("ACEPTAR CONSENTIMIENTO").assertExists()
+    }
+
+    @Test fun `one activation control replaces the two conflicting modes`() {
+        val api=FakeApi()
+        val store=InMemoryCredentialStore(StoredCredential("device-1","device-token",consent))
+        var activations=0
+        start(AgentSession(store,{api}),onActivate={activations++})
+        compose.onNodeWithText("ACTIVAR").assertIsEnabled()
+        compose.onNodeWithText("ACTIVAR BATERÍA Y CONEXIÓN").assertDoesNotExist()
+        compose.onNodeWithText("AUTORIZAR E INICIAR CAPTURA REAL").assertDoesNotExist()
+        compose.onNodeWithText("GENERAR EVENTO SIMULADO").assertDoesNotExist()
+        assertEquals(0,activations);assertEquals(0,api.sentEvents)
+        tap("ACTIVAR")
+        assertEquals(1,activations);assertEquals(0,api.sentEvents)
     }
 
     private class FakeApi : AuditApi {

@@ -4,6 +4,42 @@ Actualización: 4 de noviembre de 2026, UTC. Los registros anteriores conservan 
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
+## Interfaz simple y activación unificada — 4 de noviembre de 2026 (America/Lima)
+
+- P5.3/P5.6/P6.2/P6.4: solicitud de un solo control y menos texto atendida sobre
+  las apps existentes. Agente0.8.3/código18 y Centro0.8.3/código16; servidor0.8.1/V11
+  y contrato sin cambios. No hay que sustituir otra vez el servidor por esta UI.
+- Agente: un único Activar/Detener todo. La selección agrupa batería, SMS/llamadas,
+  números/texto SMS, WhatsApp y pantalla; permisos Android y confirmación de
+  MediaProjection conservados. Las fuentes sensibles empiezan sin marcar.
+  Ya no se exponen los dos modos de batería que se detenían mutuamente.
+- Detener cierra la visibilidad y cancela la activación pendiente antes de esperar
+  trabajo IO. Una selección vieja no puede continuar después de detener o empezar
+  otra. Recuperación al encender solo para batería/conexión, sin rearmar contenido.
+- Pantalla principal: estado, batería, último envío, permisos por fuente y actividad;
+  configuración/política/errores/herramientas bajo Detalles y ajustes. Texto manual
+  mantiene una acción propia. No se informa SMS activo si falta READ_SMS.
+- Centro: inicio/eventos/detalle más breves, explicaciones plegables, actualizaciones
+  y consentimiento fuera del recorrido principal. WhatsApp en su pestaña o enlace
+  en vivo. Filtros, CSV, antigüedad de lecturas y errores se conservan. Se añadió
+  lectura del texto completo en el detalle de Compartidos y su prueba de UI.
+- **153 pruebas JVM/Robolectric: 86 common + 45 Agente + 22 Centro; sin fallos ni
+  omitidas**. Ambas APK debug y APK AndroidTest construidas. Auditoría APK correcta;
+  lint0 errores: Agente15 avisos/4 información, Centro9 avisos/3 información.
+  Documentación comprobada. Fallos iniciales de timestamp nullable y selectores
+  de navegación corregidos sin retirar validaciones.
+- **No ejecutado nativamente**: permisos/servicios del flujo unificado, recepción
+  SMS/WhatsApp real y segundo plano del teléfono del usuario. Instrumentación solo
+  compilada; las etapas históricas de transporte aún necesitan adaptar selectores
+  de HABILITAR INDICADOR/PAUSAR MONITOREO eliminados. No se declaran aprobadas.
+  El reporte anterior de SMS no se considera resuelto por esta simplificación.
+- APK de prueba locales preparadas, sin publicación binaria validada. No se
+  subieron a Drive: la autorización anterior cubría el ZIP del servidor, no APK.
+- [Guía de la interfaz](INTERFAZ_SIMPLE_0.8.3.md) y
+  [resultados/hashes](evidencias/INTERFAZ-0.8.3-2026-11-04.json).
+  Siguiente P7: validar activación y cancelación nativas, actualizar etapas de QA
+  históricas y diagnosticar la recepción real conservando datos y credenciales.
+
 ## Reporte de segundo plano, SMS y WhatsApp — 4 de noviembre de 2026 (America/Lima)
 
 - P5.3/P5.6/P7.6: el usuario informa que SMS/WhatsApp dejaron de llegar y que las

@@ -67,8 +67,8 @@ private fun WhatsAppMessagesContent(session: ControlSession,device: String?,onBa
         }
     }
     if(!compact) {AuditHeader("WHATSAPP","VISTAS PREVIAS AUTORIZADAS");AuditLink("← Volver al dispositivo",onBack)}
-    else Text("Mensajes recibidos · Vistas previas temporales",style=MaterialTheme.typography.titleMedium)
-    Text("Texto de notificaciones nuevas autorizado en el Agente. No incluye el texto de lo enviado dentro del chat ni el historial completo.")
+    else Text("Vistas previas temporales",style=MaterialTheme.typography.titleMedium)
+    Text("Solo notificaciones nuevas autorizadas; sin historial de chats.",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
     AuditLink("Actualizar WhatsApp",{refreshKey++},device!=null && !session.busy)
     lastChecked?.let {Text("Última consulta: ${displayFriendlyTime(it)}",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)}
     AuditRule()
@@ -76,7 +76,7 @@ private fun WhatsAppMessagesContent(session: ControlSession,device: String?,onBa
     if(device==null) AuditEmpty("SIN DISPOSITIVO","Selecciona un dispositivo inscrito.")
     else snapshot?.let { current ->
         AuditStatus(if(current.active) "SESIÓN ACTIVA" else "SESIÓN DETENIDA",current.active)
-        if(current.items.isEmpty()) AuditEmpty("SIN VISTAS PREVIAS",if(current.active) "Aparecerán cuando WhatsApp publique una notificación con texto permitido por Android." else "En el teléfono Agente, abre Configurar vistas previas de WhatsApp, concede acceso Android y autoriza la sesión. Aquí aparecerá el texto de notificaciones nuevas.")
+        if(current.items.isEmpty()) AuditEmpty("SIN VISTAS PREVIAS",if(current.active) "Aparecerán cuando WhatsApp publique una notificación con texto permitido por Android." else "Pulsa Activar en el Agente y selecciona WhatsApp.")
         current.items.sortedByDescending { it.timestamp }.forEach { preview -> key(preview.messageId) {
             AuditPanel {
                 var expanded by remember { mutableStateOf(false) }
@@ -91,5 +91,5 @@ private fun WhatsAppMessagesContent(session: ControlSession,device: String?,onBa
     }
     if(snapshot==null && error==null && device!=null) Text("Consultando la sesión…")
     AuditRule()
-    Text("Últimas 20 vistas previas, máximo 5 minutos en memoria. Al detener desaparecen; no se incluyen en CSV. Esta consulta queda registrada en auditoría.",color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
+    AuditDisclosure("Privacidad de las vistas previas") {Text("Últimas 20, hasta 5 minutos en memoria. Al detener se retiran. Sin CSV; consultas auditadas.",style=MaterialTheme.typography.bodySmall)}
 }

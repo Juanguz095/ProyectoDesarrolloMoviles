@@ -31,8 +31,8 @@ class NativeAgentFlowTest {
     private fun api() = ApiClient(config().getString("url"))
     private fun control(): ControlCore = ControlCore(api()).also { it.login("qa_admin", config().getString("password")) }
     private fun tap(text: String) {
-        if(text=="GENERAR EVENTO SIMULADO" && compose.onAllNodesWithText(text).fetchSemanticsNodes().isEmpty()) {
-            tap("Herramientas de conexión")
+        if(text in setOf("GENERAR EVENTO SIMULADO","RETIRAR CONSENTIMIENTO") && compose.onAllNodesWithText(text).fetchSemanticsNodes().isEmpty()) {
+            tap("Detalles y ajustes")
         }
         compose.waitUntil(45_000) {
             compose.onAllNodesWithText(text).fetchSemanticsNodes().any {
@@ -98,7 +98,7 @@ class NativeAgentFlowTest {
             .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_REORDER_TO_FRONT))
     }
     private fun assertCaptureDisabled() {
-        if(compose.onAllNodesWithText("GENERAR EVENTO SIMULADO").fetchSemanticsNodes().isEmpty()) tap("Herramientas de conexión")
+        if(compose.onAllNodesWithText("GENERAR EVENTO SIMULADO").fetchSemanticsNodes().isEmpty()) tap("Detalles y ajustes")
         compose.waitUntil(15_000) {
             compose.onAllNodesWithText("GENERAR EVENTO SIMULADO").fetchSemanticsNodes().any {
                 it.config.contains(androidx.compose.ui.semantics.SemanticsProperties.Disabled)

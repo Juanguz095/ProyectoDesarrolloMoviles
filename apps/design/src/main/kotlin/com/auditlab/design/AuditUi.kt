@@ -284,3 +284,11 @@ fun displayFriendlyTime(value: String): String = runCatching {
     val day=when(date.toLocalDate()) { today->"Hoy";today.minusDays(1)->"Ayer";else->date.format(DateTimeFormatter.ofPattern("dd/MM")) }
     "$day · ${date.format(DateTimeFormatter.ofPattern("HH:mm"))}"
 }.getOrDefault("Hora no disponible")
+
+/** Secondary explanations stay available without filling the primary task screen. */
+@Composable
+fun AuditDisclosure(title: String = "Más información", content: @Composable () -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    AuditLink(if(expanded) "Cerrar $title" else title, {expanded=!expanded})
+    if(expanded) Column(verticalArrangement=Arrangement.spacedBy(8.dp)) {content()}
+}

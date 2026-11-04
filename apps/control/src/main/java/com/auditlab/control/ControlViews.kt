@@ -45,7 +45,7 @@ internal fun RefreshControls(session: ControlSession, screen: String, deviceId: 
     }
     val stamp=when(screen) { "eventos"->session.eventsUpdatedAt;"dispositivos"->session.devicesUpdatedAt;else->session.dataUpdatedAt }
     val mode=if(session.autoRefresh && session.canAutoRefresh(screen)) "Automático cada 10 s"
-        else if(session.autoRefresh) "Pausado en esta página; Actualizar ahora vuelve a los eventos recientes"
+        else if(session.autoRefresh) "Automático pausado en esta página"
         else "Actualización manual"
     Text(mode+(stamp?.let {" · Consulta ${displayLocalClock(it)}"} ?: ""),style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
     session.refreshError?.let { Text(it,color=AuditColors.Red,style=MaterialTheme.typography.bodyMedium) }
@@ -58,11 +58,11 @@ private fun DeviceReadingCard(reading: AuditEvent?, now: Instant) {
         BatteryMeter((reading?.metadata?.get("batteryPercent") as? Number)?.toInt())
         Text(networkLabel(reading?.metadata?.get("networkState")),style=MaterialTheme.typography.bodyLarge)
         if(reading==null) {
-            Text("Todavía no recibimos una lectura real. En el otro teléfono abre Agente → Batería y conexión → Activar batería y conexión.",color=AuditColors.Muted)
+            Text("Sin lecturas. Pulsa Activar en el Agente.",color=AuditColors.Muted)
         } else {
             Text("Lectura del teléfono: ${displayLocalTime(reading.timestamp)} · ${ageLabel(reading.timestamp,now)}",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
             val stale=runCatching { Duration.between(Instant.parse(reading.timestamp),now).seconds>120 }.getOrDefault(true)
-            if(stale) Text("Lectura antigua. Comprueba que el Agente siga activo y conectado. Actualizar consulta el servidor; no activa el otro teléfono.",color=AuditColors.Warning,style=MaterialTheme.typography.bodySmall)
+            if(stale) Text("Lectura antigua. Revisa el Agente y su conexión.",color=AuditColors.Warning,style=MaterialTheme.typography.bodySmall)
         }
     }
 }
@@ -73,13 +73,13 @@ internal fun Dashboard(session: ControlSession, device: DeviceSummary?, scope: C
     val reading=session.overviewReading?.takeIf { it.sourceDevice==device?.deviceId && session.overviewDevice==device.deviceId }
     val recent=session.overviewEvents.filter { it.sourceDevice==device?.deviceId && session.overviewDevice==device.deviceId }
     val now by produceState(Instant.now()) { while(true) { delay(10_000);value=Instant.now() } }
-    AuditHeader("AUDITLAB","CENTRO DE CONTROL")
+    AuditHeader("AUDITLAB")
     Text("Tu dispositivo de un vistazo",style=MaterialTheme.typography.titleLarge)
     if(session.visibleDevices.size>1) AuditChoice("Dispositivo seleccionado",device?.let { session.deviceName(it.deviceId) } ?: "Selecciona un equipo",
         session.visibleDevices.map { it.deviceId to session.deviceName(it.deviceId) },!session.busy,onChoose)
     RefreshControls(session,"inicio",device?.deviceId,scope)
     if(device==null) {
-        AuditEmpty("SIN DISPOSITIVOS","No hay equipos visibles en esta página. Revisa Equipos → Archivados o vincula un teléfono desde Más → Crear código de inscripción.")
+        AuditEmpty("SIN DISPOSITIVOS","Vincula un teléfono desde Más → Crear código de inscripción.")
         return
     }
     Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
@@ -98,7 +98,7 @@ internal fun Dashboard(session: ControlSession, device: DeviceSummary?, scope: C
     if(recent.isEmpty()) AuditEmpty("SIN EVENTOS TODAVÍA","Activa la captura en el Agente. Los eventos aparecerán aquí cuando lleguen al servidor.")
     recent.take(5).forEach { EventRow(it,!session.busy) {session.showDetail(it,scope)} }
     AuditButton("Ver historial de eventos",onEvents,!session.busy,outlined=true)
-    Text("La batería cambia cuando el Agente envía una lectura y esta pantalla vuelve a consultar. Ambas apps necesitan conexión con el servidor.",color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
+
 }
 
 @Composable
@@ -113,9 +113,8 @@ internal fun EventExplorer(session: ControlSession, scope: CoroutineScope, onExp
     var manualDevice by rememberSaveable { mutableStateOf(false) }
     var preciseDates by rememberSaveable { mutableStateOf(false) }
     var showFilters by rememberSaveable { mutableStateOf(false) }
-    AuditHeader("EVENTOS", "ACTIVIDAD RECIBIDA DEL TELÉFONO")
+    AuditHeader("EVENTOS")
     RefreshControls(session,"eventos",session.query.device,scope)
-    Text("${session.events.size} eventos en esta página",style=MaterialTheme.typography.titleMedium)
     val applied=listOfNotNull(session.query.device?.let { session.deviceName(it) },session.query.category?.let(::categoryName))
     Text(if(applied.isEmpty()) "Todos los dispositivos · Todas las categorías" else applied.joinToString(" · "),color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
     FlowRow(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp),verticalArrangement=Arrangement.spacedBy(4.dp)) {
@@ -157,26 +156,30 @@ internal fun EventExplorer(session: ControlSession, scope: CoroutineScope, onExp
     if(!showFilters && onExport!=null) AuditButton("Exportar CSV",onExport,!session.busy && session.eventsLoaded,outlined=true)
     AuditRule()
     SectionLabel("Resultados")
+    var showLive by rememberSaveable {mutableStateOf(false)}
     if(session.query.category in setOf(null,"communication","whatsapp")) {
-        SectionLabel("Mensajes de WhatsApp · En vivo")
+        if(session.query.category!="whatsapp") AuditLink(if(showLive) "Ocultar WhatsApp en vivo" else "Ver WhatsApp en vivo",{showLive=!showLive})
+        if(session.query.category=="whatsapp" || showLive) {
+        SectionLabel("WhatsApp · En vivo")
         if(session.query.from!=null || session.query.to!=null || session.query.q!=null) {
-            Text("Los filtros de fecha e identificador consultan el historial de actividad, que no guarda texto de WhatsApp. Quita esos filtros para ver las vistas previas en vivo.",color=AuditColors.Muted)
+            Text("Quita fechas e identificador para ver las vistas previas en vivo.",color=AuditColors.Muted)
         } else {
             val target=session.query.device ?: session.visibleDevices.singleOrNull {it.isActive}?.deviceId
             AuditChoice("Teléfono para WhatsApp", target?.let(session::deviceName) ?: "Selecciona un teléfono",
                 session.devices.filter { it.isActive }.map { it.deviceId to session.deviceName(it.deviceId) },!session.busy) {
                 session.applyFilters(session.query.copy(device=it),scope)
             }
-            if(target==null) Text("Selecciona el teléfono que tiene el Agente para consultar sus notificaciones autorizadas.")
+            if(target==null) Text("Selecciona un teléfono.")
             else androidx.compose.runtime.key(target) { WhatsAppMessagesInline(session,target) }
             AuditLink("Actualizar teléfonos",{session.refresh(scope)},!session.busy)
         }
         AuditRule()
     }
-    SectionLabel("Historial de actividad · ${session.events.size} eventos en esta página")
+    }
+    SectionLabel("Historial · ${session.events.size} eventos")
     if (session.events.isEmpty()) AuditEmpty(message = if(session.query.category=="whatsapp")
-        "En el Agente activa WhatsApp y autoriza registrar su actividad. Aparecerán notificaciones nuevas y respuestas observadas en ellas; no se puede detectar todo lo escrito dentro del chat."
-        else if(session.query.category in setOf("sms","call")) "En el Agente autoriza la captura y concede el permiso de SMS o llamadas en Android. Las llamadas aparecen al finalizar."
+        "Sin actividad. Activa WhatsApp en el Agente."
+        else if(session.query.category in setOf("sms","call")) "Activa SMS y llamadas en el Agente. Las llamadas aparecen al finalizar."
         else if (session.eventsLoaded) "No se recibieron eventos para los filtros aplicados." else "Aplica filtros o actualiza la consulta para recibir eventos.")
     var previousDay: String?=null
     session.events.forEach { event ->
@@ -184,8 +187,7 @@ internal fun EventExplorer(session: ControlSession, scope: CoroutineScope, onExp
         if(day!=previousDay) { SectionLabel(day);previousDay=day }
         EventRow(event,!session.busy,session.deviceName(event.sourceDevice)) {session.showDetail(event,scope)}
     }
-    Text("La consulta queda registrada en auditoría.", style = MaterialTheme.typography.bodySmall)
-    SectionLabel("Página ${session.eventPageNumber} · ${session.events.size} eventos · Hasta 50 por página")
+    Text("Página ${session.eventPageNumber}",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
     AuditRule()
     if(showFilters) {
     SectionLabel("Opciones adicionales")
@@ -204,7 +206,7 @@ internal fun EventExplorer(session: ControlSession, scope: CoroutineScope, onExp
         Text("Hay cambios sin aplicar. La lista y el CSV usan los últimos filtros aplicados.", color = AuditColors.Warning)
     }
     }
-    Text("El CSV incluye todos los resultados de los filtros aplicados, hasta 10 000 eventos. Si se supera el límite, se informa un error.",
+    if(showFilters) Text("CSV: filtros aplicados, hasta 10 000 eventos. Las consultas quedan auditadas.",
         color = AuditColors.Muted, style = MaterialTheme.typography.bodySmall)
     if (session.eventCursor != null) AuditButton("Siguiente página", { session.moreEvents(scope) }, !session.busy)
     AuditLink("Volver a la primera página", { session.applyFilters(session.query, scope) }, !session.busy)
@@ -213,7 +215,7 @@ internal fun EventExplorer(session: ControlSession, scope: CoroutineScope, onExp
 
 @Composable
 internal fun DeviceList(session: ControlSession, scope: CoroutineScope, onDetail: (String) -> Unit) {
-    AuditHeader("DISPOSITIVOS", "SELECCIONA EL TELÉFONO QUE QUIERES CONSULTAR")
+    AuditHeader("EQUIPOS")
     RefreshControls(session,"dispositivos",null,scope)
     AuditRule()
     AuditChoice("Estado de inscripción", when (session.status) { "active" -> "Activos"; "revoked" -> "Revocados"; else -> "Todos" },
@@ -249,7 +251,7 @@ internal fun DeviceDetail(session: ControlSession, device: DeviceSummary?, scope
     val clipboard = LocalClipboard.current
     val context = LocalContext.current
     val composeScope = rememberCoroutineScope()
-    AuditHeader("DISPOSITIVO", "ESTADO, CONSENTIMIENTO Y ACCIONES")
+    AuditHeader("DISPOSITIVO")
     AuditLink("← Volver a dispositivos", onBack, !session.busy)
     RefreshControls(session,"dispositivo",device?.deviceId,scope)
     if (device == null) { AuditEmpty("DISPOSITIVO NO DISPONIBLE", "Actualiza la lista de dispositivos para consultar su detalle."); return }
@@ -274,12 +276,13 @@ internal fun DeviceDetail(session: ControlSession, device: DeviceSummary?, scope
     Text("Inscrito: ${displayTime(device.enrolledAt)}")
     device.revokedAt?.let { Text("Revocado: ${displayTime(it)}") }
     }
-    AuditPanel {
+    AuditDisclosure("Consentimiento") { AuditPanel {
         SectionLabel("Consentimiento registrado")
         Text(if (device.isActive) "INSCRIPCIÓN ACTIVA" else "INSCRIPCIÓN REVOCADA", style = MaterialTheme.typography.titleMedium)
         Text("Aceptado: ${displayFriendlyTime(device.consent.acceptedAt)}")
         if(technical) Text("Política: ${device.consent.policyVersion}")
         Text("El usuario puede retirar el consentimiento desde el agente. El servidor no confirma si la notificación está visible en este momento.", color = AuditColors.Muted)
+    }
     }
     val now by produceState(Instant.now()) { while(true) { delay(10_000);value=Instant.now() } }
     DeviceReadingCard(session.overviewReading?.takeIf { it.sourceDevice==device.deviceId },now)
@@ -377,9 +380,7 @@ internal fun EventRow(event: AuditEvent, enabled: Boolean, deviceName: String?=n
             Text("$label: $it",style=MaterialTheme.typography.bodyLarge,color=AuditColors.Ink)
         }
         if(event.category=="manual_share") {
-            Text("Texto compartido manualmente")
-            Text(event.metadata["sharedText"] as? String ?: "Texto no disponible")
-            Text("Elegido y confirmado en el Agente; sin atribución de aplicación, remitente o dirección original.", color=AuditColors.Muted)
+            Text(event.metadata["sharedText"] as? String ?: "Texto no disponible",maxLines=4,overflow=androidx.compose.ui.text.style.TextOverflow.Ellipsis)
         }
         if(event.category=="sms") {
             val body=event.metadata["smsText"] as? String
@@ -389,7 +390,7 @@ internal fun EventRow(event: AuditEvent, enabled: Boolean, deviceName: String?=n
         }
         if(event.category=="whatsapp") Text(if(event.direction=="outbound")
             "Respuesta observada en una notificación · Sin texto disponible"
-            else "Actividad registrada · Consulta el texto temporal en Eventos → Todo o WhatsApp, sin filtros de fecha o identificador",
+            else "Notificación registrada · Texto temporal en la vista en vivo",
             style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
         deviceName?.let { Text(it,color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall) }
         Text(displayFriendlyTime(event.timestamp),style=MaterialTheme.typography.bodyMedium,color=AuditColors.Ink)

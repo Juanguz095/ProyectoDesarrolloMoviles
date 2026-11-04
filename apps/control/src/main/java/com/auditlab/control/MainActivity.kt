@@ -155,13 +155,12 @@ internal fun ControlScreen(session: ControlSession, onExport: (() -> Unit)? = nu
             session.refreshError?.let { AuditNotice(it) }
             AuditField("URL del servicio", session.serverUrl, session::updateServerUrl, !session.busy && !session.storageBlocked,
                 placeholder = "https://tu-servidor")
-            Text("Pega la dirección HTTPS de tu PC, sin /ready ni /v1. En los teléfonos, 127.0.0.1 apunta al propio teléfono.",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
+            AuditDisclosure("Ayuda de conexión") {Text("Usa la URL HTTPS de Tailscale, sin /ready ni /v1. 127.0.0.1 apunta al propio teléfono.")}
             AuditField("Usuario", user, { user = it }, !session.busy)
             AuditField("Contraseña", password, { password = it }, !session.busy, secret = true)
             AuditButton(if (session.busy) "Conectando…" else "Iniciar sesión", { session.login(user.trim(), password, scope) },
                 !session.busy && !session.storageBlocked && user.isNotBlank() && password.isNotEmpty())
             if (session.storageBlocked) AuditButton("Borrar sesión local", { session.clearLocal(scope) }, !session.busy, outlined = true)
-            Text("Acceso por rol: administrador o auditor. Todas las consultas quedan registradas.", color = AuditColors.Muted)
         } else {
             when (screen) {
                 "inicio" -> Dashboard(session, currentDevice, scope, onEvents = { openEvents(currentDevice?.deviceId) },
@@ -173,18 +172,18 @@ internal fun ControlScreen(session: ControlSession, onExport: (() -> Unit)? = nu
                     DeviceDetail(session, currentDevice, scope, onBack = { screen = "dispositivos" },
                         onEvents = { openEvents(currentDevice?.deviceId) },
                         onAudit = { session.loadAudit(scope); screen = "auditoria" }, onWhatsApp = { screen="whatsapp" })
-                    currentDevice?.let {ControlAppUpdates(session,it.deviceId,scope)}
+                    currentDevice?.let {AuditDisclosure("Actualizaciones") {ControlAppUpdates(session,it.deviceId,scope)}}
                 }
                 "auditoria" -> AuditHistory(session, scope) { screen = "mas" }
                 "inscripcion" -> EnrollmentView(session, scope) { screen = "mas" }
                 else -> {
-                    AuditHeader("AJUSTES", "CUENTA, SERVIDOR Y DISPOSITIVOS")
+                    AuditHeader("AJUSTES")
                     AuditPanel {
                         Text(session.username, style = MaterialTheme.typography.titleMedium)
                         Text("Rol: ${if (session.isAdmin) "administrador" else "auditor"}")
                         Text("Servidor conectado",style=MaterialTheme.typography.labelMedium)
                         Text(session.serverUrl, color = AuditColors.Muted)
-                        Text("Para cambiar la dirección del servidor, cierra sesión y edita URL del servicio al volver a entrar.",style=MaterialTheme.typography.bodySmall)
+                        AuditDisclosure("Cambiar servidor") {Text("Cierra sesión para editar la dirección. No borres los datos del Agente.")}
                     }
                     AuditButton("Consultar auditoría", { session.loadAudit(scope); screen = "auditoria" }, !session.busy)
                     if (session.isAdmin) AuditButton("Crear código de inscripción", { screen = "inscripcion" }, !session.busy)
@@ -224,10 +223,14 @@ private fun EventDetail(event: AuditEvent, onClose: () -> Unit) {
         title = { Text("DETALLE DE EVENTO", style = MaterialTheme.typography.titleLarge) },
         text = { Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(eventTitle(event), style = MaterialTheme.typography.titleMedium)
-            if(event.category=="whatsapp") Text(if(event.direction=="outbound")
+            if(event.category=="manual_share") {
+                Text(event.metadata["sharedText"] as? String ?: "Texto no disponible")
+                Text("Texto elegido y confirmado en el Agente.",style=MaterialTheme.typography.bodySmall)
+            }
+            if(event.category=="whatsapp") AuditDisclosure("Sobre este evento") {Text(if(event.direction=="outbound")
                 "Android mostró una respuesta propia en una notificación. Este registro no confirma entrega ni detecta todos los mensajes escritos dentro del chat. No se guardó texto, remitente ni número."
-                else "Se observó una notificación nueva de WhatsApp. Este evento guarda solo tipo y fecha; el texto de la vista previa pertenece a la sesión temporal autorizada.")
-            if(event.category=="sms") Text("Android registró un SMS ${if(event.direction=="outbound") "enviado" else "recibido"}. El número identifica al remitente o destinatario. El texto se comparte solo con autorización adicional. No se relaciona automáticamente un recibido con una respuesta.")
+                else "Se observó una notificación nueva de WhatsApp. Este evento guarda solo tipo y fecha; el texto de la vista previa pertenece a la sesión temporal autorizada.")}
+            if(event.category=="sms") AuditDisclosure("Sobre este SMS") {Text("Android registró un SMS ${if(event.direction=="outbound") "enviado" else "recibido"}. El número identifica al remitente o destinatario. El texto se comparte solo con autorización adicional. No se relaciona automáticamente un recibido con una respuesta.")}
             (event.metadata["smsText"] as? String)?.let {
                 SectionLabel("Texto del SMS");Text(it)
                 if(event.metadata["smsTextTruncated"]==true) Text("El mensaje superó el límite: se muestran sus primeros 2 000 caracteres.")

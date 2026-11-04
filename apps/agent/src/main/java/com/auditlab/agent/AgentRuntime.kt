@@ -119,6 +119,29 @@ class AgentRuntime private constructor(private val context: android.app.Applicat
         return AgentCore(ApiClient(url), credentials, journal = journal, gate = gate,
             visible = indicator::isVisible, serverUrl = url, appVersion = version, policyVersion = "mvp-2-real")
     }
+    private val activationEpoch = java.util.concurrent.atomic.AtomicLong()
+    internal fun beginActivation(): Long = activationEpoch.incrementAndGet()
+    internal fun cancelActivation() { activationEpoch.incrementAndGet() }
+    internal fun activationValid(epoch: Long): Boolean = activationEpoch.get()==epoch
+    internal fun activateMonitoring(value: MonitoringSelection, epoch: Long) = synchronized(gate) {
+        check(activationValid(epoch)) {"Activación cancelada"}
+        val selection=value.normalized()
+        check(!realEvents.requested && !BasicMonitoringState.running && !WhatsAppSharingState.active && !ScreenSharingState.active) {
+            "Detén el monitoreo antes de cambiar las funciones."
+        }
+        check(core().refresh() is AgentCore.State.Enrolled)
+        check(!gate.withdrawalRequested && !gate.storageBlocked)
+        check(activationValid(epoch)) {"Activación cancelada"}
+        check(indicator.show()) {"Se necesita una notificación visible"}
+        if(!activationValid(epoch)) {indicator.hide();error("Activación cancelada")}
+        if(selection.communications) {
+            realEvents.start(selection.numbers,selection.smsText)
+            basicMonitoring.configureRecovery(selection.recoverBattery)
+        } else basicMonitoring.start(selection.recoverBattery)
+        if(!selection.whatsApp) stopWhatsAppSharing()
+        if(!selection.screen) stopScreenSharing()
+        after(core())
+    }
     fun after(core: AgentCore) = synchronized(gate) {
         val state = core.refresh()
         val row = runCatching { journal.registration() }.getOrNull()

@@ -38,12 +38,6 @@ class AgentViewModel(application: Application) : AndroidViewModel(application) {
 
 class MainActivity : ComponentActivity() {
     private lateinit var model: AgentViewModel
-    private val phonePermissions = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-        model.session.startRealMonitoring(model.scope)
-    }
-    private val notificationPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        if (granted) model.session.resume(model.scope) else model.session.refresh(model.scope)
-    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(
@@ -52,33 +46,14 @@ class MainActivity : ComponentActivity() {
         )
         model = ViewModelProvider(this)[AgentViewModel::class.java]
         setContent {
-            LaunchedEffect(model.session.state,model.session.ready,model.session.busy) {
-                if(model.session.ready && !model.session.busy && model.session.state is AgentCore.State.Enrolled) {
-                    val onboarding=getSharedPreferences("auditlab_permission_onboarding",MODE_PRIVATE)
-                    if(!onboarding.getBoolean("notificationsAsked",false) && onboarding.edit().putBoolean("notificationsAsked",true).commit()) {
-                        if(Build.VERSION.SDK_INT>=33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)!=PackageManager.PERMISSION_GRANTED)
-                            notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
-                    }
-                }
-            }
             AuditTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    AgentScreen(model.session, workScope = model.scope, onRequestNotifications = {
-                        if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
-                            notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
-                        else model.session.resume(model.scope)
-                    }, onNotificationSettings = {
-                        startActivity(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, packageName))
-                    }, onRequestRealMonitoring = {
-                        val missing=arrayOf(Manifest.permission.READ_SMS, Manifest.permission.READ_CALL_LOG).filter {checkSelfPermission(it)!=PackageManager.PERMISSION_GRANTED}
-                        if(missing.isEmpty()) model.session.startRealMonitoring(model.scope) else phonePermissions.launch(missing.toTypedArray())
-                    }, onShareScreen = {
-                        startActivity(Intent(this, ScreenShareActivity::class.java))
-                    }, onShareWhatsApp = {
-                        startActivity(Intent(this, WhatsAppShareActivity::class.java))
+                    AgentScreen(model.session, workScope=model.scope, onActivateMonitoring = {
+                        startActivity(Intent(this, UnifiedMonitoringActivity::class.java))
+                    }, onShareText = {
+                        startActivity(Intent(this, ManualTextShareActivity::class.java))
                     }, platformControls = {
-                        BasicMonitoringControls(); AgentUpdateControls()
-                        AuditButton("Compartir un texto", { startActivity(Intent(this, ManualTextShareActivity::class.java)) })
+                        AgentUpdateControls()
                     })
                 }
             }
@@ -91,11 +66,9 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> Unit)? = null,
-                         onNotificationSettings: (() -> Unit)? = null, workScope: CoroutineScope? = null,
-                         onRequestRealMonitoring: (() -> Unit)? = null,
-                         onShareScreen: (() -> Unit)? = null,
-                         onShareWhatsApp: (() -> Unit)? = null,
+internal fun AgentScreen(session: AgentSession, workScope: CoroutineScope? = null,
+                         onActivateMonitoring: (() -> Unit)? = null,
+                         onShareText: (() -> Unit)? = null,
                          platformControls: (@Composable () -> Unit)? = null) {
     val composeScope = rememberCoroutineScope()
     val scope = workScope ?: composeScope
@@ -107,12 +80,11 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
     var serverDraft by remember(session.serverUrl) { mutableStateOf(session.serverUrl) }
     var configureServer by remember { mutableStateOf(false) }
     var serverError by remember { mutableStateOf<String?>(null) }
-    var realAccepted by rememberSaveable(session.consentEpoch) { mutableStateOf(false) }
     val communicationEvents=session.recentEvents.filter { !it.event.isSimulated && it.event.category in setOf("sms","call","whatsapp") }
     var technicalHistory by rememberSaveable {mutableStateOf(false)}
     var selectedEvent by remember { mutableStateOf<AgentSession.LocalEvent?>(null) }
     androidx.compose.runtime.LaunchedEffect(session.state) {
-        if (session.state !is AgentCore.State.Enrolled) { history = false; selectedEvent = null; realAccepted = false }
+        if (session.state !is AgentCore.State.Enrolled) { history = false; selectedEvent = null }
         if (session.state is AgentCore.State.Enrolled) code = ""
     }
     BackHandler(policy || history) { policy = false; history = false }
@@ -234,110 +206,48 @@ internal fun AgentScreen(session: AgentSession, onRequestNotifications: (() -> U
                     (if(technicalHistory) session.recentEvents else communicationEvents).forEach { row -> LocalEventRow(row) { selectedEvent = row } }
                     if(!technicalHistory && communicationEvents.isEmpty()) Text("Aún no hay mensajes ni llamadas en estos registros locales.")
                 } else {
-                    AuditHeader("MI TELÉFONO", "AGENTE AUDITLAB")
-                    val active=session.visibleAvailable && session.realCaptureRunning && !session.revoking
+                    AuditHeader("MI TELÉFONO")
+                    val active=session.realCaptureRunning || BasicMonitoringState.running || WhatsAppSharingState.active || ScreenSharingState.active
                     val lastSent=session.recentEvents.firstOrNull {it.delivery=="SENT"}
                     AuditPanel {
-                        AuditStatus(when {
-                            session.revoking -> "DETENIENDO EL MONITOREO"
-                            !session.visibleAvailable -> "MONITOREO PAUSADO"
-                            active -> "MONITOREO ACTIVO"
-                            session.realMonitoring -> "INICIANDO CAPTURA"
-                            else -> "FALTA ACTIVAR LA CAPTURA"
-                        },active)
-                        Text(when {
-                            active -> "Este teléfono comparte batería, conexión y los metadatos que autorizaste. Puedes detenerlo cuando quieras."
-                            !session.visibleAvailable -> "Habilita la notificación visible para poder compartir información."
-                            else -> "El teléfono está vinculado. Activa la captura de abajo para que el Centro reciba batería y eventos."
-                        })
-                        Text("${Build.MODEL}",color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
-                        if(session.visibleAvailable) AuditButton("Pausar monitoreo",{session.pause(scope)},!session.busy,outlined=true)
-                        else {
-                            AuditButton("Habilitar indicador y reanudar",{onRequestNotifications?.invoke() ?: session.resume(scope)},!session.busy)
-                            onNotificationSettings?.let {AuditLink("Ajustes de notificación",it)}
-                        }
+                        AuditStatus(if(active) "MONITOREO ACTIVO" else if(session.realMonitoring) "INICIANDO" else "DETENIDO",active)
+                        Text(Build.MODEL,style=MaterialTheme.typography.titleMedium)
+                        if(active) AuditButton("Detener todo",{session.pause(scope)},!session.busy,outlined=true)
+                        else AuditButton("Activar",{onActivateMonitoring?.invoke()},!session.busy && !session.realMonitoring && onActivateMonitoring!=null)
                     }
                     AuditPanel {
-                        Text("1. Batería y eventos del teléfono",style=MaterialTheme.typography.titleMedium)
-                        Text("Se lee el estado cada 10 segundos y se envía cuando cambia; también se confirma al menos una vez por minuto mientras hay conexión.")
-                        Text("SMS y llamadas muestran tipo y fecha. Puedes autorizar también el número; Android debe conceder sus permisos. La batería no necesita acceso a SMS o llamadas.",color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
-                        if(!session.realMonitoring) {
-                            Row(verticalAlignment=Alignment.CenterVertically) {
-                                Checkbox(realAccepted,{realAccepted=it},enabled=!session.busy)
-                                Text("Autorizo la captura y el envío de estos metadatos reales.",Modifier.weight(1f))
-                            }
-                            Row(verticalAlignment=Alignment.CenterVertically) {
-                                Checkbox(session.numberConsent,session::updateNumberConsent,enabled=!session.busy)
-                                Text("Autorizo compartir el número del remitente/destinatario de SMS y llamadas. Quedará en el historial y reportes, según la retención de eventos.",Modifier.weight(1f))
-                            }
-                            Row(verticalAlignment=Alignment.CenterVertically) {
-                                Checkbox(session.smsTextConsent,session::updateSmsTextConsent,enabled=!session.busy)
-                                Text("Autorizo compartir el texto de SMS nuevos enviados y recibidos (hasta 2 000 caracteres). Los administradores y auditores podrán leerlo y exportarlo; se guarda con la retención de eventos. Puede contener información sensible. No incluye RCS ni WhatsApp.",Modifier.weight(1f))
-                            }
-                            AuditButton("Autorizar e iniciar captura real",
-                                {onRequestRealMonitoring?.invoke() ?: session.startRealMonitoring(scope)},
-                                realAccepted && session.visibleAvailable && !session.busy && !session.revoking)
-                        } else {
-                            AuditStatus(if(session.realCaptureRunning) "CAPTURA EN EJECUCIÓN" else "INICIANDO SERVICIO",session.realCaptureRunning)
-                            Text("Número autorizado en esta sesión: ${if(session.numberConsent) "sí" else "no"}. Texto SMS autorizado: ${if(session.smsTextConsent) "sí" else "no"}.",style=MaterialTheme.typography.bodySmall)
-                            AuditButton("Detener captura real",{session.stopRealMonitoring(scope)},!session.busy,outlined=true)
-                        }
-                        Text(session.realStatus,color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
+                        BatteryMeter((session.lastDeviceStatus?.metadata?.get("batteryPercent") as? Number)?.toInt())
+                        Text(networkLabel(session.lastDeviceStatus?.metadata?.get("networkState")))
+                        Text("Último envío: ${lastSent?.event?.timestamp?.let(::displayFriendlyTime) ?: "Aún sin envíos"}",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
+                        if(session.stats.pending>0) Text("${session.stats.pending} pendientes",color=AuditColors.Warning)
+                        if(session.stats.failed>0) Text("${session.stats.failed} rechazados",color=AuditColors.Red)
                     }
-                    AuditPanel {
-                        Text("Estado que comparte este teléfono",style=MaterialTheme.typography.titleMedium)
-                        val reading=session.lastDeviceStatus
-                        BatteryMeter((reading?.metadata?.get("batteryPercent") as? Number)?.toInt())
-                        Text(networkLabel(reading?.metadata?.get("networkState")))
-                        Text("Última lectura: ${displayLocalTime(reading?.timestamp)}",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
-                        Text("Último evento enviado: ${displayLocalTime(lastSent?.event?.timestamp)}",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
-                        Text("Pendientes de envío: ${session.stats.pending}",style=MaterialTheme.typography.bodyMedium)
-                        if(session.stats.failed>0) Text("${session.stats.failed} eventos rechazados; revisa la conexión y la inscripción.",color=AuditColors.Red)
-                        AuditButton(if(session.busy) "Solicitando…" else "Enviar estado ahora",{session.refreshDeviceStatus(scope)},
-                            (session.realCaptureRunning || BasicMonitoringState.running) && session.visibleAvailable && !session.busy)
-                        if(!session.realCaptureRunning && !BasicMonitoringState.running) Text("Activa batería y conexión o la captura de arriba para actualizar el estado.",color=AuditColors.Warning,style=MaterialTheme.typography.bodySmall)
-                        Text("En el Centro, usa Actualizar ahora o deja activada la actualización automática.",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
-                    }
+                    Text("Funciones",style=MaterialTheme.typography.titleMedium)
+                    Text("Batería · ${if(session.realCaptureRunning || BasicMonitoringState.running) "activa" else "detenida"}")
+                    Text("SMS · ${if(!session.smsPermission) "sin permiso" else if(session.realCaptureRunning) "activo" else "detenido"}")
+                    Text("Llamadas · ${if(!session.callPermission) "sin permiso" else if(session.realCaptureRunning) "activas" else "detenidas"}")
+                    Text("WhatsApp · ${if(WhatsAppSharingState.active) "sesión activa" else "pendiente o detenido"}")
+                    Text("Pantalla · ${if(ScreenSharingState.active) "compartiendo" else "no compartida"}")
                     Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
                         Text("Actividad reciente",Modifier.weight(1f),style=MaterialTheme.typography.titleMedium)
-                        TextButton({history=true},shape=androidx.compose.ui.graphics.RectangleShape) {Text("Ver todos")}
+                        TextButton({history=true}) {Text("Ver todos")}
                     }
-                    if(communicationEvents.isEmpty()) AuditEmpty("SIN EVENTOS TODAVÍA","Activa la captura para empezar. Aquí verás qué se registró y si se envió.")
-                    communicationEvents.take(4).forEach {row->LocalEventRow(row) {selectedEvent=row}}
-                    AuditPanel {
-                        Text("2. Notificaciones de WhatsApp",style=MaterialTheme.typography.titleMedium)
-                        Text("Comparte vistas previas y registra eventos de notificaciones nuevas. Las respuestas propias se detectan solo si Android las muestra en una notificación. No recupera historial ni todos los envíos dentro del chat.")
-                        Text(WhatsAppSharingState.message,color=AuditColors.Muted)
-                        if(WhatsAppSharingState.active || WhatsAppSharingState.notificationsObserved>0) {
-                            Text("Notificaciones observadas: ${WhatsAppSharingState.notificationsObserved} · Eventos reconocidos: ${WhatsAppSharingState.observationsAccepted}",style=MaterialTheme.typography.bodySmall)
-                            Text("Textos enviados al servidor: ${WhatsAppSharingState.previewsUploaded}",style=MaterialTheme.typography.bodySmall)
-                            WhatsAppSharingState.lastHeartbeat?.let {Text("Conexión confirmada: ${displayFriendlyTime(it)}",style=MaterialTheme.typography.bodySmall)}
-                            if(WhatsAppSharingState.active && WhatsAppSharingState.notificationsObserved==0) Text("Android aún no entregó una notificación nueva de WhatsApp. Los mensajes dentro de un chat abierto pueden no generar notificación.",style=MaterialTheme.typography.bodySmall)
-                            if(WhatsAppSharingState.parserFailures>0) Text("No se pudo interpretar ${WhatsAppSharingState.parserFailures} notificación(es).",color=AuditColors.Red)
-                        }
-                        if(WhatsAppSharingState.active) AuditButton("Detener vistas previas de WhatsApp",session::stopWhatsAppSharing,outlined=true)
-                        else onShareWhatsApp?.let {AuditButton("Configurar vistas previas de WhatsApp",it,session.visibleAvailable && !session.busy)}
-                    }
-                    AuditPanel {
-                        Text("3. Compartir mi pantalla",style=MaterialTheme.typography.titleMedium)
-                        Text("El Centro podrá ver lo que muestras después de que aceptes el diálogo de Android. Sin audio ni grabación.")
-                        Text(ScreenSharingState.message,color=AuditColors.Muted)
-                        if(ScreenSharingState.active) AuditButton("Detener pantalla compartida",session::stopScreenSharing,outlined=true)
-                        else onShareScreen?.let {AuditButton("Compartir pantalla en vivo",it,session.visibleAvailable && !session.busy)}
-                    }
-                    AuditRule()
-                    var showTools by rememberSaveable {mutableStateOf(false)}
-                    platformControls?.invoke()
-                    AuditLink(if(showTools) "Ocultar herramientas de conexión" else "Herramientas de conexión",{showTools=!showTools})
-                    if(showTools) {
+                    if(communicationEvents.isEmpty()) Text("Sin eventos todavía",color=AuditColors.Muted)
+                    communicationEvents.take(3).forEach {row->LocalEventRow(row) {selectedEvent=row}}
+                    onShareText?.let {AuditButton("Compartir un texto",it,!session.busy,outlined=true)}
+                    var details by rememberSaveable {mutableStateOf(false)}
+                    AuditLink(if(details) "Ocultar detalles" else "Detalles y ajustes",{details=!details})
+                    if(details) {
+                        Text(session.realStatus,style=MaterialTheme.typography.bodySmall)
+                        Text(WhatsAppSharingState.message,style=MaterialTheme.typography.bodySmall)
+                        Text(ScreenSharingState.message,style=MaterialTheme.typography.bodySmall)
                         Text("Servidor: ${session.serverUrl}",style=MaterialTheme.typography.bodySmall)
-                        AuditButton(if(session.busy) "Enviando…" else "Generar evento simulado",{session.sendSimulatedEvent(scope)},
-                            !session.busy && session.visibleAvailable && !session.revoking,outlined=true)
-                        Text("El evento simulado comprueba la conexión y se identifica como prueba en el Centro.",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
+                        AuditButton("Enviar estado ahora",{session.refreshDeviceStatus(scope)},active && session.visibleAvailable && !session.busy,outlined=true)
+                        AuditButton("Generar evento simulado",{session.sendSimulatedEvent(scope)},!session.busy && session.visibleAvailable,outlined=true)
+                        platformControls?.invoke()
+                        AuditLink("Ver política de datos",{policy=true})
+                        AuditButton("Retirar consentimiento",{confirmWithdrawal=true},!session.revoking,outlined=true)
                     }
-                    AuditLink("Ver política de datos",{policy=true})
-                    AuditButton(if(session.revoking) "Retirando consentimiento…" else "Retirar consentimiento",{confirmWithdrawal=true},!session.revoking,outlined=true)
-                    Text("Retirar el consentimiento detiene todas las funciones y elimina los eventos locales pendientes.",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
 
                 }
             }
