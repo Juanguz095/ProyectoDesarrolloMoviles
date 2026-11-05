@@ -113,10 +113,9 @@ internal fun EventExplorer(session: ControlSession, scope: CoroutineScope, onExp
     RefreshControls(session,"eventos",session.query.device,scope)
     FlowRow(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp),verticalArrangement=Arrangement.spacedBy(4.dp)) {
         listOf("communication" to "Todo","whatsapp" to "WhatsApp","sms" to "SMS","call" to "Llamadas","manual_share" to "Compartidos").forEach { (value,label) ->
-            FilterChip(selected=session.query.category==value,onClick={session.applyFilters(session.query.copy(category=value),scope)},
-                label={Text(label)},enabled=!session.busy,
-                colors=FilterChipDefaults.filterChipColors(containerColor=AuditColors.Panel,labelColor=AuditColors.Ink,
-                    selectedContainerColor=AuditColors.Ink,selectedLabelColor=AuditColors.Panel))
+            AuditCategoryFilter(value,label,session.query.category==value,!session.busy) {
+                session.applyFilters(session.query.copy(category=value),scope)
+            }
         }
     }
     if(showFilters) {
@@ -364,9 +363,9 @@ internal fun AuditChoice(label: String, value: String, options: List<Pair<String
 
 @Composable
 internal fun EventRow(event: AuditEvent, enabled: Boolean, deviceName: String?=null, onClick: () -> Unit) {
-    AuditPanel(Modifier.clickable(enabled=enabled,onClick=onClick).semantics {contentDescription="Ver detalle →"}) {
+    AuditPanel(Modifier.clickable(enabled=enabled,onClick=onClick).semantics {contentDescription="Ver detalle →"},accent=AuditCategoryColors.category(event.category).ink) {
         Text(eventTitle(event),style=MaterialTheme.typography.titleMedium,color=AuditColors.Ink)
-        Text(categoryName(event.category),style=MaterialTheme.typography.labelMedium,color=AuditColors.Muted)
+        AuditCategoryTag(event.category)
         if(event.category in setOf("sms","call") && event.metadata["phoneNumber"]==null) Text("Número no compartido o no disponible",color=AuditColors.Muted)
         (event.metadata["phoneNumber"] as? String)?.let {
             val label=when(event.direction) { "inbound"->"De"; "outbound"->"Para";else->"Número" }

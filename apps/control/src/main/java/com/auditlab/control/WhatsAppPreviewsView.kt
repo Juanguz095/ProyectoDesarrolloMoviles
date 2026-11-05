@@ -78,9 +78,9 @@ private fun WhatsAppMessagesContent(session: ControlSession,device: String?,onBa
         AuditStatus(if(current.active) "SESIÓN ACTIVA" else "SESIÓN DETENIDA",current.active)
         if(current.items.isEmpty()) AuditEmpty("SIN VISTAS PREVIAS",if(current.active) "Aparecerán cuando WhatsApp publique una notificación con texto permitido por Android." else "Pulsa Activar en el Agente y selecciona WhatsApp.")
         current.items.sortedByDescending { it.timestamp }.forEach { preview -> key(preview.messageId) {
-            AuditPanel {
+            AuditPanel(accent=AuditCategoryColors.whatsApp.ink) {
                 var expanded by remember { mutableStateOf(false) }
-                Text("WhatsApp recibido",style=MaterialTheme.typography.labelMedium,color=AuditColors.Muted)
+                AuditCategoryTag("whatsapp")
                 Text("De: ${preview.title.ifBlank { "Nombre no disponible en la notificación" }}",style=MaterialTheme.typography.titleMedium)
                 Text(preview.text,maxLines=if(expanded) Int.MAX_VALUE else 4,overflow=TextOverflow.Ellipsis)
                 AuditLink(if(expanded) "Mostrar menos" else "Ver mensaje completo",{expanded=!expanded})

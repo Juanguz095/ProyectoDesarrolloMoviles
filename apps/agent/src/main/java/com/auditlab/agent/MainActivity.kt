@@ -223,11 +223,11 @@ internal fun AgentScreen(session: AgentSession, workScope: CoroutineScope? = nul
                         if(session.stats.failed>0) Text("${session.stats.failed} rechazados",color=AuditColors.Red)
                     }
                     Text("Funciones",style=MaterialTheme.typography.titleMedium)
-                    Text("Batería · ${if(session.realCaptureRunning || BasicMonitoringState.running) "activa" else "detenida"}")
-                    Text("SMS · ${if(!session.smsPermission) "sin permiso" else if(session.realCaptureRunning) "activo" else "detenido"}")
-                    Text("Llamadas · ${if(!session.callPermission) "sin permiso" else if(session.realCaptureRunning) "activas" else "detenidas"}")
-                    Text("WhatsApp · ${if(WhatsAppSharingState.active) "sesión activa" else "pendiente o detenido"}")
-                    Text("Pantalla · ${if(ScreenSharingState.active && ScreenSharingState.confirmed) "envío confirmado" else if(ScreenSharingState.active) "esperando imagen" else "no compartida"}")
+                    AuditFunctionStatus("Batería",if(session.realCaptureRunning || BasicMonitoringState.running) "Activa" else "Detenida",active=session.realCaptureRunning || BasicMonitoringState.running)
+                    AuditFunctionStatus("SMS",if(!session.smsPermission) "Sin permiso" else if(session.realCaptureRunning) "Activo" else "Detenido",active=session.smsPermission && session.realCaptureRunning,attention=!session.smsPermission)
+                    AuditFunctionStatus("Llamadas",if(!session.callPermission) "Sin permiso" else if(session.realCaptureRunning) "Activas" else "Detenidas",active=session.callPermission && session.realCaptureRunning,attention=!session.callPermission)
+                    AuditFunctionStatus("WhatsApp",if(WhatsAppSharingState.active && WhatsAppSharingState.listenerConnected) "Activo" else if(WhatsAppSharingState.active) "Reconectando" else "Detenido",active=WhatsAppSharingState.active && WhatsAppSharingState.listenerConnected,attention=WhatsAppSharingState.active && !WhatsAppSharingState.listenerConnected)
+                    AuditFunctionStatus("Pantalla",if(ScreenSharingState.active && ScreenSharingState.confirmed) "Envío confirmado" else if(ScreenSharingState.active) "Esperando imagen" else "No compartida",active=ScreenSharingState.active && ScreenSharingState.confirmed,attention=ScreenSharingState.active && !ScreenSharingState.confirmed)
                     Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
                         Text("Actividad reciente",Modifier.weight(1f),style=MaterialTheme.typography.titleMedium)
                         TextButton({history=true}) {Text("Ver todos")}
@@ -289,6 +289,7 @@ private fun LocalEventRow(row: AgentSession.LocalEvent, onClick: () -> Unit) {
         TextButton(onClick, modifier = Modifier.fillMaxWidth(),shape=androidx.compose.ui.graphics.RectangleShape, contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 10.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    AuditCategoryTag(row.event.category)
                     Text(metadataTitle(row.event.metadata), style = MaterialTheme.typography.bodyMedium)
                     Text("${displayFriendlyTime(row.event.timestamp)}",
                         color = AuditColors.Muted, style = MaterialTheme.typography.bodySmall)
@@ -297,7 +298,7 @@ private fun LocalEventRow(row: AgentSession.LocalEvent, onClick: () -> Unit) {
                         Text(it, color = AuditColors.Muted, style = MaterialTheme.typography.bodySmall)
                     }
                 }
-                Text(deliveryLabel(row.delivery), style = MaterialTheme.typography.labelMedium)
+                AuditStateTag(deliveryLabel(row.delivery),active=row.delivery=="SENT",attention=row.delivery=="PENDING",failed=row.delivery=="FAILED")
             }
         }
         AuditRule()

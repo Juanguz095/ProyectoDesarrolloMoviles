@@ -11,8 +11,8 @@ android {
         minSdk = 26
         targetSdk = 35
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        versionCode = providers.gradleProperty("auditlabControlVersionCode").orElse("19").get().toInt()
-        versionName = providers.gradleProperty("auditlabControlVersionName").orElse("0.8.6-preview").get()
+        versionCode = providers.gradleProperty("auditlabControlVersionCode").orElse("20").get().toInt()
+        versionName = providers.gradleProperty("auditlabControlVersionName").orElse("0.8.7-preview").get()
     }
     buildFeatures { compose = true }
     sourceSets.getByName("main").java.srcDir("../design/src/main/kotlin")

@@ -4,6 +4,27 @@ Actualización: 4 de noviembre de 2026, UTC. Los registros anteriores conservan 
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
+## Etiquetas y estados con color — 0.8.7
+
+- P6.4: identidad visual compartida en ambas apps: WhatsApp verde, SMS azul,
+  llamadas violeta, compartidos ámbar y batería/conexión verde azulado. Etiquetas
+  redondeadas con texto; filtros seleccionados con fondo intenso, negrita y marca
+  de selección. Las tarjetas de eventos repiten su color en el borde lateral.
+- El Agente muestra estados con texto y color: activo/enviado verde, pendiente o
+  sin permiso ámbar, detenido gris y envío rechazado rojo. WhatsApp distingue la
+  reconexión y pantalla conserva la espera hasta confirmar una imagen enviada.
+  Se mantienen las simplificaciones anteriores de Inicio/Eventos y la retirada
+  global del cuadro Aviso. Sin cambios de permisos, consentimiento o servidor.
+- Agente 0.8.7-preview/código 21 y Centro 0.8.7-preview/código 20 compilados.
+  **72 pruebas JVM/Robolectric aprobadas: 50 Agente + 22 Centro**, sin fallos ni
+  omitidas. Lint: 0 errores en ambas apps; auditoría APK correcta. Contraste de
+  etiquetas de categoría entre 5,49:1 y 10,35:1, por encima de 4,5:1; el texto y la
+  marca seleccionada permiten distinguirlas sin depender solo del color.
+- [Resultados, paleta y hashes](evidencias/ETIQUETAS-0.8.7.json). Ambas APK de prueba
+  preparadas localmente; AndroidTest compilados, sin ejecución nativa. No se
+  declara validada la recepción real de SMS ni el visor por este cambio visual.
+  Siguiente: revisar aspecto, selección y tamaños de texto en teléfono con 0.8.7.
+
 ## Eventos sin resumen y sin cuadros de aviso — 0.8.6
 
 - P6.4: retirados el texto pequeño de dispositivo/categoría («Mensajes y llamadas»)

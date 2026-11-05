@@ -18,6 +18,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
@@ -129,8 +132,9 @@ fun SectionLabel(text: String) = Text(text.uppercase(), color = AuditColors.Mute
 fun AuditRule() = HorizontalDivider(color = AuditColors.Ink, thickness = 0.7.dp)
 
 @Composable
-fun AuditPanel(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
+fun AuditPanel(modifier: Modifier = Modifier, accent: Color? = null, content: @Composable ColumnScope.() -> Unit) {
     Column(modifier.fillMaxWidth().background(AuditColors.Panel,RoundedCornerShape(8.dp)).border(0.7.dp, AuditColors.Muted,RoundedCornerShape(8.dp))
+        .drawBehind {accent?.let {drawRect(it,topLeft=Offset(0f,8.dp.toPx()),size=Size(3.dp.toPx(),(size.height-16.dp.toPx()).coerceAtLeast(0f)))}}
         .padding(15.dp), verticalArrangement = Arrangement.spacedBy(10.dp), content = content)
 }
 
