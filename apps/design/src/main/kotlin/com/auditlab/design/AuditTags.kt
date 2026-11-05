@@ -3,15 +3,14 @@ package com.auditlab.design
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 /** Stable category identity, independent of delivery state or selected filter. */
@@ -36,9 +35,8 @@ object AuditCategoryColors {
 fun AuditCategoryFilter(category: String,label: String,selected: Boolean,enabled: Boolean,onClick: ()->Unit) {
     val palette=AuditCategoryColors.category(category)
     FilterChip(selected=selected,onClick=onClick,enabled=enabled,modifier=Modifier.heightIn(min=48.dp),
-        shape=RoundedCornerShape(50),
+        shape=RectangleShape,
         border=BorderStroke(if(selected) 1.5.dp else 1.dp,palette.ink.copy(alpha=if(selected) 1f else .28f)),
-        leadingIcon=if(selected) ({Text("✓",modifier=Modifier.clearAndSetSemantics {},fontWeight=FontWeight.Bold)}) else null,
         label={Text(label,fontWeight=if(selected) FontWeight.Bold else FontWeight.Medium)},
         colors=FilterChipDefaults.filterChipColors(containerColor=palette.tint,labelColor=palette.ink,
             selectedContainerColor=palette.ink,selectedLabelColor=Color.White,selectedLeadingIconColor=Color.White))
@@ -47,7 +45,7 @@ fun AuditCategoryFilter(category: String,label: String,selected: Boolean,enabled
 @Composable
 fun AuditCategoryTag(category: String) {
     val palette=AuditCategoryColors.category(category)
-    AuditPill(palette.label,palette.ink,palette.tint)
+    AuditTag(palette.label,palette.ink,palette.tint)
 }
 
 @Composable
@@ -58,18 +56,22 @@ fun AuditStateTag(text: String,active: Boolean=false,attention: Boolean=false,fa
         active->AuditCategoryColors.whatsApp
         else->AuditCategoryColors.all
     }
-    AuditPill(text,palette.ink,palette.tint)
+    AuditTag(text,palette.ink,palette.tint)
 }
 
 @Composable
-private fun AuditPill(text: String,ink: Color,tint: Color) {
-    Surface(color=tint,contentColor=ink,shape=RoundedCornerShape(50)) {
-        Row(Modifier.padding(horizontal=10.dp,vertical=5.dp),verticalAlignment=Alignment.CenterVertically,
-            horizontalArrangement=Arrangement.spacedBy(6.dp)) {
-            Box(Modifier.size(6.dp).background(ink,CircleShape))
-            Text(text,style=MaterialTheme.typography.labelMedium,fontWeight=FontWeight.SemiBold)
-        }
+private fun AuditTag(text: String,ink: Color,tint: Color) {
+    Surface(color=tint,contentColor=ink,shape=RectangleShape) {
+        Text(text,Modifier.padding(horizontal=10.dp,vertical=5.dp),
+            style=MaterialTheme.typography.labelMedium,fontWeight=FontWeight.SemiBold)
     }
+}
+
+/** Only supplied content is shown; the category does not imply a sender or origin. */
+@Composable
+fun AuditEventPreview(text: String,category: String,maxLines: Int=3) {
+    Text(text,Modifier.fillMaxWidth().background(AuditCategoryColors.category(category).tint).padding(10.dp),
+        color=AuditColors.Ink,style=MaterialTheme.typography.bodyMedium,maxLines=maxLines,overflow=TextOverflow.Ellipsis)
 }
 
 @Composable

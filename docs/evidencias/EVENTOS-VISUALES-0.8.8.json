@@ -1,0 +1,117 @@
+{
+  "version": "0.8.8-preview",
+  "codes": {
+    "agent": 22,
+    "control": 21
+  },
+  "base_commit": "d71c4df",
+  "task_id": "P6.4",
+  "changes": [
+    "Rectangular category/status tags and filters; colors retained, decorative dots and selection check removed",
+    "Event category header, prominent title, tinted text preview and compact date/detail footer in both apps",
+    "Agent delivery state alongside category; simulated events explicitly labeled",
+    "SMS and manual text previews limited to three lines; full detail retained",
+    "WhatsApp temporary previews remain separate with explicit expansion"
+  ],
+  "tests": {
+    "agent": {
+      "tests": 50,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "control": {
+      "tests": 22,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "lint": {
+    "agent": {
+      "Fatal": 0,
+      "Error": 0,
+      "Warning": 15,
+      "Information": 4
+    },
+    "control": {
+      "Fatal": 0,
+      "Error": 0,
+      "Warning": 9,
+      "Information": 3
+    }
+  },
+  "artifacts": {
+    "agent": {
+      "file": "AuditLab-Agente-0.8.8-preview-prueba.apk",
+      "bytes": 10164112,
+      "sha256": "bfbf2fd83cc656bb505f15fc9da9706638ab01efad9acbbe0e65c40597b215bd"
+    },
+    "control": {
+      "file": "AuditLab-Centro-0.8.8-preview-prueba.apk",
+      "bytes": 9599125,
+      "sha256": "36afd10235badd4e773689c593d7fd05c53b99ff4745c69390910cdf0b162918"
+    }
+  },
+  "commands_passed": [
+    "python3 scripts/gradle.py :apps:agent:testDebugUnitTest :apps:control:testDebugUnitTest :apps:agent:assembleDebug :apps:control:assembleDebug :apps:agent:lintDebug :apps:control:lintDebug --max-workers=1",
+    "python3 scripts/check_apk.py",
+    "python3 /tmp/check_audit_tag_contrast.py",
+    "python3 scripts/check_docs.py",
+    "git diff --check"
+  ],
+  "category_contrast": [
+    {
+      "label": "Todo",
+      "ink": "#334155",
+      "tint": "#E2E8F0",
+      "normal_contrast": 8.4,
+      "selected_white_contrast": 10.35
+    },
+    {
+      "label": "WhatsApp",
+      "ink": "#166534",
+      "tint": "#DCFCE7",
+      "normal_contrast": 6.49,
+      "selected_white_contrast": 7.13
+    },
+    {
+      "label": "SMS",
+      "ink": "#1D4ED8",
+      "tint": "#DBEAFE",
+      "normal_contrast": 5.49,
+      "selected_white_contrast": 6.7
+    },
+    {
+      "label": "Llamadas",
+      "ink": "#6D28D9",
+      "tint": "#EDE9FE",
+      "normal_contrast": 5.98,
+      "selected_white_contrast": 7.1
+    },
+    {
+      "label": "Compartidos",
+      "ink": "#92400E",
+      "tint": "#FEF3C7",
+      "normal_contrast": 6.37,
+      "selected_white_contrast": 7.09
+    },
+    {
+      "label": "Batería y conexión",
+      "ink": "#115E59",
+      "tint": "#CCFBF1",
+      "normal_contrast": 6.73,
+      "selected_white_contrast": 7.58
+    }
+  ],
+  "exit_codes": 0,
+  "native_device_run": false,
+  "instrumentation_run": false,
+  "server_changes": false,
+  "permissions_and_consent_unchanged": true,
+  "public_binary_release": false,
+  "limitations": [
+    "No emulator or physical-device execution; visual review including large fonts pending",
+    "No claim of real SMS reception or live screen capture validation from this visual change"
+  ]
+}

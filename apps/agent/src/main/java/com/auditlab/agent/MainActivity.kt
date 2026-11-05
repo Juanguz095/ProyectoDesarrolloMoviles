@@ -14,6 +14,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -284,23 +285,22 @@ private fun deliveryLabel(value: String): String = when (value) {
 }
 
 @Composable
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 private fun LocalEventRow(row: AgentSession.LocalEvent, onClick: () -> Unit) {
-    Column(Modifier.fillMaxWidth()) {
-        TextButton(onClick, modifier = Modifier.fillMaxWidth(),shape=androidx.compose.ui.graphics.RectangleShape, contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 10.dp)) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                    AuditCategoryTag(row.event.category)
-                    Text(metadataTitle(row.event.metadata), style = MaterialTheme.typography.bodyMedium)
-                    Text("${displayFriendlyTime(row.event.timestamp)}",
-                        color = AuditColors.Muted, style = MaterialTheme.typography.bodySmall)
-                    (row.event.metadata["smsText"] as? String)?.let { Text(it,maxLines=3,overflow=androidx.compose.ui.text.style.TextOverflow.Ellipsis) }
-                    metadataDescription(row.event.metadata).takeIf { it.isNotEmpty() }?.let {
-                        Text(it, color = AuditColors.Muted, style = MaterialTheme.typography.bodySmall)
-                    }
-                }
-                AuditStateTag(deliveryLabel(row.delivery),active=row.delivery=="SENT",attention=row.delivery=="PENDING",failed=row.delivery=="FAILED")
-            }
+    AuditPanel(Modifier.clickable(onClick=onClick),accent=AuditCategoryColors.category(row.event.category).ink) {
+        FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp),verticalArrangement=Arrangement.spacedBy(6.dp)) {
+            AuditCategoryTag(row.event.category)
+            AuditStateTag(deliveryLabel(row.delivery),active=row.delivery=="SENT",attention=row.delivery=="PENDING",failed=row.delivery=="FAILED")
+            if(row.event.isSimulated) AuditStateTag("Simulado",attention=true)
         }
-        AuditRule()
+        Text(metadataTitle(row.event.metadata),style=MaterialTheme.typography.titleMedium)
+        (row.event.metadata["smsText"] as? String)?.let { AuditEventPreview(it,row.event.category) }
+        metadataDescription(row.event.metadata).takeIf { it.isNotEmpty() }?.let {
+            Text(it,color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
+        }
+        Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(12.dp)) {
+            Text(displayFriendlyTime(row.event.timestamp),Modifier.weight(1f),color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
+            Text("Ver detalle →",style=MaterialTheme.typography.labelLarge)
+        }
     }
 }

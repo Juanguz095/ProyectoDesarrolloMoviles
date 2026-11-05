@@ -362,22 +362,26 @@ internal fun AuditChoice(label: String, value: String, options: List<Pair<String
 }
 
 @Composable
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 internal fun EventRow(event: AuditEvent, enabled: Boolean, deviceName: String?=null, onClick: () -> Unit) {
     AuditPanel(Modifier.clickable(enabled=enabled,onClick=onClick).semantics {contentDescription="Ver detalle →"},accent=AuditCategoryColors.category(event.category).ink) {
+        FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp),verticalArrangement=Arrangement.spacedBy(6.dp)) {
+            AuditCategoryTag(event.category)
+            if(event.isSimulated) AuditStateTag("Simulado",attention=true)
+        }
         Text(eventTitle(event),style=MaterialTheme.typography.titleMedium,color=AuditColors.Ink)
-        AuditCategoryTag(event.category)
         if(event.category in setOf("sms","call") && event.metadata["phoneNumber"]==null) Text("Número no compartido o no disponible",color=AuditColors.Muted)
         (event.metadata["phoneNumber"] as? String)?.let {
             val label=when(event.direction) { "inbound"->"De"; "outbound"->"Para";else->"Número" }
             Text("$label: $it",style=MaterialTheme.typography.bodyLarge,color=AuditColors.Ink)
         }
         if(event.category=="manual_share") {
-            Text(event.metadata["sharedText"] as? String ?: "Texto no disponible",maxLines=4,overflow=androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+            AuditEventPreview(event.metadata["sharedText"] as? String ?: "Texto no disponible",event.category)
         }
         if(event.category=="sms") {
             val body=event.metadata["smsText"] as? String
             if(body==null) Text("Texto no compartido o no disponible",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
-            else Text(body,maxLines=4,overflow=androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+            else AuditEventPreview(body,event.category)
             if(event.metadata["smsTextTruncated"]==true) Text("Texto limitado a 2 000 caracteres",style=MaterialTheme.typography.bodySmall)
         }
         if(event.category=="whatsapp") Text(if(event.direction=="outbound")
@@ -385,9 +389,10 @@ internal fun EventRow(event: AuditEvent, enabled: Boolean, deviceName: String?=n
             else "Notificación registrada · Texto temporal en la vista en vivo",
             style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
         deviceName?.let { Text(it,color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall) }
-        Text(displayFriendlyTime(event.timestamp),style=MaterialTheme.typography.bodyMedium,color=AuditColors.Ink)
-
-        Text("Ver detalle →",style=MaterialTheme.typography.labelLarge)
+        Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(12.dp)) {
+            Text(displayFriendlyTime(event.timestamp),Modifier.weight(1f),style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
+            Text("Ver detalle →",style=MaterialTheme.typography.labelLarge)
+        }
     }
 }
 

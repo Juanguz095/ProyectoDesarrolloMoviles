@@ -4,7 +4,6 @@ import android.view.WindowManager
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.activity.compose.LocalActivity
-import androidx.compose.ui.text.style.TextOverflow
 import com.auditlab.common.*
 import com.auditlab.design.*
 import kotlinx.coroutines.*
@@ -82,7 +81,7 @@ private fun WhatsAppMessagesContent(session: ControlSession,device: String?,onBa
                 var expanded by remember { mutableStateOf(false) }
                 AuditCategoryTag("whatsapp")
                 Text("De: ${preview.title.ifBlank { "Nombre no disponible en la notificación" }}",style=MaterialTheme.typography.titleMedium)
-                Text(preview.text,maxLines=if(expanded) Int.MAX_VALUE else 4,overflow=TextOverflow.Ellipsis)
+                AuditEventPreview(preview.text,"whatsapp",maxLines=if(expanded) Int.MAX_VALUE else 3)
                 AuditLink(if(expanded) "Mostrar menos" else "Ver mensaje completo",{expanded=!expanded})
                 Text(displayFriendlyTime(preview.timestamp),color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
                 Text(if(preview.packageName=="com.whatsapp.w4b") "WhatsApp Business" else "WhatsApp",style=MaterialTheme.typography.bodySmall)

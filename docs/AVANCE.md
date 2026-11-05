@@ -4,6 +4,28 @@ Actualización: 4 de noviembre de 2026, UTC. Los registros anteriores conservan 
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
+## Etiquetas rectangulares y eventos más visuales — 0.8.8
+
+- P6.4: etiquetas de categoría/estado y filtros con esquinas rectas. Se conserva
+  la paleta de colores y se retiran el punto decorativo y la marca de selección.
+  La selección sigue diferenciándose por fondo intenso, borde y negrita.
+- Tarjetas de eventos del Centro y Agente con categoría arriba, título destacado,
+  contenido compartido sobre fondo suave y fecha/acceso al detalle en el pie.
+  El Agente muestra también el estado de envío arriba. Las etiquetas fluyen a
+  otra línea si falta ancho. Los eventos simulados se identifican expresamente.
+- La vista previa de SMS/texto manual muestra hasta tres líneas; el detalle
+  conserva el texto completo. Las notificaciones de WhatsApp mantienen su vista
+  temporal separada, con el mismo fondo y expansión explícita. No se atribuyen
+  remitentes ni contenido ausente. Sin cambios de captura, permisos o servidor.
+- Agente 0.8.8-preview/código 22 y Centro 0.8.8-preview/código 21.
+  **72 pruebas JVM/Robolectric aprobadas: 50 Agente + 22 Centro**, sin fallos ni
+  omitidas. Lint: 0 errores en ambas apps. Auditoría de APK correcta; contraste
+  de las categorías conservado por encima de 4,5:1. Ambas APK de prueba
+  preparadas localmente, sin ejecución en teléfono/emulador en esta sesión.
+  Evidencias y resultados: [EVENTOS-VISUALES-0.8.8.json](evidencias/EVENTOS-VISUALES-0.8.8.json).
+  Siguiente: revisión visual en teléfono, incluidos fuentes grandes y eventos con
+  texto largo; la recepción real de SMS y el visor conservan su validación pendiente.
+
 ## Etiquetas y estados con color — 0.8.7
 
 - P6.4: identidad visual compartida en ambas apps: WhatsApp verde, SMS azul,
