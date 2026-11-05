@@ -53,7 +53,7 @@ class ControlScreenTest {
         return api
     }
     private fun detail() { tap("EQUIPOS"); tap("VER DISPOSITIVO") }
-    private fun events() { tap("VER HISTORIAL DE EVENTOS"); waitFor("RESULTADOS"); tap("FILTRAR EVENTOS") }
+    private fun events() { tap("VER HISTORIAL DE EVENTOS"); waitFor("RESULTADOS"); tap("MÁS");tap("FILTROS AVANZADOS") }
     private fun eventDetail() { compose.onNodeWithContentDescription("Ver detalle →").performScrollTo().performClick(); settle() }
 
     @Test fun `auditor can view ephemeral previews and local stop clears text and secure flag on exit`() {

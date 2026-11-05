@@ -114,7 +114,7 @@ internal fun ControlScreen(session: ControlSession, onExport: (() -> Unit)? = nu
             session.loadOverview(currentDevice.deviceId, scope)
     }
     BackHandler(session.signedIn && screen != "inicio") {
-        screen = when (screen) { "whatsapp" -> "dispositivo"; "dispositivo" -> "dispositivos"; "auditoria", "inscripcion" -> "mas"; else -> "inicio" }
+        screen = when (screen) { "whatsapp" -> "dispositivo"; "dispositivo" -> "dispositivos"; "auditoria", "inscripcion", "filtros" -> "mas"; else -> "inicio" }
     }
     if (session.logoutConfirmation && session.signedIn) AlertDialog(onDismissRequest = session::cancelLogout,
         title = { Text("Cerrar sesión", style = MaterialTheme.typography.titleLarge) },
@@ -140,7 +140,7 @@ internal fun ControlScreen(session: ControlSession, onExport: (() -> Unit)? = nu
             screen="eventos";onAlertOpened()
         }
     }
-    val selectedTab = when (screen) { "whatsapp", "dispositivo" -> "dispositivos"; "inscripcion", "auditoria" -> "mas"; else -> screen }
+    val selectedTab = when (screen) { "whatsapp", "dispositivo" -> "dispositivos"; "inscripcion", "auditoria", "filtros" -> "mas"; else -> screen }
     AuditPage(key = if (session.signedIn) screen else "login", feedback = session.message, working = session.busy, bottom = if (session.signedIn) ({
         ControlNavigation(selectedTab, !session.busy) { next ->
             screen = next
@@ -166,6 +166,7 @@ internal fun ControlScreen(session: ControlSession, onExport: (() -> Unit)? = nu
                 "inicio" -> Dashboard(session, currentDevice, scope, onEvents = { openEvents(currentDevice?.deviceId) },
                     onDevice={screen="dispositivo"},onChoose={chosenDevice=it})
                 "eventos" -> EventExplorer(session, scope, onExport, onOpenReport)
+                "filtros" -> EventExplorer(session, scope, onExport, onOpenReport,advancedFilters=true)
                 "whatsapp" -> WhatsAppPreviewsView(session,currentDevice?.deviceId) { screen="dispositivo" }
                 "dispositivos" -> DeviceList(session, scope) { id -> chosenDevice = id; screen = "dispositivo" }
                 "dispositivo" -> {
@@ -185,6 +186,7 @@ internal fun ControlScreen(session: ControlSession, onExport: (() -> Unit)? = nu
                         Text(session.serverUrl, color = AuditColors.Muted)
                         AuditDisclosure("Cambiar servidor") {Text("Cierra sesión para editar la dirección. No borres los datos del Agente.")}
                     }
+                    AuditButton("Filtros avanzados",{screen="filtros"},!session.busy,outlined=true)
                     AuditButton("Consultar auditoría", { session.loadAudit(scope); screen = "auditoria" }, !session.busy)
                     if (session.isAdmin) AuditButton("Crear código de inscripción", { screen = "inscripcion" }, !session.busy)
                     AuditButton("Actualizar dispositivos", { session.refresh(scope) }, !session.busy, outlined = true)

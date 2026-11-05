@@ -134,11 +134,11 @@ class NativeControlFlowTest {
             "export-rotation" -> {
                 waitFor("Tu dispositivo de un vistazo"); tap("VER HISTORIAL DE EVENTOS")
                 waitFor("Actividad de la app")
-                tap("FILTRAR EVENTOS"); tap("Todas las categorías"); tap("Actividad de la app")
+                tap("MÁS");tap("FILTROS AVANZADOS"); tap("Todas las categorías"); tap("Actividad de la app")
                 compose.onNode(hasSetTextAction() and hasContentDescription("ID o código exacto"))
                     .performScrollTo().performTextReplacement(cfg.getString("event"))
                 tap("APLICAR FILTROS"); waitFor("Historial actualizado: 1 evento(s).")
-                compose.activityRule.scenario.recreate(); waitFor("EVENTOS")
+                compose.activityRule.scenario.recreate(); waitFor("FILTROS AVANZADOS")
                 compose.onNodeWithText("Actividad de la app").assertExists()
                 compose.onNode(hasSetTextAction() and hasContentDescription("ID o código exacto"))
                     .assertTextContains(cfg.getString("event"))

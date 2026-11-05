@@ -4,6 +4,25 @@ Actualización: 4 de noviembre de 2026, UTC. Los registros anteriores conservan 
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
+## Eventos sin resumen y sin cuadros de aviso — 0.8.6
+
+- P6.4: retirados el texto pequeño de dispositivo/categoría («Mensajes y llamadas»)
+  y el botón Filtrar eventos de la vista Eventos. Se conservan pestañas y CSV.
+  Los filtros avanzados siguen accesibles en Más → Filtros avanzados, preservando
+  validación, fechas, paginación y consultas existentes fuera de la vista principal.
+- Eliminados globalmente el cuadro inferior Aviso, su expansión modal y botón
+  Cerrar de ambas apps. Los mensajes de operación quedan como texto en el contenido
+  y los errores por vista se conservan. AuditNotice tampoco genera cuadros/títulos
+  de aviso. Permisos, consentimiento y notificaciones de servicio no se modifican.
+- Agente0.8.6/código20 y Centro0.8.6/código19 compilados. **72 pruebas JVM/Robolectric
+  aprobadas: 50 Agente +22 Centro**, sin fallos/omitidas. Lint0 errores en ambos y
+  auditoría APK correcta. Instrumentación del Centro adaptada a la ruta de filtros
+  y compilada, sin ejecución en teléfono/emulador. Sin cambios de servidor.
+- [Resultados y hashes](evidencias/EVENTOS-0.8.6.json). APK de prueba locales listas;
+  sin publicación binaria validada. Los APK0.8.6 incluyen también la limpieza de
+  Inicio0.8.5. Siguiente: revisión visual en teléfono con estas versiones; recepción
+  real de SMS y pantalla sigue con las limitaciones de las evidencias anteriores.
+
 ## Inicio del Centro simplificado — 0.8.5
 
 - P6.4: retirados solo de Inicio el resumen Automático/Consulta bajo Actualizar

@@ -100,34 +100,18 @@ fun AuditPage(key: Any? = Unit, feedback: String? = null, working: Boolean = fal
                 Column(
                     Modifier.weight(1f).widthIn(max = 620.dp).fillMaxWidth()
                         .verticalScroll(rememberScrollState()).padding(horizontal = 26.dp, vertical = 28.dp),
-                    verticalArrangement = Arrangement.spacedBy(14.dp), content = content,
-                )
+                    verticalArrangement = Arrangement.spacedBy(14.dp),
+                ) {
+                    content()
+                    feedback?.takeIf {it.isNotBlank()}?.let {
+                        Text(it,style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
+                    }
+                }
             }
             if (working) LinearProgressIndicator(Modifier.widthIn(max = 620.dp).fillMaxWidth(), color = AuditColors.Ink, trackColor = AuditColors.Panel)
-            feedback?.let { AuditFeedback(it) }
             bottom?.let { Box(Modifier.widthIn(max = 620.dp).fillMaxWidth()) { it() } }
         }
     }
-}
-
-@Composable
-private fun AuditFeedback(message: String) {
-    var dismissed by remember(message) { mutableStateOf(false) }
-    var expanded by remember(message) { mutableStateOf(false) }
-    if (!dismissed) {
-        Row(Modifier.widthIn(max = 620.dp).fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
-            .background(AuditColors.Panel).border(0.7.dp, AuditColors.Ink).padding(start = 12.dp),
-            verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f).clickable { expanded = true }.padding(vertical = 8.dp)) {
-                SectionLabel("Aviso · toca para ver completo")
-                Text(message, maxLines = 2, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall)
-            }
-            TextButton({ dismissed = true },shape=RectangleShape, contentPadding = PaddingValues(8.dp)) { Text("Cerrar", style = MaterialTheme.typography.labelMedium) }
-        }
-    }
-    if (expanded) AlertDialog(onDismissRequest = { expanded = false }, title = { Text("AVISO") },
-        text = { Text(message, Modifier.verticalScroll(rememberScrollState())) },
-        confirmButton = { TextButton({ expanded = false }) { Text("Entendido") } })
 }
 
 @Composable
@@ -212,7 +196,7 @@ fun BatteryMeter(percent: Int?) {
 
 @Composable
 fun AuditNotice(message: String) {
-    AuditPanel { SectionLabel("Aviso"); Text(message) }
+    Text(message,color=AuditColors.Warning)
 }
 
 @Composable

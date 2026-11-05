@@ -99,7 +99,7 @@ internal fun Dashboard(session: ControlSession, device: DeviceSummary?, scope: C
 
 @Composable
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
-internal fun EventExplorer(session: ControlSession, scope: CoroutineScope, onExport: (() -> Unit)?, onOpenReport: (() -> Unit)?) {
+internal fun EventExplorer(session: ControlSession, scope: CoroutineScope, onExport: (() -> Unit)?, onOpenReport: (() -> Unit)?, advancedFilters: Boolean = false) {
     var device by rememberSaveable(session.query) { mutableStateOf(session.query.device.orEmpty()) }
     var category by rememberSaveable(session.query) { mutableStateOf(session.query.category.orEmpty()) }
     var start by rememberSaveable(session.query) { mutableStateOf(session.query.from.orEmpty()) }
@@ -108,11 +108,9 @@ internal fun EventExplorer(session: ControlSession, scope: CoroutineScope, onExp
     var filterError by remember { mutableStateOf<String?>(null) }
     var manualDevice by rememberSaveable { mutableStateOf(false) }
     var preciseDates by rememberSaveable { mutableStateOf(false) }
-    var showFilters by rememberSaveable { mutableStateOf(false) }
-    AuditHeader("EVENTOS")
+    val showFilters=advancedFilters
+    AuditHeader(if(showFilters) "FILTROS AVANZADOS" else "EVENTOS")
     RefreshControls(session,"eventos",session.query.device,scope)
-    val applied=listOfNotNull(session.query.device?.let { session.deviceName(it) },session.query.category?.let(::categoryName))
-    Text(if(applied.isEmpty()) "Todos los dispositivos · Todas las categorías" else applied.joinToString(" · "),color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
     FlowRow(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp),verticalArrangement=Arrangement.spacedBy(4.dp)) {
         listOf("communication" to "Todo","whatsapp" to "WhatsApp","sms" to "SMS","call" to "Llamadas","manual_share" to "Compartidos").forEach { (value,label) ->
             FilterChip(selected=session.query.category==value,onClick={session.applyFilters(session.query.copy(category=value),scope)},
@@ -121,7 +119,6 @@ internal fun EventExplorer(session: ControlSession, scope: CoroutineScope, onExp
                     selectedContainerColor=AuditColors.Ink,selectedLabelColor=AuditColors.Panel))
         }
     }
-    AuditButton(if(showFilters) "Ocultar filtros" else "Filtrar eventos",{showFilters=!showFilters},!session.busy,outlined=true)
     if(showFilters) {
     AuditPanel {
     AuditChoice("Dispositivo", if (manualDevice) "Escribir identificador" else device.takeIf {it.isNotEmpty()}?.let(session::deviceName) ?: "Todos los dispositivos",

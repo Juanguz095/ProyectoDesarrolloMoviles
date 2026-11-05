@@ -1,0 +1,67 @@
+{
+  "version": "0.8.6-preview",
+  "codes": {
+    "agent": 20,
+    "control": 19
+  },
+  "base_commit": "93aa7e4",
+  "task_id": "P6.4",
+  "changes": [
+    "No small device/category summary above event tabs",
+    "No Filtrar eventos button on Events; advanced filtering remains under Más → Filtros avanzados",
+    "Shared pinned feedback panel and its Aviso dialog removed from both apps",
+    "Operational messages and contextual errors render as inline text, without popup/panel/title/close button"
+  ],
+  "tests": {
+    "agent": {
+      "tests": 50,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "control": {
+      "tests": 22,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "lint": {
+    "agent": {
+      "Fatal": 0,
+      "Error": 0,
+      "Warning": 15,
+      "Information": 4
+    },
+    "control": {
+      "Fatal": 0,
+      "Error": 0,
+      "Warning": 9,
+      "Information": 3
+    }
+  },
+  "artifacts": {
+    "agent": {
+      "file": "AuditLab-Agente-0.8.6-preview-prueba.apk",
+      "bytes": 10147732,
+      "sha256": "bfd469fd2299c28877c832343eb0f493137b2d70eb2bded3359785387bc716cc"
+    },
+    "control": {
+      "file": "AuditLab-Centro-0.8.6-preview-prueba.apk",
+      "bytes": 9582741,
+      "sha256": "dc4cc183bd56021a9c9638b5011e8a898f1cd3bf6f27684be79deac36f9285cf"
+    }
+  },
+  "commands_passed": [
+    "python3 scripts/gradle.py :apps:agent:testDebugUnitTest :apps:control:testDebugUnitTest :apps:agent:assembleDebug :apps:control:assembleDebug --max-workers=1",
+    "python3 scripts/gradle.py :apps:agent:lintDebug :apps:control:lintDebug :apps:control:assembleDebugAndroidTest --max-workers=1",
+    "python3 scripts/check_apk.py",
+    "python3 scripts/check_docs.py"
+  ],
+  "exit_codes": 0,
+  "native_device_run": false,
+  "control_instrumentation_compiled_only": true,
+  "server_changes": false,
+  "permissions_and_consent_unchanged": true,
+  "public_binary_release": false
+}
