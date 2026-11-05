@@ -32,7 +32,7 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 @Composable
-internal fun RefreshControls(session: ControlSession, screen: String, deviceId: String?, scope: CoroutineScope) {
+internal fun RefreshControls(session: ControlSession, screen: String, deviceId: String?, scope: CoroutineScope, showSummary: Boolean = true) {
     Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(8.dp)) {
         OutlinedButton({session.refreshVisible(screen,deviceId,scope)},shape=RectangleShape,enabled=!session.busy && !session.refreshing,
             modifier=Modifier.weight(1f).heightIn(min=48.dp)) {
@@ -43,16 +43,18 @@ internal fun RefreshControls(session: ControlSession, screen: String, deviceId: 
             Switch(session.autoRefresh,session::updateAutoRefresh)
         }
     }
+    if(showSummary) {
     val stamp=when(screen) { "eventos"->session.eventsUpdatedAt;"dispositivos"->session.devicesUpdatedAt;else->session.dataUpdatedAt }
     val mode=if(session.autoRefresh && session.canAutoRefresh(screen)) "Automático cada 10 s"
         else if(session.autoRefresh) "Automático pausado en esta página"
         else "Actualización manual"
     Text(mode+(stamp?.let {" · Consulta ${displayLocalClock(it)}"} ?: ""),style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
+    }
     session.refreshError?.let { Text(it,color=AuditColors.Red,style=MaterialTheme.typography.bodyMedium) }
 }
 
 @Composable
-private fun DeviceReadingCard(reading: AuditEvent?, now: Instant) {
+private fun DeviceReadingCard(reading: AuditEvent?, now: Instant, showReadingTime: Boolean = true) {
     AuditPanel {
         Text("Batería y conexión",style=MaterialTheme.typography.titleMedium)
         BatteryMeter((reading?.metadata?.get("batteryPercent") as? Number)?.toInt())
@@ -60,7 +62,7 @@ private fun DeviceReadingCard(reading: AuditEvent?, now: Instant) {
         if(reading==null) {
             Text("Sin lecturas. Pulsa Activar en el Agente.",color=AuditColors.Muted)
         } else {
-            Text("Lectura del teléfono: ${displayLocalTime(reading.timestamp)} · ${ageLabel(reading.timestamp,now)}",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
+            if(showReadingTime) Text("Lectura del teléfono: ${displayLocalTime(reading.timestamp)} · ${ageLabel(reading.timestamp,now)}",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
             val stale=runCatching { Duration.between(Instant.parse(reading.timestamp),now).seconds>120 }.getOrDefault(true)
             if(stale) Text("Lectura antigua. Revisa el Agente y su conexión.",color=AuditColors.Warning,style=MaterialTheme.typography.bodySmall)
         }
@@ -77,24 +79,18 @@ internal fun Dashboard(session: ControlSession, device: DeviceSummary?, scope: C
     Text("Tu dispositivo de un vistazo",style=MaterialTheme.typography.titleLarge)
     if(session.visibleDevices.size>1) AuditChoice("Dispositivo seleccionado",device?.let { session.deviceName(it.deviceId) } ?: "Selecciona un equipo",
         session.visibleDevices.map { it.deviceId to session.deviceName(it.deviceId) },!session.busy,onChoose)
-    RefreshControls(session,"inicio",device?.deviceId,scope)
+    RefreshControls(session,"inicio",device?.deviceId,scope,showSummary=false)
     if(device==null) {
         AuditEmpty("SIN DISPOSITIVOS","Vincula un teléfono desde Más → Crear código de inscripción.")
         return
     }
-    Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
-        Column(Modifier.weight(1f)) {
-            Text(session.deviceName(device.deviceId),style=MaterialTheme.typography.titleMedium)
-            Text(if(device.isActive) "Inscripción activa" else "Dispositivo revocado",color=if(device.isActive) AuditColors.Green else AuditColors.Red)
-        }
-        TextButton(onDevice,shape=RectangleShape) { Text("Ver equipo →") }
+    Column {
+        Text(session.deviceName(device.deviceId),style=MaterialTheme.typography.titleMedium)
+        Text(if(device.isActive) "Inscripción activa" else "Dispositivo revocado",color=if(device.isActive) AuditColors.Green else AuditColors.Red)
     }
     Text("Último contacto: ${device.lastSeenAt?.let { ageLabel(it,now) } ?: "Aún sin contacto"}",color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
-    DeviceReadingCard(reading,now)
-    Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
-        Text("Actividad reciente",Modifier.weight(1f),style=MaterialTheme.typography.titleMedium)
-        TextButton(onEvents,enabled=!session.busy,shape=RectangleShape) { Text("Ver todos") }
-    }
+    DeviceReadingCard(reading,now,showReadingTime=false)
+    Text("Actividad reciente",style=MaterialTheme.typography.titleMedium)
     if(recent.isEmpty()) AuditEmpty("SIN EVENTOS TODAVÍA","Activa la captura en el Agente. Los eventos aparecerán aquí cuando lleguen al servidor.")
     recent.take(5).forEach { EventRow(it,!session.busy) {session.showDetail(it,scope)} }
     AuditButton("Ver historial de eventos",onEvents,!session.busy,outlined=true)

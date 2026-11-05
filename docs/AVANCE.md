@@ -4,6 +4,21 @@ Actualización: 4 de noviembre de 2026, UTC. Los registros anteriores conservan 
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
+## Inicio del Centro simplificado — 0.8.5
+
+- P6.4: retirados solo de Inicio el resumen Automático/Consulta bajo Actualizar
+  ahora, el atajo Ver equipo con flecha, la fecha/antigüedad de Lectura del teléfono
+  bajo conexión y Ver todos junto a Actividad reciente, según las capturas del usuario.
+- Se conservan interruptor automático, consulta efectiva, errores, advertencia de
+  lectura antigua, pestaña Equipos y botón Ver historial de eventos. Las otras vistas
+  mantienen su resumen y fecha de lectura. Agente y servidor sin cambios.
+- Centro0.8.5-preview/código18 compilado; **22 pruebas JVM/Robolectric aprobadas**,
+  sin fallos/omitidas. Lint0 errores y auditoría APK correctos. Sin nuevas pruebas
+  redundantes para este cambio visual reversible. Sin ejecución en teléfono aquí.
+- APK de prueba local preparada. [Resultados y hash](evidencias/INICIO-0.8.5.json).
+  Siguiente: comprobar el aspecto de Inicio instalando solo el Centro actualizado;
+  las validaciones nativas de recepción/pantalla anteriores siguen pendientes.
+
 ## Visor sin imágenes tras aceptar pantalla — 4 de noviembre de 2026 (America/Lima)
 
 - P5.5/P6.5/P7.5: el usuario aporta capturas donde el Agente dice compartiendo y
