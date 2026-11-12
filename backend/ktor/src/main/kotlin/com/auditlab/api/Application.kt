@@ -25,6 +25,7 @@ fun Application.module(database: Database? = null, authConfig: AuthConfig? = nul
     val auth = if (database != null && authConfig != null) AuthService(database, authConfig) else null
     val screenHub = ScreenShareHub()
     val whatsAppHub = WhatsAppPreviewHub()
+    val galleryStore = GalleryStore()
     val screenCleanup = launch { while (isActive) { delay(1000); screenHub.purgeExpired(); whatsAppHub.purgeExpired() } }
     // Retention runs with the maintenance account; without it the scheduled job stays disabled.
     val retention = Retention.start(maintenanceDatabase, retentionDays, retentionIntervalSeconds, auditRetentionDays)
@@ -42,6 +43,7 @@ fun Application.module(database: Database? = null, authConfig: AuthConfig? = nul
         appUpdateRoutes(auth, releaseCatalog)
         screenShareRoutes(auth, screenHub)
         whatsAppPreviewRoutes(auth, whatsAppHub)
+        galleryRoutes(auth, galleryStore)
         get("/health") {
             call.respondText("""{"status":"ok","service":"auditlab-api","stage":"foundation"}""", ContentType.Application.Json)
         }

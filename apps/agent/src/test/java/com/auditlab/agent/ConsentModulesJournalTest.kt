@@ -60,7 +60,7 @@ class ConsentModulesJournalTest {
         journal.activate(credential, url)
         assertFalse(journal.setModuleState("camera", ModuleState.PAUSED))
         journal.acceptModules("2026-11-11T10:00:00Z")
-        assertFalse(journal.setModuleState(ConsentModulesPolicy.GALLERY, ModuleState.PAUSED))
+        assertFalse(journal.setModuleState(ConsentModulesPolicy.LOCATION, ModuleState.PAUSED))
     }
 
     @Test fun `withdrawing the general consent clears every module`() = fixture { journal ->

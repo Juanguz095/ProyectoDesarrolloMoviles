@@ -55,6 +55,9 @@ interface AuditApi {
     fun heartbeatWhatsApp(token: String, device: String, session: String) { throw UnsupportedOperationException() }
     fun endWhatsApp(token: String, device: String, session: String) { throw UnsupportedOperationException() }
     fun whatsAppPreviews(token: String, device: String): WhatsAppPreviewSnapshot = throw UnsupportedOperationException()
+    fun createGalleryBatch(deviceToken: String, deviceId: String, batchId: String, items: List<GallerySharePolicy.Item>) { throw UnsupportedOperationException() }
+    fun uploadGalleryItem(deviceToken: String, deviceId: String, batchId: String, itemId: String, mediaType: String, bytes: ByteArray) { throw UnsupportedOperationException() }
+    fun completeGalleryBatch(deviceToken: String, deviceId: String, batchId: String) { throw UnsupportedOperationException() }
 }
 
 /**
@@ -227,6 +230,24 @@ class ApiClient(
                 n.getJSONObject("filters").toString(), n.getString("correlationId"))
         }, node.optStringOrNull("nextCursor"))
     }
+    override fun createGalleryBatch(deviceToken: String, deviceId: String, batchId: String, items: List<GallerySharePolicy.Item>) {
+        val payload = JSONObject()
+            .put("batchId", batchId)
+            .put("consentVersion", GallerySharePolicy.VERSION)
+            .put("items", org.json.JSONArray(items.map { item -> JSONObject()
+                .put("itemId", item.itemId).put("fileName", item.fileName).put("mediaType", item.mediaType)
+                .put("sizeBytes", item.sizeBytes).put("sha256", item.sha256) }))
+        request("POST", "/v1/devices/$deviceId/gallery-batches", deviceToken, body = payload.toString())
+    }
+
+    override fun uploadGalleryItem(deviceToken: String, deviceId: String, batchId: String, itemId: String, mediaType: String, bytes: ByteArray) {
+        requestBinary("PUT", "/v1/devices/$deviceId/gallery-batches/$batchId/items/$itemId", deviceToken, mediaType, bytes)
+    }
+
+    override fun completeGalleryBatch(deviceToken: String, deviceId: String, batchId: String) {
+        request("POST", "/v1/devices/$deviceId/gallery-batches/$batchId/complete", deviceToken, body = "{}")
+    }
+
     private fun filters(q: EventQuery) = mapOf("device" to q.device, "category" to q.category, "from" to q.from, "to" to q.to, "q" to q.q)
     private fun queryString(values: Map<String, String?>): String = values.filterValues { it != null }.entries
         .joinToString("&", prefix = "?") { (key, value) -> "$key=${encode(value!!)}" }
@@ -282,6 +303,38 @@ class ApiClient(
                 try { JSONObject(text) } catch (_: Exception) { throw ApiException(0, "INVALID_RESPONSE", null, "Respuesta JSON inválida.") }
             }
             return text
+        } catch (error: ApiException) {
+            throw error
+        } catch (error: SSLException) {
+            throw ApiException(0, "TLS_ERROR", null, "El certificado o la conexión TLS fueron rechazados")
+        } catch (error: IOException) {
+            throw ApiException(0, "NETWORK_ERROR", null, "Sin respuesta del servicio")
+        } finally {
+            connection.disconnect()
+        }
+    }
+
+    private fun requestBinary(method: String, path: String, token: String?, contentType: String, body: ByteArray) {
+        val connection = try {
+            URI.create(baseUrl + path).toURL().openConnection() as HttpURLConnection
+        } catch (error: Exception) {
+            throw ApiException(0, "NETWORK_ERROR", null, "No se pudo abrir la conexión")
+        }
+        try {
+            connection.requestMethod = method
+            connection.connectTimeout = connectTimeoutMillis
+            connection.readTimeout = readTimeoutMillis
+            connection.instanceFollowRedirects = false
+            connection.setRequestProperty("Accept", "application/json")
+            connection.setRequestProperty("User-Agent", userAgent)
+            if (token != null) connection.setRequestProperty("Authorization", "Bearer $token")
+            connection.doOutput = true
+            connection.setRequestProperty("Content-Type", contentType)
+            connection.outputStream.use { it.write(body) }
+            val status = connection.responseCode
+            val text = (if (status >= 400) connection.errorStream else connection.inputStream)
+                ?.use { input -> input.readBytes().toString(Charsets.UTF_8) }.orEmpty()
+            if (status !in 200..299) throw problem(status, text)
         } catch (error: ApiException) {
             throw error
         } catch (error: SSLException) {

@@ -4,6 +4,27 @@ Actualización: 11 de noviembre de 2026, America/Lima. Los registros anteriores 
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
+## Galería seleccionada (M2 0.9) — 11 de noviembre de 2026 (America/Lima)
+
+- M2 del plan 0.9 implementada en Agente + servidor: selección explícita con el
+  selector oficial de documentos de Android, vista previa obligatoria de los
+  elementos, aceptación individual, copia a temporal borrado al cancelar y subida
+  idempotente por lote. Límites D9 aplicados en cliente y servidor (JPEG/PNG/WebP/
+  HEIC, 15 MB por archivo, 20 elementos y 150 MB por lote). El módulo de
+  consentimiento `gallery` queda habilitado y su función bloqueada sin aceptar.
+- Servidor: migración `V13__gallery_media.sql` (`gallery_batches`/`gallery_items`),
+  `GalleryStore` con archivos en filesystem verificados por SHA-256 (D11), siete
+  endpoints (registro idempotente, subida por elemento, cierre de lote, consulta,
+  detalle, descarga auditada y borrado manual solo admin auditado, D12) y contrato
+  [gallery-share.openapi.yaml](../contracts/gallery-share.openapi.yaml). API común
+  `AuditApi`/`ApiClient` con los métodos de galería.
+- Comprobaciones: las cuatro suites en verde — common 7 (4 de galería), Agente 55,
+  Centro 22 y backend unit (incluye `GalleryStoreTest` con borrado y huellas).
+- Pendiente de esta fase: vista de Álbumes en el Centro (se retoma con M5) y las
+  pruebas de integración de V13 con Docker. Validación nativa del picker pendiente
+  de teléfono físico.
+- Siguiente: vista de Álbumes en el Centro o M3 (ubicación aproximada continua).
+
 ## Consentimiento por función (M1 0.9) y estabilidad de pruebas — 11 de noviembre de 2026 (America/Lima)
 
 - M1 del plan 0.9 implementada: módulos de consentimiento independientes

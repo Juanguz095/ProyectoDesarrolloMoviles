@@ -37,6 +37,7 @@
                 android:value="User-started, visible monitoring of authorized SMS/call timestamps and device status on an owned or managed phone; no content or phone numbers." />
         </service>
         <activity android:name=".UnifiedMonitoringActivity" android:exported="false" />
+        <activity android:name=".GalleryShareActivity" android:exported="false" android:excludeFromRecents="true" />
         <activity android:name=".ManualTextShareActivity" android:exported="true" android:excludeFromRecents="true">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />

@@ -1,0 +1,255 @@
+openapi: 3.0.3
+info:
+  title: AuditLab — galería compartida por selección explícita
+  version: 0.9.0
+  description: >
+    Lotes de fotos elegidas y confirmadas por la persona del dispositivo (plan 0.9, M2).
+    El selector nunca explora la galería: solo se suben los elementos seleccionados,
+    revisados en vista previa y aceptados individualmente en el Agente (decisión D9:
+    JPEG/PNG/WebP/HEIC, 15 MB por archivo, 20 elementos por lote, 150 MB totales).
+    El servidor guarda metadatos en PostgreSQL y archivos en disco (D11). La descarga
+    requiere rol y queda auditada; el borrado es manual, solo de administrador y
+    auditado (D12); nada expira automáticamente. La revocación del consentimiento
+    bloquea nuevos lotes.
+servers:
+  - url: https://{host}
+    variables:
+      host:
+        default: localhost
+paths:
+  /devices/{deviceId}/gallery-batches:
+    parameters:
+      - name: deviceId
+        in: path
+        required: true
+        schema: {type: string, format: uuid}
+    post:
+      summary: Registrar un lote seleccionado por el usuario (inicio de subida)
+      description: >
+        Idempotente por batchId: repetir el mismo lote devuelve éxito; un mismo identificador
+        con distinto contenido devuelve 409. Sin selección explícita no hay lote.
+      security: [{DeviceBearer: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GalleryBatchInput'
+      responses:
+        '204': {description: Lote registrado para subida}
+        '400': {description: Solicitud inválida o límites D9 excedidos}
+        '401': {description: Autenticación requerida}
+        '403': {description: El dispositivo no corresponde al recurso}
+        '409': {description: Lote existente con contenido distinto}
+  /devices/{deviceId}/gallery-batches/{batchId}/items/{itemId}:
+    parameters:
+      - {name: deviceId, in: path, required: true, schema: {type: string, format: uuid}}
+      - {name: batchId, in: path, required: true, schema: {type: string, format: uuid}}
+      - {name: itemId, in: path, required: true, schema: {type: string, pattern: '^[A-Za-z0-9_-]{1,64}$'}}
+    put:
+      summary: Subir los bytes de un elemento
+      description: El Content-Type debe coincidir con el registrado y la huella SHA-256 declarada;
+        un reintento de un elemento ya subido solo se acepta con bytes idénticos.
+      security: [{DeviceBearer: []}]
+      requestBody:
+        required: true
+        content:
+          image/jpeg:
+            schema: {type: string, format: binary}
+          image/png:
+            schema: {type: string, format: binary}
+          image/webp:
+            schema: {type: string, format: binary}
+          image/heif:
+            schema: {type: string, format: binary}
+          image/heic:
+            schema: {type: string, format: binary}
+      responses:
+        '204': {description: Elemento almacenado}
+        '400': {description: Bytes o huella no válidos}
+        '401': {description: Autenticación requerida}
+        '403': {description: El dispositivo no corresponde al recurso}
+        '404': {description: Elemento no registrado}
+        '409': {description: Lote no disponible para subida}
+        '415': {description: Tipo de contenido no permitido}
+  /devices/{deviceId}/gallery-batches/{batchId}/complete:
+    parameters:
+      - {name: deviceId, in: path, required: true, schema: {type: string, format: uuid}}
+      - {name: batchId, in: path, required: true, schema: {type: string, format: uuid}}
+    post:
+      summary: Cerrar el lote cuando todos sus elementos están subidos
+      security: [{DeviceBearer: []}]
+      responses:
+        '204': {description: Lote completo y disponible para el Centro}
+        '400': {description: Solicitud inválida}
+        '401': {description: Autenticación requerida}
+        '403': {description: El dispositivo no corresponde al recurso}
+        '409': {description: Faltan elementos por subir o el lote no está en curso}
+  /gallery-batches:
+    get:
+      summary: Listar lotes disponibles (rol administrador o auditor)
+      security: [{UserBearer: []}]
+      parameters:
+        - name: device
+          in: query
+          schema: {type: string, format: uuid}
+      responses:
+        '200':
+          description: Lotes disponibles; la consulta queda auditada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/GalleryBatch'
+        '401': {description: Autenticación requerida}
+        '403': {description: Rol insuficiente}
+  /gallery-batches/{batchId}:
+    parameters:
+      - {name: batchId, in: path, required: true, schema: {type: string, format: uuid}}
+    get:
+      summary: Detalle de un lote con sus elementos
+      security: [{UserBearer: []}]
+      responses:
+        '200':
+          description: Detalle del lote
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GalleryBatchDetail'
+        '401': {description: Autenticación requerida}
+        '403': {description: Rol insuficiente}
+        '404': {description: Lote no encontrado}
+  /gallery-batches/{batchId}/items/{itemId}/content:
+    parameters:
+      - {name: batchId, in: path, required: true, schema: {type: string, format: uuid}}
+      - {name: itemId, in: path, required: true, schema: {type: string, pattern: '^[A-Za-z0-9_-]{1,64}$'}}
+    get:
+      summary: Descargar un elemento (auditoría de acceso obligatoria)
+      security: [{UserBearer: []}]
+      responses:
+        '200':
+          description: Bytes del elemento con su tipo de medio
+          content:
+            application/octet-stream:
+              schema: {type: string, format: binary}
+        '401': {description: Autenticación requerida}
+        '403': {description: Rol insuficiente}
+        '404': {description: Elemento no disponible}
+        '409': {description: Lote no disponible}
+  /gallery-batches/{batchId}:
+    parameters:
+      - {name: batchId, in: path, required: true, schema: {type: string, format: uuid}}
+    delete:
+      summary: Borrado manual de un lote (solo administrador, auditado)
+      description: Elimina los archivos y los registros de elementos; la auditoría conserva
+        la constancia del borrado. No hay borrado automático (D12).
+      security: [{UserBearer: []}]
+      responses:
+        '204': {description: Lote eliminado}
+        '401': {description: Autenticación requerida}
+        '403': {description: Se requiere rol administrador}
+        '404': {description: Lote no encontrado}
+components:
+  securitySchemes:
+    UserBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: opaque
+      description: Token de sesión de usuario (administrador o auditor).
+    DeviceBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: opaque
+      description: Credencial del dispositivo inscrito; solo para su propio identificador.
+  schemas:
+    GalleryItemInput:
+      type: object
+      additionalProperties: false
+      required: [itemId, fileName, mediaType, sizeBytes, sha256]
+      properties:
+        itemId:
+          type: string
+          pattern: '^[A-Za-z0-9_-]{1,64}$'
+        fileName:
+          type: string
+          minLength: 1
+          maxLength: 120
+        mediaType:
+          type: string
+          enum: [image/jpeg, image/png, image/webp, image/heif, image/heic]
+        sizeBytes:
+          type: integer
+          format: int64
+          minimum: 1
+          maximum: 15728640
+        sha256:
+          type: string
+          pattern: '^[0-9a-f]{64}$'
+    GalleryBatchInput:
+      type: object
+      additionalProperties: false
+      required: [batchId, consentVersion, items]
+      properties:
+        batchId:
+          type: string
+          format: uuid
+        consentVersion:
+          const: gallery-share-1
+        items:
+          type: array
+          minItems: 1
+          maxItems: 20
+          items:
+            $ref: '#/components/schemas/GalleryItemInput'
+    GalleryItem:
+      type: object
+      additionalProperties: false
+      required: [itemId, fileName, mediaType, sizeBytes, sha256, state]
+      properties:
+        itemId:
+          type: string
+          pattern: '^[A-Za-z0-9_-]{1,64}$'
+        fileName:
+          type: string
+        mediaType:
+          type: string
+          enum: [image/jpeg, image/png, image/webp, image/heif, image/heic]
+        sizeBytes:
+          type: integer
+          format: int64
+        sha256:
+          type: string
+          pattern: '^[0-9a-f]{64}$'
+        state:
+          type: string
+          enum: [PENDING, UPLOADED]
+    GalleryBatch:
+      type: object
+      additionalProperties: false
+      required: [batchId, deviceId, itemCount, totalBytes, createdAt]
+      properties:
+        batchId: {type: string, format: uuid}
+        deviceId: {type: string, format: uuid}
+        itemCount: {type: integer, minimum: 1, maximum: 20}
+        totalBytes: {type: integer, format: int64}
+        createdAt: {type: string, format: date-time}
+        completedAt:
+          type: [string, 'null']
+          format: date-time
+    GalleryBatchDetail:
+      allOf:
+        - $ref: '#/components/schemas/GalleryBatch'
+        - type: object
+          required: [state, items]
+          properties:
+            state:
+              type: string
+              enum: [UPLOADING, READY, DELETED]
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/GalleryItem'

@@ -238,6 +238,8 @@ internal fun AgentScreen(session: AgentSession, workScope: CoroutineScope? = nul
                     if(communicationEvents.isEmpty()) Text("Sin eventos todavía",color=AuditColors.Muted)
                     communicationEvents.take(3).forEach {row->LocalEventRow(row) {selectedEvent=row}}
                     onShareText?.let {AuditButton("Compartir un texto",it,!session.busy,outlined=true)}
+                    val galleryContext = androidx.compose.ui.platform.LocalContext.current
+                    AuditButton("Compartir fotos", { galleryContext.startActivity(Intent(galleryContext, GalleryShareActivity::class.java)) }, !session.busy, outlined=true)
                     var details by rememberSaveable {mutableStateOf(false)}
                     AuditLink(if(details) "Ocultar detalles" else "Detalles y ajustes",{details=!details})
                     if(details) {
