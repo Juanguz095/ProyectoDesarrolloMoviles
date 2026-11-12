@@ -288,6 +288,7 @@ internal fun DeviceDetail(session: ControlSession, device: DeviceSummary?, scope
     if (device.isActive) AuditButton("Ver pantalla compartida", {
         context.startActivity(android.content.Intent(context, ScreenViewerActivity::class.java).putExtra("device", device.deviceId).putExtra("deviceLabel",session.deviceName(device.deviceId)))
     }, !session.busy)
+    else { AuditButton("Ver pantalla compartida", {}, enabled = false); Text("Disponible cuando el propietario activa «Compartir pantalla» en el Agente.", style = MaterialTheme.typography.bodySmall, color = AuditColors.Muted) }
     AuditButton("Ver eventos", onEvents, !session.busy)
     AuditButton("Ver fotos compartidas", onGallery, !session.busy)
     AuditButton("Ver ubicación en el mapa", onMap, !session.busy)

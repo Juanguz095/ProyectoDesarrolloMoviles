@@ -45,6 +45,11 @@ internal fun LocationMapView(session: ControlSession, device: String?, label: St
     AuditHeader("UBICACIÓN APROXIMADA", label)
     AuditLink("← Volver al dispositivo", onBack, !session.busy)
     if (device == null) { AuditEmpty("SIN EQUIPO", "Selecciona un dispositivo para ver su ubicación."); return }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    AuditButton("Ver pantalla compartida", {
+        context.startActivity(android.content.Intent(context, ScreenViewerActivity::class.java)
+            .putExtra("device", device).putExtra("deviceLabel", label))
+    }, !session.busy, outlined = true)
     LaunchedEffect(device) { session.loadLocations(device, workScope) }
     Text("Coordenadas aproximadas (~1 km). Cada lectura conserva su fecha; no es la ubicación actual.",
         style = MaterialTheme.typography.bodySmall, color = AuditColors.Muted)

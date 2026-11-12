@@ -5,3 +5,5 @@
 05:14:36 INFO  io.ktor.server.Application - Autoreload is disabled because the development mode is off.
 05:14:37 INFO  io.ktor.server.Application - Application started in 1.056 seconds.
 05:14:38 INFO  io.ktor.server.Application - Responding at http://127.0.0.1:8081
+08:14:35 WARN  com.zaxxer.hikari.pool.HikariPool - AuditLabDb - Thread starvation or clock leap detected (housekeeper delta=2h14m30s957ms305µs900ns).
+08:14:35 WARN  com.zaxxer.hikari.pool.HikariPool - AuditLabDb - Thread starvation or clock leap detected (housekeeper delta=2h14m30s957ms306µs).
