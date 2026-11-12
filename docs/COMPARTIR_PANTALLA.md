@@ -46,7 +46,7 @@ local y su rotación tienen pruebas Robolectric. MediaProjection real, cancelaci
 DETENER se aprobaron en API28. El visor mostró y retiró JPEG sintético vía API en API26.
 También se aprobó el flujo simultáneo real Agente API28 → API → Centro API26,
 incluidos 12 segundos estáticos y detención local. Pendiente Android reciente/teléfonos.
-[Informe completo](evidencias/VALIDACION-FUNCIONAL-2026-10-28.md).
+[Informe completo](HISTORICO.md).
 
 Para repetir sobre dos AVD de QA sin registros/sesiones existentes:
 

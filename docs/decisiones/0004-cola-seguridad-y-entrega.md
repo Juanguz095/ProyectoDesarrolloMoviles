@@ -1,6 +1,6 @@
 # ADR 0004 — Cola durable, ejecución Android y dependencias de la candidata
 
-Estado: adoptado para 0.2.0-rc1. Resultados y límites en [el informe](../evidencias/P5-P8-2026-10-25.md).
+Estado: adoptado para 0.2.0-rc1. Resultados y límites en [el informe](../HISTORICO.md).
 
 ## Decisiones
 

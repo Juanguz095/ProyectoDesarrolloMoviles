@@ -1,6 +1,6 @@
 # Ejecutar el MVP local
 
-El recorrido HTTP está cubierto por `python3 -m unittest discover -s backend/api/tests -v`, con datos y credenciales temporales. La [evidencia P0.1](../../docs/evidencias/P0.1-2026-10-17.md) describe resultados y límites. La construcción Android/Ktor se documenta en [desarrollo](../../docs/desarrollo.md).
+El recorrido HTTP está cubierto por `python3 -m unittest discover -s backend/api/tests -v`, con datos y credenciales temporales. La [evidencia P0.1](../../docs/HISTORICO.md) describe resultados y límites. La construcción Android/Ktor se documenta en [desarrollo](../../docs/OPERACION.md).
 
 Requiere Python 3.10 o posterior. No necesita paquetes externos.
 

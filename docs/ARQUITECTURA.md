@@ -185,7 +185,7 @@ El servidor agrega `receivedAt`. Los nombres de clases locales pueden usar
 Contratos: [principal](../contracts/openapi.yaml),
 [WhatsApp](../contracts/whatsapp-preview.openapi.yaml) y
 [pantalla](../contracts/screen-share.openapi.yaml).
-[Tablas y migraciones](base-datos.md).
+[Tablas y migraciones](OPERACION.md).
 
 ## 7. Ubicación en el repositorio
 

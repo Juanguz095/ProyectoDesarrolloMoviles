@@ -25,7 +25,7 @@ No hay números de teléfono, textos de mensajes ni datos de terceros en estos m
 
 `StorageException` transmite un fallo esperado sin texto sensible del almacenamiento. Un bug del adaptador no se oculta como una escritura satisfactoria. La revocación debe guardarse antes de intentar borrar eventos: no se revierte si falla DELETE.
 
-Los dobles en `src/test` solo almacenan datos en memoria. Sus tests verifican modelos y reglas, pero **no demuestran SQLite ni aceptación persistida**. Los adaptadores de I05/I06 están conectados a la pantalla y cuentan con pruebas instrumentadas ejecutadas; se distinguen sus resultados en [persistencia y pruebas](PERSISTENCIA_ACADEMICA.md) y [evidencia I10](evidencias/academico/I10-2026-10-22.md).
+Los dobles en `src/test` solo almacenan datos en memoria. Sus tests verifican modelos y reglas, pero **no demuestran SQLite ni aceptación persistida**. Los adaptadores de I05/I06 están conectados a la pantalla y cuentan con pruebas instrumentadas ejecutadas; se distinguen sus resultados en [persistencia y pruebas](PERSISTENCIA_ACADEMICA.md) y [evidencia I10](HISTORICO.md/I10-2026-10-22.md).
 
 ## AuditService — I03
 
@@ -65,7 +65,7 @@ python3 .tooling/academic-setup/run-gradle.py :domain:test :domain:build --no-da
 
 JUnit XML: `academic/domain/build/test-results/test`; HTML: `academic/domain/build/reports/tests/test`. Verificar número real de casos y fallos; no dar por probada la app Android por tener tests JVM satisfactorios.
 
-Suite JVM: **93 casos, 0 fallos/errores/omitidos**: ModelTest (9), RepositoryContractTest (6), AuditServiceTest (30), AuditConcurrencyTest (3), CsvReportTest (10), AcceptanceServiceTest (17), SerialOperationQueueTest (5) y ExportServiceTest (13). Las iteraciones concurrentes no se cuentan como casos adicionales. Resultados por versión en [I10](evidencias/academico/I10-2026-10-22.md); conserva las evidencias de cada incremento anterior.
+Suite JVM: **93 casos, 0 fallos/errores/omitidos**: ModelTest (9), RepositoryContractTest (6), AuditServiceTest (30), AuditConcurrencyTest (3), CsvReportTest (10), AcceptanceServiceTest (17), SerialOperationQueueTest (5) y ExportServiceTest (13). Las iteraciones concurrentes no se cuentan como casos adicionales. Resultados por versión en [I10](HISTORICO.md/I10-2026-10-22.md); conserva las evidencias de cada incremento anterior.
 
 ## CSV — I04
 
@@ -81,4 +81,4 @@ La lectura inicial de la pantalla comienza bloqueada. SQLiteAcceptanceStore conf
 
 ExportService prepara un permiso ligado al contexto vigente y revalida mediante AuditService.currentAcceptance antes de abrir el destino. Mantiene la exclusión hasta terminar write/flush/close del adaptador. Una instantánea inválida o una retirada no confirmada nunca producen un archivo satisfactorio. AuditSession añade tickets de un solo uso en memoria, invalidados al borrar/revocar; un resultado tardío no abre el documento. El selector y los streams están en app, no en domain.
 
-La pantalla distingue borrar (conserva aceptación), revocar (retirada antes de limpieza), cancelar y los dos reintentos. Su funcionamiento y la conservación tras detener el proceso se documentan en [I10](evidencias/academico/I10-2026-10-22.md). Manual de uso: [USO_ACADEMICO.md](USO_ACADEMICO.md).
+La pantalla distingue borrar (conserva aceptación), revocar (retirada antes de limpieza), cancelar y los dos reintentos. Su funcionamiento y la conservación tras detener el proceso se documentan en [I10](HISTORICO.md/I10-2026-10-22.md). Manual de uso: [USO_ACADEMICO.md](USO_ACADEMICO.md).

@@ -131,7 +131,7 @@ comprueban regresiones de programación/cola. `NativeBasicRecoveryTest` y
 real del AVD de QA, comprobando la presencia del servicio antes de abrir una actividad.
 
 Los resultados finales y las versiones Android comprobadas están en
-[evidencia de la revisión](evidencias/BASICO-0.7.5-2026-10-30.json).
+[evidencia de la revisión](HISTORICO.md).
 El resultado en un emulador no acredita fabricantes, teléfonos físicos ni todas
 las versiones Android. No se validan capturas de comunicaciones con este ensayo.
 

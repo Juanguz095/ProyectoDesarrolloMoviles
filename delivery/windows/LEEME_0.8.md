@@ -9,7 +9,7 @@ claves privadas ni bases de datos. Generarlo no autoriza publicarlo.
 
 1. Mantener Defender activo. Si bloquea el archivo, conservar el bloqueo.
 2. Extraer todo en una ruta corta, por ejemplo `C:\AuditLab`. Preparar Java21,
-   Docker Desktop con WSL2 y Tailscale según [la conexión privada](docs/PRUEBA_SIN_USB.md).
+   Docker Desktop con WSL2 y Tailscale según [la conexión privada](docs/OPERACION.md).
 3. Desde CMD, en la carpeta extraída:
 
 ```bat
@@ -41,10 +41,10 @@ No se instala en silencio ni se conceden permisos automáticamente.
 Verificar respaldo y restauración antes de migrar. Detener ordenadamente la API y
 actualizar todos los archivos del paquete. Conservar `.auditlab-windows` y los
 volúmenes Docker; no borrarlos para corregir errores. El lanzador aplica la migración
-aditiva y los permisos. [Operación y respaldo](docs/despliegue.md).
+aditiva y los permisos. [Operación y respaldo](docs/OPERACION.md).
 
 `Revisar-AuditLab.ps1` comprueba requisitos y `/ready` sin modificar el sistema.
 Los hashes del paquete están en `SHA256SUMS`; el alcance comprobado y los bloqueos
-se conservan en `manifest.json` y [el informe](docs/evidencias/ADMINISTRACION-0.8-2026-10-31.json).
+se conservan en `manifest.json` y [el informe](docs/HISTORICO.md).
 Este ZIP exige análisis Defender del archivo exacto antes de distribución. El
 resultado del ZIP0.7 anterior no valida este candidato.

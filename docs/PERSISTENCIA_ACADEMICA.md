@@ -1,6 +1,6 @@
 # Persistencia académica — I05 e I06
 
-Solo para el build `academic/`. Implementación conectada a la pantalla I07–I10, sin bibliotecas nuevas. SQLite y sus transiciones cuentan con ejecución instrumentada en Android; dispositivos, revisiones y resultados exactos se registran en [I10](evidencias/academico/I10-2026-10-22.md).
+Solo para el build `academic/`. Implementación conectada a la pantalla I07–I10, sin bibliotecas nuevas. SQLite y sus transiciones cuentan con ejecución instrumentada en Android; dispositivos, revisiones y resultados exactos se registran en [I10](HISTORICO.md/I10-2026-10-22.md).
 
 ## Esquema y conservación
 
@@ -75,8 +75,8 @@ El runner `com.auditlab.academic.tests.AuditLabTestRunner` utiliza Instrumentati
 
 La Activity es funcional hasta I10. Los tests de solo SQLite cierran/reabren el helper; no equivalen a detener el proceso. I10 añade un recorrido separado con detención/relanzamiento real, selector del sistema y comparación de IDs, documentado en su evidencia. Android puede mantener cambios confirmados en WAL: una copia fuera del proceso debe incluir DB y su archivo -wal, no copiar únicamente el DB principal y declarar pérdida de datos. No se borra WAL para conseguir un test satisfactorio.
 
-Manual de la app y recuperación de errores: [USO_ACADEMICO.md](USO_ACADEMICO.md). Evidencias históricas [I05](evidencias/academico/I05-2026-10-22.md), [I06](evidencias/academico/I06-2026-10-22.md) y verificación integrada [I10](evidencias/academico/I10-2026-10-22.md).
+Manual de la app y recuperación de errores: [USO_ACADEMICO.md](USO_ACADEMICO.md). Evidencias históricas [I05](HISTORICO.md/I05-2026-10-22.md), [I06](HISTORICO.md/I06-2026-10-22.md) y verificación integrada [I10](HISTORICO.md/I10-2026-10-22.md).
 
-I11 añade decodificación estricta de tipos INTEGER/TEXT: ni texto numérico malformado, ni REAL, ni un entero truncado pueden convertirse en un evento o aceptación válidos. Las pruebas de filas dañadas rechazan la lectura y siguen permitiendo intentar guardar una revocación nueva. [Revisión y resultados](evidencias/academico/I11-2026-10-23.md).
+I11 añade decodificación estricta de tipos INTEGER/TEXT: ni texto numérico malformado, ni REAL, ni un entero truncado pueden convertirse en un evento o aceptación válidos. Las pruebas de filas dañadas rechazan la lectura y siguen permitiendo intentar guardar una revocación nueva. [Revisión y resultados](HISTORICO.md/I11-2026-10-23.md).
 
 Para conservar datos durante la verificación, usar el [flujo I12](ENTREGA_ACADEMICA.md): instala con actualización `-r`, ejecuta Instrumentation directamente y valida 55 casos. El intento externo con extras tampoco concede aceptación ni genera eventos.

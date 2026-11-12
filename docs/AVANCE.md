@@ -4,6 +4,11 @@ Actualización: 11 de noviembre de 2026, America/Lima. Los registros anteriores 
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
+- 11 de noviembre de 2026: a petición del responsable se retiraron del repositorio la
+  carpeta de evidencias y varios documentos redundantes. Los enlaces históricos de este
+  registro apuntan a [HISTORICO](HISTORICO.md) y [OPERACION](OPERACION.md), donde vive el
+  contenido técnico consolidado.
+
 ## Galería seleccionada (M2 0.9) — 11 de noviembre de 2026 (America/Lima)
 
 - M2 del plan 0.9 implementada en Agente + servidor: selección explícita con el
@@ -69,7 +74,7 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
   usuario); consultas, visor y roles quedan pendientes de ese paso.
 - Privacidad: las capturas con contenido personal (SMS/notificaciones del
   usuario) se borraron; se conservan solo 3 imágenes de UI sin datos en
-  [recorrido-2026-11-11](evidencias/recorrido-2026-11-11/).
+  [recorrido-2026-11-11](HISTORICO.md/).
 - Pendiente: recorrido del Centro con sesión iniciada (requiere el usuario),
   visor de pantalla, recepción real de SMS con contraste de servidor y M1 del
   plan 0.9.
@@ -132,7 +137,7 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
   omitidas. Lint: 0 errores en ambas apps. Auditoría de APK correcta; contraste
   de las categorías conservado por encima de 4,5:1. Ambas APK de prueba
   preparadas localmente, sin ejecución en teléfono/emulador en esta sesión.
-  Evidencias y resultados: [EVENTOS-VISUALES-0.8.8.json](evidencias/EVENTOS-VISUALES-0.8.8.json).
+  Evidencias y resultados: [EVENTOS-VISUALES-0.8.8.json](HISTORICO.md).
   Siguiente: revisión visual en teléfono, incluidos fuentes grandes y eventos con
   texto largo; la recepción real de SMS y el visor conservan su validación pendiente.
 
@@ -152,7 +157,7 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
   omitidas. Lint: 0 errores en ambas apps; auditoría APK correcta. Contraste de
   etiquetas de categoría entre 5,49:1 y 10,35:1, por encima de 4,5:1; el texto y la
   marca seleccionada permiten distinguirlas sin depender solo del color.
-- [Resultados, paleta y hashes](evidencias/ETIQUETAS-0.8.7.json). Ambas APK de prueba
+- [Resultados, paleta y hashes](HISTORICO.md). Ambas APK de prueba
   preparadas localmente; AndroidTest compilados, sin ejecución nativa. No se
   declara validada la recepción real de SMS ni el visor por este cambio visual.
   Siguiente: revisar aspecto, selección y tamaños de texto en teléfono con 0.8.7.
@@ -171,7 +176,7 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
   aprobadas: 50 Agente +22 Centro**, sin fallos/omitidas. Lint0 errores en ambos y
   auditoría APK correcta. Instrumentación del Centro adaptada a la ruta de filtros
   y compilada, sin ejecución en teléfono/emulador. Sin cambios de servidor.
-- [Resultados y hashes](evidencias/EVENTOS-0.8.6.json). APK de prueba locales listas;
+- [Resultados y hashes](HISTORICO.md). APK de prueba locales listas;
   sin publicación binaria validada. Los APK0.8.6 incluyen también la limpieza de
   Inicio0.8.5. Siguiente: revisión visual en teléfono con estas versiones; recepción
   real de SMS y pantalla sigue con las limitaciones de las evidencias anteriores.
@@ -187,7 +192,7 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
 - Centro0.8.5-preview/código18 compilado; **22 pruebas JVM/Robolectric aprobadas**,
   sin fallos/omitidas. Lint0 errores y auditoría APK correctos. Sin nuevas pruebas
   redundantes para este cambio visual reversible. Sin ejecución en teléfono aquí.
-- APK de prueba local preparada. [Resultados y hash](evidencias/INICIO-0.8.5.json).
+- APK de prueba local preparada. [Resultados y hash](HISTORICO.md).
   Siguiente: comprobar el aspecto de Inicio instalando solo el Centro actualizado;
   las validaciones nativas de recepción/pantalla anteriores siguen pendientes.
 
@@ -216,7 +221,7 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
   original de ausencia de imagen no está confirmada sin verificar esta instalación.
   El reporte anterior de SMS sigue separado de esta corrección.
 - [Guía de pantalla](COMPARTIR_PANTALLA.md) y
-  [resultados/hashes](evidencias/VISOR-0.8.4-2026-11-04.json).
+  [resultados/hashes](HISTORICO.md).
   Siguiente: comprobar primera imagen confirmada y mismo código de equipo con los
   APK nuevos, conservando inscripción, firma, servidor y datos existentes.
 
@@ -251,8 +256,8 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
   El reporte anterior de SMS no se considera resuelto por esta simplificación.
 - APK de prueba locales preparadas, sin publicación binaria validada. No se
   subieron a Drive: la autorización anterior cubría el ZIP del servidor, no APK.
-- [Guía de la interfaz](INTERFAZ_SIMPLE_0.8.3.md) y
-  [resultados/hashes](evidencias/INTERFAZ-0.8.3-2026-11-04.json).
+- [Guía de la interfaz](HISTORICO.md) y
+  [resultados/hashes](HISTORICO.md).
   Siguiente P7: validar activación y cancelación nativas, actualizar etapas de QA
   históricas y diagnosticar la recepción real conservando datos y credenciales.
 
@@ -282,7 +287,7 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
 - Sin cambios del servidor ni Centro. APK candidata para prueba privada preparada;
   revisión automática bloqueó subirla a Drive porque la autorización anterior
   cubría el ZIP del servidor. Se solicitó autorización específica; no subida.
-- [Resultados y hash](evidencias/SEGUNDO-PLANO-0.8.2-2026-11-04.json).
+- [Resultados y hash](HISTORICO.md).
   Siguiente: recepción nativa real y diagnóstico del SMS, contrastando estado de
   sesión, permisos, cola/error de API y conservación de BD/credenciales del servidor.
 
@@ -343,7 +348,7 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
   las propuestas de ubicación puntual, diagnósticos propios y estado ampliado;
   aún no implementadas. Las evidencias históricas 0.8 no se reutilizan para este cierre.
 - [Guía](COMPARTIR_TEXTO_MANUAL_0.8.1.md), [estado](ESTADO_ACTUAL.md),
-  [evidencia, comandos y hashes](evidencias/TEXTO-MANUAL-0.8.1-2026-11-04.json).
+  [evidencia, comandos y hashes](HISTORICO.md).
   Fuente/documentación publicadas en `main` y `work`: `6d73773`, confirmado mediante
   git ls-remote tras push normal. No se publicaron binarios ni se anuncia terminado el proyecto.
 
@@ -386,7 +391,7 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
 - F1/F6: diagnóstico Windows de solo lectura y parámetro `-ReleaseCatalog` añadidos;
   no ejecutados en Windows aquí. Empaquetado0.8 exige pruebas de APK exactas y fuente
   runtime sin cambios; conserva los bloqueos de firma/piloto/antimalware.
-  [Guía](ACTUALIZACIONES_0.8.md) · [evidencia y hashes](evidencias/ADMINISTRACION-0.8-2026-10-31.json).
+  [Guía](ACTUALIZACIONES_0.8.md) · [evidencia y hashes](HISTORICO.md).
 
 | Fase | Estado real y siguiente paso |
 | --- | --- |
@@ -406,7 +411,7 @@ informe Defender del ZIP 0.7 no se reutiliza.
 - F6: candidato Windows generado desde `10811c8`, 53 393 129 bytes/653 archivos.
   CRC, todos los SHA256 de payload, APK idénticas a las probadas y nuevas guías/
   diagnóstico comprobados. Sigue **sin autorización de publicación**, sin prueba
-  Windows ni análisis Defender de este archivo. [Registro del candidato](evidencias/ENTREGA-0.8-CANDIDATO-2026-10-31.json).
+  Windows ni análisis Defender de este archivo. [Registro del candidato](HISTORICO.md).
 
 ## Estado básico visible y recuperación tras reinicio — 30 de octubre de 2026 (America/Lima)
 
@@ -430,11 +435,11 @@ informe Defender del ZIP 0.7 no se reutiliza.
 - Primer intento: preparación y arranque observados, espera dentro de instrumentación
   fallida (90 s). Se conservan logs. Comprobación final separa arranque autónomo desde
   host y reenganche del servicio para probar Detener dentro del proceso instrumentado.
-  [Evidencia y límites](evidencias/BASICO-0.7.5-2026-10-30.json).
+  [Evidencia y límites](HISTORICO.md).
 - No se valida Android13/14/15 en dispositivo, permisos de fabricantes ni ejecución
   prolongada; no se promete proceso permanente. P7.1 sigue pendiente en teléfonos.
   P8.2/P8.3: fuente `26cffcb` y APK/guía publicados en descargas `e891fbe`;
-  HTTP 200 y tamaño/SHA256 verificados. [Entrega](evidencias/ENTREGA-AGENTE-0.7.5-2026-10-30.json).
+  HTTP 200 y tamaño/SHA256 verificados. [Entrega](HISTORICO.md).
   Centro/API y ZIP Windows sin cambios.
 
 ## Corrección: vistas reales del Centro — 30 de octubre de 2026 (America/Lima)
@@ -455,7 +460,7 @@ informe Defender del ZIP 0.7 no se reutiliza.
   frames. No son textos/controles nativos editables ni existe archivo en la cuenta
   del usuario; importador no ejecutado en Figma. Se sustituye también el ZIP de la
   URL antigua. PNG, JSON, CRC y sintaxis JS comprobados, capturas revisadas visualmente.
-  [Evidencia](evidencias/CAPTURAS-CENTRO-2026-10-30.json) y
+  [Evidencia](HISTORICO.md) y
   [paquete correcto](diseno/centro-capturas-0.7.4/LEEME.md).
 - Pendiente P8.3: ventanas protegidas de WhatsApp, contenido en vivo, superficies
   del sistema y otras combinaciones no capturadas. No se afirma cobertura de todas
@@ -470,7 +475,7 @@ informe Defender del ZIP 0.7 no se reutiliza.
   reproducible `scripts/build_control_design.py`; no modifica las apps.
 - JSON/SVG XML, límites de diseño, destinos de enlaces y CRC del ZIP comprobados;
   sintaxis JS comprobada con Node y lámina revisada visualmente. Sin pruebas Android
-  por ser trabajo de documentación/diseño. [Evidencia](evidencias/FIGMA-CENTRO-2026-10-30.json).
+  por ser trabajo de documentación/diseño. [Evidencia](HISTORICO.md).
 - No hay herramienta Figma conectada: no se crea un documento en la cuenta del usuario
   ni se ejecuta el importador en Figma. Las vistas son referencias editables, no
   capturas exactas; superficies Android y diálogos se identifican como ilustrativos.
@@ -489,7 +494,7 @@ informe Defender del ZIP 0.7 no se reutiliza.
   1 test nativo aprobado en 43.877 s. Aviso con texto real Android, Centro en Home,
   contenido secreto en bloqueo, deduplicación, apertura de Eventos, detención manual,
   nueva activación y retirada al terminar sesión fuente aprobados.
-- [Evidencia](evidencias/ALERTAS-NATIVAS-0.7.4-2026-10-29.json), prueba
+- [Evidencia](HISTORICO.md), prueba
   `NativeWhatsAppAlertsTest` y runner `scripts/check_whatsapp_alerts.py`. El runner
   público incorpora la preparación usada; solo se comprueba su sintaxis/ayuda en
   esta sesión, la ejecución se realizó con el helper privado equivalente.
@@ -513,12 +518,12 @@ informe Defender del ZIP 0.7 no se reutiliza.
   Servicio no exportado, START_NOT_STICKY, sin arranque tras reinicio.
 - Compilación/lint y auditoría APK correctas. 20 pruebas aprobadas, 0 fallos/omitidas:
   15 de autenticación, 3 de política/limpieza local, 2 de nombres/archivo.
-  [Evidencia](evidencias/ALERTAS-0.7.4-2026-10-29.json).
+  [Evidencia](HISTORICO.md).
 - Sin ejecución real del servicio, avisos Android o WhatsApp en teléfonos. P7.6
   permanece pendiente. Android puede detener consultas por batería/Doze/límite dataSync.
   [Activación y límites](HISTORICO.md).
 - P8.2/P8.3: fuente `db1aba5` y APK/guía publicados en descargas `a456f3f`;
-  HTTP 200 y tamaño/SHA256 coincidentes. [Entrega](evidencias/ENTREGA-CENTRO-0.7.4-2026-10-29.json).
+  HTTP 200 y tamaño/SHA256 coincidentes. [Entrega](HISTORICO.md).
   Compatible con Agente 0.7.1/API 0.7;
   sin ZIP Windows nuevo ni cambios de contrato/BD o credenciales Firebase.
 
@@ -534,9 +539,9 @@ informe Defender del ZIP 0.7 no se reutiliza.
 - Compilación, lint y auditoría APK aprobados. Dos pruebas Robolectric aprobadas,
   sin fallos: persistencia/restauración/aislamiento por servidor y dispositivo,
   validación del nombre y estados de contacto. Sin ejecución real en teléfonos.
-  [Evidencia](evidencias/DISPOSITIVOS-0.7.3-2026-10-29.json).
+  [Evidencia](HISTORICO.md).
 - P8.2/P8.3: fuente `62dfe73` y APK/guía publicados en descargas `abda9d6`.
-  HTTP 200 y tamaño/SHA256 coincidentes. [Entrega](evidencias/ENTREGA-CENTRO-0.7.3-2026-10-29.json).
+  HTTP 200 y tamaño/SHA256 coincidentes. [Entrega](HISTORICO.md).
   Sin ZIP Windows ni Agente nuevos.
   Siguiente: verificar interfaz y restauración en los teléfonos del usuario (P7.1).
 
@@ -554,13 +559,13 @@ informe Defender del ZIP 0.7 no se reutiliza.
   siendo compatibles. No se obtiene texto de mensajes enviados dentro del chat.
 - Compilación y lint aprobados, 0 errores, 6 advertencias y 3 informativos.
   Auditoría estática del APK aprobada; firma igual a Centro 0.7.1. Evidencia:
-  [revisión 0.7.2](evidencias/WHATSAPP-EVENTOS-0.7.2-2026-10-29.json).
+  [revisión 0.7.2](HISTORICO.md).
 - Sin suites automáticas, ejecución en dispositivos ni recepción WhatsApp real
   en esta revisión. Siguiente P7.6: verificar una notificación nueva autorizada en
   los teléfonos del usuario. P8.2/P8.3: fuente publicada `96bd611`, APK y guía en
   descargas `3313366`; enlace HTTP 200, tamaño y SHA256 coincidentes. Sin ZIP Windows
   nuevo; ZIP y Agente 0.7.1 conservados sin cambios. La revisión Defender histórica
-  no cubre este APK. [Entrega](evidencias/ENTREGA-CENTRO-0.7.2-2026-10-29.json).
+  no cubre este APK. [Entrega](HISTORICO.md).
 
 ## Documentación consolidada y material PPT — 29 de octubre de 2026 (America/Lima)
 
@@ -594,12 +599,12 @@ informe Defender del ZIP 0.7 no se reutiliza.
   específicos. Se mantiene texto entrante efímero y límites sobre mensajes salientes.
 - Compilación y lint correctos (sin errores), auditoría APK correcta y firma
   igual a 0.7 en ambas apps para permitir actualizar conservando datos.
-  [Registro](evidencias/WHATSAPP-0.7.1-2026-10-29.json).
+  [Registro](HISTORICO.md).
   No se ejecutan suites automáticas ni recepción real en teléfonos en esta revisión.
   No se declara causa confirmada del dispositivo del usuario.
 - P8.2/P8.3: dos APK publicados, fuente `0dd067a`, descargas
   `042f6f1`. Ambos enlaces HTTP 200 con tamaño/SHA256 coincidentes.
-  [Entrega](evidencias/ENTREGA-0.7.1-2026-10-29.json) y
+  [Entrega](HISTORICO.md) y
   [guía](HISTORICO.md). Sin API/BD/ZIP Windows nuevos.
   Siguiente P7.6: confirmar recepción autorizada real en el teléfono.
 
@@ -614,12 +619,12 @@ informe Defender del ZIP 0.7 no se reutiliza.
 - Se levanta la suspensión de los enlaces con alcance explícito de ese análisis;
   no se declara confirmación del proveedor de falso positivo. Un bloqueo nuevo
   debe mantenerse. Se conservan informes iniciales/fallos de infraestructura.
-- [Resolución](evidencias/DEFENDER-RESOLUCION-0.7-2026-10-29.json) e
-  [informe](evidencias/DEFENDER-WINDOWS-40825372845.json). Control de publicación
+- [Resolución](HISTORICO.md) e
+  [informe](HISTORICO.md). Control de publicación
   exige evidencia reciente del ZIP exacto y rechaza exclusiones/detecciones/errores.
 - Enlaces reabiertos en descargas `a3144c0`, binarios idénticos al original.
   Tres descargas HTTP 200 con SHA256/tamaño coincidentes e informe Defender
-  público HTTP 200. [Entrega revisada](evidencias/ENTREGA-REVISADA-0.7-2026-10-29.json).
+  público HTTP 200. [Entrega revisada](HISTORICO.md).
 - Validación funcional/Windows de operación y recepción real en teléfonos sigue
   pendiente; este resultado es antimalware, separado de compilación y usabilidad.
 
@@ -634,7 +639,7 @@ informe Defender del ZIP 0.7 no se reutiliza.
   habilita automáticamente el ZIP. No modifica exclusiones/protección ni restaura
   el archivo de la PC del usuario.
 - Auditoría Trivy del runtime resuelto completada el 29/10; sin altas/críticas.
-  [Registro](evidencias/DEPENDENCIAS-2026-10-29.json). No es análisis antimalware.
+  [Registro](HISTORICO.md). No es análisis antimalware.
 - Primera ejecución Windows `40822807224` bloqueada antes del análisis: consulta
   a Defender falló con error RPC; no hay dictamen. Se prepara Windows Server 2022
   iniciando su servicio WinDefend, sin desactivar seguridad ni modificar exclusiones.
@@ -669,8 +674,8 @@ informe Defender del ZIP 0.7 no se reutiliza.
 - No se dispone de Defender, mdatp o clamscan en esta máquina. Pendiente análisis
   antimalware que identifique el miembro detectado y resolución con el proveedor.
   No se genera otro ZIP para evitar la detección ni se declara falso positivo.
-- [Informe](REVISION_DEFENDER_0.7.md) y
-  [evidencia](evidencias/DEFENDER-0.7.0-2026-10-29.json). No se modifican binarios,
+- [Informe](HISTORICO.md) y
+  [evidencia](HISTORICO.md). No se modifican binarios,
   scripts de arranque, configuración del usuario ni datos de PostgreSQL.
 
 ## Texto SMS y estabilidad de sesiones — 28 de octubre de 2026 (America/Lima)
@@ -689,13 +694,13 @@ informe Defender del ZIP 0.7 no se reutiliza.
   captura sin nueva acción local. No se amplía texto WhatsApp saliente ni historial.
 - Ambas apps/API compiladas y lint sin errores (12 avisos Agente, 6 y 2 informativos
   Centro); cuatro contratos válidos, auditoría estática APK correcta. V9 aplicada
-  a la base preservada de desarrollo. [Registro](evidencias/SMS-0.7.0-2026-10-28.json).
+  a la base preservada de desarrollo. [Registro](HISTORICO.md).
 - No se ejecutaron suites automáticas ni recepción real SMS/WhatsApp en teléfonos;
   causa del fallo reportado no reproducida. No declarar el teléfono reparado solo
   por compilación o /ready. Siguiente P7.1/P7.6: comprobar nuevos SMS y sesión real.
 - P8.2/P8.3: APK/servidor publicados con V9. Fuente `cae5f9f`, descargas `0f7752c`.
   Tres enlaces HTTP 200 con tamaño/SHA256 coincidentes; ZIP de 449 entradas
-  verificado. [Entrega](evidencias/ENTREGA-0.7.0-2026-10-28.json) y
+  verificado. [Entrega](HISTORICO.md) y
   [actualización](HISTORICO.md), conservando configuración y datos.
 
 ## Diagnóstico de sesiones detenidas — 28 de octubre de 2026 (America/Lima)
@@ -748,14 +753,14 @@ informe Defender del ZIP 0.7 no se reutiliza.
 - Compilación de ambas apps/API y lint completados (sin errores; 12 avisos Agente,
   6 avisos y 2 informativos Centro), cuatro OpenAPI válidos y auditoría de APK
   correcta. V8 aplicada a la base de desarrollo preservada; API /ready activa.
-  [Registro](evidencias/COMUNICACIONES-0.6.0-2026-10-28.json).
+  [Registro](HISTORICO.md).
 - No se ejecutaron suites automáticas ni revisión nativa de esta versión. No se
   reutilizan resultados históricos como validación de 0.6. Windows, números de
   operadores reales y recepción real de WhatsApp en teléfonos siguen pendientes.
 - P8.2/P8.3: dos APK y servidor compatibles con V8 publicados. Fuente `75630b8`,
   descargas `dbfdf62`; los tres archivos responden HTTP 200 y coinciden en tamaño
   y SHA256. ZIP de 441 entradas con integridad/contenido verificados.
-  [Entrega](evidencias/ENTREGA-0.6.0-2026-10-28.json) y [guía](HISTORICO.md).
+  [Entrega](HISTORICO.md) y [guía](HISTORICO.md).
   Siguiente P7.1/P7.6: recorrido real de permisos,
   comunicaciones, red y revocación en teléfonos autorizados.
 
@@ -778,12 +783,12 @@ informe Defender del ZIP 0.7 no se reutiliza.
 - Compilación de ambas apps/API, lint y contratos completados; V7 aplicada en el
   servidor de desarrollo conservando base/configuración. Revisión visual del
   historial autenticado en API26 confirmó tarjetas sin recorte con datos QA.
-  [Registro técnico](evidencias/ACTIVIDAD-0.5.0-2026-10-28.json). No se ejecutaron suites
+  [Registro técnico](HISTORICO.md). No se ejecutaron suites
   automáticas ni recepción desde WhatsApp instalado en esta revisión.
 - P8.2/P8.3: entrega de desarrollo publicada para actualizar las tres piezas.
   Fuente `a5b29fd` y descargas `308b9ec`; tres enlaces HTTP 200,
   tamaños/SHA256 coincidentes y ZIP de 434 entradas verificado.
-  [Guía](HISTORICO.md) y [registro](evidencias/ENTREGA-0.5.0-2026-10-28.json). `package_development.py` registra validación funcional
+  [Guía](HISTORICO.md) y [registro](HISTORICO.md). `package_development.py` registra validación funcional
   pendiente; no relaja los requisitos de `package_qa.py` o `package_preview.py`.
 - Siguiente P7.6/P7.1: verificar con notificaciones reales, respuestas directas,
   permisos, red, revocación y versiones Android. No declarar captura completa de chats.
@@ -810,7 +815,7 @@ informe Defender del ZIP 0.7 no se reutiliza.
   URL/credenciales/datos preservados. Fuente `7121d54` subida a main;
   descargas en `d8a72f7`. Ambos APK devolvieron HTTP 200 y sus
   tamaños/SHA256 coinciden con los artefactos compilados. [Guía](HISTORICO.md)
-  y [registro de publicación](evidencias/ENTREGA-0.4.1-2026-10-28.json).
+  y [registro de publicación](HISTORICO.md).
   Los resultados 197/2 AVD de 0.4.0 permanecen históricos, no acreditan 0.4.1.
 - Siguiente P7.1: validar batería/eventos entre dos dispositivos con conexión real,
   permisos denegados, fallos de red, segundo plano, filtros y cambio de páginas.
@@ -839,7 +844,7 @@ informe Defender del ZIP 0.7 no se reutiliza.
   Los tres archivos devolvieron HTTP 200 y sus tamaños/SHA256 coincidieron. ZIP con
   420 entradas y checksums verificados; fuente exacta incluida, sin datos privados.
 - [Descargas y pasos completos](HISTORICO.md) y
-  [registro de publicación](evidencias/ENTREGA-0.4.0-2026-10-29.json). P8.4: se
+  [registro de publicación](HISTORICO.md). P8.4: se
   publica la descarga de desarrollo; Windows/teléfonos/WhatsApp real y piloto HTTPS
   continúan sin verificación. El servidor no queda alojado permanentemente en GitHub.
 
@@ -868,7 +873,7 @@ informe Defender del ZIP 0.7 no se reutiliza.
   satisfactorios (0 errores, con avisos). Corregidos interoperabilidad de notificaciones,
   metadatos de auditoría, acceso a Activity y respuesta tardía al pasar al fondo.
   Dos intentos iniciales del selector nativo fallaron; se corrigieron y conservaron.
-- [Informe, comandos, resultados y hashes](evidencias/WHATSAPP-0.4.0-2026-10-29.md).
+- [Informe, comandos, resultados y hashes](HISTORICO.md).
   Fuentes sin commit/publicación en esta ampliación. No hay nuevas dependencias.
   Siguiente: instalar las tres piezas actualizadas y repetir con WhatsApp real,
   Android reciente/teléfonos y el piloto HTTPS pendiente.
@@ -880,7 +885,7 @@ informe Defender del ZIP 0.7 no se reutiliza.
 - P7.3: 10 000 eventos/CSV, 5 lectores, p95 34,5 ms. P8.1 QA: restauración de 10 tablas y 40 074 eventos, fingerprints iguales, consulta API y origen preservado.
 - Corregidos selectores nativos y verificadores documental/contractual; restauración del diálogo de captura tras recreación, sincronización de cancelación y bandera de envío entre hilos. Compilación/lint/auditoría APK finales satisfactorias; lint mantiene advertencias sin errores.
 - P5.5/P7.5: corregido el vencimiento de la imagen estática: muestreo y reenvío periódico del último cuadro en RAM, regresión de 12 segundos y comprobación del contenido real en el Centro. También se corrigió el título de actividad en ancho reducido. Ambos APK compilan, 30 pruebas del Agente y lint aprobados tras los ajustes.
-- [Informe y límites](evidencias/VALIDACION-FUNCIONAL-2026-10-28.md). No se ejecutó WhatsApp independiente, Android reciente, teléfonos o despliegue Windows/HTTPS público. No se cierran esas entregas como aprobadas.
+- [Informe y límites](HISTORICO.md). No se ejecutó WhatsApp independiente, Android reciente, teléfonos o despliegue Windows/HTTPS público. No se cierran esas entregas como aprobadas.
 
 ## Ampliación: compartir pantalla — 28 de octubre de 2026
 
@@ -927,14 +932,14 @@ informe Defender del ZIP 0.7 no se reutiliza.
 - Captura real: prueba adicional del agente aprobada en API28 con cinco eventos
   reales emulados (SMS recibido/enviado, llamada perdida/saliente y estado), API,
   CSV, deduplicación y retirada. No equivale a una prueba en teléfonos físicos.
-- [Evidencia y hashes](evidencias/REDISENO-0.3.1-2026-10-28.json).
+- [Evidencia y hashes](HISTORICO.md).
   Permanecen pendientes Android reciente/teléfonos, revisión visual física, HTTPS
   operativo, firma de distribución del responsable y piloto.
 
 ## Conexión sin USB — preparación
 
 - Solicitud posterior: el usuario no quiere depender de cables USB.
-- P8.3: preparada [guía sin USB](PRUEBA_SIN_USB.md) con Tailscale Serve privado y
+- P8.3: preparada [guía sin USB](OPERACION.md) con Tailscale Serve privado y
   HTTPS hacia el servidor Windows en loopback. Puede funcionar en el mismo Wi-Fi
   o en redes diferentes; requiere instalar/conectar Tailscale en los tres equipos.
 - No se modifican APKs, confianza TLS, listeners, base ni dependencias del proyecto.
@@ -968,7 +973,7 @@ Los cierres y 278 casos de 0.2 que siguen más abajo son históricos.
   consulta API, CSV, deduplicación y revocación. Se contrastaron los hashes del APK
   de agente y de instrumentación instalados contra los archivos finales. La nueva
   prueba de UI del Centro comprueba el título «SMS enviado» y la marca «Real».
-  [Informe y límites](evidencias/CAPTURA-REAL-0.3.0-2026-10-27.md).
+  [Informe y límites](HISTORICO.md).
   Primer
   intento bloqueado por espacio; resuelto con copia de imagen base inicializada sin
   copiar ni modificar overlays de datos anteriores. Un fallo del orquestador no reconocía
@@ -991,7 +996,7 @@ en V3, junto con las repeticiones satisfactorias. El entorno se desconectó brev
 los cambios se conservaron y se verificó el estado antes de continuar.
 
 Entrega: actualizados Agente/Centro/servidor 0.3, ZIP vinculado al recorrido nativo final,
-fuentes y guía Windows. [Registro de publicación y descargas](evidencias/ENTREGA-0.3.0-2026-10-27.json).
+fuentes y guía Windows. [Registro de publicación y descargas](HISTORICO.md).
 Emulador propio sincronizado/detenido con identidad de proceso verificada; archivo de
 entrada privado eliminado, imágenes/bases conservadas y fixture API disponible.
 Siguiente: actualizar los tres componentes en Windows y probar los permisos/captura en
@@ -999,9 +1004,9 @@ los teléfonos propios. No declarar funciones físicas validadas por JVM, API o 
 
 ## Alcance actual de la solicitud
 
-**Producto activo: agente Android + centro Android + API Ktor/PostgreSQL.** Candidata **0.2.0-rc1**, código funcional `1dcdf5f` e instrumentación `ed8f3ef`. P4–P6 implementadas y comprobadas con actividades reales: agente API28 y centro API26, Room/Keystore/WorkManager, notificaciones, consulta cruzada, CSV/rotación, auditor y retirada local/remota. La secuencia final de 17 pasos pasó sobre las APKs actuales, con hashes comprobados contra las instaladas. [Resultados/hashes actuales](evidencias/artefactos-0.2.0-rc1-2026-10-26.json).
+**Producto activo: agente Android + centro Android + API Ktor/PostgreSQL.** Candidata **0.2.0-rc1**, código funcional `1dcdf5f` e instrumentación `ed8f3ef`. P4–P6 implementadas y comprobadas con actividades reales: agente API28 y centro API26, Room/Keystore/WorkManager, notificaciones, consulta cruzada, CSV/rotación, auditor y retirada local/remota. La secuencia final de 17 pasos pasó sobre las APKs actuales, con hashes comprobados contra las instaladas. [Resultados/hashes actuales](HISTORICO.md).
 
-Última repetición: **278 casos aprobados**, incluidos los 17 pasos nativos completos sobre las APKs actuales, tras añadir quince regresiones de recuperación/empaquetado. [Informe del 26 de octubre](evidencias/P7-P8-2026-10-26.md). Ver [manual del producto](MANUAL_PRODUCTO.md), [informe anterior](evidencias/P5-P8-2026-10-25.md), [entorno reproducible y paquete](PRUEBAS_INTEGRADAS.md) y [plan maestro](PLAN_MAESTRO.md).
+Última repetición: **278 casos aprobados**, incluidos los 17 pasos nativos completos sobre las APKs actuales, tras añadir quince regresiones de recuperación/empaquetado. [Informe del 26 de octubre](HISTORICO.md). Ver [manual del producto](MANUAL_PRODUCTO.md), [informe anterior](HISTORICO.md), [entorno reproducible y paquete](OPERACION.md) y [plan maestro](PLAN_MAESTRO.md).
 
 La app `academic/` permanece como entrega local I01–I12, sin cambios en esta ampliación. Sus pruebas y publicaciones históricas no sustituyen las del producto completo. [Entrega académica](ENTREGA_ACADEMICA.md), [avance académico](AVANCE_ACADEMICO.md).
 
@@ -1035,39 +1040,39 @@ La app `academic/` permanece como entrega local I01–I12, sin cambios en esta a
 
 | Tarea | Estado | Entregable / evidencia | Resultado, bloqueo y siguiente acción |
 | --- | --- | --- | --- |
-| P0.1 | verificada | [Evidencia](evidencias/P0.1-2026-10-17.md) | Fallos reproducidos/corregidos y límites del prototipo registrados. |
-| P0.2 | verificada | [Evidencia](evidencias/P0.2-2026-10-17.md), [desarrollo](desarrollo.md). | Toolchain completo, PostgreSQL y compilación nativa comprobados. |
-| P0.3 | verificada | [Evidencia](evidencias/P0.3-2026-10-17.md). | Ejecución alojada [40150599234](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/actions/runs/40150599234): 3 de 3 trabajos en verde, incluida la auditoría de APK. |
-| P1.1 | verificada | [Evidencia fase 1](evidencias/P1-2026-10-17.md), [requisitos](HISTORICO.md). | Datos, alcance, acceso, retención y límites definidos. |
-| P1.2 | verificada | [Estados](HISTORICO.md), [evidencia](evidencias/P1-2026-10-17.md). | Flujos positivos/negativos y revocación offline definidos. |
-| P1.3 | verificada | [Historias](HISTORICO.md), [evidencia](evidencias/P1-2026-10-17.md). | 12 historias relacionadas con los 15 criterios, sin declarar aceptación funcional. |
-| P2.1 | verificada | [Evidencia](evidencias/P0.2-2026-10-17.md), [ADR](decisiones/0001-estructura-y-herramientas.md). | Dos bases Android y Ktor compiladas; prototipo conservado. |
-| P2.2 | verificada | [Evidencia](evidencias/P2.2-2026-10-17.md), [contrato](contrato.md). | OpenAPI 0.2 y 49 pruebas de contrato aprobadas. Prototipo 0.1 conservado. |
-| P2.3 | verificada | [Evidencia](evidencias/P2.3-2026-10-17.md), [BD](base-datos.md). | Flyway repetible, bootstrap Argon2id, permisos y disponibilidad; 5 unitarios + 15 PostgreSQL satisfactorios. |
-| P3.1 | verificada | [Evidencia](evidencias/P3.1-2026-10-17.md), [autenticación](autenticacion.md). | Login/refresh/logout, roles, límites, auditoría y concurrencia; 8 unitarios + 31 integración aprobados. |
-| P3.2 | verificada | [Evidencia P3.2–P3.6](evidencias/P3.2-P3.6-2026-10-24.md). | Código de un uso con consumo atómico, consentimiento versionado, credencial opaca con hash; doble inscripción concurrente y roles probados. |
-| P3.3 | verificada | [Evidencia P3.2–P3.6](evidencias/P3.2-P3.6-2026-10-24.md). | Ingesta por lotes atómica, límites, solo eventos simulados, idempotencia y conflicto de contenido probados. |
-| P3.4 | verificada | [Evidencia P3.2–P3.6](evidencias/P3.2-P3.6-2026-10-24.md). | Filtros, cursores ligados a actor/filtros, detalle, CSV con límite y auditoría de consultas probados. |
-| P3.5 | verificada | [Evidencia P3.2–P3.6](evidencias/P3.2-P3.6-2026-10-24.md). | Revocación remota y local, bloqueo inmediato de escrituras, auditoría y retención programada con cuenta de mantenimiento. |
-| P3.6 | verificada | [Evidencia P3.2–P3.6](evidencias/P3.2-P3.6-2026-10-24.md), [despliegue](despliegue.md). | Reinicio conserva datos, `/ready` 503 sin BD, retención CLI 0, secretos ausentes del registro y guía HTTPS. |
-| P4.1 | verificada en API28 | [Informe](evidencias/P5-P8-2026-10-25.md). | Consentimiento, código, inscripción real, credencial Keystore y evento contrastado en API/PostgreSQL. |
-| P4.2 | verificada con centro API26 | [Informe](evidencias/P5-P8-2026-10-25.md). | Una segunda app consulta el ID enviado por el agente, detalle y auditoría. |
-| P4.3 | verificada en ambos sentidos | [Informe](evidencias/P5-P8-2026-10-25.md). | Revocación remota, rechazo posterior, retirada offline, proceso reiniciado y confirmación al volver red. |
-| P5.1–P5.4 | implementadas y verificadas en QA | [Informe](evidencias/P5-P8-2026-10-25.md). | Room/migración/capacidad/retención, WorkManager real, indicador/ajustes, Keystore, pausa durable y retirada por generación sin intervención manual. |
-| P6.1–P6.4 | implementadas y verificadas en QA | [Informe](evidencias/P5-P8-2026-10-25.md), [manual](MANUAL_PRODUCTO.md). | Login/roles/reinicio, filtros/detalle/auditoría, CSV por URI real, cancelación/rotación y confirmaciones con texto al 150 %. Lector de pantalla no ejecutado. |
-| P7.1/P7.2 | matriz QA aprobada; Android reciente/físico pendiente | [Matriz](evidencias/P5-P8-2026-10-25.md). | Negativos/concurrencia/almacenamiento, contrato, sesiones y recorridos nativos; no aprobación de plataformas no ejecutadas. |
-| P7.3 | verificada en QA local | [Medición](evidencias/P5-P8-2026-10-25.md). | 10 000 eventos; cinco lectores, 100 consultas, p95 34,68 ms; CSV y páginas comparados por ID. |
-| P7.4 | revisada en el alcance QA registrado | [Seguridad](evidencias/P5-P8-2026-10-25.md). | Permisos/artefactos/backup/logs/cifrado/TLS Android; 156 dependencias runtime identificadas, 0 hallazgos. Configuración real, SO/JDK y herramientas fuera de ese scan. |
-| P8.1 | restauración QA verificada; HTTPS de piloto pendiente | [Despliegue](despliegue.md), [informe](evidencias/P5-P8-2026-10-25.md). | Base nueva idéntica en diez tablas/20 022 eventos y API contra la copia. TLS QA validado desde Android con confianza explícita solo en la prueba. |
+| P0.1 | verificada | [Evidencia](HISTORICO.md) | Fallos reproducidos/corregidos y límites del prototipo registrados. |
+| P0.2 | verificada | [Evidencia](HISTORICO.md), [desarrollo](OPERACION.md). | Toolchain completo, PostgreSQL y compilación nativa comprobados. |
+| P0.3 | verificada | [Evidencia](HISTORICO.md). | Ejecución alojada [40150599234](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/actions/runs/40150599234): 3 de 3 trabajos en verde, incluida la auditoría de APK. |
+| P1.1 | verificada | [Evidencia fase 1](HISTORICO.md), [requisitos](HISTORICO.md). | Datos, alcance, acceso, retención y límites definidos. |
+| P1.2 | verificada | [Estados](HISTORICO.md), [evidencia](HISTORICO.md). | Flujos positivos/negativos y revocación offline definidos. |
+| P1.3 | verificada | [Historias](HISTORICO.md), [evidencia](HISTORICO.md). | 12 historias relacionadas con los 15 criterios, sin declarar aceptación funcional. |
+| P2.1 | verificada | [Evidencia](HISTORICO.md), [ADR](decisiones/0001-estructura-y-herramientas.md). | Dos bases Android y Ktor compiladas; prototipo conservado. |
+| P2.2 | verificada | [Evidencia](HISTORICO.md), [contrato](OPERACION.md). | OpenAPI 0.2 y 49 pruebas de contrato aprobadas. Prototipo 0.1 conservado. |
+| P2.3 | verificada | [Evidencia](HISTORICO.md), [BD](OPERACION.md). | Flyway repetible, bootstrap Argon2id, permisos y disponibilidad; 5 unitarios + 15 PostgreSQL satisfactorios. |
+| P3.1 | verificada | [Evidencia](HISTORICO.md), [autenticación](OPERACION.md). | Login/refresh/logout, roles, límites, auditoría y concurrencia; 8 unitarios + 31 integración aprobados. |
+| P3.2 | verificada | [Evidencia P3.2–P3.6](HISTORICO.md). | Código de un uso con consumo atómico, consentimiento versionado, credencial opaca con hash; doble inscripción concurrente y roles probados. |
+| P3.3 | verificada | [Evidencia P3.2–P3.6](HISTORICO.md). | Ingesta por lotes atómica, límites, solo eventos simulados, idempotencia y conflicto de contenido probados. |
+| P3.4 | verificada | [Evidencia P3.2–P3.6](HISTORICO.md). | Filtros, cursores ligados a actor/filtros, detalle, CSV con límite y auditoría de consultas probados. |
+| P3.5 | verificada | [Evidencia P3.2–P3.6](HISTORICO.md). | Revocación remota y local, bloqueo inmediato de escrituras, auditoría y retención programada con cuenta de mantenimiento. |
+| P3.6 | verificada | [Evidencia P3.2–P3.6](HISTORICO.md), [despliegue](OPERACION.md). | Reinicio conserva datos, `/ready` 503 sin BD, retención CLI 0, secretos ausentes del registro y guía HTTPS. |
+| P4.1 | verificada en API28 | [Informe](HISTORICO.md). | Consentimiento, código, inscripción real, credencial Keystore y evento contrastado en API/PostgreSQL. |
+| P4.2 | verificada con centro API26 | [Informe](HISTORICO.md). | Una segunda app consulta el ID enviado por el agente, detalle y auditoría. |
+| P4.3 | verificada en ambos sentidos | [Informe](HISTORICO.md). | Revocación remota, rechazo posterior, retirada offline, proceso reiniciado y confirmación al volver red. |
+| P5.1–P5.4 | implementadas y verificadas en QA | [Informe](HISTORICO.md). | Room/migración/capacidad/retención, WorkManager real, indicador/ajustes, Keystore, pausa durable y retirada por generación sin intervención manual. |
+| P6.1–P6.4 | implementadas y verificadas en QA | [Informe](HISTORICO.md), [manual](MANUAL_PRODUCTO.md). | Login/roles/reinicio, filtros/detalle/auditoría, CSV por URI real, cancelación/rotación y confirmaciones con texto al 150 %. Lector de pantalla no ejecutado. |
+| P7.1/P7.2 | matriz QA aprobada; Android reciente/físico pendiente | [Matriz](HISTORICO.md). | Negativos/concurrencia/almacenamiento, contrato, sesiones y recorridos nativos; no aprobación de plataformas no ejecutadas. |
+| P7.3 | verificada en QA local | [Medición](HISTORICO.md). | 10 000 eventos; cinco lectores, 100 consultas, p95 34,68 ms; CSV y páginas comparados por ID. |
+| P7.4 | revisada en el alcance QA registrado | [Seguridad](HISTORICO.md). | Permisos/artefactos/backup/logs/cifrado/TLS Android; 156 dependencias runtime identificadas, 0 hallazgos. Configuración real, SO/JDK y herramientas fuera de ese scan. |
+| P8.1 | restauración QA verificada; HTTPS de piloto pendiente | [Despliegue](OPERACION.md), [informe](HISTORICO.md). | Base nueva idéntica en diez tablas/20 022 eventos y API contra la copia. TLS QA validado desde Android con confianza explícita solo en la prueba. |
 | P8.2 | builds/instalación QA comprobados; distribución pendiente | [Manual](MANUAL_PRODUCTO.md). | Debug instaladas en dos emuladores; release no depurables auditadas con firma QA. Falta clave del responsable e instalación en teléfonos de entrega. |
-| P8.3 | manual e informe preparados | [Manual](MANUAL_PRODUCTO.md), [matriz](evidencias/P5-P8-2026-10-25.md). | Procedimientos reproducidos aquí; repetición independiente por un tercero aún no realizada. |
+| P8.3 | manual e informe preparados | [Manual](MANUAL_PRODUCTO.md), [matriz](HISTORICO.md). | Procedimientos reproducidos aquí; repetición independiente por un tercero aún no realizada. |
 | P8.4 | pendiente | [Plan](PLAN_MAESTRO.md). | No hay despliegue/piloto acreditado; requiere URL, acceso, autorización y responsable operativo. |
 
 ## Bitácora de sesiones
 
 ### 27 de octubre de 2026 UTC — Guia Windows para dos celulares por USB
 
-- P8.3: preparada [guia paso a paso para Windows](PRUEBA_WINDOWS_USB.md), con Docker Desktop/Java21, API precompilada y `adb reverse` individual para dos celulares propios. URL local en ambos: `http://127.0.0.1:8081`; no requiere tunel publico ni cambia la politica TLS fuera de loopback.
+- P8.3: preparada [guia paso a paso para Windows](OPERACION.md), con Docker Desktop/Java21, API precompilada y `adb reverse` individual para dos celulares propios. URL local en ambos: `http://127.0.0.1:8081`; no requiere tunel publico ni cambia la politica TLS fuera de loopback.
 - Preparado paquete descargable `AuditLab-Windows-USB.zip` con asistente PowerShell de arranque. Genera configuracion privada, cuentas separadas, contenedor/volumen propios y conserva los datos; exige identidad del recurso antes de reutilizarlo. El usuario elige la contrasena de admin. Las APKs y la distribucion API mantienen los bytes de la entrega anterior.
 - Comprobacion de contenido/CRC/checksums y correspondencia de APKs; sin ejecucion del asistente en Windows, PowerShell disponible o telefonos fisicos en este host Linux. No se suman pruebas ni se cierran P7.1/P8.2/P8.4 por preparar la guia. Sin push, despliegue ni publicacion.
 - Publicacion posterior autorizada por el usuario: subida la rama de descargas [descargas-auditlab](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/tree/descargas-auditlab), commit `e3ab29074781ae9b9fe02cb925d1e2c2f673eaf2`, con las dos APKs, servidor Windows, README y SHA256SUMS. Los tres enlaces HTTPS de descarga devolvieron 200 y los archivos descargados coinciden por SHA256 con los preparados. Se publica la entrega de archivos; el piloto operativo sigue pendiente. Los enlaces internos del chat no funcionaron para el usuario. Evidencia local: `.tooling/download-link-check/summary.json`.
@@ -1078,9 +1083,9 @@ La app `academic/` permanece como entrega local I01–I12, sin cambios en esta a
 - 261 casos host finales y 17 nativos: **278 aprobados**. Build forzado de 279 tareas, debug/release/instrumentación, lint 0 errores; 53 PostgreSQL, HTTPS/contrato, carga p95 30,65 ms y restauración de 30 032 eventos aprobados. Runtime: 156 módulos/0 hallazgos en la base de avisos del 26 de octubre.
 - Corregida la suposición de 100 filas en la restauración y añadidas comprobaciones de permisos/retención recuperados. Nuevo empaquetador con APKs/API/manuales/código, checksums y verificación de los hashes instalados; quince regresiones nuevas aprobadas.
 - Comprobadas restauraciones reales de 0 y 3 eventos. La entrega académica conservada aprobó también sus 131 casos host, builds/políticas y lint 0; su Android no se repitió. Datos académicos intactos y ambos emuladores propios detenidos, sin borrar AVDs/bases.
-- Paquete extraído: checksums y exclusión de credenciales comprobados, API del ZIP probada por HTTPS contra una copia QA y código incluido reconstruido en 52,88 s (80 tareas). El primer verificador se invocó con Python sin Requests; la repetición con el `.venv` fijado pasó. [Manifiesto](evidencias/artefactos-0.2.0-rc1-2026-10-26.json).
+- Paquete extraído: checksums y exclusión de credenciales comprobados, API del ZIP probada por HTTPS contra una copia QA y código incluido reconstruido en 52,88 s (80 tareas). El primer verificador se invocó con Python sin Requests; la repetición con el `.venv` fijado pasó. [Manifiesto](HISTORICO.md).
 - El usuario confirmó que no tiene servidor/dominio, clave de firma de distribución ni teléfonos. P7.1/P8.1/P8.2/P8.4 conservan sus requisitos externos; no se declara cerrado el piloto. P8.3 mantiene pendiente la repetición independiente por un tercero.
-- Sin push, despliegue ni publicación del entorno. [Informe y comandos](evidencias/P7-P8-2026-10-26.md), [paquete de desarrollo](PRUEBAS_INTEGRADAS.md#paquete-instalable-de-qa).
+- Sin push, despliegue ni publicación del entorno. [Informe y comandos](HISTORICO.md), [paquete de desarrollo](OPERACION.md#paquete-instalable-de-qa).
 - **Siguiente tarea externa:** P7.1 en Android reciente/teléfonos y P8.1/P8.2/P8.4 al disponer de recursos. La entrega local cuenta con las comprobaciones de paquete y recuperación adicionales registradas en el informe.
 
 ### 25 de octubre de 2026, Lima (26 UTC) — MVP completo y aceptación QA
@@ -1091,22 +1096,22 @@ La app `academic/` permanece como entrega local I01–I12, sin cambios en esta a
 - Compilación limpia debug/release/AndroidTest/Ktor y lint 0 errores; firma release QA comprobada, sin clave de distribución del responsable. Las APKs actuales coinciden por SHA256 con las instaladas en la secuencia nativa final.
 - Conservadas fuentes y datos académicos (dump antes/después idéntico), AVDs y volúmenes. Solo se detuvieron procesos propios y se retiraron entradas temporales de las pruebas. API/BD QA listas en loopback.
 - Código en commits locales `1dcdf5f` y `ed8f3ef`; sin push, CI alojada nueva, despliegue o publicación del entorno. Instalador/arranque guardados en borrador y comprobados en esta instancia.
-- **Siguiente tarea:** P7.1 en Android reciente/teléfonos; después P8.1/P8.2/P8.4 con URL/acceso, certificado, firma y autorización del responsable. P8.3 tiene manual/informe; repetición independiente pendiente. [Informe](evidencias/P5-P8-2026-10-25.md), [manual](MANUAL_PRODUCTO.md), [hashes](evidencias/artefactos-0.2.0-rc1.json).
+- **Siguiente tarea:** P7.1 en Android reciente/teléfonos; después P8.1/P8.2/P8.4 con URL/acceso, certificado, firma y autorización del responsable. P8.3 tiene manual/informe; repetición independiente pendiente. [Informe](HISTORICO.md), [manual](MANUAL_PRODUCTO.md), [hashes](HISTORICO.md).
 
 ### 25 de octubre de 2026 UTC — implementación P5/P6 y verificaciones P7/P8
 
 - Solicitud de completar el proyecto y realizar todas las pruebas posibles: implementadas las funciones del agente y del centro descritas arriba, manteniendo API/contrato y app académica.
 - Corregidos fallos de cola/ACK, retirada offline/concurrente, sesión con rol renovado, origen de credenciales, errores de cifrado/almacenamiento, exportación fallida y conservación de contraseña en formulario.
 - Nuevas pruebas y regresiones: 63 comunes, 18 agente/7 centro JVM, 53 PostgreSQL; contrato 49, prototipo 16 + 2 Node; HTTPS/contrato real aprobados. Debug/release construidos, lint 0 errores; release sin firma de distribución.
-- P7.3 cumplida en QA local. Restauración real en BD nueva comprobada; corregida propiedad de tablas para aplicar grants. [Evidencia y comandos](evidencias/P5-P8-2026-10-25.md).
+- P7.3 cumplida en QA local. Restauración real en BD nueva comprobada; corregida propiedad de tablas para aplicar grants. [Evidencia y comandos](HISTORICO.md).
 - API28 inicia sin borrar datos; recorrido nativo en curso. P4 y aceptación final siguen pendientes hasta contar con evidencia propia. Sin push/despliegue/publicación en esta sesión.
 
 ### 25 de octubre de 2026 UTC — pull, recuperación del fixture e intento API30
 
 - Pull solicitado por el usuario: incorporados `b3d90b7`…`a17dffd` sin reescribir commits y conservando `9c62c7e`. Conflicto de `docs/AVANCE.md` resuelto con ambos historiales y estado actual; merge `5b263ba`. La API de GitHub Actions devolvió `Forbidden` al reconsultarla.
-- Nuevo `scripts/local_fixture.py`: PostgreSQL con volumen propio y secretos/certificados bajo `.tooling/integration-fixture`, fuera de `/tmp`; venv existente validado contra el lock. API reiniciada sin cambios en dispositivos/eventos. [Guía](PRUEBAS_INTEGRADAS.md).
+- Nuevo `scripts/local_fixture.py`: PostgreSQL con volumen propio y secretos/certificados bajo `.tooling/integration-fixture`, fuera de `/tmp`; venv existente validado contra el lock. API reiniciada sin cambios en dispositivos/eventos. [Guía](OPERACION.md).
 - Corregidos configuración de home/proxy/CA de las JVM hijas, selección explícita de CA en Requests, aislamiento de mantenimiento/TLS en el chequeo PostgreSQL y rutas temporales. Resultado: 8 unitarias, 53 integración, 23 comunes, 7 UI JVM, 3 humo HTTPS, contrato 23 respuestas y auditoría de ambos APK aprobados.
-- Imagen API30/AVDs de 2 GiB: ambos completaron boot. El agente abrió detrás de ANR de System UI; la repetición con un solo AVD también mostró el bloqueo. Intentos, rechazos por espacio, recuperación de lock zombie y capturas conservados. P4 no se cierra. [Evidencia](evidencias/P4-2026-10-25.md).
+- Imagen API30/AVDs de 2 GiB: ambos completaron boot. El agente abrió detrás de ANR de System UI; la repetición con un solo AVD también mostró el bloqueo. Intentos, rechazos por espacio, recuperación de lock zombie y capturas conservados. P4 no se cierra. [Evidencia](HISTORICO.md).
 - AVDs/datos conservados, emuladores propios detenidos; fixture API/BD disponible en loopback. Próximo desarrollo independiente P5.1; ejecución Android, entrega firmada y piloto con sus requisitos pendientes.
 
 ### 24 de octubre de 2026 UTC — verificación de funcionamiento (5 vías)
@@ -1119,15 +1124,15 @@ La app `academic/` permanece como entrega local I01–I12, sin cambios en esta a
 - **UI con Robolectric** (`AgentScreenTest` 4, `ControlScreenTest` 3): 7 pruebas, 0 fallos. Cubren consentimiento, inscripción, evento, revocación remota y local, roles admin/auditor y consulta de eventos. Hallazgo: con la pantalla por defecto (320×470 dp) las pulsaciones no llegaban a los botones; corregido con `w411dp-h891dp` y `performScrollTo()`.
 - **Suite completa desde base vacía**: 8 unitarias y 53 de integración PostgreSQL, 0 fallos; 23 pruebas JVM de `apps/common`; lint 0 errores y 7 avisos por app (versiones disponibles y `UseKtx`); contrato 49 pruebas; prototipo 16 pruebas; documentación válida.
 - **Publicación y CI**: con autorización explícita se publicaron los tres commits en `main` (`b3d90b7`, `c72c367`, `e918fed`) y la CI alojada pasó entera en [40150599234](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/actions/runs/40150599234), cerrando P0.3. Antes hubo dos fallos reales de CI: `sdkmanager` fuera del `PATH`, la prueba de retención del prototipo leyendo antes del commit y `check_apk.py` usando `/tmp/opencode`; los tres se corrigieron.
-- **Límites**: no se ejecutó el APK en emulador ni dispositivo (sin `/dev/kvm`, imagen ni teléfono), así que P4.1–P4.3 siguen sin validar en dispositivo. Evidencia: [verificación](evidencias/verificacion-2026-10-24.md).
+- **Límites**: no se ejecutó el APK en emulador ni dispositivo (sin `/dev/kvm`, imagen ni teléfono), así que P4.1–P4.3 siguen sin validar en dispositivo. Evidencia: [verificación](HISTORICO.md).
 - Siguiente tarea: **P4.1–P4.3 en un emulador o dispositivo compatible**.
 
 ### 24 de octubre de 2026 UTC — fase 3 verificada y fase 4 implementada
 
 - Solicitud «sigue el avance y haz 3 fases asegurándote de que todo funciona bien»: se corrigió el prototipo y el workflow de CI, se completó la API definitiva (P3.2–P3.6) y se implementó el primer recorrido Android (P4.1–P4.3).
 - **P0.3 (local):** la CI estaba en rojo por `sdkmanager` fuera del PATH y por una prueba de retención del prototipo que leía antes del commit. Se corrigieron ambos, se actualizaron las actions y se añadió `:apps:common:test` al job nativo. **Sigue bloqueada** la verificación alojada: no se hizo `push`.
-- **P3:** código de un uso con consumo atómico, consentimiento versionado, credencial opaca con hash, ingesta idempotente por lotes, consultas con cursores ligados a actor/filtros, CSV con límite, revocación y retención con cuenta de mantenimiento. 8 unitarios y **47 integración PostgreSQL, 0 fallos**; comprobación manual de reinicio, `/ready` 503, retención CLI y ausencia de secretos. [Evidencia](evidencias/P3.2-P3.6-2026-10-24.md), [despliegue](despliegue.md).
-- **P4:** módulo `apps/common` (cliente HTTP y lógica), agente y centro Compose, credencial/sesión cifradas con Android Keystore, TLS obligatorio fuera de loopback y revocación en ambos sentidos. **23 pruebas JVM y 3 de humo contra Ktor/PostgreSQL reales**, 0 fallos; ambos APK compilan y lint da 0 errores. **No se ejecutaron en emulador ni dispositivo** (sin `/dev/kvm` ni imagen de sistema), por lo que P4 no se declara validada. [Evidencia](evidencias/P4-2026-10-24.md).
+- **P3:** código de un uso con consumo atómico, consentimiento versionado, credencial opaca con hash, ingesta idempotente por lotes, consultas con cursores ligados a actor/filtros, CSV con límite, revocación y retención con cuenta de mantenimiento. 8 unitarios y **47 integración PostgreSQL, 0 fallos**; comprobación manual de reinicio, `/ready` 503, retención CLI y ausencia de secretos. [Evidencia](HISTORICO.md), [despliegue](OPERACION.md).
+- **P4:** módulo `apps/common` (cliente HTTP y lógica), agente y centro Compose, credencial/sesión cifradas con Android Keystore, TLS obligatorio fuera de loopback y revocación en ambos sentidos. **23 pruebas JVM y 3 de humo contra Ktor/PostgreSQL reales**, 0 fallos; ambos APK compilan y lint da 0 errores. **No se ejecutaron en emulador ni dispositivo** (sin `/dev/kvm` ni imagen de sistema), por lo que P4 no se declara validada. [Evidencia](HISTORICO.md).
 - Sin despliegue, HTTPS de piloto ni validación Android. Próxima tarea: ejecutar P4.1–P4.3 en un emulador o dispositivo compatible.
 
 ### 24 de octubre de 2026 UTC — aclaración y restitución del alcance completo
@@ -1144,74 +1149,74 @@ La app `academic/` permanece como entrega local I01–I12, sin cambios en esta a
 
 ### 23 de octubre de 2026 UTC — comprobación en dos emuladores
 
-- Solicitud «Pruébalo con dos emuladores»: 55/55 Android8/API26 y repetición 55/55 Android9/API28; cero fallos, errores u omitidos. Misma APK y árbol fuente que I12, sin cambios de dependencias ni aserciones. Volcado normal API28 idéntico antes/después; API26 AVD nuevo. [Evidencia](evidencias/academico/DOS-EMULADORES-2026-10-23.md).
+- Solicitud «Pruébalo con dos emuladores»: 55/55 Android8/API26 y repetición 55/55 Android9/API28; cero fallos, errores u omitidos. Misma APK y árbol fuente que I12, sin cambios de dependencias ni aserciones. Volcado normal API28 idéntico antes/después; API26 AVD nuevo. [Evidencia](HISTORICO.md/DOS-EMULADORES-2026-10-23.md).
 - Intentos preparatorios y cuarto intento API36 conservados con sus límites: watchdog del sistema antes de instalar la app; interrupción deliberada durante instalación, sin pruebas de la app ejecutadas. Pendientes API36 estable, teléfono físico, IDE y rúbrica. Fase 2 no iniciada.
 
 ### 23 de octubre de 2026 UTC — I12 académico
 
 - Final 0.1.0-i12/12 con 55 Android API28, 93 JVM, 15 SQL y 23 herramientas aprobadas; lint debug/release 0 y firmas/políticas verificadas. Nueve checks reales incluidos rotación del selector, proceso detenido y fallo de DELETE/reintento persistente. Original de fixture restaurado; CSVs anteriores conservados.
-- Herramienta de entrega corregida para XML agrupado e instalación que conserva datos; intentos previos preservados. [Informe](evidencias/academico/I12-2026-10-23.md), [entrega](ENTREGA_ACADEMICA.md). API36 no aprobada: 46 casos pasaron, 4 timeouts de UI y 5 incompletos ante ANR del sistema, con captura y logs preservados. Límites externos IDE/físico/rúbrica. Commit local, sin push/despliegue o fase 2.
+- Herramienta de entrega corregida para XML agrupado e instalación que conserva datos; intentos previos preservados. [Informe](HISTORICO.md/I12-2026-10-23.md), [entrega](ENTREGA_ACADEMICA.md). API36 no aprobada: 46 casos pasaron, 4 timeouts de UI y 5 incompletos ante ANR del sistema, con captura y logs preservados. Límites externos IDE/físico/rúbrica. Commit local, sin push/despliegue o fase 2.
 
 ### 23 de octubre de 2026 UTC — I11 académico
 
 - Revisión SSDF y políticas de manifiestos/backup/transferencia/Dex en debug y release, sin dependencias nuevas. Tres fallos reproducidos (52 casos/3 fallos) y corregidos; luego 54/54 Android API28, 93 JVM, 15 SQL y 14 políticas aprobadas. Lint debug/release 0.
-- [Evidencia I11](evidencias/academico/I11-2026-10-23.md), [seguridad](SEGURIDAD_ACADEMICA.md). Commit local y continuación I12 autorizada; sin push/publicación.
+- [Evidencia I11](HISTORICO.md/I11-2026-10-23.md), [seguridad](SEGURIDAD_ACADEMICA.md). Commit local y continuación I12 autorizada; sin push/publicación.
 
 ### 22 de octubre de 2026 — Ejecución I10 académica
 
 - Controles de borrado/revocación con confirmación, errores/reintentos y bloqueo inmediato de exportaciones pendientes; app 0.1.0-i10. Sin nuevas dependencias de producción o cambios de herramientas.
 - 93 JVM, 15 SQL host y completa final 49/49 Android API28 aprobadas. Siete comprobaciones del recorrido real y proceso detenido/relanzado aprobadas, con CSV externo comparado por IDs. Ajuste de fondo/contraste revisado en capturas y repetido en tests; respaldo manual corregido para incluir WAL.
-- API36: intento conectado fallido (44 casos, 4 fallos de UI); repetición con otro renderizador/un vCPU también bloqueada por ANR de Quickstep/System UI (4 terminados, 3 fallos). Capturas y XML preservados; no se declara aprobada. Repetir en una instancia estable con KVM o dispositivo compatible. [Evidencia I10](evidencias/academico/I10-2026-10-22.md), [manual](USO_ACADEMICO.md). Commit local de cierre y documentación; sin push/despliegue ni fase 2. I11 es el siguiente incremento, pendiente de autorización.
+- API36: intento conectado fallido (44 casos, 4 fallos de UI); repetición con otro renderizador/un vCPU también bloqueada por ANR de Quickstep/System UI (4 terminados, 3 fallos). Capturas y XML preservados; no se declara aprobada. Repetir en una instancia estable con KVM o dispositivo compatible. [Evidencia I10](HISTORICO.md/I10-2026-10-22.md), [manual](USO_ACADEMICO.md). Commit local de cierre y documentación; sin push/despliegue ni fase 2. I11 es el siguiente incremento, pendiente de autorización.
 
 ### 22 de octubre de 2026 — Ejecución I09 académica
 
-- Exportación explícita por SAF, UTF-8, snapshot completo y revalidación de contexto. 93 JVM y 6 pruebas Android de exportación aprobadas; 33 base aprobadas en la completa previa. Fallos de fixtures de proveedor/permisos corregidos y registrados sin atribuir éxito a sus intentos fallidos. [Evidencia](evidencias/academico/I09-2026-10-22.md).
+- Exportación explícita por SAF, UTF-8, snapshot completo y revalidación de contexto. 93 JVM y 6 pruebas Android de exportación aprobadas; 33 base aprobadas en la completa previa. Fallos de fixtures de proveedor/permisos corregidos y registrados sin atribuir éxito a sus intentos fallidos. [Evidencia](HISTORICO.md/I09-2026-10-22.md).
 - I10 repetirá la suite integrada. Imagen/AVD API36 preparados, pruebas aún pendientes. Commit local separado; sin push o publicación.
 
 ### 22 de octubre de 2026 — Ejecución I08 académica
 
-- Sesión/cola compartidas y WindowInsets implementados; 80 JVM, 15 SQL host y 33 Android aprobadas. Primer intento 27 Android detectó creación concurrente de tablas; corregida con DDL idempotente, sin omitir pruebas ni cambiar versiones. [Evidencia](evidencias/academico/I08-2026-10-22.md).
+- Sesión/cola compartidas y WindowInsets implementados; 80 JVM, 15 SQL host y 33 Android aprobadas. Primer intento 27 Android detectó creación concurrente de tablas; corregida con DDL idempotente, sin omitir pruebas ni cambiar versiones. [Evidencia](HISTORICO.md/I08-2026-10-22.md).
 - Verificados botones, consentimiento, pulsaciones rápidas, recreación, reapertura y recuperación de error. Muerte de proceso pendiente. Commit local separado, continúa I09 autorizado.
 
 ### 22 de octubre de 2026 — Ejecución I07 académica
 
-- Pantalla Views/ScrollView conectada a servicios y SQLite, aceptación explícita, cuatro eventos y lista de 100; errores en español. Dos builds salida 0; Overdraw corregido y lint final 0. [Evidencia](evidencias/academico/I07-2026-10-22.md).
+- Pantalla Views/ScrollView conectada a servicios y SQLite, aceptación explícita, cuatro eventos y lista de 100; errores en español. Dos builds salida 0; Overdraw corregido y lint final 0. [Evidencia](HISTORICO.md/I07-2026-10-22.md).
 - ADB resuelto mediante permiso específico y creación de .android; emulador oficial API28 instalado y en arranque software, sin afirmar todavía pruebas Android. Commit local separado; sigue I08 autorizado.
 
 ### 22 de octubre de 2026 — Ejecución I06 académica
 
 - Aceptación persistente en SQLite, migración 1→2 conservando eventos y servicio de decisión explícita con dependencias inyectadas. Sin dependencias nuevas ni cambios de herramientas; UI base conservada.
-- Suite renovada: 75 JVM y 15 SQLite host aprobadas. APK principal/pruebas, firmas y lint (0 incidencias) verificados. 27 casos instrumentados compilados y sin ejecutar por falta de Android operativo; persistencia Android no acreditada. [Evidencia I06](evidencias/academico/I06-2026-10-22.md), [guía](PERSISTENCIA_ACADEMICA.md).
+- Suite renovada: 75 JVM y 15 SQLite host aprobadas. APK principal/pruebas, firmas y lint (0 incidencias) verificados. 27 casos instrumentados compilados y sin ejecutar por falta de Android operativo; persistencia Android no acreditada. [Evidencia I06](HISTORICO.md/I06-2026-10-22.md), [guía](PERSISTENCIA_ACADEMICA.md).
 - Commit local separado; borrador de arranque actualizado, sin publicación. Se detiene antes de I07. Sin push, despliegue, cambios del sistema ampliado o fase 2.
 
 ### 22 de octubre de 2026 — Ejecución I05 académica
 
 - Repositorio SQLite Android implementado con restricciones, índice, cupo/inserción transaccional y errores explícitos. APK principal y de instrumentación compilados; lint 0 incidencias. Sin nuevas dependencias externas.
-- Siete pruebas del DDL en SQLite host aprobadas; 12 instrumentadas compiladas pero sin ejecutar por bloqueo ADB y falta de dispositivo/emulador. Cierre Android pendiente, sin inventar verificación. [Evidencia](evidencias/academico/I05-2026-10-22.md).
+- Siete pruebas del DDL en SQLite host aprobadas; 12 instrumentadas compiladas pero sin ejecutar por bloqueo ADB y falta de dispositivo/emulador. Cierre Android pendiente, sin inventar verificación. [Evidencia](HISTORICO.md/I05-2026-10-22.md).
 - Commit local separado; continúa I06 por autorización actual. Sin UI de I07, push o fase 2.
 
 ### 22 de octubre de 2026 — Ejecución I04 académica
 
-- Autorizada continuación I04–I06. CSV puro implementado, sin dependencias nuevas; 10 casos nuevos y 58/58 JVM aprobados. [Evidencia I04](evidencias/academico/I04-2026-10-22.md).
+- Autorizada continuación I04–I06. CSV puro implementado, sin dependencias nuevas; 10 casos nuevos y 58/58 JVM aprobados. [Evidencia I04](HISTORICO.md/I04-2026-10-22.md).
 - Commit local separado; I05 es el siguiente incremento autorizado. No se implementó exportación Android, I07 ni fase 2.
 
 ### 22 de octubre de 2026 — Pruebas académicas solicitadas
 
 - Reejecutados tests, build y lint de `academic/` sobre `c67e4c9`, forzando tareas: salida 0; 48 pruebas JVM aprobadas, 0 fallos/errores/omitidas; lint 0 incidencias. Firma y manifiesto del APK comprobados.
 - Prueba Android sin ejecutar: sin USB, KVM, emulador o imagen instalada; ADB falla intentando crear una carpeta personal de solo lectura. No se declara un recorrido funcional Android ni SQLite verificados.
-- [Evidencia de esta ejecución](evidencias/academico/VERIFICACION-I01-I03-2026-10-22.md). Sin cambios de código/dependencias, nueva funcionalidad, push o publicación.
+- [Evidencia de esta ejecución](HISTORICO.md/VERIFICACION-I01-I03-2026-10-22.md). Sin cambios de código/dependencias, nueva funcionalidad, push o publicación.
 
 ### 22 de octubre de 2026 — Ejecución I02/I03 académica
 
 - Solicitud de continuar hasta I03 atendida en orden; dependencia de pruebas kotlin.test2.2.10/JUnit4 expresamente aprobada por el usuario, sin cambiar versiones de herramientas.
 - Modelos/contratos y AuditService implementados solo en `academic/domain`: aceptación, límites 1000/100, errores explícitos, borrado y revocación antes de limpieza. Coordinación compartida comprobada con dobles en memoria; no acredita SQLite, durabilidad ni cola Android.
-- 15 pruebas de I02 y 33 nuevas de I03: **48 aprobadas, 0 fallos/errores/omitidas**. Build Android, firma debug y lint (0 incidencias) verificados. Evidencias [I02](evidencias/academico/I02-2026-10-22.md) e [I03](evidencias/academico/I03-2026-10-22.md).
+- 15 pruebas de I02 y 33 nuevas de I03: **48 aprobadas, 0 fallos/errores/omitidas**. Build Android, firma debug y lint (0 incidencias) verificados. Evidencias [I02](HISTORICO.md/I02-2026-10-22.md) e [I03](HISTORICO.md/I03-2026-10-22.md).
 - Commits locales separados por incremento; sin push, despliegue o fase 2. Instrucciones de arranque de nube actualizadas en borrador, sin publicación. I01 mantiene pendientes IDE/Android; I04 requiere una nueva autorización.
 
 ### 22 de octubre de 2026 — Ejecución I01 académica
 
 - Base `academic/app` y `academic/domain` creada sin modificar fuentes/configuración de apps/backend anteriores.
-- Versiones exigidas preservadas; Build/lint y probe de compilación JVM satisfactorios, APK debug firmado y manifiesto sin permisos. Evidencia y límites en [I01](evidencias/academico/I01-2026-10-22.md).
+- Versiones exigidas preservadas; Build/lint y probe de compilación JVM satisfactorios, APK debug firmado y manifiesto sin permisos. Evidencia y límites en [I01](HISTORICO.md/I01-2026-10-22.md).
 - Sin pruebas funcionales todavía: domain vacío/NO-SOURCE. Sync IDE y ejecución en Android pendientes por falta de sesión IDE y fallo ADB en ruta personal de solo lectura; no se acredita una aceptación completa.
 - Preparación de nube repetible guardada en borrador; commit local para revisión, sin push ni despliegue. Se detiene antes de I02 por la regla explícita del contexto del usuario.
 

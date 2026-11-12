@@ -124,7 +124,7 @@ depuración; no es necesario para la operación entre redes.
 
 **Implementado:** los componentes y funciones descritos arriba existen en el código.
 **Comprobado en 0.7.1:** compilación, lint, auditoría estática de APK, coincidencia de
-firma para actualizar, y descargas verificadas. [Registro](evidencias/WHATSAPP-0.7.1-2026-10-29.json).
+firma para actualizar, y descargas verificadas. [Registro](HISTORICO.md).
 
 **Pendiente:** confirmar recepción real de WhatsApp en el teléfono del usuario y
 recorridos completos de la revisión actual en dispositivos físicos. El usuario ha
@@ -135,12 +135,12 @@ históricas y no deben presentarse como si validaran 0.7.1.
 **Entrega:** APK con firma debug; firma de distribución/piloto operativo pendientes.
 **Seguridad del ZIP Windows 0.7:** la alerta reportada no se reprodujo en el análisis
 Defender registrado; no existe confirmación del proveedor de falso positivo. Un
-bloqueo nuevo debe mantenerse. [Informe](REVISION_DEFENDER_0.7.md).
+bloqueo nuevo debe mantenerse. [Informe](HISTORICO.md).
 
 ## 10. Material para presentar
 
 - [Contenido listo para diapositivas](PRESENTACION_PPT.md).
-- [Arquitectura](ARQUITECTURA.md) y [modelo de datos](base-datos.md).
+- [Arquitectura](ARQUITECTURA.md) y [modelo de datos](OPERACION.md).
 - [Manual actual](MANUAL_PRODUCTO.md), [plan](PLAN_MAESTRO.md) y [avance](AVANCE.md).
 
 No presentar lectura completa de WhatsApp, cámara remota, audio de llamadas,

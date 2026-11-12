@@ -147,7 +147,7 @@ el Centro consulta la API, nunca la base de datos directamente.
 
 Retención predeterminada: eventos servidor 30 días; auditoría 90 días.
 WhatsApp: últimas 20 vistas previas, máximo 5 minutos; pantalla: último cuadro temporal.
-[Modelo completo](base-datos.md).
+[Modelo completo](OPERACION.md).
 
 ## 12. Seguridad y límites
 

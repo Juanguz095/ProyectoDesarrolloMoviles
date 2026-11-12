@@ -2,7 +2,7 @@
 
 11 de noviembre de 2026 (America/Lima). Plan autorizado por el responsable del proyecto.
 Ampliaciones nuevas sobre la base 0.8.8-preview. Revisión M0: [REVISION_SEGURIDAD_M0.md](REVISION_SEGURIDAD_M0.md).
-Documentos relacionados: [PLAN_MAESTRO](PLAN_MAESTRO.md), [AVANCE](AVANCE.md), [INTERFAZ_SIMPLE_0.8.3](INTERFAZ_SIMPLE_0.8.3.md),
+Documentos relacionados: [PLAN_MAESTRO](PLAN_MAESTRO.md), [AVANCE](AVANCE.md), [INTERFAZ_SIMPLE_0.8.3](HISTORICO.md),
 [COMPARTIR_TEXTO_MANUAL_0.8.1](COMPARTIR_TEXTO_MANUAL_0.8.1.md), [COMPARTIR_PANTALLA](COMPARTIR_PANTALLA.md),
 [CAPTURA_REAL](CAPTURA_REAL.md), [WHATSAPP_NOTIFICACIONES](WHATSAPP_NOTIFICACIONES.md).
 

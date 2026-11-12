@@ -18,7 +18,7 @@ Es una entrega de desarrollo. [Estado comprobado](AVANCE.md) y
   una instalación anterior. No borrar sus datos automáticamente para resolverlo.
 
 Si Defender bloquea el ZIP, conservar el bloqueo sin restaurar ni añadir exclusiones.
-El análisis registrado no reprodujo la alerta; [alcance de la revisión](REVISION_DEFENDER_0.7.md).
+El análisis registrado no reprodujo la alerta; [alcance de la revisión](HISTORICO.md).
 
 ## 2. Vincular el teléfono Agente
 
@@ -152,7 +152,7 @@ contenido no usan cola en disco ni se inician automáticamente después de reini
 
 La recepción real de WhatsApp reportada por el usuario sigue pendiente de confirmar
 en la versión actual. Compilación/lint/firma no acreditan ese recorrido.
-[Registros](evidencias/WHATSAPP-0.7.1-2026-10-29.json).
+[Registros](HISTORICO.md).
 
 Identificación y archivo local de equipos: [Centro 0.7.4](HISTORICO.md).
 
@@ -168,6 +168,6 @@ Es trabajo reconstruido; su validación se registra separada de 0.8.
 
 ## Interfaz 0.8.3
 
-[Activación única y pantallas simplificadas](INTERFAZ_SIMPLE_0.8.3.md): un control Activar/Detener
+[Activación única y pantallas simplificadas](HISTORICO.md): un control Activar/Detener
 todo en el Agente y detalles plegables en ambas apps. Revisión de prueba; estado
 nativo y resultados en el registro de avance. Servidor 0.8.1 sin cambios.

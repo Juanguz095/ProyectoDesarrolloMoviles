@@ -26,7 +26,7 @@ El proveedor de documentos es externo: puede cancelar, denegar, fallar o conserv
 | SEC-02 | SecurityException al iniciar un selector restringido no se traducía a error visible. | Capturar la denegación, consumir el ticket y permitir reintentar. Casos de selector ausente y acceso denegado, sin cierre de la app ni éxito falso. |
 | SEC-03 | Cursor.getLong/getInt podían convertir texto dañado, decimales o enteros truncados en valores aparentemente válidos. | Verificar tipos INTEGER/TEXT y comparar booleanos como Long antes de crear modelos. Datos malformados provocan StorageException: bloquean generación/exportación; todavía se puede intentar revocar. Las pruebas dañan solo bases con UUID de test y restauran sus restricciones. |
 
-Las tres regresiones de SEC-01/SEC-03 se ejecutaron primero sobre el código de I10: 52 casos, 3 fallos nuevos y 49 anteriores aprobados. Se conserva ese intento; no se presenta como satisfactorio. SEC-02 se verifica con dos pruebas adicionales después de corregirlo. Resultados y hashes en [evidencia I11](evidencias/academico/I11-2026-10-23.md); la versión final se identifica en [I12](evidencias/academico/I12-2026-10-23.md).
+Las tres regresiones de SEC-01/SEC-03 se ejecutaron primero sobre el código de I10: 52 casos, 3 fallos nuevos y 49 anteriores aprobados. Se conserva ese intento; no se presenta como satisfactorio. SEC-02 se verifica con dos pruebas adicionales después de corregirlo. Resultados y hashes en [evidencia I11](HISTORICO.md/I11-2026-10-23.md); la versión final se identifica en [I12](HISTORICO.md/I12-2026-10-23.md).
 
 ## Controles revisados
 

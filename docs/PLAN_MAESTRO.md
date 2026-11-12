@@ -316,7 +316,7 @@ Para pasar una tarea a `verificada` deben existir:
 4. Fallos y omisiones descritos; ningún requisito obligatorio omitido cuenta como aprobado.
 5. Actualización de `docs/AVANCE.md` con tarea siguiente y enlaces a evidencia.
 
-Guardar informes en `docs/evidencias/` con nombres `<ID>-<fecha>.md`. Registrar allí datos ficticios, pasos y resultados; adjuntar solo artefactos pequeños y saneados. No guardar bases con información personal, APKs grandes o secretos en Git. Si aún no hay commit, identificar explícitamente la revisión de trabajo sin inventar un SHA.
+Guardar informes en `docs/HISTORICO.md` con nombres `<ID>-<fecha>.md`. Registrar allí datos ficticios, pasos y resultados; adjuntar solo artefactos pequeños y saneados. No guardar bases con información personal, APKs grandes o secretos en Git. Si aún no hay commit, identificar explícitamente la revisión de trabajo sin inventar un SHA.
 
 Formato mínimo de informe:
 

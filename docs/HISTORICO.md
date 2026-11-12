@@ -288,3 +288,29 @@ prueba en teléfonos físicos ni WhatsApp real; pendiente P7.6.
 Comprobaciones registradas: compilación, lint y auditoría de APK, y dos pruebas Robolectric
 (persistencia/restauración/aislamiento por servidor y equipo con validación de nombre, y
 límites del estado de contacto). Sin ejecución en teléfonos físicos.
+
+## Interfaz simple y activación única (INTERFAZ_SIMPLE_0.8.3.md)
+
+> Origen: `docs/INTERFAZ_SIMPLE_0.8.3.md` — 4 de noviembre de 2026.
+
+Pantalla principal del Agente con estado, batería, última transmisión y funciones; un único
+**Activar** abre la selección y **Activar lo seleccionado** confirma. Con monitoreo en
+ ejecución el control es **Detener todo**: para cambiar funciones se detiene y se vuelve a
+activar. Cada fuente sensible empieza sin marcar; desmarcar SMS/llamadas elimina números y
+texto de esa selección. La confirmación conduce por los permisos necesarios (notificaciones,
+SMS/llamadas, acceso a notificaciones WhatsApp y MediaProjection); denegar uno no concede el
+resto. **Detener todo** cierra la visibilidad, cancela activaciones pendientes y bloquea la
+recuperación de batería, sin retirar el consentimiento. La recuperación opcional al encender
+solo guarda batería/conexión. En el Centro: Inicio con equipo y actividad reciente; Eventos con
+pestañas, filtros plegados, exportación y detalle; las explicaciones de privacidad se despliegan
+al solicitarlas.
+
+## Revisión de Defender 0.7 (REVISION_DEFENDER_0.7.md)
+
+> Origen: `docs/REVISION_DEFENDER_0.7.md` — 29 de octubre de 2026.
+
+El ZIP 0.7 original pasó análisis en Windows Server 2022 con Defender activo, firmas
+actualizadas, marca de zona Internet y sin exclusiones sobre el ZIP (motor `1.1.26100.4`,
+firmas `1.463.16.0`): sin amenazas; la alerta reportada no se reprodujo. Política: mantener
+Defender activo y, si vuelve a bloquear, dejarlo bloqueado sin añadir exclusiones. Un análisis
+previo nunca acredita un ZIP distinto; cada publicación exige análisis de sus bytes exactos.

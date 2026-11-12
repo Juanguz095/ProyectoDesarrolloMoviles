@@ -1,118 +1,116 @@
 # AuditLab
 
 **Monitoreo visible y autorizado para dispositivos Android propios o administrados.**
-
-AuditLab conecta un **Agente** instalado en el dispositivo supervisado con un
-**Centro de control** desde el que se consulta su actividad. Una **API Ktor/PostgreSQL**
-autentica las conexiones, recibe los eventos y registra cada acceso. La persona del
-dispositivo ve qué se registra, acepta antes de activar y puede pausar o retirar el
-consentimiento en cualquier momento.
+Un **Agente** instalado en el dispositivo supervisado comparte solo lo que su
+propietario autoriza; un **Centro de control** consulta la actividad; una **API
+Ktor/PostgreSQL** autentica todo y registra cada acceso. Indicador visible,
+consentimiento versionado y revocación accesible siempre.
 
 | Pieza | Tecnología | Rol |
 | --- | --- | --- |
-| Agente Android | Kotlin, Compose, Room, WorkManager | Consentimiento, captura autorizada, cola local y sincronización. |
-| Centro Android | Kotlin, Compose | Sesión de usuario, consulta de eventos, reportes y administración por rol. |
-| API | Ktor, PostgreSQL, Flyway | Autenticación, validación, recepción, consultas, revocación y auditoría. |
+| Agente Android | Kotlin, Compose, Room | Consentimiento, captura autorizada, cola local. |
+| Centro Android | Kotlin, Compose | Consulta, reportes y administración por rol. |
+| API | Ktor, PostgreSQL, Flyway | Autenticación, validación, recepción, auditoría. |
+
+## Levantar el servidor con Docker (paso a paso)
+
+Requisitos: **Docker Desktop** corriendo, **JDK 21**, **Python 3** y el repositorio clonado.
+
+**1. Comprueba Docker:**
+
+```bash
+docker info
+```
+
+**2. Crea la base de datos** (elige tu propia contraseña):
+
+```powershell
+# PowerShell
+$env:AUDITLAB_DB_PASSWORD = "una-contraseña-tuya"
+docker compose up -d db
+docker compose ps
+```
+
+Debe quedar `healthy` (PostgreSQL 17.6 en `127.0.0.1:5432`). Si el puerto 5432
+está ocupado por otro PostgreSQL, detén ese servicio o cambia el mapeo en
+`compose.yaml` a `'127.0.0.1:5433:5432'`.
+
+**3. Compila la API y las apps:**
+
+```bash
+python3 scripts/gradle.py :backend:ktor:installDist :apps:agent:assembleDebug :apps:control:assembleDebug --no-daemon --max-workers=1
+```
+
+**4. Migra el esquema, concede permisos y crea el usuario `admin`:**
+
+```bash
+export AUDITLAB_MIGRATION_JDBC_URL=jdbc:postgresql://127.0.0.1:5432/auditlab
+export AUDITLAB_MIGRATION_USER=auditlab
+export AUDITLAB_MIGRATION_PASSWORD="una-contraseña-tuya"
+
+backend/ktor/build/install/ktor/bin/ktor migrate
+AUDITLAB_TARGET_DB_ROLE=auditlab_api  backend/ktor/build/install/ktor/bin/ktor grant-runtime
+AUDITLAB_TARGET_DB_ROLE=auditlab_maintenance backend/ktor/build/install/ktor/bin/ktor grant-maintenance
+AUDITLAB_BOOTSTRAP_USERNAME=admin AUDITLAB_BOOTSTRAP_PASSWORD="otra-contraseña" AUDITLAB_BOOTSTRAP_ROLE=admin backend/ktor/build/install/ktor/bin/ktor bootstrap-user
+```
+
+**5. Arranca la API:**
+
+```bash
+export AUDITLAB_DB_JDBC_URL=jdbc:postgresql://127.0.0.1:5432/auditlab
+export AUDITLAB_DB_USER=auditlab_api
+export AUDITLAB_DB_PASSWORD="una-contraseña-tuya"
+export AUDITLAB_AUTH_SIGNING_KEY_BASE64="$(python3 -c 'import base64,secrets;print(base64.b64encode(secrets.token_bytes(32)).decode())')"
+
+backend/ktor/build/install/ktor/bin/ktor
+```
+
+Comprueba `http://127.0.0.1:8081/ready` → `{"status":"ready"}`.
+
+**6. Usa las apps:** instala las APK (`apps/*/build/outputs/apk/debug/`), inicia
+sesión en el Centro con la URL del servidor y el usuario `admin`, genera un código
+de inscripción e inscribe el Agente aceptando su consentimiento.
+
+Todas las variables (TLS, retención, límites) están en
+[docs/OPERACION.md](docs/OPERACION.md). Para una PC y dos teléfonos en redes
+distintas, publica la API con Tailscale Serve (guía en
+[docs/HISTORICO.md](docs/HISTORICO.md)).
 
 ## Funciones
 
 | Función | Alcance |
 | --- | --- |
-| Estado del dispositivo | Batería, conexión y último contacto con el servidor. |
-| SMS y llamadas | Tipo y fecha desde la activación, con permiso Android. Número y texto SMS opcionales con autorizaciones adicionales; sin audio de llamadas. |
-| WhatsApp | Vistas previas temporales de notificaciones nuevas y eventos de tipo/fecha, con autorización por sesión. Sin historial de chats. |
-| Pantalla compartida | Vista remota iniciada por su propietario con permiso de Android; sin audio ni grabación. |
+| Estado del dispositivo | Batería, conexión y último contacto. |
+| SMS y llamadas | Tipo y fecha con permiso Android; número y texto opcionales con autorización adicional. Sin audio. |
+| WhatsApp | Vistas previas temporales de notificaciones nuevas; sin historial de chats. |
+| Pantalla compartida | Iniciada por su propietario con permiso de Android; sin grabación. |
 | Texto manual | Texto elegido y confirmado por el usuario en cada envío. |
-| Historial y reportes | Filtros, búsqueda, detalle, paginación y exportación CSV. |
-| Administración | Inscripción con código de un uso, roles administrador/auditor, revocación, auditoría y actualizaciones verificadas. |
+| Galería | Fotos seleccionadas y confirmadas por el usuario (15 MB/archivo, 20 por lote). |
+| Historial y reportes | Filtros, búsqueda, detalle y exportación CSV. |
+| Administración | Inscripción con código de un uso, roles, revocación, auditoría y actualizaciones verificadas. |
 
-Cada función sensible exige **acción local confirmada, indicador visible y
-notificación permanente**. Nunca hay activación remota ni oculta.
+## Privacidad
 
-## Empezar en 6 pasos
+- Consentimiento versionado y revocación local e inmediata; indicador visible obligatorio.
+- Cada función sensible exige acción local confirmada; nunca hay activación remota ni oculta.
+- Retención declarada (eventos 30 días, auditoría 90 días) y borrado manual de contenidos sensibles.
+- Credenciales cifradas (Keystore/Argon2id); auditoría sin contenido sensible.
 
-1. **Prepara el servidor:** Java 21 + Docker Desktop, extrae el paquete Windows y
-   ejecuta `Iniciar-AuditLab.ps1`; crea la contraseña de `admin`.
-2. **Conecta los equipos:** publica la API por HTTPS (Tailscale sirve para PC y dos
-   teléfonos en redes distintas, sin abrir puertos). Los teléfonos deben abrir la
-   URL terminada en `/ready`.
-3. **Inicia sesión en el Centro** con la URL HTTPS (sin `/ready` ni `/v1`).
-4. **Inscribe el Agente:** genera un código en el Centro, acepta el consentimiento
-   en el Agente e introduce la misma URL y el código. Habilita el indicador visible.
-5. **Activa solo lo necesario:** cada fuente tiene su propia autorización y permisos.
-6. **Consulta y administra** desde el Centro; la retirada de consentimiento está
-   siempre disponible en el Agente.
+## Estado y documentación
 
-Guía completa: [Manual del producto](docs/MANUAL_PRODUCTO.md) ·
-[Instalación sin USB](docs/PRUEBA_SIN_USB.md).
+- Código actual: **0.9.0-dev** (plan de mejoras consentidas: M0–M2 completadas).
+- Pendiente de validación nativa: SMS real, visor de pantalla y pruebas en teléfono físico.
+
+| Documento | Contenido |
+| --- | --- |
+| [docs/INDICE.md](docs/INDICE.md) | Índice completo de la documentación. |
+| [docs/MANUAL_PRODUCTO.md](docs/MANUAL_PRODUCTO.md) | Uso paso a paso. |
+| [docs/OPERACION.md](docs/OPERACION.md) | Construcción, servidor, variables y pruebas. |
+| [docs/PLAN_MEJORAS_CONSENTIDAS.md](docs/PLAN_MEJORAS_CONSENTIDAS.md) | Plan 0.9 en curso. |
+| [contracts/openapi.yaml](contracts/openapi.yaml) | Contrato de la API. |
 
 ## Descargas
 
-**Última versión publicada:** Agente 0.7.5-preview · Centro 0.7.4-preview ·
-Servidor 0.7 · Android 8.0 o superior. El código fuente va por delante
-(0.8.8-preview); las APK de 0.8 aún no se publican (firma de distribución y
-análisis antimalware pendientes).
-
-| Componente | Descargar |
-| --- | --- |
-| Agente | [auditlab-agent-0.7.5-preview.apk](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-agent-0.7.5-preview.apk) |
-| Centro | [auditlab-control-0.7.4-preview.apk](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/auditlab-control-0.7.4-preview.apk) |
-| Servidor Windows | [AuditLab-Servidor-Windows-0.7.0-preview.zip](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/raw/refs/heads/descargas-auditlab/AuditLab-Servidor-Windows-0.7.0-preview.zip) |
-
-[Archivos y checksums](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/tree/descargas-auditlab).
+Última versión publicada: Agente 0.7.5-preview · Centro 0.7.4-preview · Servidor 0.7
+([archivos y checksums](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/tree/descargas-auditlab)).
 Las APK usan firma debug; la firma de distribución está pendiente.
-
-## Privacidad y control
-
-- **Consentimiento versionado** antes de cualquier captura; revocación local e
-  inmediata, y remota en el siguiente contacto.
-- **Indicador visible** obligatorio: sin él no hay captura.
-- WhatsApp comparte solo vistas previas nuevas entregadas por Android; el texto vive
-  en memoria temporal (máximo 20 por dispositivo, 5 minutos) y no va a la base de
-  datos, CSV ni respaldos.
-- La pantalla compartida usa un cuadro temporal de 5 segundos; sin grabación.
-- Los eventos siguen una retención declarada (30 días por defecto; auditoría 90 días)
-  con limpieza programada. Las credenciales se guardan cifradas (Keystore/Argon2id).
-- La auditoría registra consultas, exportaciones y acciones administrativas sin
-  contenido sensible.
-
-## Estado de desarrollo
-
-- **Versión actual del código: 0.8.8-preview** (Agente código 22, Centro código 21,
-  API 0.8.1/V11). 72 pruebas JVM/Robolectric aprobadas en las apps; lint sin errores.
-- **Próximo: plan de mejoras consentidas 0.9** — consentimiento por función,
-  galería seleccionada, ubicación aproximada continua y video sin audio
-  ([plan](docs/PLAN_MEJORAS_CONSENTIDAS.md) · [revisión de seguridad](docs/REVISION_SEGURIDAD_M0.md)).
-- **Pendiente de validación en teléfonos físicos:** recepción real de SMS, visor de
-  pantalla, texto manual y F1–F6 de administración. Nada de esto se declara
-  validado sin evidencia nativa; el registro completo está en
-  [AVANCE](docs/AVANCE.md).
-
-## Compilar desde el código
-
-Requisitos: JDK 21, Android SDK 35 y Python 3 (versiones fijadas en el repositorio).
-
-```bash
-python3 scripts/gradle.py :apps:agent:assembleDebug :apps:control:assembleDebug :backend:ktor:installDist --no-daemon --max-workers=1
-```
-
-- Agente: `apps/agent/build/outputs/apk/debug/agent-debug.apk`
-- Centro: `apps/control/build/outputs/apk/debug/control-debug.apk`
-- API: `backend/ktor/build/install/ktor/`
-
-Guías: [desarrollo](docs/desarrollo.md) (herramientas y comprobaciones) ·
-[despliegue](docs/despliegue.md) (PostgreSQL, migraciones, HTTPS, respaldo).
-
-## Documentación
-
-| Tema | Documento |
-| --- | --- |
-| Qué es y para qué sirve | [Contexto del producto](docs/CONTEXTO_PRODUCTO.md) |
-| Estado real y límites | [Estado actual](docs/ESTADO_ACTUAL.md) |
-| Arquitectura y flujos | [Arquitectura](docs/ARQUITECTURA.md) |
-| Uso paso a paso | [Manual del producto](docs/MANUAL_PRODUCTO.md) |
-| Planes y avance | [Plan maestro](docs/PLAN_MAESTRO.md) · [AVANCE](docs/AVANCE.md) · [Índice](docs/INDICE.md) |
-| Contratos | [API principal](contracts/openapi.yaml) · [pantalla](contracts/screen-share.openapi.yaml) · [WhatsApp](contracts/whatsapp-preview.openapi.yaml) · [actualizaciones](contracts/app-updates.openapi.yaml) |
-
-El [índice completo](docs/INDICE.md) reúne ampliaciones, operación, pruebas,
-documentación académica e histórico.

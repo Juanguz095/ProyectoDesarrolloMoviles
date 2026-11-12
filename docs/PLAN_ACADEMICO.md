@@ -3,9 +3,9 @@
 **Alcance activo actualizado el 24 de octubre:** el usuario ratificó que desea completar el proyecto de dos apps y API. Su ejecución se guía por [PLAN_MAESTRO.md](PLAN_MAESTRO.md) y [AVANCE.md](AVANCE.md). Este documento conserva los 12 incrementos y resultados de la entrega local; sus restricciones de fases describen esa entrega y no sustituyen la instrucción actual del usuario.
 
 **Versión:** 1.1 · **Fecha:** 23 de octubre de 2026, UTC.
-**Estado:** implementación I01–I12 completada por autorización de terminar y revisar fases anteriores. Entrega técnica verificada sobre API28: 93 JVM, 15 SQL host, 23 herramientas, 55 Android y nueve comprobaciones reales aprobadas; lint debug/release 0. [Informe I12](evidencias/academico/I12-2026-10-23.md), [entrega](ENTREGA_ACADEMICA.md), [seguridad/SSDF](SEGURIDAD_ACADEMICA.md). El [contexto vinculante](referencias/contexto-auditlab-2026-10-22.txt) prevalece sobre el beta. PDF/rúbrica, Sync IDE y teléfono físico requieren evidencia propia; API36 sin validación completa tras un tercer intento bloqueado por ANR del sistema del emulador. No se declara conformidad académica sin la rúbrica.
+**Estado:** implementación I01–I12 completada por autorización de terminar y revisar fases anteriores. Entrega técnica verificada sobre API28: 93 JVM, 15 SQL host, 23 herramientas, 55 Android y nueve comprobaciones reales aprobadas; lint debug/release 0. [Informe I12](HISTORICO.md/I12-2026-10-23.md), [entrega](ENTREGA_ACADEMICA.md), [seguridad/SSDF](SEGURIDAD_ACADEMICA.md). El [contexto vinculante](referencias/contexto-auditlab-2026-10-22.txt) prevalece sobre el beta. PDF/rúbrica, Sync IDE y teléfono físico requieren evidencia propia; API36 sin validación completa tras un tercer intento bloqueado por ANR del sistema del emulador. No se declara conformidad académica sin la rúbrica.
 
-**Comprobación posterior en dos emuladores:** 55/55 casos API26 y 55/55 API28 con la misma APK I12; apertura normal API26 sin aceptación ni eventos automáticos. [Evidencia adicional](evidencias/academico/DOS-EMULADORES-2026-10-23.md). El cuarto intento API36 se interrumpió durante instalación después de inestabilidad observada al arrancar; no llegó a ejecutar Instrumentation. La fase 1 mantiene sus límites de entrega.
+**Comprobación posterior en dos emuladores:** 55/55 casos API26 y 55/55 API28 con la misma APK I12; apertura normal API26 sin aceptación ni eventos automáticos. [Evidencia adicional](HISTORICO.md/DOS-EMULADORES-2026-10-23.md). El cuarto intento API36 se interrumpió durante instalación después de inestabilidad observada al arrancar; no llegó a ejecutar Instrumentation. La fase 1 mantiene sus límites de entrega.
 
 **Seguimiento de esta entrega:** [AVANCE_ACADEMICO.md](AVANCE_ACADEMICO.md).
 **Guía activa del proyecto completo ratificado por el usuario:** [plan maestro](PLAN_MAESTRO.md) y [avance](AVANCE.md).
@@ -279,7 +279,7 @@ Estos IDs son exclusivos de la entrega local y no sustituyen CA-01–CA-15 del s
 
 Estados técnicos: **pendiente**, **en curso**, **bloqueado** y **verificado**. Registrar además aprobación: **pendiente**, **aprobado** o **requiere cambios**. Verificado no autoriza el incremento siguiente. Código escrito, compilación, test y demostración manual son evidencias distintas. Una operación no ejecutada se registra como pendiente; un test sin casos ejecutados no valida una función.
 
-Para cada incremento guardar `docs/evidencias/academico/Ixx-AAAA-MM-DD.md` al ejecutarlo:
+Para cada incremento guardar `docs/HISTORICO.md/Ixx-AAAA-MM-DD.md` al ejecutarlo:
 
 ```text
 Incremento y criterios AC relacionados:
@@ -326,6 +326,6 @@ La fase 2 y cualquier integración, cliente de red o transmisión permanecen fue
 
 ## 10. Estado y siguiente paso concreto
 
-**Implementación hasta I12 completada.** La app conecta consentimiento, simulación, SQLite, cola, CSV manual, borrado/revocación y reintentos; las regresiones detectadas de fases anteriores se corrigieron. [Resultados y artefactos I12](evidencias/academico/I12-2026-10-23.md), [entrega reproducible](ENTREGA_ACADEMICA.md), [manual](USO_ACADEMICO.md).
+**Implementación hasta I12 completada.** La app conecta consentimiento, simulación, SQLite, cola, CSV manual, borrado/revocación y reintentos; las regresiones detectadas de fases anteriores se corrigieron. [Resultados y artefactos I12](HISTORICO.md/I12-2026-10-23.md), [entrega reproducible](ENTREGA_ACADEMICA.md), [manual](USO_ACADEMICO.md).
 
 No queda un incremento de código pendiente dentro de la fase 1 definida. Los siguientes pasos son revisar la entrega y completar la evidencia externa de IDE/dispositivo/rúbrica y la comprobación de API36. La fase 2 requiere alcance nuevo; no se inicia automáticamente al terminar I12.

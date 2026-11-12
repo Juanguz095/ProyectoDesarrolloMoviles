@@ -1,6 +1,6 @@
 # ADR 0003 — JWT por biblioteca y sesiones revocables
 
-Estado: adoptado en P3.1. Configuración y límites en [autenticación](../autenticacion.md).
+Estado: adoptado en P3.1. Configuración y límites en [autenticación](../OPERACION.md).
 
 ## Decisiones
 
