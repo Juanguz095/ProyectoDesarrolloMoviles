@@ -11,7 +11,7 @@ object EventCodec {
         EventPolicy.validate(event.category, event.direction, event.metadata["appEventCode"], event.isSimulated)
         ManualSharePolicy.validate(event.category, event.isSimulated, event.metadata)
         require(event.direction in setOf("inbound", "outbound", "occurred"))
-        require(event.metadata.keys.all { it in setOf("networkState", "batteryPercent", "appEventCode", "phoneNumber", "smsText", "smsTextTruncated", "sharedText", "shareConsentVersion") })
+        require(event.metadata.keys.all { it in setOf("networkState", "batteryPercent", "appEventCode", "phoneNumber", "smsText", "smsTextTruncated", "sharedText", "shareConsentVersion", "locationLat", "locationLon", "locationAccuracy") })
         event.metadata.forEach { (key, value) ->
             require(when (key) {
                 "sharedText", "shareConsentVersion" -> event.category == "manual_share"
@@ -20,6 +20,9 @@ object EventCodec {
                 "phoneNumber" -> !event.isSimulated && event.category in setOf("sms","call") && value is String && value.matches(Regex("[+0-9 ()*#.-]{1,40}"))
                 "networkState" -> value in setOf("online", "offline", "unknown")
                 "batteryPercent" -> (value is Int || value is Long) && (value as Number).toLong() in 0..100
+                "locationLat" -> !event.isSimulated && event.category=="location" && value is Number && value.toDouble() in -90.0..90.0
+                "locationLon" -> !event.isSimulated && event.category=="location" && value is Number && value.toDouble() in -180.0..180.0
+                "locationAccuracy" -> !event.isSimulated && event.category=="location" && value is Number && value.toDouble() >= 0
                 "appEventCode" -> value in EventPolicy.codes
                 else -> false
             }) { "Metadato no permitido" }

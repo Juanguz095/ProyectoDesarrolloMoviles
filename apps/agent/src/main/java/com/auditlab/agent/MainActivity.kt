@@ -222,6 +222,7 @@ internal fun AgentScreen(session: AgentSession, workScope: CoroutineScope? = nul
                     AuditFunctionStatus("Llamadas",if(!session.callPermission) "Sin permiso" else if(session.realCaptureRunning) "Activas" else "Detenidas",active=session.callPermission && session.realCaptureRunning,attention=!session.callPermission)
                     AuditFunctionStatus("WhatsApp",if(WhatsAppSharingState.active && WhatsAppSharingState.listenerConnected) "Activo" else if(WhatsAppSharingState.active) "Reconectando" else "Detenido",active=WhatsAppSharingState.active && WhatsAppSharingState.listenerConnected,attention=WhatsAppSharingState.active && !WhatsAppSharingState.listenerConnected)
                     AuditFunctionStatus("Pantalla",if(ScreenSharingState.active && ScreenSharingState.confirmed) "Envío confirmado" else if(ScreenSharingState.active) "Esperando imagen" else "No compartida",active=ScreenSharingState.active && ScreenSharingState.confirmed,attention=ScreenSharingState.active && !ScreenSharingState.confirmed)
+                    AuditFunctionStatus("Ubicación",if(LocationSharingState.running) "Activa" else "Detenida",active=LocationSharingState.running)
                     Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
                         Text("Actividad reciente",Modifier.weight(1f),style=MaterialTheme.typography.titleMedium)
                         TextButton({history=true}) {Text("Ver todos")}

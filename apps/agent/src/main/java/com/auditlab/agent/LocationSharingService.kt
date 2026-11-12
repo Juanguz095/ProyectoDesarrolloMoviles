@@ -68,12 +68,9 @@ class LocationSharingService : Service() {
                 return START_NOT_STICKY
             }
             val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-            val provider = when {
-                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) -> LocationManager.NETWORK_PROVIDER
-                locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) -> LocationManager.GPS_PROVIDER
-                else -> null
-            }
-            if (provider == null) {
+            val providers = listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER, LocationManager.PASSIVE_PROVIDER)
+                .filter { runCatching { locationManager.isProviderEnabled(it) }.getOrDefault(false) }
+            if (providers.isEmpty()) {
                 LocationSharingState.message = "Ubicación detenida: activa un proveedor de ubicación en Android."
                 LocationSharingState.running = false
                 stopSelf()
@@ -84,13 +81,17 @@ class LocationSharingService : Service() {
             }
             listener = target
             manager = locationManager
-            runCatching { locationManager.requestLocationUpdates(provider, 60_000L, 0f, target) }
-                .onFailure {
-                    LocationSharingState.message = "Ubicación detenida: Android no permitió las lecturas."
-                    LocationSharingState.running = false
-                    stopSelf()
-                    return START_NOT_STICKY
-                }
+            var requested = false
+            providers.forEach { provider ->
+                runCatching { locationManager.requestLocationUpdates(provider, 60_000L, 0f, target) }.onSuccess { requested = true }
+                runCatching { locationManager.requestSingleUpdate(provider, target, null) }
+            }
+            if (!requested) {
+                LocationSharingState.message = "Ubicación detenida: Android no permitió las lecturas."
+                LocationSharingState.running = false
+                stopSelf()
+                return START_NOT_STICKY
+            }
             LocationSharingState.running = true
             LocationSharingState.message = "Ubicación aproximada activa: lectura cada minuto. Deténla cuando quieras."
         }
