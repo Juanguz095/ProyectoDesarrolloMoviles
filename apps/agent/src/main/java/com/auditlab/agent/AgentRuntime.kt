@@ -130,12 +130,25 @@ class AgentRuntime private constructor(private val context: android.app.Applicat
             "Detén el monitoreo antes de cambiar las funciones."
         }
         check(core().refresh() is AgentCore.State.Enrolled)
-        // M1 (plan 0.9): cada función exige su módulo de consentimiento aceptado; un módulo
-        // pausado o revocado bloquea su fuente hasta que el usuario lo gestione.
-        val modules = runCatching { (journal as? RoomAgentJournal)?.modules() }.getOrNull().orEmpty().associateBy { it.module }
+        // M1 (plan 0.9): marcar una casilla y confirmar «Activar lo seleccionado» YA acepta
+        // esa función (acción local explícita). La gestión por separado (pausar/revocar)
+        // vive en Detalles y ajustes; nunca se exige ir allí para activar.
+        val room = journal as? RoomAgentJournal
+        val acceptedNow = java.time.Instant.now().toString()
+        val wanted = buildSet {
+            add(ConsentModulesPolicy.BASE)
+            if (selection.communications) {
+                add(ConsentModulesPolicy.COMMUNICATIONS)
+                if (selection.numbers) add(ConsentModulesPolicy.NUMBERS)
+                if (selection.smsText) add(ConsentModulesPolicy.SMS_TEXT)
+            }
+            if (selection.whatsApp) add(ConsentModulesPolicy.WHATSAPP)
+            if (selection.screen) add(ConsentModulesPolicy.SCREEN)
+        }
+        wanted.forEach { room?.setModuleState(it, ModuleState.ACCEPTED) }
+        val modules = runCatching { room?.modules() }.getOrNull().orEmpty().associateBy { it.module }
         fun requireModule(module: String) = check(modules[module]?.state == ModuleState.ACCEPTED) {
-            if (modules.isEmpty()) "No se detectan funciones aceptadas en este dispositivo. Ve a Detalles y ajustes y toca «Aceptar funciones»."
-            else "El módulo «${ConsentModulesPolicy.labels[module]}» no está aceptado o fue pausado/revocado. Gestiónalo en Detalles y ajustes."
+            "No se pudo aceptar la función «${ConsentModulesPolicy.labels[module]}». Revisa Detalles y ajustes e inténtalo de nuevo."
         }
         requireModule(ConsentModulesPolicy.BASE)
         if (selection.communications) {

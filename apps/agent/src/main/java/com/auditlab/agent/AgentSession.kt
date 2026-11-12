@@ -182,12 +182,11 @@ class AgentSession internal constructor(
     fun updateSmsTextConsent(value: Boolean) { if(!realMonitoring) smsTextConsent=value }
     fun startRealMonitoring(scope: CoroutineScope) = perform(scope) {
         check(platform != null) { "La captura real necesita un dispositivo Android." }
-        val modules = modulesJournal()!!.modules().associateBy { it.module }
-        check(modules[ConsentModulesPolicy.COMMUNICATIONS]?.state == ModuleState.ACCEPTED) {
-            "El módulo «${ConsentModulesPolicy.labels[ConsentModulesPolicy.COMMUNICATIONS]}» no está aceptado o fue pausado/revocado."
-        }
-        if (numberConsent) check(modules[ConsentModulesPolicy.NUMBERS]?.state == ModuleState.ACCEPTED) { "El módulo de números no está aceptado." }
-        if (smsTextConsent) check(modules[ConsentModulesPolicy.SMS_TEXT]?.state == ModuleState.ACCEPTED) { "El módulo de texto de SMS no está aceptado." }
+        val journal = modulesJournal()!!
+        // La solicitud explícita de captura acepta sus funciones (acción local confirmada).
+        journal.setModuleState(ConsentModulesPolicy.COMMUNICATIONS, ModuleState.ACCEPTED)
+        if (numberConsent) journal.setModuleState(ConsentModulesPolicy.NUMBERS, ModuleState.ACCEPTED)
+        if (smsTextConsent) journal.setModuleState(ConsentModulesPolicy.SMS_TEXT, ModuleState.ACCEPTED)
         platform.realEvents.start(numberConsent,smsTextConsent)
         "Captura solicitada. ${platform.realEvents.permissionsText()}"
     }

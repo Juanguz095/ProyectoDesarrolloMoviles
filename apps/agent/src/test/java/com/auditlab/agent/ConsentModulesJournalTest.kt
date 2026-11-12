@@ -57,11 +57,19 @@ class ConsentModulesJournalTest {
         assertEquals(ModuleState.ACCEPTED, journal.modules().single { it.module == module }.state)
     }
 
-    @Test fun `unknown modules and missing rows are refused`() = fixture { journal ->
+    @Test fun `unknown and reserved modules are refused`() = fixture { journal ->
         journal.activate(credential, url)
         assertFalse(journal.setModuleState("camera", ModuleState.PAUSED))
         journal.acceptModules("2026-11-11T10:00:00Z")
         assertFalse(journal.setModuleState(ConsentModulesPolicy.LOCATION, ModuleState.PAUSED))
+    }
+
+    @Test fun `a checked function is accepted even without prior rows`() = fixture { journal ->
+        journal.activate(credential, url)
+        assertTrue(journal.setModuleState(ConsentModulesPolicy.BASE, ModuleState.ACCEPTED))
+        assertTrue(journal.setModuleState(ConsentModulesPolicy.SCREEN, ModuleState.ACCEPTED))
+        assertEquals(setOf(ConsentModulesPolicy.BASE, ConsentModulesPolicy.SCREEN),
+            journal.modules().filter { it.state == ModuleState.ACCEPTED }.map { it.module }.toSet())
     }
 
     @Test fun `withdrawing the general consent clears every module`() = fixture { journal ->

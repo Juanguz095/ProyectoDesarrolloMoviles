@@ -253,23 +253,27 @@ internal fun AgentScreen(session: AgentSession, workScope: CoroutineScope? = nul
                         AuditButton("Generar evento simulado",{session.sendSimulatedEvent(scope)},!session.busy && session.visibleAvailable,outlined=true)
                         platformControls?.invoke()
                         SectionLabel("Consentimiento y funciones")
-                        if(session.consentModules.isEmpty()) {
-                            Text("Este consentimiento es anterior al control por funciones. Acepta el consentimiento actualizado para poder pausar o revocar cada función por separado.", color = AuditColors.Warning, style = MaterialTheme.typography.bodySmall)
-                            AuditButton("Aceptar funciones", { session.acceptModules(scope) }, !session.busy)
-                        } else session.consentModules.forEach { module ->
+                        Text("Al activar aceptas las funciones que marcas. Aquí puedes pausar o revocar cada una por separado.", style = MaterialTheme.typography.bodySmall, color = AuditColors.Muted)
+                        ConsentModulesPolicy.available.forEach { moduleId ->
+                            val module = session.consentModules.firstOrNull { it.module == moduleId }
                             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                                Text(ConsentModulesPolicy.labels[module.module] ?: module.module, Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
-                                AuditStateTag(when(module.state) { ModuleState.ACCEPTED -> "Aceptado"; ModuleState.PAUSED -> "Pausado"; else -> "Revocado" },
-                                    active=module.state==ModuleState.ACCEPTED, attention=module.state==ModuleState.PAUSED, failed=module.state==ModuleState.REVOKED)
+                                Text(ConsentModulesPolicy.labels[moduleId] ?: moduleId, Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
+                                AuditStateTag(when(module?.state) { ModuleState.ACCEPTED -> "Aceptado"; ModuleState.PAUSED -> "Pausado"; ModuleState.REVOKED -> "Revocado"; else -> "Sin aceptar" },
+                                    active=module?.state==ModuleState.ACCEPTED, attention=module==null || module.state==ModuleState.PAUSED, failed=module?.state==ModuleState.REVOKED)
                             }
-                            if(module.state==ModuleState.REVOKED) {
-                                Text("Revocado; puedes aceptarlo de nuevo cuando quieras.", style=MaterialTheme.typography.bodySmall, color=AuditColors.Muted)
-                                AuditLink("Aceptar de nuevo", { session.setModuleState(scope, module.module, ModuleState.ACCEPTED) }, !session.busy)
-                            }
-                            else Row {
-                                if(module.state==ModuleState.ACCEPTED) AuditLink("Pausar", { session.setModuleState(scope, module.module, ModuleState.PAUSED) }, !session.busy)
-                                else AuditLink("Reanudar", { session.setModuleState(scope, module.module, ModuleState.ACCEPTED) }, !session.busy)
-                                AuditLink("Revocar", { session.setModuleState(scope, module.module, ModuleState.REVOKED) }, !session.busy)
+                            Row {
+                                when(module?.state) {
+                                    ModuleState.ACCEPTED -> {
+                                        AuditLink("Pausar", { session.setModuleState(scope, moduleId, ModuleState.PAUSED) }, !session.busy)
+                                        AuditLink("Revocar", { session.setModuleState(scope, moduleId, ModuleState.REVOKED) }, !session.busy)
+                                    }
+                                    ModuleState.PAUSED -> {
+                                        AuditLink("Reanudar", { session.setModuleState(scope, moduleId, ModuleState.ACCEPTED) }, !session.busy)
+                                        AuditLink("Revocar", { session.setModuleState(scope, moduleId, ModuleState.REVOKED) }, !session.busy)
+                                    }
+                                    ModuleState.REVOKED -> AuditLink("Aceptar de nuevo", { session.setModuleState(scope, moduleId, ModuleState.ACCEPTED) }, !session.busy)
+                                    else -> AuditLink("Aceptar", { session.setModuleState(scope, moduleId, ModuleState.ACCEPTED) }, !session.busy)
+                                }
                             }
                         }
                         Text("Retirar el consentimiento general revoca todas las funciones.", style = MaterialTheme.typography.bodySmall, color = AuditColors.Muted)

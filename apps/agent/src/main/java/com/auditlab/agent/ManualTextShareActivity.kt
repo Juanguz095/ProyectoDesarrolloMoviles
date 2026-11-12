@@ -55,11 +55,6 @@ class ManualTextShareActivity : ComponentActivity() {
                             agreed=false
                         }, !busy)
                         AuditButton("Revisar destino", {
-                            val modules = RoomAgentJournal(AgentRuntime.get(this@ManualTextShareActivity).database).modules()
-                            if(modules.none { it.module==ConsentModulesPolicy.MANUAL_SHARE && it.state==ModuleState.ACCEPTED }) {
-                                message="El módulo de texto manual no está aceptado o fue pausado/revocado. Gestiónalo en Detalles y ajustes."
-                                return@AuditButton
-                            }
                             busy=true
                             lifecycleScope.launch {
                                 try {
@@ -84,6 +79,8 @@ class ManualTextShareActivity : ComponentActivity() {
                                 try {
                                     withContext(Dispatchers.IO) {
                                         val runtime=AgentRuntime.get(this@ManualTextShareActivity)
+                                        // Confirmar el envío con la casilla marcada acepta esta función.
+                                        RoomAgentJournal(runtime.database).setModuleState(ConsentModulesPolicy.MANUAL_SHARE, ModuleState.ACCEPTED)
                                         check(runtime.target()==destination)
                                         runtime.core().sendManualText(event)
                                     }

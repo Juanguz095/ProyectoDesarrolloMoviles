@@ -9,6 +9,21 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
   registro apuntan a [HISTORICO](HISTORICO.md) y [OPERACION](OPERACION.md), donde vive el
   contenido técnico consolidado.
 
+## Funciones aceptadas al activar y enlaces claros — 12 de noviembre de 2026 (America/Lima)
+
+- Marcar las casillas y confirmar «Activar lo seleccionado» acepta ahora esas
+  funciones (acción local explícita): ya no se exige ir a «Detalles y ajustes»
+  para activar. Lo mismo aplica al texto manual y a la galería: su confirmación
+  acepta la función. Detalles y ajustes queda solo para pausar/revocar por separado,
+  con todas las funciones siempre visibles («Sin aceptar / Aceptado / Pausado /
+  Revocado») y una acción clara por fila.
+- Los enlaces de texto (`AuditLink`) se subrayan y usan color de tinta en ambas
+  apps: se distinguen de los rótulos estáticos.
+- Comprobaciones: common + Agente + Centro en verde; APK instaladas en el Huawei
+  (Android 15) y flujo verificado en pantalla: activar sin pasar por detalles,
+  «Batería y conexión — Aceptado» con acciones Pausar/Revocar.
+- Siguiente: M3 (ubicación aproximada continua).
+
 ## Galería seleccionada (M2 0.9) — 11 de noviembre de 2026 (America/Lima)
 
 - M2 del plan 0.9 implementada en Agente + servidor: selección explícita con el

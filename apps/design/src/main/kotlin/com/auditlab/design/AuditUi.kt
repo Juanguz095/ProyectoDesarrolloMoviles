@@ -158,7 +158,8 @@ fun AuditButton(text: String, onClick: () -> Unit, enabled: Boolean = true, outl
 fun AuditLink(text: String, onClick: () -> Unit, enabled: Boolean = true, modifier: Modifier = Modifier) {
     TextButton(onClick, modifier.heightIn(min = 48.dp), enabled = enabled,shape=RectangleShape,
         contentPadding = PaddingValues(horizontal = 0.dp, vertical = 8.dp)) {
-        Text(text, style = MaterialTheme.typography.labelLarge)
+        Text(text, style = MaterialTheme.typography.labelLarge, color = AuditColors.Ink,
+            textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline)
     }
 }
 

@@ -186,9 +186,11 @@ class RoomAgentJournal(private val database: AgentDatabase, private val capacity
         }
     }
     fun setModuleState(module: String, state: String): Boolean = operation {
-        val current = dao.modules().firstOrNull { it.module == module } ?: return@operation false
-        ConsentModulesPolicy.validate(module, state, current.policyVersion)
-        database.runInTransaction { dao.insertModule(ModuleRow(module, current.policyVersion, state, current.acceptedAt)) }
+        if (module !in ConsentModulesPolicy.available) return@operation false
+        val current = dao.modules().firstOrNull { it.module == module }
+        ConsentModulesPolicy.validate(module, state, ConsentModulesPolicy.policyOf(module))
+        val acceptedAt = current?.acceptedAt ?: java.time.Instant.now().toString()
+        database.runInTransaction { dao.insertModule(ModuleRow(module, ConsentModulesPolicy.policyOf(module), state, acceptedAt)) }
         true
     }
     override fun stats(): QueueStats = operation {
