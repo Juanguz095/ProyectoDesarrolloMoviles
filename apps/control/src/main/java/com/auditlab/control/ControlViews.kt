@@ -90,6 +90,24 @@ internal fun Dashboard(session: ControlSession, device: DeviceSummary?, scope: C
     }
     Text("Último contacto: ${device.lastSeenAt?.let { ageLabel(it,now) } ?: "Aún sin contacto"}",color=AuditColors.Muted,style=MaterialTheme.typography.bodySmall)
     DeviceReadingCard(reading,now,showReadingTime=false)
+    Text("Ubicación aproximada",style=MaterialTheme.typography.titleMedium)
+    LaunchedEffect(device.deviceId) { session.loadLocations(device.deviceId, scope) }
+    val points = session.locationEvents.filter { it.sourceDevice==device.deviceId }.mapNotNull { event ->
+        val lat = (event.metadata["locationLat"] as? Number)?.toDouble()
+        val lon = (event.metadata["locationLon"] as? Number)?.toDouble()
+        if (lat != null && lon != null) Triple(lat, lon, event.timestamp) else null
+    }
+    if (points.isEmpty()) {
+        AuditPanel { Text("Aún no hay lecturas de ubicación. Activa «Ubicación aproximada» en el Agente; cada lectura aparecerá aquí con su fecha.",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted) }
+    } else {
+        DeviceLocationMap(points, Modifier.fillMaxWidth().height(200.dp))
+        Text("Cada punto conserva su fecha; no es la ubicación actual.",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
+    }
+    val viewerContext = androidx.compose.ui.platform.LocalContext.current
+    if(device.isActive) AuditButton("Ver pantalla compartida", {
+        viewerContext.startActivity(android.content.Intent(viewerContext, ScreenViewerActivity::class.java)
+            .putExtra("device", device.deviceId).putExtra("deviceLabel", session.deviceName(device.deviceId)))
+    }, !session.busy, outlined = true)
     Text("Actividad reciente",style=MaterialTheme.typography.titleMedium)
     if(recent.isEmpty()) AuditEmpty("SIN EVENTOS TODAVÍA","Activa la captura en el Agente. Los eventos aparecerán aquí cuando lleguen al servidor.")
     recent.take(5).forEach { EventRow(it,!session.busy) {session.showDetail(it,scope)} }
