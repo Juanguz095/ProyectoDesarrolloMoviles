@@ -100,7 +100,7 @@ internal fun Dashboard(session: ControlSession, device: DeviceSummary?, scope: C
     if (points.isEmpty()) {
         AuditPanel { Text("Aún no hay lecturas de ubicación. Activa «Ubicación aproximada» en el Agente; cada lectura aparecerá aquí con su fecha.",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted) }
     } else {
-        DeviceLocationMap(points, Modifier.fillMaxWidth().height(200.dp))
+        DeviceLocationMap(points)
         Text("Cada punto conserva su fecha; no es la ubicación actual.",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
     }
     val viewerContext = androidx.compose.ui.platform.LocalContext.current

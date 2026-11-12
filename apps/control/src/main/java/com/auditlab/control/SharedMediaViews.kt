@@ -41,7 +41,7 @@ internal fun GalleryAlbumsView(session: ControlSession, device: String?, onBack:
 
 /** Mapa de ubicación aproximada reutilizable: un punto por lectura, con su fecha. */
 @Composable
-internal fun DeviceLocationMap(points: List<Triple<Double, Double, String>>, modifier: Modifier = Modifier) {
+internal fun DeviceLocationMap(points: List<Triple<Double, Double, String>>, modifier: Modifier = Modifier.fillMaxWidth().height(160.dp)) {
     AndroidView(
         factory = { context ->
             org.osmdroid.config.Configuration.getInstance().apply {
@@ -61,7 +61,7 @@ internal fun DeviceLocationMap(points: List<Triple<Double, Double, String>>, mod
             }
             points.lastOrNull()?.let { map.controller.setCenter(org.osmdroid.util.GeoPoint(it.first, it.second)) }
         },
-        modifier = modifier.fillMaxWidth().height(280.dp),
+        modifier = modifier,
     )
 }
 
@@ -87,7 +87,7 @@ internal fun LocationMapView(session: ControlSession, device: String?, label: St
     if (points.isEmpty()) {
         AuditPanel { Text("Todavía no hay lecturas de ubicación de este equipo. Activa «Ubicación aproximada» en el Agente.", color = AuditColors.Muted) }
     } else {
-        DeviceLocationMap(points, Modifier.fillMaxWidth().height(320.dp))
+        DeviceLocationMap(points, Modifier.fillMaxWidth().height(260.dp))
     }
     points.takeLast(10).reversed().forEach { (lat, lon, at) ->
         Text("${displayFriendlyTime(at)} · ${"%.2f".format(lat)}, ${"%.2f".format(lon)}", style = MaterialTheme.typography.bodySmall)
