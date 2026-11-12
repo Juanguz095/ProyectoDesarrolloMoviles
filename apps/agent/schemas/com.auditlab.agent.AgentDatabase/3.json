@@ -1,0 +1,158 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 3,
+    "identityHash": "a1e8703e0326bcd8656da53316cb3e27",
+    "entities": [
+      {
+        "tableName": "agent_registration",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`singleton` INTEGER NOT NULL, `device_id` TEXT NOT NULL, `server_url` TEXT NOT NULL, `consent_json` TEXT, `phase` TEXT NOT NULL, `remote` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`singleton`))",
+        "fields": [
+          {
+            "fieldPath": "singleton",
+            "columnName": "singleton",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deviceId",
+            "columnName": "device_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "serverUrl",
+            "columnName": "server_url",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "consentJson",
+            "columnName": "consent_json",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "phase",
+            "columnName": "phase",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "remote",
+            "columnName": "remote",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "singleton"
+          ]
+        }
+      },
+      {
+        "tableName": "agent_outbox",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`event_id` TEXT NOT NULL, `payload_json` TEXT NOT NULL, `timestamp_ms` INTEGER NOT NULL, `delivery` TEXT NOT NULL, `attempts` INTEGER NOT NULL DEFAULT 0, `error_code` TEXT, PRIMARY KEY(`event_id`))",
+        "fields": [
+          {
+            "fieldPath": "eventId",
+            "columnName": "event_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "payloadJson",
+            "columnName": "payload_json",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timestampMs",
+            "columnName": "timestamp_ms",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "delivery",
+            "columnName": "delivery",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "attempts",
+            "columnName": "attempts",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "errorCode",
+            "columnName": "error_code",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "event_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_agent_outbox_delivery_timestamp_ms_event_id",
+            "unique": false,
+            "columnNames": [
+              "delivery",
+              "timestamp_ms",
+              "event_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_agent_outbox_delivery_timestamp_ms_event_id` ON `${TABLE_NAME}` (`delivery`, `timestamp_ms`, `event_id`)"
+          }
+        ]
+      },
+      {
+        "tableName": "agent_consent_modules",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`module` TEXT NOT NULL, `policy_version` TEXT NOT NULL, `state` TEXT NOT NULL, `accepted_at` TEXT NOT NULL, PRIMARY KEY(`module`))",
+        "fields": [
+          {
+            "fieldPath": "module",
+            "columnName": "module",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "policyVersion",
+            "columnName": "policy_version",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "state",
+            "columnName": "state",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "acceptedAt",
+            "columnName": "accepted_at",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "module"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a1e8703e0326bcd8656da53316cb3e27')"
+    ]
+  }
+}

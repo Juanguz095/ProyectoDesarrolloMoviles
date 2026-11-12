@@ -38,6 +38,28 @@ internal fun parseConsent(node: JsonNode, clock: Clock = Clock.systemUTC()): Con
     return ConsentInput(id, policy, acceptedAt)
 }
 
+internal data class ModuleInput(val module: String, val policyVersion: String, val state: String)
+
+internal val consentModulePolicies = linkedMapOf(
+    "base" to "base-1", "communications" to "communications-1", "numbers" to "numbers-1",
+    "sms_text" to "sms-text-1", "whatsapp" to "whatsapp-preview-2", "screen" to "screen-share-1",
+    "manual_share" to "manual-share-1", "gallery" to "gallery-1", "location" to "location-1", "video" to "video-1")
+
+internal fun parseConsentModule(node: JsonNode): ModuleInput {
+    node.requireExactKeys(setOf("module", "policyVersion", "state"))
+    val module = node.requireText("module")
+    val policy = node.requireText("policyVersion")
+    val state = node.requireText("state")
+    val expected = consentModulePolicies[module] ?: throw ApiFailure(400, "INVALID_REQUEST")
+    if (policy != expected || state !in setOf("ACCEPTED", "PAUSED", "REVOKED")) throw ApiFailure(400, "INVALID_REQUEST")
+    return ModuleInput(module, policy, state)
+}
+
+internal fun parseConsentModules(node: JsonNode): List<ModuleInput> {
+    if (!node.isArray) throw ApiFailure(400, "INVALID_REQUEST")
+    return node.map(::parseConsentModule)
+}
+
 internal fun ApplicationCall.deviceIdPath(): UUID {
     val raw = parameters["deviceId"] ?: throw ApiFailure(404, "RESOURCE_NOT_FOUND")
     return try { UUID.fromString(raw) } catch (_: IllegalArgumentException) { throw ApiFailure(400, "INVALID_REQUEST") }
@@ -71,6 +93,19 @@ internal fun Connection.deviceView(deviceId: UUID): Map<String, Any?>? = prepare
                 "acceptedAt" to wire(row.getTimestamp(9).toInstant()),
             ),
             "appVersion" to row.getString(6),
+            "consentModules" to prepareStatement("SELECT module,policy_version,state,accepted_at FROM auditlab.consent_modules WHERE device_id=? ORDER BY module").use { query ->
+                query.setObject(1, deviceId)
+                query.executeQuery().use { result ->
+                    buildList {
+                        while (result.next()) add(mapOf(
+                            "module" to result.getString(1),
+                            "policyVersion" to result.getString(2),
+                            "state" to result.getString(3),
+                            "acceptedAt" to wire(result.getTimestamp(4).toInstant()),
+                        ))
+                    }
+                }
+            },
         )
     }
 }
@@ -111,7 +146,7 @@ fun Route.deviceRoutes(auth: AuthService?) {
             val code = call.request.headers["X-Enrollment-Code"]?.takeIf { it.length in 32..4096 }
                 ?: throw ApiFailure(401, "ENROLLMENT_CODE_INVALID")
             val body = call.strictObject()
-            body.requireExactKeys(setOf("consentAcknowledged", "consent"), setOf("appVersion"))
+            body.requireExactKeys(setOf("consentAcknowledged", "consent"), setOf("appVersion", "consentModules"))
             if (!body["consentAcknowledged"].isBoolean || !body["consentAcknowledged"].booleanValue()) {
                 throw ApiFailure(400, "CONSENT_REQUIRED")
             }
@@ -152,6 +187,21 @@ fun Route.deviceRoutes(auth: AuthService?) {
                             it.setTimestamp(4, java.sql.Timestamp.from(consent.acceptedAt))
                             it.setTimestamp(5, java.sql.Timestamp.from(now))
                             it.executeUpdate()
+                        }
+                        body["consentModules"]?.let { nodes ->
+                            parseConsentModules(nodes).forEach { module ->
+                                connection.prepareStatement("""INSERT INTO auditlab.consent_modules(device_id,module,policy_version,state,accepted_at,updated_at)
+                                    VALUES (?,?,?,?,?,?) ON CONFLICT (device_id,module) DO UPDATE SET
+                                    policy_version=EXCLUDED.policy_version, state=EXCLUDED.state, updated_at=EXCLUDED.updated_at""").use {
+                                    it.setObject(1, deviceId)
+                                    it.setString(2, module.module)
+                                    it.setString(3, module.policyVersion)
+                                    it.setString(4, module.state)
+                                    it.setTimestamp(5, java.sql.Timestamp.from(consent.acceptedAt))
+                                    it.setTimestamp(6, java.sql.Timestamp.from(now))
+                                    it.executeUpdate()
+                                }
+                            }
                         }
                         Audit.record(connection, "device", deviceId, "device_enrolled",
                             Audit.resource("device", deviceId = deviceId), correlation = correlation)
@@ -299,6 +349,36 @@ fun Route.deviceRoutes(auth: AuthService?) {
                         it.executeUpdate()
                     }
                     Audit.record(connection, "device", deviceId, "consent_revoked",
+                        Audit.resource("device", deviceId = deviceId), correlation = correlation)
+                }
+            }
+            call.respond(HttpStatusCode.NoContent)
+        }
+    }
+
+    post("/v1/devices/{deviceId}/consent-modules") {
+        call.api { correlation ->
+            val service = auth ?: throw ApiFailure(503, "SERVICE_UNAVAILABLE")
+            call.requireNoQuery()
+            val deviceId = call.deviceIdPath()
+            val module = parseConsentModule(call.strictObject())
+            val token = bearer(call.request.headers[HttpHeaders.Authorization])
+            withContext(Dispatchers.IO) {
+                service.authorizedDevice(token) { connection, device ->
+                    if (device.deviceId != deviceId) throw ApiFailure(403, "DEVICE_SCOPE_MISMATCH")
+                    val now = java.sql.Timestamp.from(Instant.now().truncatedTo(ChronoUnit.MICROS))
+                    connection.prepareStatement("""INSERT INTO auditlab.consent_modules(device_id,module,policy_version,state,accepted_at,updated_at)
+                        VALUES (?,?,?,?,?,?) ON CONFLICT (device_id,module) DO UPDATE SET
+                        policy_version=EXCLUDED.policy_version, state=EXCLUDED.state, updated_at=EXCLUDED.updated_at""").use {
+                        it.setObject(1, deviceId)
+                        it.setString(2, module.module)
+                        it.setString(3, module.policyVersion)
+                        it.setString(4, module.state)
+                        it.setTimestamp(5, now)
+                        it.setTimestamp(6, now)
+                        it.executeUpdate()
+                    }
+                    Audit.record(connection, "device", deviceId, "consent_module_updated",
                         Audit.resource("device", deviceId = deviceId), correlation = correlation)
                 }
             }

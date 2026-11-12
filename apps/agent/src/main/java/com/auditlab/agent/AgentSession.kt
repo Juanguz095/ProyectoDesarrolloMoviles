@@ -49,6 +49,7 @@ class AgentSession internal constructor(
         private set
     var log by mutableStateOf<List<String>>(emptyList())
         private set
+    var consentModules by mutableStateOf<List<ModuleConsent>>(emptyList()); private set
     private val operations = Mutex()
     private var operationCount = 0
     private var initialized = platform == null
@@ -83,8 +84,36 @@ class AgentSession internal constructor(
             consent = core().acceptConsent()
             message = "Consentimiento registrado. Puedes inscribir el dispositivo."
         } else if (scope != null) perform(scope) {
-            it.acceptConsent()
+            val accepted = it.acceptConsent()
+            modulesJournal()?.acceptModules(accepted.acceptedAt)
             "Consentimiento registrado. Puedes inscribir el dispositivo."
+        }
+    }
+    /** Acepta los módulos por función (re-aceptación obligatoria tras actualizar desde 0.8.x). */
+    fun acceptModules(scope: CoroutineScope) = perform(scope) {
+        check(platform != null) { "Esta función necesita el Agente instalado." }
+        modulesJournal()!!.acceptModules(java.time.Instant.now().toString())
+        "Funciones aceptadas según su política. Puedes pausarlas o revocarlas por separado."
+    }
+    fun setModuleState(scope: CoroutineScope, module: String, state: String) = perform(scope) {
+        check(platform != null) { "Esta función necesita el Agente instalado." }
+        check(modulesJournal()!!.setModuleState(module, state)) { "Ese módulo no admite el cambio solicitado." }
+        if (state != ModuleState.ACCEPTED) stopModuleSource(module)
+        when (state) {
+            ModuleState.PAUSED -> "Función pausada. No captura hasta que la reanudes."
+            ModuleState.REVOKED -> "Función revocada. Volver a aceptarla exige un consentimiento nuevo."
+            else -> "Función reanudada."
+        }
+    }
+    private fun modulesJournal(): RoomAgentJournal? = platform?.let { RoomAgentJournal(it.database) }
+    private fun stopModuleSource(module: String) {
+        when (module) {
+            ConsentModulesPolicy.WHATSAPP -> platform?.stopWhatsAppSharing()
+            ConsentModulesPolicy.SCREEN -> platform?.stopScreenSharing()
+            ConsentModulesPolicy.BASE -> {
+                runCatching { platform?.basicMonitoring?.stop() }; platform?.realEvents?.stop(); platform?.stopWhatsAppSharing(); platform?.stopScreenSharing()
+            }
+            else -> platform?.realEvents?.stop()
         }
     }
     fun enroll(code: String, scope: CoroutineScope) = perform(scope, networkHint = "No se pudo confirmar la inscripción. Comprueba el centro y solicita otro código si el anterior fue consumido.") {
@@ -151,6 +180,12 @@ class AgentSession internal constructor(
     fun updateSmsTextConsent(value: Boolean) { if(!realMonitoring) smsTextConsent=value }
     fun startRealMonitoring(scope: CoroutineScope) = perform(scope) {
         check(platform != null) { "La captura real necesita un dispositivo Android." }
+        val modules = modulesJournal()!!.modules().associateBy { it.module }
+        check(modules[ConsentModulesPolicy.COMMUNICATIONS]?.state == ModuleState.ACCEPTED) {
+            "El módulo «${ConsentModulesPolicy.labels[ConsentModulesPolicy.COMMUNICATIONS]}» no está aceptado o fue pausado/revocado."
+        }
+        if (numberConsent) check(modules[ConsentModulesPolicy.NUMBERS]?.state == ModuleState.ACCEPTED) { "El módulo de números no está aceptado." }
+        if (smsTextConsent) check(modules[ConsentModulesPolicy.SMS_TEXT]?.state == ModuleState.ACCEPTED) { "El módulo de texto de SMS no está aceptado." }
         platform.realEvents.start(numberConsent,smsTextConsent)
         "Captura solicitada. ${platform.realEvents.permissionsText()}"
     }
@@ -169,7 +204,7 @@ class AgentSession internal constructor(
         .also { engine = it }
     private data class Snapshot(val state: AgentCore.State, val consent: ConsentContext?, val stats: QueueStats,
                                 val pending: Boolean, val visible: Boolean, val url: String,
-                                val events: List<LocalEvent>, val deviceStatus: EventDraft?)
+                                val events: List<LocalEvent>, val deviceStatus: EventDraft?, val modules: List<ModuleConsent>)
     private fun snapshot(): Snapshot = platform?.let { synchronized(it.gate) { readSnapshot() } } ?: readSnapshot()
     private fun readSnapshot(): Snapshot {
         val current = core()
@@ -178,15 +213,18 @@ class AgentSession internal constructor(
         val active = state is AgentCore.State.Enrolled
         val rows = if (active) platform?.database?.dao()?.recent(100).orEmpty() else emptyList()
         val deviceStatus = if (active) platform?.database?.dao()?.lastDeviceStatus()?.let { EventCodec.decode(it.payloadJson) } else null
+        val modules = platform?.database?.dao()?.modules().orEmpty()
+            .map { ModuleConsent(it.module, it.policyVersion, it.state, it.acceptedAt) }
         return Snapshot(state, current.acceptedConsent, current.stats(), current.revocationPending,
             platform?.indicator?.isVisible() ?: true, platform?.target(serverUrl) ?: serverUrl,
-            rows.map { LocalEvent(EventCodec.decode(it.payloadJson), it.delivery, it.errorCode) }, deviceStatus)
+            rows.map { LocalEvent(EventCodec.decode(it.payloadJson), it.delivery, it.errorCode) }, deviceStatus, modules)
     }
     private fun publish(value: Snapshot) {
         if(value.state !is AgentCore.State.Enrolled) { numberConsent=false;smsTextConsent=false }
         state = value.state; consent = value.consent; stats = value.stats; revocationPending = value.pending
         visibleAvailable = value.visible; serverUrl = value.url
         ready = true; recentEvents = value.events; lastDeviceStatus = value.deviceStatus
+        consentModules = value.modules
         smsPermission = platform?.realEvents?.hasPermission(android.Manifest.permission.READ_SMS) == true
         callPermission = platform?.realEvents?.hasPermission(android.Manifest.permission.READ_CALL_LOG) == true
         realMonitoring = platform?.realEvents?.requested == true

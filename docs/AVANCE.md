@@ -4,6 +4,32 @@ Actualización: 11 de noviembre de 2026, America/Lima. Los registros anteriores 
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
 
+## Consentimiento por función (M1 0.9) y estabilidad de pruebas — 11 de noviembre de 2026 (America/Lima)
+
+- M1 del plan 0.9 implementada: módulos de consentimiento independientes
+  (`base`, `communications`, `numbers`, `sms_text`, `whatsapp`, `screen`,
+  `manual_share`; `gallery`/`location`/`video` reservados para M2–M4) con política
+  versionada, estados aceptado/pausado/revocado, gestión por módulo en «Detalles y
+  ajustes» y revocación general que los limpia todos. La activación unificada, la
+  captura real y el texto manual bloquean su fuente si su módulo no está aceptado.
+  Un dispositivo 0.8.x migrado queda sin módulos y debe re-aceptar (D13).
+- Persistencia: Room v3 con `agent_consent_modules` (migración 2→3) y servidor con
+  `V12__consent_modules.sql`, alta de módulos en la inscripción (opcional), endpoint
+  `POST /v1/devices/{deviceId}/consent-modules` auditado, `consentModules` en la vista
+  de dispositivo y contrato `openapi.yaml` extendido (schemas y path nuevos).
+- Estabilidad: causa raíz del fallo de `RoomAgentJournalTest` corregida — las
+  transacciones concurrentes entre conexiones se reintentan ante SQLITE_BUSY
+  (la capacidad de cola sigue impuesta por transacción) y la apertura fija un
+  `busy_timeout` breve. El test pasa en ~2,9 s; se preserva la causa en `StorageFailure`.
+- Comprobaciones: **Agente 55/55** (50 previas + 5 de módulos), **Centro 22/22**,
+  **common 3/3** nuevas (JUnit 5) y **backend unit** completo aprobado. Sin fallos.
+- Limitaciones: `:backend:ktor:integrationTest` **no ejecutado** — requiere Docker
+  con socket Unix (`scripts/check_database.py`) y aquí no hay daemon disponible;
+  la migración V12 y el endpoint quedan pendientes de esa comprobación de BD. El
+  envío de módulos desde el Agente al servidor (wiring API) queda para M5.
+- Siguiente: M2 (galería seleccionada) o cerrar la comprobación de integración de
+  V12 cuando haya Docker disponible.
+
 ## Recorrido en teléfono Huawei (Android 15) — 11 de noviembre de 2026 (America/Lima)
 
 - Huawei NLA-LX3, **Android 15 / API 35** (cubre parcialmente la pendiente de

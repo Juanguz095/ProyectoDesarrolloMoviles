@@ -379,6 +379,54 @@ paths:
         schema:
           type: string
           format: uuid
+  /devices/{deviceId}/consent-modules:
+    post:
+      operationId: updateConsentModule
+      tags:
+      - Devices
+      summary: Actualizar un módulo de consentimiento por función
+      description: Solo el propio dispositivo registra el estado de un módulo; cada cambio queda auditado.
+        Pausar o revocar un módulo detiene su función. La retirada general de consentimiento revoca
+        todos los módulos. Un dispositivo 0.8.x sin módulos debe aceptar el consentimiento actualizado.
+      responses:
+        '204':
+          description: Operación confirmada. La transacción y su auditoría deben persistir antes de responder éxito.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+            Cache-Control:
+              $ref: '#/components/headers/NoStore'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-roles:
+      - device
+      security:
+      - DeviceBearer: []
+      parameters:
+      - name: deviceId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsentModuleInput'
   /events:
     post:
       operationId: ingestEvents
@@ -1115,6 +1163,48 @@ components:
           type: string
           format: date-time
           description: RFC 3339 con zona. El servidor normaliza a UTC con precisión de microsegundos.
+    ConsentModule:
+      type: object
+      additionalProperties: false
+      required:
+      - module
+      - policyVersion
+      - state
+      - acceptedAt
+      properties:
+        module:
+          type: string
+          enum: [base, communications, numbers, sms_text, whatsapp, screen, manual_share, gallery, location, video]
+        policyVersion:
+          type: string
+          minLength: 1
+          maxLength: 64
+          description: Versión exacta de la política del módulo; una diferencia rechaza la operación.
+        state:
+          type: string
+          enum: [ACCEPTED, PAUSED, REVOKED]
+        acceptedAt:
+          type: string
+          format: date-time
+          description: RFC 3339 con zona. El servidor normaliza a UTC con precisión de microsegundos.
+    ConsentModuleInput:
+      type: object
+      additionalProperties: false
+      required:
+      - module
+      - policyVersion
+      - state
+      properties:
+        module:
+          type: string
+          enum: [base, communications, numbers, sms_text, whatsapp, screen, manual_share, gallery, location, video]
+        policyVersion:
+          type: string
+          minLength: 1
+          maxLength: 64
+        state:
+          type: string
+          enum: [ACCEPTED, PAUSED, REVOKED]
     EnrollmentRequest:
       type: object
       additionalProperties: false
@@ -1131,6 +1221,13 @@ components:
           type: string
           minLength: 1
           maxLength: 40
+        consentModules:
+          type: array
+          maxItems: 10
+          description: Módulos de consentimiento por función aceptados al inscribir. Opcional para compatibilidad;
+            un dispositivo sin módulos debe re-aceptar el consentimiento actualizado antes de capturar.
+          items:
+            $ref: '#/components/schemas/ConsentModuleInput'
     EnrollmentCode:
       type: object
       additionalProperties: false
@@ -1377,6 +1474,11 @@ components:
           - string
           - 'null'
           maxLength: 40
+        consentModules:
+          type: array
+          description: Estado por función; vacío si el dispositivo aún no re-acepta el consentimiento por módulos.
+          items:
+            $ref: '#/components/schemas/ConsentModule'
       allOf:
       - if:
           properties:

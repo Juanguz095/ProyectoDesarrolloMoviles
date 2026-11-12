@@ -130,6 +130,20 @@ class AgentRuntime private constructor(private val context: android.app.Applicat
             "Detén el monitoreo antes de cambiar las funciones."
         }
         check(core().refresh() is AgentCore.State.Enrolled)
+        // M1 (plan 0.9): cada función exige su módulo de consentimiento aceptado; un módulo
+        // pausado o revocado bloquea su fuente hasta que el usuario lo gestione.
+        val modules = runCatching { (journal as? RoomAgentJournal)?.modules() }.getOrNull().orEmpty().associateBy { it.module }
+        fun requireModule(module: String) = check(modules[module]?.state == ModuleState.ACCEPTED) {
+            "El módulo «${ConsentModulesPolicy.labels[module]}» no está aceptado o fue pausado/revocado. Gestiónalo en Detalles y ajustes."
+        }
+        requireModule(ConsentModulesPolicy.BASE)
+        if (selection.communications) {
+            requireModule(ConsentModulesPolicy.COMMUNICATIONS)
+            if (selection.numbers) requireModule(ConsentModulesPolicy.NUMBERS)
+            if (selection.smsText) requireModule(ConsentModulesPolicy.SMS_TEXT)
+        }
+        if (selection.whatsApp) requireModule(ConsentModulesPolicy.WHATSAPP)
+        if (selection.screen) requireModule(ConsentModulesPolicy.SCREEN)
         check(!gate.withdrawalRequested && !gate.storageBlocked)
         check(activationValid(epoch)) {"Activación cancelada"}
         check(indicator.show()) {"Se necesita una notificación visible"}

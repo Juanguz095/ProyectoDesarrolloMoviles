@@ -23,6 +23,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.auditlab.common.ConsentModulesPolicy
+import com.auditlab.common.ModuleState
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -248,6 +250,24 @@ internal fun AgentScreen(session: AgentSession, workScope: CoroutineScope? = nul
                         AuditButton("Enviar estado ahora",{session.refreshDeviceStatus(scope)},active && session.visibleAvailable && !session.busy,outlined=true)
                         AuditButton("Generar evento simulado",{session.sendSimulatedEvent(scope)},!session.busy && session.visibleAvailable,outlined=true)
                         platformControls?.invoke()
+                        SectionLabel("Consentimiento y funciones")
+                        if(session.consentModules.isEmpty()) {
+                            Text("Este consentimiento es anterior al control por funciones. Acepta el consentimiento actualizado para poder pausar o revocar cada función por separado.", color = AuditColors.Warning, style = MaterialTheme.typography.bodySmall)
+                            AuditButton("Aceptar funciones", { session.acceptModules(scope) }, !session.busy)
+                        } else session.consentModules.forEach { module ->
+                            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                Text(ConsentModulesPolicy.labels[module.module] ?: module.module, Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
+                                AuditStateTag(when(module.state) { ModuleState.ACCEPTED -> "Aceptado"; ModuleState.PAUSED -> "Pausado"; else -> "Revocado" },
+                                    active=module.state==ModuleState.ACCEPTED, attention=module.state==ModuleState.PAUSED, failed=module.state==ModuleState.REVOKED)
+                            }
+                            if(module.state==ModuleState.REVOKED) Text("Revocado; aceptarlo de nuevo exige un consentimiento nuevo.", style=MaterialTheme.typography.bodySmall, color=AuditColors.Muted)
+                            else Row {
+                                if(module.state==ModuleState.ACCEPTED) AuditLink("Pausar", { session.setModuleState(scope, module.module, ModuleState.PAUSED) }, !session.busy)
+                                else AuditLink("Reanudar", { session.setModuleState(scope, module.module, ModuleState.ACCEPTED) }, !session.busy)
+                                AuditLink("Revocar", { session.setModuleState(scope, module.module, ModuleState.REVOKED) }, !session.busy)
+                            }
+                        }
+                        Text("Retirar el consentimiento general revoca todas las funciones.", style = MaterialTheme.typography.bodySmall, color = AuditColors.Muted)
                         AuditLink("Ver política de datos",{policy=true})
                         AuditButton("Retirar consentimiento",{confirmWithdrawal=true},!session.revoking,outlined=true)
                     }

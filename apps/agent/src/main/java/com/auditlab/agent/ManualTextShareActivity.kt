@@ -15,7 +15,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
+import com.auditlab.common.ConsentModulesPolicy
 import com.auditlab.common.EventDraft
+import com.auditlab.common.ModuleState
 import com.auditlab.design.*
 import kotlinx.coroutines.*
 
@@ -53,6 +55,11 @@ class ManualTextShareActivity : ComponentActivity() {
                             agreed=false
                         }, !busy)
                         AuditButton("Revisar destino", {
+                            val modules = RoomAgentJournal(AgentRuntime.get(this@ManualTextShareActivity).database).modules()
+                            if(modules.none { it.module==ConsentModulesPolicy.MANUAL_SHARE && it.state==ModuleState.ACCEPTED }) {
+                                message="El módulo de texto manual no está aceptado o fue pausado/revocado. Gestiónalo en Detalles y ajustes."
+                                return@AuditButton
+                            }
                             busy=true
                             lifecycleScope.launch {
                                 try {
