@@ -10,7 +10,7 @@ Es una entrega de desarrollo. [Estado comprobado](AVANCE.md) y
 - Dos teléfonos Android 8/API26 o posteriores, propios o administrados con autorización.
 - API Ktor disponible y PostgreSQL migrado, cuenta administrador y auditores si corresponde.
 - Ambos teléfonos deben alcanzar la misma URL HTTPS. Para Windows/Tailscale:
-  [instalación sin USB](INICIO_WINDOWS_0.4.md). No usar 127.0.0.1 en los teléfonos.
+  [instalación sin USB](HISTORICO.md). No usar 127.0.0.1 en los teléfonos.
 - APK actuales: utilizar los enlaces de [README](../README.md). El ZIP Windows 0.7
   incluye los APK anteriores; descargar los APK actuales separados.
 - Las apps publicadas tienen firma debug. Para una distribución propia usar una
@@ -68,7 +68,7 @@ El texto entrante permanece temporal; no es el historial del chat. Las respuesta
 propias solo generan tipo/fecha si Android las expone en una notificación; no
 se obtiene todo lo escrito dentro del chat ni se confirma entrega o lectura.
 Detener desde la app/notificación termina la sesión; reiniciar el proceso no la reactiva.
-[Corrección y límites](CORRECCION_WHATSAPP_0.7.1.md).
+[Corrección y límites](HISTORICO.md).
 
 ## 5. Agente: compartir pantalla
 
@@ -93,7 +93,7 @@ a cámara, audio ni grabación; ventanas protegidas pueden aparecer en blanco/ne
 - **WhatsApp:** Eventos → Todo o WhatsApp, seleccionar teléfono y Actualizar WhatsApp.
   Las tarjetas de texto temporal se muestran dentro de Resultados, separadas del
   historial de actividad, sin filtros de fecha/ID. Ver mensaje completo expande
-  el texto. [Alcance del Centro 0.7.2](WHATSAPP_EVENTOS_0.7.2.md).
+  el texto. [Alcance del Centro 0.7.2](HISTORICO.md).
   También puede abrirse desde el dispositivo. Consulta cada 3 s en primer plano.
 - **Pantalla:** Equipos → Ver dispositivo → Ver pantalla compartida.
 
@@ -154,9 +154,9 @@ La recepción real de WhatsApp reportada por el usuario sigue pendiente de confi
 en la versión actual. Compilación/lint/firma no acreditan ese recorrido.
 [Registros](evidencias/WHATSAPP-0.7.1-2026-10-29.json).
 
-Identificación y archivo local de equipos: [Centro 0.7.4](DISPOSITIVOS_0.7.3.md).
+Identificación y archivo local de equipos: [Centro 0.7.4](HISTORICO.md).
 
-Alertas con servicio visible sin Firebase: [activar Centro 0.7.4](ALERTAS_WHATSAPP_0.7.4.md).
+Alertas con servicio visible sin Firebase: [activar Centro 0.7.4](HISTORICO.md).
 
 Agente 0.7.5: [batería/conexión y recuperación visible opcional](MONITOREO_BASICO_0.7.5.md).
 

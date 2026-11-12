@@ -1,6 +1,6 @@
 # AuditLab sin USB — Windows y dos celulares
 
-Para la versión 0.4, empieza por [la guía completa con descargas](INICIO_WINDOWS_0.4.md).
+Para la versión 0.4, empieza por [la guía completa con descargas](HISTORICO.md).
 Los APK admiten HTTPS. Para conectarlos sin cables se puede usar
 **Tailscale Serve**, una conexión privada entre tu PC y tus celulares. Sirve en el
 mismo Wi-Fi o en redes distintas con Internet. La PC sigue siendo el servidor y

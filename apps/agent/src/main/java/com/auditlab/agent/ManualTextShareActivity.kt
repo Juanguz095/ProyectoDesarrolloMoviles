@@ -43,7 +43,7 @@ class ManualTextShareActivity : ComponentActivity() {
                         AuditButton("Cerrar", { finish() })
                         return@Column
                     }
-                    Text("Elige hasta 2 000 caracteres. Se guardará en el servidor según su política de eventos y podrá consultarse y exportarse por administradores y auditores. No se identifica la aplicación de origen ni el remitente.")
+                    Text("Hasta 2 000 caracteres. Se guarda según la política del servidor y lo consultan/exportan administradores y auditores. Sin identificar la app de origen ni el remitente.")
                     OutlinedTextField(value=text, onValueChange={text=it; agreed=false}, readOnly=draft!=null || busy,
                         label={Text("Texto (${text.length}/2000)")}, modifier=Modifier.fillMaxWidth())
                     if(draft==null) {
@@ -68,7 +68,7 @@ class ManualTextShareActivity : ComponentActivity() {
                     } else {
                         Text("Servidor: $destination")
                         Text("Dispositivo: ${draft!!.sourceDevice}")
-                        Text("No se reactiva el monitoreo ni se envían eventos pendientes. Si no llega la confirmación, puedes reintentar aquí con el mismo texto e identificador.")
+                        Text("No reactiva el monitoreo ni envía pendientes. Sin confirmación, reintenta aquí con el mismo texto e identificador.")
                         Row { Checkbox(checked=agreed,onCheckedChange={agreed=it},enabled=!busy && !sent); Text("Acepto conservar y enviar este texto al destino indicado.") }
                         AuditButton(if(busy) "Enviando…" else "Confirmar envío / reintentar", {
                             val event=draft!!
@@ -81,7 +81,7 @@ class ManualTextShareActivity : ComponentActivity() {
                                         runtime.core().sendManualText(event)
                                     }
                                     sent=true; text=""; draft=null; message="Texto confirmado por el servidor."
-                                } catch (_: Exception) { message="No se confirmó el envío. Reintenta aquí o cierra para descartar el borrador; si el servidor lo recibió, puede conservarlo." }
+                                } catch (_: Exception) { message="Sin confirmación: reintenta o cierra y descarta el borrador; el servidor pudo conservarlo." }
                                 finally {busy=false}
                             }
                         }, agreed && !busy && !sent)

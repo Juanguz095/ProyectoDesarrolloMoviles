@@ -64,7 +64,7 @@ class ScreenViewerActivity : ComponentActivity() {
                     Text("$label · ${device.take(8)}",style=androidx.compose.material3.MaterialTheme.typography.bodySmall)
                     Text(status)
                     frame?.let { Image(it.asImageBitmap(), "Pantalla compartida por el usuario", Modifier.fillMaxWidth().heightIn(max = 560.dp), contentScale = ContentScale.Fit) }
-                    if(frame==null) Text("En el Agente revisa Pantalla y el último envío en Detalles. Comprueba que el código de equipo coincida.")
+                    if(frame==null) Text("Revisa en el Agente Pantalla y el último envío; el código de equipo debe coincidir.")
                     AuditDisclosure("Privacidad") {Text("La persona del dispositivo inicia y detiene la captura. Sin grabación de video ni audio.")}
                     AuditButton("Cerrar visor", { finish() })
                 }

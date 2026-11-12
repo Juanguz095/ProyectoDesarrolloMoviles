@@ -55,7 +55,7 @@ private fun WhatsAppMessagesContent(session: ControlSession,device: String?,onBa
                 error=when {
                     failure is ApiException && failure.code=="DEVICE_REVOKED" -> "Dispositivo revocado. Las vistas previas dejaron de estar disponibles."
                     failure is ApiException && failure.status==401 -> "Sesión vencida. Inicia sesión de nuevo."
-                    failure is ApiException && failure.status==404 -> "El servidor no encontró este teléfono o la función WhatsApp (404). Comprueba el teléfono seleccionado y la versión del servidor."
+                    failure is ApiException && failure.status==404 -> "Servidor: teléfono o función WhatsApp no encontrados (404). Comprueba teléfono y versión del servidor."
                     failure is ApiException && failure.status==403 -> "Tu sesión no tiene permiso para consultar este teléfono (403)."
                     failure is ApiException && failure.status>=500 -> "Error del servidor (${failure.status}). Revisa que la API siga funcionando."
                     failure is ApiException && failure.isNetwork -> "Sin conexión con el servicio. Se ocultaron las vistas previas."

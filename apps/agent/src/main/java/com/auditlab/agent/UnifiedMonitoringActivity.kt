@@ -129,8 +129,8 @@ internal fun MonitoringSetup(busy: Boolean,message: String,server: String = "",o
         ScopeChoice("Notificaciones de WhatsApp", "Texto y remitente de hasta 20 notificaciones nuevas/5 min. Actividad sin texto en el historial. Sin importar chats.",selection.whatsApp,!busy) {selection=selection.copy(whatsApp=it)}
         ScopeChoice("Compartir pantalla", "El Centro verá todo lo visible. Sin audio ni grabación; Android pedirá confirmación.",selection.screen,!busy) {selection=selection.copy(screen=it)}
         ScopeChoice("Reanudar batería al encender", "Solo batería y conexión. SMS, WhatsApp y pantalla requieren una nueva sesión local.",selection.recoverBattery,!busy) {selection=selection.copy(recoverBattery=it)}
-        Text("Eventos: 30 días por defecto, según la política del servidor. Cada casilla autoriza ese alcance para esta activación.",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
-        AuditDisclosure("Más información") {Text("Android concede acceso general a notificaciones; AuditLab procesa solo WhatsApp/Business. Las vistas previas no van a Room ni CSV. Los SMS y números autorizados sí usan retención y CSV de eventos. Sin audio de llamadas ni historial de chats.",style=MaterialTheme.typography.bodySmall)}
+        Text("Eventos: 30 días por defecto (política del servidor). Cada casilla autoriza ese alcance aquí.",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
+        AuditDisclosure("Más información") {Text("Android da acceso general a notificaciones; solo se procesan WhatsApp/Business. Las vistas previas no se guardan ni exportan; SMS y números autorizados sí tienen retención y CSV. Sin audio ni historial de chats.",style=MaterialTheme.typography.bodySmall)}
         AuditButton(if(busy) "Activando…" else "Activar lo seleccionado",{onActivate(selection.normalized())},!busy)
         AuditButton("Cancelar",onCancel,!busy,outlined=true)
     }

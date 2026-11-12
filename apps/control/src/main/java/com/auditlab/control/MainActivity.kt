@@ -124,7 +124,7 @@ internal fun ControlScreen(session: ControlSession, onExport: (() -> Unit)? = nu
     session.revokeTarget?.takeIf { session.isAdmin }?.let { target ->
         AlertDialog(onDismissRequest = session::cancelRevoke,
             title = { Text("Revocar dispositivo", style = MaterialTheme.typography.titleLarge) },
-            text = { Text("Se bloquearán nuevas transmisiones de ${session.deviceName(target)}. El agente detendrá la captura al recibir la revocación del servidor. Volver a inscribirlo requiere consentimiento y código nuevos.") },
+            text = { Text("Se bloquean nuevas transmisiones de ${session.deviceName(target)} y el Agente detendrá la captura. Reinscribirlo exige consentimiento y código nuevos.") },
             confirmButton = { AuditLink("Confirmar revocación", { session.cancelRevoke(); session.revoke(target, scope) }) },
             dismissButton = { AuditLink("Cancelar", session::cancelRevoke) })
     }
@@ -230,12 +230,12 @@ private fun EventDetail(event: AuditEvent, onClose: () -> Unit) {
                 Text("Texto elegido y confirmado en el Agente.",style=MaterialTheme.typography.bodySmall)
             }
             if(event.category=="whatsapp") AuditDisclosure("Sobre este evento") {Text(if(event.direction=="outbound")
-                "Android mostró una respuesta propia en una notificación. Este registro no confirma entrega ni detecta todos los mensajes escritos dentro del chat. No se guardó texto, remitente ni número."
-                else "Se observó una notificación nueva de WhatsApp. Este evento guarda solo tipo y fecha; el texto de la vista previa pertenece a la sesión temporal autorizada.")}
-            if(event.category=="sms") AuditDisclosure("Sobre este SMS") {Text("Android registró un SMS ${if(event.direction=="outbound") "enviado" else "recibido"}. El número identifica al remitente o destinatario. El texto se comparte solo con autorización adicional. No se relaciona automáticamente un recibido con una respuesta.")}
+                "Respuesta propia mostrada por Android. No confirma entrega ni detecta todos los mensajes del chat; sin texto, remitente ni número."
+                else "Notificación nueva de WhatsApp: guarda solo tipo y fecha; el texto vive en la sesión temporal autorizada.")}
+            if(event.category=="sms") AuditDisclosure("Sobre este SMS") {Text("SMS ${if(event.direction=="outbound") "enviado" else "recibido"} registrado por Android. El número identifica remitente/destinatario; el texto solo con autorización adicional. Sin vincular recibido y respuesta.")}
             (event.metadata["smsText"] as? String)?.let {
                 SectionLabel("Texto del SMS");Text(it)
-                if(event.metadata["smsTextTruncated"]==true) Text("El mensaje superó el límite: se muestran sus primeros 2 000 caracteres.")
+                if(event.metadata["smsTextTruncated"]==true) Text("Superó el límite: primeros 2 000 caracteres.")
             }
             Text(if (event.isSimulated) "Evento simulado" else "Evento real del dispositivo")
             AuditRule()

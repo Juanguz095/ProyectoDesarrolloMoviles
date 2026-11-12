@@ -219,9 +219,9 @@ internal fun DeviceList(session: ControlSession, scope: CoroutineScope, onDetail
     var showArchived by rememberSaveable { mutableStateOf(false) }
     AuditChoice("Mostrar",if(showArchived) "Archivados" else "Sin archivar",
         listOf("visible" to "Sin archivar","archived" to "Archivados"),true) { showArchived=it=="archived" }
-    Text("Los nombres y el archivo se guardan solo en este Centro. Archivar oculta el equipo de Inicio; conserva sus eventos y no detiene los envíos.",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
+    Text("Archivar oculta el equipo de Inicio; conserva eventos y no detiene envíos.",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
     val displayed=session.devices.filter { session.isArchived(it.deviceId)==showArchived }
-    if(displayed.isEmpty() && session.devices.isNotEmpty()) Text("No hay equipos para esta vista en la página cargada. Puedes cambiar de página si hay más resultados.")
+    if(displayed.isEmpty() && session.devices.isNotEmpty()) Text("Sin equipos en esta página; cambia de página si hay más resultados.")
     val now by produceState(Instant.now()) { while(true) { delay(10_000);value=Instant.now() } }
     displayed.forEach { device ->
         AuditPanel {
@@ -273,13 +273,13 @@ internal fun DeviceDetail(session: ControlSession, device: DeviceSummary?, scope
         Text(if (device.isActive) "INSCRIPCIÓN ACTIVA" else "INSCRIPCIÓN REVOCADA", style = MaterialTheme.typography.titleMedium)
         Text("Aceptado: ${displayFriendlyTime(device.consent.acceptedAt)}")
         if(technical) Text("Política: ${device.consent.policyVersion}")
-        Text("El usuario puede retirar el consentimiento desde el agente. El servidor no confirma si la notificación está visible en este momento.", color = AuditColors.Muted)
+        Text("El usuario lo retira desde el Agente; el servidor no confirma si su indicador está visible ahora.", color = AuditColors.Muted)
     }
     }
     val now by produceState(Instant.now()) { while(true) { delay(10_000);value=Instant.now() } }
     DeviceReadingCard(session.overviewReading?.takeIf { it.sourceDevice==device.deviceId },now)
     SectionLabel("Consultar y compartir")
-    Text("Para ver WhatsApp o pantalla, el propietario debe iniciar la sesión correspondiente en el Agente.",color=AuditColors.Muted)
+    Text("WhatsApp o pantalla solo con sesión iniciada por el propietario en el Agente.",color=AuditColors.Muted)
     if(device.isActive) {
         WhatsAppAlertControls(device.deviceId,session.deviceName(device.deviceId))
         AuditButton("Ver notificaciones de WhatsApp",onWhatsApp,!session.busy)
@@ -290,7 +290,7 @@ internal fun DeviceDetail(session: ControlSession, device: DeviceSummary?, scope
     AuditButton("Ver eventos", onEvents, !session.busy)
     AuditButton("Ver auditoría del grupo", onAudit, !session.busy, outlined = true)
     if (session.isAdmin && device.isActive) AuditButton("Revocar dispositivo", { session.requestRevoke(device.deviceId) }, !session.busy)
-    Text("La revocación bloquea nuevos envíos al servidor. Un agente sin conexión la detectará al volver a comunicarse.", color = AuditColors.Muted)
+    Text("La revocación bloquea nuevos envíos; sin conexión, el Agente la detecta al volver a comunicarse.", color = AuditColors.Muted)
 }
 
 @Composable
@@ -300,7 +300,7 @@ internal fun EnrollmentView(session: ControlSession, scope: CoroutineScope, onBa
     if (!session.isAdmin) { AuditNotice("Solo un administrador puede crear códigos de inscripción."); return }
     AuditPanel {
         Text("UN CÓDIGO · UN DISPOSITIVO", style = MaterialTheme.typography.titleMedium)
-        Text("Genera el código e introdúcelo en el agente después de aceptar el consentimiento. Vence en 10 minutos y tiene un solo uso.")
+        Text("Introdúcelo en el Agente tras aceptar el consentimiento. Vence en 10 minutos y tiene un solo uso.")
     }
     AuditButton("Crear código de un uso", { session.createEnrollmentCode(scope) }, !session.busy)
     session.enrollmentCode?.let { code ->
@@ -460,6 +460,6 @@ private fun DevicePresentationActions(session: ControlSession,device: DeviceSumm
     },confirmButton={AuditLink("Guardar",{if(session.renameDevice(device.deviceId,label)) {editing=false;error=null} else error="Usa entre 1 y 60 caracteres sin saltos de línea. Comprueba el almacenamiento local."})},dismissButton={AuditLink("Cancelar",{editing=false;error=null})})
     if(confirming) AlertDialog(onDismissRequest={confirming=false},title={Text(if(archived) "Restaurar dispositivo" else "Archivar dispositivo")},text={Text(if(archived)
         "Volverá a aparecer en Inicio y en la lista habitual de este Centro."
-        else "Se ocultará de Inicio y de la lista habitual de este Centro. Su historial se conserva y puede seguir enviando eventos. Para bloquear los envíos utiliza Revocar.")},
+        else "Se oculta de Inicio y la lista habitual; conserva su historial y sigue enviando eventos. Para bloquear envíos, usa Revocar.")},
         confirmButton={AuditLink("Confirmar",{if(session.archiveDevice(device.deviceId,!archived)) {confirming=false;onArchived()}})},dismissButton={AuditLink("Cancelar",{confirming=false})})
 }

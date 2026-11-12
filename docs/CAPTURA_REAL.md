@@ -11,7 +11,7 @@ activación con READ_SMS e indicador visible. Inicialmente desmarcada. Hasta 2 0
 caracteres; retención y CSV de eventos, con aviso de recorte. No importa mensajes
 previos, agenda, RCS ni empareja respuestas por suposición. La restricción anterior
 sin cuerpos describe el modo de metadatos, que sigue disponible sin esta casilla.
-[Actualización y consentimiento](ACTUALIZACION_0.7.md).
+[Actualización y consentimiento](HISTORICO.md).
 
 ## Qué registra
 

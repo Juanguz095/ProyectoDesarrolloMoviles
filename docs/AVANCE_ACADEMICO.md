@@ -2,7 +2,7 @@
 
 Fecha de actualización: 25 de octubre de 2026, UTC; las comprobaciones académicas conservan sus fechas originales.
 
-Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inicial: [PLAN_I01.md](PLAN_I01.md). Fuente de requisitos: [contexto del usuario](referencias/contexto-auditlab-2026-10-22.txt).
+Plan: [PLAN_ACADEMICO.md](PLAN_ACADEMICO.md). Propuesta inicial: [HISTORICO.md](HISTORICO.md). Fuente de requisitos: [contexto del usuario](referencias/contexto-auditlab-2026-10-22.txt).
 
 ## Estado actual
 

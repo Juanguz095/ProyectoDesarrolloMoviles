@@ -14,31 +14,31 @@ con recibo del mismo consentimiento y servicio visible. [Uso y código](MONITORE
 
 **Centro 0.7.4 — 29 de octubre (America/Lima):** P6.6/P6.4 añaden alertas locales
 mediante servicio visible, sin Firebase. No son push ni se garantiza ejecución
-permanente. [Activación y límites](ALERTAS_WHATSAPP_0.7.4.md). P7.6 pendiente en teléfonos.
+permanente. [Activación y límites](HISTORICO.md). P7.6 pendiente en teléfonos.
 
 **Centro 0.7.2 — 29 de octubre (America/Lima):** P6.2/P6.6/P6.4 integran vistas
 previas temporales dentro de Resultados en Eventos → Todo y WhatsApp. Sin cambios
 en captura/contrato/persistencia ni acceso a mensajes enviados dentro del chat.
-[Alcance](WHATSAPP_EVENTOS_0.7.2.md); P7.6 de recepción real permanece pendiente.
+[Alcance](HISTORICO.md); P7.6 de recepción real permanece pendiente.
 
 **Ampliación 0.7 — 28 de octubre (America/Lima):** P5.3/P6.2 incluyen texto de
 SMS nuevos enviados y recibidos, con autorización local adicional por sesión,
 READ_SMS, indicador visible y retención/CSV de eventos. Máximo 2 000 caracteres;
 sin importar historial previo, agenda, RCS ni emparejar respuestas por suposición.
 WhatsApp mantiene contenido efímero y captura limitada a notificaciones.
-[Guía y límites](ACTUALIZACION_0.7.md).
+[Guía y límites](HISTORICO.md).
 
 **Ampliación 0.6 — 28 de octubre (America/Lima):** P5.3/P6.2/P6.4 separan
 lecturas de batería del historial principal, resumen eventos de comunicación y
 ocultan identificadores técnicos. Números SMS/llamadas solo tras autorización local
 adicional, con retención y CSV de eventos. WhatsApp temporal accesible en Eventos.
-[Alcance y actualización](ACTUALIZACION_0.6.md).
+[Alcance y actualización](HISTORICO.md).
 
 **Ampliación 0.5 — 28 de octubre (America/Lima):** P3.8/P5.6/P6.6 incluyen
 eventos persistentes de tipo/fecha de notificaciones WhatsApp recibidas y respuestas
 propias observadas. Consentimiento v2; texto solo en sesión temporal. P6.4 corrige
 recorte de tarjetas. No se asume que Android notifique todos los envíos dentro del
-chat ni se confirma entrega. [Alcance y actualización](ACTUALIZACION_0.5.md).
+chat ni se confirma entrega. [Alcance y actualización](HISTORICO.md).
 
 **Ampliación del 29 de octubre (UTC):** vistas previas independientes de
 notificaciones nuevas de WhatsApp/Business con autorización adicional por sesión y
@@ -186,7 +186,7 @@ Todas las tareas comienzan pendientes. Su estado vivo se mantiene en [AVANCE.md]
 
 | ID | Trabajo y entregable | Criterio de cierre |
 | --- | --- | --- |
-| P1.1 | Documentar escenario de uso, datos exactos, política de retención/borrado y roles en `docs/requisitos.md`. | Cada campo tiene finalidad, origen, acceso y retención; se resuelven o registran las diferencias con la política inicial. |
+| P1.1 | Documentar escenario de uso, datos exactos, política de retención/borrado y roles en `docs/HISTORICO.md`. | Cada campo tiene finalidad, origen, acceso y retención; se resuelven o registran las diferencias con la política inicial. |
 | P1.2 | Diseñar pantallas y estados de consentimiento, visibilidad, falta de red y revocación. | Todos los estados y transiciones tienen condición de entrada/salida y mensaje al usuario, incluida revocación sin conexión. |
 | P1.3 | Relacionar historias de usuario con `CA-01` a `CA-15` y escenarios negativos. | Ninguna función obligatoria carece de criterio, prueba prevista o componente responsable. |
 

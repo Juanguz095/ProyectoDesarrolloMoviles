@@ -61,7 +61,7 @@ internal fun WhatsAppAlertControls(device: String,label: String) {
         if(granted) start() else WhatsAppAlertState.message="Permite las notificaciones del Centro para recibir alertas."
     }
     Text("Alertas de WhatsApp",style=MaterialTheme.typography.titleMedium)
-    Text("Avisa con el texto de notificaciones nuevas autorizadas. Mantiene un servicio visible en este Centro, sin Firebase. Android puede detenerlo; no captura lo enviado dentro del chat.",style=MaterialTheme.typography.bodySmall)
+    Text("Avisa con el texto de notificaciones nuevas autorizadas. Servicio visible en este Centro; Android puede detenerlo. No captura lo enviado dentro del chat.",style=MaterialTheme.typography.bodySmall)
     Text(WhatsAppAlertState.message,style=MaterialTheme.typography.bodySmall)
     if(WhatsAppAlertState.device!=null) AuditButton("Detener alertas",{
         context.stopService(Intent(context,WhatsAppAlertsService::class.java))

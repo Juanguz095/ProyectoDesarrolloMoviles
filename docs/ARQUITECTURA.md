@@ -10,7 +10,7 @@ La versión publicada anterior y sus evidencias se describen a continuación.
 
 Actualizado: 30 de octubre de 2026, America/Lima. Agente 0.7.5, Centro 0.7.4, API 0.7/V9.
 Centro 0.7.2 cambia la presentación de vistas previas en Eventos, sin cambiar
-el contrato ni la persistencia. [Detalle](WHATSAPP_EVENTOS_0.7.2.md).
+el contrato ni la persistencia. [Detalle](HISTORICO.md).
 
 ## 1. Estructura general
 
@@ -212,7 +212,7 @@ en el teléfono del usuario no está confirmada. [Estado del producto](CONTEXTO_
 Centro 0.7.4 añade un servicio dataSync visible que consulta vistas previas cada 5 s
 y construye avisos Android locales. Comparte ControlCore con la actividad para
 serializar la rotación de credenciales. No usa FCM ni cambia API/SQL.
-[Operación y límites](ALERTAS_WHATSAPP_0.7.4.md).
+[Operación y límites](HISTORICO.md).
 
 Agente 0.7.5 separa `BasicMonitoringService` de `RealMonitoringService`: no consulta
 proveedores de comunicaciones. `BasicBootReceiver` solo acepta BOOT_COMPLETED y

@@ -95,7 +95,7 @@ internal fun AgentScreen(session: AgentSession, workScope: CoroutineScope? = nul
             if (normalized != session.serverUrl) session.updateServerUrl(normalized)
             serverError = null; configureServer = false
         } catch (_: IllegalArgumentException) {
-            serverError = "Usa una dirección HTTPS sin rutas, usuario ni contraseña. HTTP solo se admite para las direcciones locales permitidas."
+            serverError = "Usa una URL HTTPS sin rutas ni credenciales; HTTP solo en direcciones locales."
         }
     }
     if (configureServer) AlertDialog(onDismissRequest = { configureServer = false },
@@ -103,7 +103,7 @@ internal fun AgentScreen(session: AgentSession, workScope: CoroutineScope? = nul
         text = { Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             AuditField("URL del servicio", serverDraft, { serverDraft = it; serverError = null }, !session.busy,
                 placeholder = "https://tu-servidor")
-            Text("El administrador te proporciona esta dirección. Al cambiarla debes aceptar de nuevo el consentimiento.")
+            Text("La proporciona el administrador. Al cambiarla se vuelve a aceptar el consentimiento.")
             serverError?.let { Text(it, color = AuditColors.Red) }
         } },
         confirmButton = { AuditLink("Guardar dirección", ::saveServer, !session.busy && serverDraft.isNotBlank()) },
@@ -111,7 +111,7 @@ internal fun AgentScreen(session: AgentSession, workScope: CoroutineScope? = nul
 
     if (confirmWithdrawal) AlertDialog(onDismissRequest = { confirmWithdrawal = false },
         title = { Text("Retirar consentimiento", style = MaterialTheme.typography.titleLarge) },
-        text = { Text("Se detendrán la captura y los envíos. Se eliminará la cola local. Si no hay conexión, el aviso al servidor quedará pendiente.") },
+        text = { Text("Detiene captura y envíos y elimina la cola local; sin conexión, el aviso queda pendiente.") },
         confirmButton = { AuditLink("Confirmar retirada", { confirmWithdrawal = false; session.revoke(scope) }) },
         dismissButton = { AuditLink("Cancelar", { confirmWithdrawal = false }) })
     selectedEvent?.let { row -> AlertDialog(onDismissRequest = { selectedEvent = null },
@@ -146,19 +146,19 @@ internal fun AgentScreen(session: AgentSession, workScope: CoroutineScope? = nul
             AuditRule()
             AuditPanel {
                 Text("Tú decides cuándo monitorear.", style = MaterialTheme.typography.titleMedium)
-                Text("AuditLab registra eventos propios, eventos de prueba identificados como simulados y metadatos autorizados de este dispositivo.")
+                Text("Registra eventos propios, simulados (identificados) y metadatos autorizados del dispositivo.")
             }
             SectionLabel("Datos permitidos")
-            Text("Batería y conexión. Si das una autorización adicional y Android concede los permisos: tipo y fecha de SMS y llamadas. Puedes autorizar también el número en una casilla adicional; se conservará en el historial y reportes según la misma retención. Las llamadas aparecen al finalizar.")
+            Text("Batería y conexión. Con autorización adicional y permisos de Android: tipo y fecha de SMS y llamadas (al finalizar). El número solo con casilla aparte; misma retención en historial y reportes.")
             SectionLabel("Datos que no se recopilan")
-            Text("El texto de SMS nuevos solo se lee si marcas su autorización adicional; puede guardarse y exportarse con los eventos. No se leen contactos. Compartir pantalla es opcional y requiere otra autorización: permite ver lo que abras, incluidos chats de WhatsApp. No comparte audio ni guarda video.")
-            Text("También puedes autorizar, por separado, compartir el texto de notificaciones nuevas de WhatsApp. Requiere acceso de Android y consentimiento por sesión. No recupera historial ni archivos; conserva hasta 20 vistas previas durante 5 minutos en memoria, sin exportarlas ni guardarlas en la base de datos.")
+            Text("Texto de SMS nuevos solo con su autorización; se guarda y exporta con los eventos. Sin contactos. Pantalla es opcional con otra autorización: muestra lo que abras (incluidos chats de WhatsApp); sin audio ni video guardado.")
+            Text("Por separado puedes autorizar el texto de notificaciones nuevas de WhatsApp: acceso de Android y consentimiento por sesión. Sin historial ni archivos; hasta 20 vistas previas/5 min en memoria; no se guardan ni exportan.")
             SectionLabel("Destino y conservación")
             Text("Servidor configurado: ${session.serverUrl}")
-            Text("Los eventos se envían al servidor configurado y los consultan administradores y auditores autorizados de tu grupo. Se conserva el contexto de consentimiento y se registran los accesos.")
-            Text("La cola local conserva hasta 7 días y 10 000 registros. La política predeterminada del servidor conserva eventos 30 días y auditoría 90 días; el responsable puede configurar estos plazos.")
+            Text("Los eventos van al servidor y los consultan administradores y auditores de tu grupo; se conserva el contexto de consentimiento y se registran los accesos.")
+            Text("Cola local: 7 días y 10 000 registros. Servidor: eventos 30 días y auditoría 90 días por defecto; configurable por el responsable.")
             SectionLabel("Pausa y retirada")
-            Text("La captura es visible. Puedes pausar o retirar tu consentimiento. La retirada detiene nuevos envíos y elimina la cola local; si estás sin red, el aviso al servidor se reintenta después.")
+            Text("La captura es visible; puedes pausar o retirar. La retirada detiene envíos y elimina la cola local; sin red, el aviso se reintenta después.")
             AuditButton("Volver", { policy = false })
         } else when (val state = session.state) {
             AgentCore.State.ConsentPending -> {
@@ -181,7 +181,7 @@ internal fun AgentScreen(session: AgentSession, workScope: CoroutineScope? = nul
                     }
                     AuditField("URL del servicio", serverDraft, { serverDraft = it }, !session.busy,
                         placeholder = "https://tu-servidor")
-                    Text("Usa la dirección del servidor que te indique el administrador.", color = AuditColors.Muted)
+                    Text("La proporciona el administrador.", color = AuditColors.Muted)
                     if (serverDraft.trim() != session.serverUrl) {
                         Text("Al cambiar de servidor debes revisar y aceptar de nuevo el consentimiento.", color = AuditColors.Warning)
                         AuditButton("Guardar servidor y revisar consentimiento", ::saveServer,
@@ -190,7 +190,7 @@ internal fun AgentScreen(session: AgentSession, workScope: CoroutineScope? = nul
                     serverError?.let { Text(it, color = AuditColors.Red) }
                     AuditField("Código de inscripción", code, { code = it }, !session.busy, secret = true,
                         placeholder = "Código de un solo uso")
-                    Text("Solicita un código al centro de control. Tiene un solo uso y vence en 10 minutos.")
+                    Text("Solicítalo al centro: un solo uso, vence en 10 minutos.")
                     AuditButton(if (session.busy) "Inscribiendo…" else "Inscribir dispositivo",
                         { session.enroll(code.trim(), scope) }, code.trim().length >= 32 && !session.busy && serverDraft.trim() == session.serverUrl)
                     AuditLink("Ver política de datos", { policy = true })
@@ -200,7 +200,7 @@ internal fun AgentScreen(session: AgentSession, workScope: CoroutineScope? = nul
                 if (history) {
                     AuditHeader("ACTIVIDAD DEL AGENTE", "HISTORIAL LOCAL · ÚLTIMOS 100 REGISTROS")
                     AuditLink("← Volver a monitoreo", { history = false })
-                    Text("Los registros se conservan según la retención local; no es el historial completo del servidor.", color = AuditColors.Muted)
+                    Text("Según retención local; no es el historial completo del servidor.", color = AuditColors.Muted)
                     AuditRule()
                     if (session.recentEvents.isEmpty()) AuditEmpty("SIN ACTIVIDAD REGISTRADA", "Los nuevos eventos aparecerán aquí durante el monitoreo autorizado.")
                     AuditLink(if(technicalHistory) "Ocultar eventos técnicos" else "Mostrar eventos técnicos",{technicalHistory=!technicalHistory})

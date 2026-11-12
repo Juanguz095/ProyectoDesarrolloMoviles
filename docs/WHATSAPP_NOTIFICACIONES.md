@@ -1,10 +1,10 @@
 # WhatsApp — vistas previas y actividad autorizada
 
-Centro 0.7.2: [vistas previas dentro de Eventos → Todo y WhatsApp](WHATSAPP_EVENTOS_0.7.2.md).
+Centro 0.7.2: [vistas previas dentro de Eventos → Todo y WhatsApp](HISTORICO.md).
 Compatible con Agente 0.7.1 y servidor 0.7; no añade captura de envíos dentro del chat.
 
 Corrección Android 0.7.1: [actividad independiente, notificaciones durante la
-conexión y diagnóstico visible](CORRECCION_WHATSAPP_0.7.1.md). Compatible con servidor 0.7.
+conexión y diagnóstico visible](HISTORICO.md). Compatible con servidor 0.7.
 
 ## Qué comparte
 
@@ -28,7 +28,7 @@ respuesta propia. El historial de respuestas directas se observa primero como
 referencia y solo cambios posteriores pueden generar actividad nueva.
 No se confirma entrega, lectura ni todos los envíos desde el chat abierto.
 Estos metadatos usan la cola y retención de eventos; el texto sigue siendo temporal.
-[Alcance, actualización y activación 0.5](ACTUALIZACION_0.5.md).
+[Alcance, actualización y activación 0.5](HISTORICO.md).
 
 ## Activar y detener
 

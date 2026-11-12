@@ -1,8 +1,71 @@
 # AuditLab — Registro de avance
 
-Actualización: 4 de noviembre de 2026, UTC. Los registros anteriores conservan su fecha y zona indicadas.
+Actualización: 11 de noviembre de 2026, America/Lima. Los registros anteriores conservan su fecha y zona indicadas.
 
 Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGENTS.md](../AGENTS.md).
+
+## Recorrido en teléfono Huawei (Android 15) — 11 de noviembre de 2026 (America/Lima)
+
+- Huawei NLA-LX3, **Android 15 / API 35** (cubre parcialmente la pendiente de
+  Android reciente). APK 0.8.8-preview debug instaladas con `install -r` como
+  actualización: inscripción, credenciales y cola local conservadas
+  (52 pendientes al abrir; la sesión de monitoreo se restauró activa).
+- Agente: arranque, estados con etiquetas de color, actividad reciente con SMS
+  real registrado y enviado y notificaciones de WhatsApp, Detalles y ajustes con
+  los textos limpios de retención/consentimiento/pausa, e indicador visible
+  verificado (notificación permanente «AuditLab · Monitoreo autorizado»).
+  Sin excepciones ni crashes en logcat. Texto SMS y eventos WhatsApp muestran
+  estado enviado; la cola acumula pendientes sin confirmación del servidor
+  durante la sesión (observación, no fallo de la app).
+- Centro: instalación y arranque correctos; pantalla de inicio de sesión y ayuda
+  de conexión verificadas. Sin inicio de sesión (no se manejan credenciales del
+  usuario); consultas, visor y roles quedan pendientes de ese paso.
+- Privacidad: las capturas con contenido personal (SMS/notificaciones del
+  usuario) se borraron; se conservan solo 3 imágenes de UI sin datos en
+  [recorrido-2026-11-11](evidencias/recorrido-2026-11-11/).
+- Pendiente: recorrido del Centro con sesión iniciada (requiere el usuario),
+  visor de pantalla, recepción real de SMS con contraste de servidor y M1 del
+  plan 0.9.
+
+## Plan 0.9, documentación consolidada e interfaz — 11 de noviembre de 2026 (America/Lima)
+
+- Plan de mejoras consentidas 0.9 documentado en
+  [PLAN_MEJORAS_CONSENTIDAS.md](PLAN_MEJORAS_CONSENTIDAS.md): consentimiento por
+  función con re-aceptación de dispositivos 0.8.x (D13), galería seleccionada,
+  ubicación aproximada continua y video de cámara sin audio (D3), con 5 min por
+  clip (D4), almacenamiento en filesystem + PostgreSQL (D11) y borrado manual
+  auditado (D12). Orden: M1 consentimiento, M2 galería, M3 ubicación, M4 video,
+  M5 API/Centro, M6 pruebas. Las validaciones nativas pendientes (SMS real, visor
+  de pantalla, F1–F6) permanecen abiertas; el plan se suma a ellas (D1).
+- M0 completada: revisión de privacidad y seguridad de solo lectura en
+  [REVISION_SEGURIDAD_M0.md](REVISION_SEGURIDAD_M0.md) con brechas 0.9 y datos
+  fuera del sistema.
+- Documentación consolidada: 15 documentos retirados (7 eliminados sin contenido
+  único y 8 resumidos en [HISTORICO.md](HISTORICO.md)); `docs/` pasa de 55 a 36
+  documentos. Enlaces actualizados en PLAN_MAESTRO, ARQUITECTURA, MANUAL_PRODUCTO,
+  CAPTURA_REAL, CONTEXTO_PRODUCTO, WHATSAPP_NOTIFICACIONES, PRUEBA_SIN_USB y
+  AVANCE_ACADEMICO. [README](../README.md) reescrito e [INDICE](INDICE.md)
+  reorganizado por temas.
+- Interfaz: ~30 textos largos o redundantes del Agente y el Centro acortados
+  conservando finalidad, datos y conservación (política, diálogos de retirada/
+  revocación, detalle de eventos y ayudas). Sin cambios de captura, permisos,
+  consentimiento ni servidor. No se tocaron textos anclados por pruebas.
+- Comprobaciones: **Agente: 49/50 pruebas JVM aprobadas**; falla consistente
+  `RoomAgentJournalTest > two connections enforce the same queue capacity`
+  (`StorageFailure` en inserciones concurrentes con dos conexiones Room; área no
+  tocada en esta sesión, fallo preexistente/ambiental registrado como pendiente).
+  **Centro: suite completa aprobada.** APK debug compiladas: Agente
+  `1c04be100e7bb986f8f2f5ee9dd444a32148c9b2617148e76719ae1233e096e3`
+  (10 164 112 B) y Centro `6aecb56a39eb61a6b909f49783e79e47049c9db2f153086e31a05913162bdd94`
+  (9 599 125 B), firma debug. Lint no ejecutado en esta sesión.
+- Limitaciones: sin teléfono físico conectado al cerrar la sesión (desconectado por
+  el usuario); sin ejecución nativa ni revisión visual. `scripts/gradle.py` no
+  ejecuta en Windows (invoca `gradlew` shell y falla con WinError 193); se usó
+  `gradlew.bat` con `ANDROID_HOME`/`ANDROID_USER_HOME` absolutos y el
+  `debug.keystore` de `~/.android` copiado a `.tooling/android-user/`.
+- Siguiente: M1 del plan 0.9 (módulos de consentimiento, migración V12, contrato y
+  panel en el Agente) y revisión visual/nativa de las APK actuales cuando haya
+  teléfono disponible.
 
 ## Etiquetas rectangulares y eventos más visuales — 0.8.8
 
@@ -406,7 +469,7 @@ informe Defender del ZIP 0.7 no se reutiliza.
   [Evidencia](evidencias/ALERTAS-0.7.4-2026-10-29.json).
 - Sin ejecución real del servicio, avisos Android o WhatsApp en teléfonos. P7.6
   permanece pendiente. Android puede detener consultas por batería/Doze/límite dataSync.
-  [Activación y límites](ALERTAS_WHATSAPP_0.7.4.md).
+  [Activación y límites](HISTORICO.md).
 - P8.2/P8.3: fuente `db1aba5` y APK/guía publicados en descargas `a456f3f`;
   HTTP 200 y tamaño/SHA256 coincidentes. [Entrega](evidencias/ENTREGA-CENTRO-0.7.4-2026-10-29.json).
   Compatible con Agente 0.7.1/API 0.7;
@@ -490,7 +553,7 @@ informe Defender del ZIP 0.7 no se reutiliza.
 - P8.2/P8.3: dos APK publicados, fuente `0dd067a`, descargas
   `042f6f1`. Ambos enlaces HTTP 200 con tamaño/SHA256 coincidentes.
   [Entrega](evidencias/ENTREGA-0.7.1-2026-10-29.json) y
-  [guía](CORRECCION_WHATSAPP_0.7.1.md). Sin API/BD/ZIP Windows nuevos.
+  [guía](HISTORICO.md). Sin API/BD/ZIP Windows nuevos.
   Siguiente P7.6: confirmar recepción autorizada real en el teléfono.
 
 ## Revisión completa del ZIP en Defender — 29 de octubre de 2026 (America/Lima)
@@ -586,7 +649,7 @@ informe Defender del ZIP 0.7 no se reutiliza.
 - P8.2/P8.3: APK/servidor publicados con V9. Fuente `cae5f9f`, descargas `0f7752c`.
   Tres enlaces HTTP 200 con tamaño/SHA256 coincidentes; ZIP de 449 entradas
   verificado. [Entrega](evidencias/ENTREGA-0.7.0-2026-10-28.json) y
-  [actualización](ACTUALIZACION_0.7.md), conservando configuración y datos.
+  [actualización](HISTORICO.md), conservando configuración y datos.
 
 ## Diagnóstico de sesiones detenidas — 28 de octubre de 2026 (America/Lima)
 
@@ -645,7 +708,7 @@ informe Defender del ZIP 0.7 no se reutiliza.
 - P8.2/P8.3: dos APK y servidor compatibles con V8 publicados. Fuente `75630b8`,
   descargas `dbfdf62`; los tres archivos responden HTTP 200 y coinciden en tamaño
   y SHA256. ZIP de 441 entradas con integridad/contenido verificados.
-  [Entrega](evidencias/ENTREGA-0.6.0-2026-10-28.json) y [guía](ACTUALIZACION_0.6.md).
+  [Entrega](evidencias/ENTREGA-0.6.0-2026-10-28.json) y [guía](HISTORICO.md).
   Siguiente P7.1/P7.6: recorrido real de permisos,
   comunicaciones, red y revocación en teléfonos autorizados.
 
@@ -673,7 +736,7 @@ informe Defender del ZIP 0.7 no se reutiliza.
 - P8.2/P8.3: entrega de desarrollo publicada para actualizar las tres piezas.
   Fuente `a5b29fd` y descargas `308b9ec`; tres enlaces HTTP 200,
   tamaños/SHA256 coincidentes y ZIP de 434 entradas verificado.
-  [Guía](ACTUALIZACION_0.5.md) y [registro](evidencias/ENTREGA-0.5.0-2026-10-28.json). `package_development.py` registra validación funcional
+  [Guía](HISTORICO.md) y [registro](evidencias/ENTREGA-0.5.0-2026-10-28.json). `package_development.py` registra validación funcional
   pendiente; no relaja los requisitos de `package_qa.py` o `package_preview.py`.
 - Siguiente P7.6/P7.1: verificar con notificaciones reales, respuestas directas,
   permisos, red, revocación y versiones Android. No declarar captura completa de chats.
@@ -699,7 +762,7 @@ informe Defender del ZIP 0.7 no se reutiliza.
 - P8.2/P8.3: APK 0.4.1 publicados. API y BD no cambian; servidor 0.4.0 compatible,
   URL/credenciales/datos preservados. Fuente `7121d54` subida a main;
   descargas en `d8a72f7`. Ambos APK devolvieron HTTP 200 y sus
-  tamaños/SHA256 coinciden con los artefactos compilados. [Guía](ACTUALIZACION_0.4.1.md)
+  tamaños/SHA256 coinciden con los artefactos compilados. [Guía](HISTORICO.md)
   y [registro de publicación](evidencias/ENTREGA-0.4.1-2026-10-28.json).
   Los resultados 197/2 AVD de 0.4.0 permanecen históricos, no acreditan 0.4.1.
 - Siguiente P7.1: validar batería/eventos entre dos dispositivos con conexión real,
@@ -728,7 +791,7 @@ informe Defender del ZIP 0.7 no se reutiliza.
   Descargas en `descargas-auditlab`, commit `251d326cea539400fa481b3ada004113f5ae1ca2`.
   Los tres archivos devolvieron HTTP 200 y sus tamaños/SHA256 coincidieron. ZIP con
   420 entradas y checksums verificados; fuente exacta incluida, sin datos privados.
-- [Descargas y pasos completos](INICIO_WINDOWS_0.4.md) y
+- [Descargas y pasos completos](HISTORICO.md) y
   [registro de publicación](evidencias/ENTREGA-0.4.0-2026-10-29.json). P8.4: se
   publica la descarga de desarrollo; Windows/teléfonos/WhatsApp real y piloto HTTPS
   continúan sin verificación. El servidor no queda alojado permanentemente en GitHub.
@@ -791,7 +854,7 @@ informe Defender del ZIP 0.7 no se reutiliza.
 - P5.3/P6.2/P6.4: aplicada la estética de los cinco mockups a ambas apps: beige,
   negro, tipografía monoespaciada, bordes rectos, paneles y botones. Se añaden
   pantallas coherentes para login, inscripción, historial/detalle local, política,
-  lista/detalle de dispositivos, auditoría y cuenta. [Diseño y límites](REDISENO_ANDROID.md).
+  lista/detalle de dispositivos, auditoría y cuenta. [Diseño y límites](HISTORICO.md).
 - Agente: actividad reciente de Room, estados de entrega, última lectura real de
   batería/conexión y fecha; activo exige captura en ejecución. Se conservan
   autorización, indicador visible, permisos opcionales, pausa y retirada. Cambiar
@@ -928,9 +991,9 @@ La app `academic/` permanece como entrega local I01–I12, sin cambios en esta a
 | P0.1 | verificada | [Evidencia](evidencias/P0.1-2026-10-17.md) | Fallos reproducidos/corregidos y límites del prototipo registrados. |
 | P0.2 | verificada | [Evidencia](evidencias/P0.2-2026-10-17.md), [desarrollo](desarrollo.md). | Toolchain completo, PostgreSQL y compilación nativa comprobados. |
 | P0.3 | verificada | [Evidencia](evidencias/P0.3-2026-10-17.md). | Ejecución alojada [40150599234](https://github.com/Juanguz095/ProyectoDesarrolloMoviles/actions/runs/40150599234): 3 de 3 trabajos en verde, incluida la auditoría de APK. |
-| P1.1 | verificada | [Evidencia fase 1](evidencias/P1-2026-10-17.md), [requisitos](requisitos.md). | Datos, alcance, acceso, retención y límites definidos. |
-| P1.2 | verificada | [Estados](estados.md), [evidencia](evidencias/P1-2026-10-17.md). | Flujos positivos/negativos y revocación offline definidos. |
-| P1.3 | verificada | [Historias](historias.md), [evidencia](evidencias/P1-2026-10-17.md). | 12 historias relacionadas con los 15 criterios, sin declarar aceptación funcional. |
+| P1.1 | verificada | [Evidencia fase 1](evidencias/P1-2026-10-17.md), [requisitos](HISTORICO.md). | Datos, alcance, acceso, retención y límites definidos. |
+| P1.2 | verificada | [Estados](HISTORICO.md), [evidencia](evidencias/P1-2026-10-17.md). | Flujos positivos/negativos y revocación offline definidos. |
+| P1.3 | verificada | [Historias](HISTORICO.md), [evidencia](evidencias/P1-2026-10-17.md). | 12 historias relacionadas con los 15 criterios, sin declarar aceptación funcional. |
 | P2.1 | verificada | [Evidencia](evidencias/P0.2-2026-10-17.md), [ADR](decisiones/0001-estructura-y-herramientas.md). | Dos bases Android y Ktor compiladas; prototipo conservado. |
 | P2.2 | verificada | [Evidencia](evidencias/P2.2-2026-10-17.md), [contrato](contrato.md). | OpenAPI 0.2 y 49 pruebas de contrato aprobadas. Prototipo 0.1 conservado. |
 | P2.3 | verificada | [Evidencia](evidencias/P2.3-2026-10-17.md), [BD](base-datos.md). | Flyway repetible, bootstrap Argon2id, permisos y disponibilidad; 5 unitarios + 15 PostgreSQL satisfactorios. |
