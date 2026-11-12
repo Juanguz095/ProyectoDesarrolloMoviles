@@ -25,7 +25,7 @@ import kotlinx.coroutines.*
 
 internal data class MonitoringSelection(
     val communications: Boolean = false, val numbers: Boolean = false, val smsText: Boolean = false,
-    val whatsApp: Boolean = false, val screen: Boolean = false, val recoverBattery: Boolean = false,
+    val whatsApp: Boolean = false, val screen: Boolean = false, val location: Boolean = false, val recoverBattery: Boolean = false,
 ) {
     fun normalized() = if(communications) this else copy(numbers=false,smsText=false)
 }
@@ -41,6 +41,7 @@ class UnifiedMonitoringActivity : ComponentActivity() {
         if(granted) requestPhone() else fail("Permite las notificaciones para mantener el monitoreo visible.")
     }
     private val phone = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { startBase() }
+    private val locationPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { requestPhone() }
     private val whatsappAccess = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { startWhatsApp() }
     private val projection = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if(pending?.screen==true && runtime.activationValid(epoch) && result.resultCode==RESULT_OK && result.data!=null && runtime.indicator.isVisible()) {
@@ -68,6 +69,9 @@ class UnifiedMonitoringActivity : ComponentActivity() {
     }
     private fun requestPhone() {
         val selection=pending ?: return
+        if(selection.location && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)!=PackageManager.PERMISSION_GRANTED) {
+            locationPermission.launch(Manifest.permission.ACCESS_COARSE_LOCATION); return
+        }
         val missing=if(selection.communications) arrayOf(Manifest.permission.READ_SMS,Manifest.permission.READ_CALL_LOG)
             .filter {checkSelfPermission(it)!=PackageManager.PERMISSION_GRANTED} else emptyList()
         if(missing.isNotEmpty()) phone.launch(missing.toTypedArray()) else startBase()
@@ -128,6 +132,7 @@ internal fun MonitoringSetup(busy: Boolean,message: String,server: String = "",o
         }
         ScopeChoice("Notificaciones de WhatsApp", "Texto y remitente de hasta 20 notificaciones nuevas/5 min. Actividad sin texto en el historial. Sin importar chats.",selection.whatsApp,!busy) {selection=selection.copy(whatsApp=it)}
         ScopeChoice("Compartir pantalla", "El Centro verá todo lo visible. Sin audio ni grabación; Android pedirá confirmación.",selection.screen,!busy) {selection=selection.copy(screen=it)}
+        ScopeChoice("Ubicación aproximada", "Lectura cada minuto aproximadamente hasta que la detengas. Sin ubicación precisa.",selection.location,!busy) {selection=selection.copy(location=it)}
         ScopeChoice("Reanudar batería al encender", "Solo batería y conexión. SMS, WhatsApp y pantalla requieren una nueva sesión local.",selection.recoverBattery,!busy) {selection=selection.copy(recoverBattery=it)}
         Text("Eventos: 30 días por defecto (política del servidor). Cada casilla autoriza ese alcance aquí.",style=MaterialTheme.typography.bodySmall,color=AuditColors.Muted)
         AuditDisclosure("Más información") {Text("Android da acceso general a notificaciones; solo se procesan WhatsApp/Business. Las vistas previas no se guardan ni exportan; SMS y números autorizados sí tienen retención y CSV. Sin audio ni historial de chats.",style=MaterialTheme.typography.bodySmall)}

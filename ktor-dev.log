@@ -1,7 +1,0 @@
-00:17:46 INFO  com.zaxxer.hikari.HikariDataSource - AuditLabDb - Starting...
-00:17:46 INFO  com.zaxxer.hikari.HikariDataSource - AuditLabDb - Start completed.
-00:17:46 INFO  com.zaxxer.hikari.HikariDataSource - AuditLabDb - Starting...
-00:17:46 INFO  com.zaxxer.hikari.HikariDataSource - AuditLabDb - Start completed.
-00:17:46 INFO  io.ktor.server.Application - Autoreload is disabled because the development mode is off.
-00:17:47 INFO  io.ktor.server.Application - Application started in 1.054 seconds.
-00:17:48 INFO  io.ktor.server.Application - Responding at http://127.0.0.1:8081

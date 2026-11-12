@@ -239,7 +239,8 @@ internal fun DeviceList(session: ControlSession, scope: CoroutineScope, onDetail
 
 @Composable
 internal fun DeviceDetail(session: ControlSession, device: DeviceSummary?, scope: CoroutineScope,
-    onBack: () -> Unit, onEvents: () -> Unit, onAudit: () -> Unit, onWhatsApp: () -> Unit = {}) {
+    onBack: () -> Unit, onEvents: () -> Unit, onAudit: () -> Unit, onWhatsApp: () -> Unit = {},
+    onGallery: () -> Unit = {}, onMap: () -> Unit = {}) {
     val clipboard = LocalClipboard.current
     val context = LocalContext.current
     val composeScope = rememberCoroutineScope()
@@ -288,6 +289,8 @@ internal fun DeviceDetail(session: ControlSession, device: DeviceSummary?, scope
         context.startActivity(android.content.Intent(context, ScreenViewerActivity::class.java).putExtra("device", device.deviceId).putExtra("deviceLabel",session.deviceName(device.deviceId)))
     }, !session.busy)
     AuditButton("Ver eventos", onEvents, !session.busy)
+    AuditButton("Ver fotos compartidas", onGallery, !session.busy)
+    AuditButton("Ver ubicación en el mapa", onMap, !session.busy)
     AuditButton("Ver auditoría del grupo", onAudit, !session.busy, outlined = true)
     if (session.isAdmin && device.isActive) AuditButton("Revocar dispositivo", { session.requestRevoke(device.deviceId) }, !session.busy)
     Text("La revocación bloquea nuevos envíos; sin conexión, el Agente la detecta al volver a comunicarse.", color = AuditColors.Muted)

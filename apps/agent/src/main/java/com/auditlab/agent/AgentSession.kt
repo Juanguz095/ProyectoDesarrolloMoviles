@@ -134,6 +134,7 @@ class AgentSession internal constructor(
         runCatching { platform?.basicMonitoring?.stop() }
         platform?.stopWhatsAppSharing()
         platform?.stopScreenSharing()
+        platform?.stopLocationSharing()
         if (revoking) return
         engine?.requestWithdrawal()
         platform?.gate?.withdrawalRequested = true
@@ -170,6 +171,7 @@ class AgentSession internal constructor(
         platform?.stopWhatsAppSharing()
         perform(scope) {
         platform?.stopScreenSharing()
+        platform?.stopLocationSharing()
         platform?.realEvents?.stop()
         platform?.indicator?.hide()
         "Monitoreo pausado. Los pendientes se conservan; no se generan ni envían eventos."

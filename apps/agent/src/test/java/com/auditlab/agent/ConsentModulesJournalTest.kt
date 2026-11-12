@@ -61,7 +61,7 @@ class ConsentModulesJournalTest {
         journal.activate(credential, url)
         assertFalse(journal.setModuleState("camera", ModuleState.PAUSED))
         journal.acceptModules("2026-11-11T10:00:00Z")
-        assertFalse(journal.setModuleState(ConsentModulesPolicy.LOCATION, ModuleState.PAUSED))
+        assertFalse(journal.setModuleState(ConsentModulesPolicy.VIDEO, ModuleState.PAUSED))
     }
 
     @Test fun `a checked function is accepted even without prior rows`() = fixture { journal ->

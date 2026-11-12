@@ -84,7 +84,6 @@ internal fun AgentScreen(session: AgentSession, workScope: CoroutineScope? = nul
     var configureServer by remember { mutableStateOf(false) }
     var serverError by remember { mutableStateOf<String?>(null) }
     val communicationEvents=session.recentEvents.filter { !it.event.isSimulated && it.event.category in setOf("sms","call","whatsapp") }
-    var technicalHistory by rememberSaveable {mutableStateOf(false)}
     var selectedEvent by remember { mutableStateOf<AgentSession.LocalEvent?>(null) }
     androidx.compose.runtime.LaunchedEffect(session.state) {
         if (session.state !is AgentCore.State.Enrolled) { history = false; selectedEvent = null }
@@ -124,14 +123,7 @@ internal fun AgentScreen(session: AgentSession, workScope: CoroutineScope? = nul
             Text(deliveryLabel(row.delivery))
             Text(metadataDescription(row.event.metadata))
             (row.event.metadata["smsText"] as? String)?.let { Text(it) }
-            var technical by remember {mutableStateOf(false)}
-            AuditLink(if(technical) "Ocultar información técnica" else "Información técnica",{technical=!technical})
-            if(technical) {
-            Text("ID: ${row.event.eventId}")
-            Text("Dispositivo: ${row.event.sourceDevice}")
-            Text("Política: ${row.event.consent.policyVersion}")
-            row.errorCode?.let { Text("Error: $it") }
-            }
+            row.errorCode?.let { Text("Error: $it", color = AuditColors.Red) }
         } }, confirmButton = { AuditLink("Cerrar detalle", { selectedEvent = null }) }) }
 
     val page = when {
@@ -205,9 +197,8 @@ internal fun AgentScreen(session: AgentSession, workScope: CoroutineScope? = nul
                     Text("Según retención local; no es el historial completo del servidor.", color = AuditColors.Muted)
                     AuditRule()
                     if (session.recentEvents.isEmpty()) AuditEmpty("SIN ACTIVIDAD REGISTRADA", "Los nuevos eventos aparecerán aquí durante el monitoreo autorizado.")
-                    AuditLink(if(technicalHistory) "Ocultar eventos técnicos" else "Mostrar eventos técnicos",{technicalHistory=!technicalHistory})
-                    (if(technicalHistory) session.recentEvents else communicationEvents).forEach { row -> LocalEventRow(row) { selectedEvent = row } }
-                    if(!technicalHistory && communicationEvents.isEmpty()) Text("Aún no hay mensajes ni llamadas en estos registros locales.")
+                    communicationEvents.forEach { row -> LocalEventRow(row) { selectedEvent = row } }
+                    if(communicationEvents.isEmpty()) Text("Aún no hay mensajes, llamadas ni avisos en estos registros locales.")
                 } else {
                     AuditHeader("MI TELÉFONO")
                     val active=session.realCaptureRunning || BasicMonitoringState.running || WhatsAppSharingState.active || ScreenSharingState.active
@@ -243,12 +234,6 @@ internal fun AgentScreen(session: AgentSession, workScope: CoroutineScope? = nul
                     var details by rememberSaveable {mutableStateOf(false)}
                     AuditLink(if(details) "Ocultar detalles" else "Detalles y ajustes",{details=!details})
                     if(details) {
-                        Text(session.realStatus,style=MaterialTheme.typography.bodySmall)
-                        Text(WhatsAppSharingState.message,style=MaterialTheme.typography.bodySmall)
-                        Text(ScreenSharingState.message,style=MaterialTheme.typography.bodySmall)
-                        Text("Última imagen confirmada: ${ScreenSharingState.lastConfirmedAt?.let(::displayFriendlyTime) ?: "Ninguna"}",style=MaterialTheme.typography.bodySmall)
-                        Text("Equipo: ${state.deviceId.take(8)}",style=MaterialTheme.typography.bodySmall)
-                        Text("Servidor: ${session.serverUrl}",style=MaterialTheme.typography.bodySmall)
                         AuditButton("Enviar estado ahora",{session.refreshDeviceStatus(scope)},active && session.visibleAvailable && !session.busy,outlined=true)
                         AuditButton("Generar evento simulado",{session.sendSimulatedEvent(scope)},!session.busy && session.visibleAvailable,outlined=true)
                         platformControls?.invoke()

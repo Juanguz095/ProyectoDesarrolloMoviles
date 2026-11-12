@@ -36,7 +36,7 @@ private data class EventFilters(val device: UUID?, val category: String?, val fr
 private fun parseMetadata(node: JsonNode?): String {
     if (node == null || node.isNull) return "{}"
     if (!node.isObject) throw ApiFailure(400, "INVALID_REQUEST")
-    val allowed = setOf("networkState", "batteryPercent", "appEventCode", "phoneNumber", "smsText", "smsTextTruncated", "sharedText", "shareConsentVersion")
+    val allowed = setOf("networkState", "batteryPercent", "appEventCode", "phoneNumber", "smsText", "smsTextTruncated", "sharedText", "shareConsentVersion", "locationLat", "locationLon", "locationAccuracy")
     if (!allowed.containsAll(node.fieldNames().asSequence().toSet())) throw ApiFailure(400, "INVALID_REQUEST")
     val canonical = json.createObjectNode()
     node["networkState"]?.let {
@@ -71,6 +71,18 @@ private fun parseMetadata(node: JsonNode?): String {
         if (!it.isTextual || it.textValue() != "manual-share-1") throw ApiFailure(400, "INVALID_REQUEST")
         canonical.put("shareConsentVersion", it.textValue())
     }
+    node["locationLat"]?.let {
+        if (!it.isNumber || it.doubleValue() !in -90.0..90.0) throw ApiFailure(400, "INVALID_REQUEST")
+        canonical.put("locationLat", it.doubleValue())
+    }
+    node["locationLon"]?.let {
+        if (!it.isNumber || it.doubleValue() !in -180.0..180.0) throw ApiFailure(400, "INVALID_REQUEST")
+        canonical.put("locationLon", it.doubleValue())
+    }
+    node["locationAccuracy"]?.let {
+        if (!it.isNumber || it.doubleValue() < 0) throw ApiFailure(400, "INVALID_REQUEST")
+        canonical.put("locationAccuracy", it.doubleValue())
+    }
     return canonical.toString()
 }
 
@@ -93,13 +105,17 @@ private fun parseEvent(node: JsonNode, clock: Clock): NormalizedEvent {
     if(node["metadata"]?.has("phoneNumber")==true && (simulated.booleanValue() || category !in setOf("sms","call"))) throw ApiFailure(400,"INVALID_REQUEST")
     if((node["metadata"]?.has("smsText")==true || node["metadata"]?.has("smsTextTruncated")==true) && (simulated.booleanValue() || category!="sms")) throw ApiFailure(400,"INVALID_REQUEST")
     val fields = node["metadata"]?.fieldNames()?.asSequence()?.toSet().orEmpty()
+    val locationFields = setOf("locationLat", "locationLon", "locationAccuracy")
     if (category == "manual_share") {
         if (simulated.booleanValue() || fields != setOf("appEventCode", "sharedText", "shareConsentVersion")) throw ApiFailure(400, "INVALID_REQUEST")
-    } else if (fields.any { it in setOf("sharedText", "shareConsentVersion") }) throw ApiFailure(400, "INVALID_REQUEST")
+    } else if (category == "location") {
+        if (simulated.booleanValue() || !fields.containsAll(setOf("appEventCode", "locationLat", "locationLon")) ||
+            fields.any { it !in setOf("appEventCode", "locationLat", "locationLon", "locationAccuracy") }) throw ApiFailure(400, "INVALID_REQUEST")
+    } else if (fields.any { it in setOf("sharedText", "shareConsentVersion") || it in locationFields }) throw ApiFailure(400, "INVALID_REQUEST")
     val code = node["metadata"]?.get("appEventCode")?.textValue()
     if (!simulated.booleanValue()) {
         if (realEventCodes[code] != (category to direction)) throw ApiFailure(400, "INVALID_REQUEST")
-    } else if (category in setOf("sms", "call", "whatsapp", "manual_share") || code in realEventCodes) throw ApiFailure(400, "INVALID_REQUEST")
+    } else if (category in setOf("sms", "call", "whatsapp", "manual_share", "location") || code in realEventCodes) throw ApiFailure(400, "INVALID_REQUEST")
     val canonical = json.createObjectNode().apply {
         put("eventId", eventId.toString())
         put("timestamp", wire(timestamp))

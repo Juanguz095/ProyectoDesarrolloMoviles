@@ -81,6 +81,10 @@ object DatabaseTools {
                         sql.execute("GRANT SELECT, INSERT ON auditlab.events, auditlab.audit_log TO \"$role\"")
                         sql.execute("GRANT SELECT, INSERT, UPDATE ON auditlab.app_update_requests TO \"$role\"")
                         sql.execute("GRANT SELECT, INSERT, UPDATE, DELETE ON auditlab.auth_rate_limits TO \"$role\"")
+                        // Consent modules (V12) and gallery media (V13): device writes its module
+                        // states and batches; the Centro reads them and admins delete batches (D12).
+                        sql.execute("GRANT SELECT, INSERT, UPDATE, DELETE ON auditlab.consent_modules TO \"$role\"")
+                        sql.execute("GRANT SELECT, INSERT, UPDATE, DELETE ON auditlab.gallery_batches, auditlab.gallery_items TO \"$role\"")
                     }
                 }
                 connection.commit()

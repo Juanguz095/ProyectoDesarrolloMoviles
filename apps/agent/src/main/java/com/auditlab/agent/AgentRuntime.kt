@@ -107,6 +107,7 @@ class AgentRuntime private constructor(private val context: android.app.Applicat
     val basicMonitoring = BasicMonitoring(context, this)
     val updates = AgentUpdates(context, this)
     fun stopScreenSharing() { context.stopService(Intent(context, ScreenShareService::class.java)) }
+    fun stopLocationSharing() { context.stopService(Intent(context, LocationSharingService::class.java)) }
     fun stopWhatsAppSharing() { WhatsAppSharingRuntime.stop(context) }
     val changes = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -144,6 +145,7 @@ class AgentRuntime private constructor(private val context: android.app.Applicat
             }
             if (selection.whatsApp) add(ConsentModulesPolicy.WHATSAPP)
             if (selection.screen) add(ConsentModulesPolicy.SCREEN)
+            if (selection.location) add(ConsentModulesPolicy.LOCATION)
         }
         wanted.forEach { room?.setModuleState(it, ModuleState.ACCEPTED) }
         val modules = runCatching { room?.modules() }.getOrNull().orEmpty().associateBy { it.module }
@@ -158,6 +160,12 @@ class AgentRuntime private constructor(private val context: android.app.Applicat
         }
         if (selection.whatsApp) requireModule(ConsentModulesPolicy.WHATSAPP)
         if (selection.screen) requireModule(ConsentModulesPolicy.SCREEN)
+        if (selection.location) requireModule(ConsentModulesPolicy.LOCATION)
+        if (selection.location) {
+            if (context.checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) != android.content.pm.PackageManager.PERMISSION_GRANTED)
+                error("Concede el permiso de ubicación aproximada para activarla.")
+            androidx.core.content.ContextCompat.startForegroundService(context, Intent(context, LocationSharingService::class.java))
+        } else stopLocationSharing()
         check(!gate.withdrawalRequested && !gate.storageBlocked)
         check(activationValid(epoch)) {"Activación cancelada"}
         check(indicator.show()) {"Se necesita una notificación visible"}

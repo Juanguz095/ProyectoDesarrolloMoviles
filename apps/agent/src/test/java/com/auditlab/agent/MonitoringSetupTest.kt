@@ -20,7 +20,7 @@ class MonitoringSetupTest {
         var result: MonitoringSelection?=null
         compose.setContent {AuditTheme {MonitoringSetup(false,"",server="https://fixture.example",onCancel={},onActivate={result=it})}}
         assertNull(result)
-        compose.onAllNodes(isToggleable()).assertCountEquals(4)
+        compose.onAllNodes(isToggleable()).assertCountEquals(5)
         compose.onAllNodes(isToggleable()).fetchSemanticsNodes().forEach { assertEquals(androidx.compose.ui.state.ToggleableState.Off,it.config[androidx.compose.ui.semantics.SemanticsProperties.ToggleableState]) }
         compose.onNode(hasText("SMS y llamadas") and isToggleable()).performScrollTo().performClick()
         compose.onNode(hasText("Compartir texto de SMS") and isToggleable()).performScrollTo().performClick()

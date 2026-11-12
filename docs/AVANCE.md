@@ -9,6 +9,28 @@ Plan vigente: [PLAN_MAESTRO.md](PLAN_MAESTRO.md). Instrucciones de entrada: [AGE
   registro apuntan a [HISTORICO](HISTORICO.md) y [OPERACION](OPERACION.md), donde vive el
   contenido técnico consolidado.
 
+## Visor de álbumes, ubicación con mapa y arreglo de permisos — 12 de noviembre de 2026 (America/Lima)
+
+- Arreglo del error «No se pudo actualizar» del Centro: `grantRole` concedía permisos
+  sobre una lista fija de tablas y no incluía `consent_modules` ni `gallery_*`; cada
+  consulta de dispositivo fallaba aunque los eventos carguaran. Permisos extendidos
+  y reaplicados; verificado con `GET /v1/devices → 200`.
+- Centro: **ver fotos compartidas** («Ver fotos compartidas» en el detalle del equipo:
+  lotes, vista de imágenes y descarga por rol) y **ubicación en mapa** (osmdroid,
+  puntos aproximados con su fecha; nunca como ubicación actual).
+- Agente: **ubicación aproximada continua** (M3) — casilla en la activación, servicio
+  visible tipo `location`, lectura cada minuto, coordenadas redondeadas a ~1 km (D8),
+  detención local; eventos `location_update` con migración `V14` (categoría + metadatos)
+  y validación en el servidor.
+- Limpieza de ruido en ambas apps: sin IDs técnicos en los detalles de evento, sin
+  toggle de eventos técnicos, sin líneas duplicadas de estado en Detalles y ajustes;
+  enlaces subrayados para distinguirlos de los rótulos.
+- Comprobaciones: common + Agente (56) + Centro (22) + backend unit en verde; APK y
+  servidor compilados; `V14` aplicada en la BD de desarrollo y servidor reiniciado
+  (`/ready` OK). Pendiente: validación en teléfono (desconectado): casilla de
+  ubicación, mapa en el Centro y ver álbumes.
+- Siguiente: validar en teléfono y proseguir con M4 (video sin audio).
+
 ## Funciones aceptadas al activar y enlaces claros — 12 de noviembre de 2026 (America/Lima)
 
 - Marcar las casillas y confirmar «Activar lo seleccionado» acepta ahora esas

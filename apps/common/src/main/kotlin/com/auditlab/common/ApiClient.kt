@@ -58,6 +58,9 @@ interface AuditApi {
     fun createGalleryBatch(deviceToken: String, deviceId: String, batchId: String, items: List<GallerySharePolicy.Item>) { throw UnsupportedOperationException() }
     fun uploadGalleryItem(deviceToken: String, deviceId: String, batchId: String, itemId: String, mediaType: String, bytes: ByteArray) { throw UnsupportedOperationException() }
     fun completeGalleryBatch(deviceToken: String, deviceId: String, batchId: String) { throw UnsupportedOperationException() }
+    fun galleryBatches(token: String, device: String? = null): List<GalleryBatchInfo> { throw UnsupportedOperationException() }
+    fun galleryBatch(token: String, batchId: String): GalleryBatchInfo { throw UnsupportedOperationException() }
+    fun galleryItemContent(token: String, batchId: String, itemId: String): ByteArray { throw UnsupportedOperationException() }
 }
 
 /**
@@ -246,6 +249,65 @@ class ApiClient(
 
     override fun completeGalleryBatch(deviceToken: String, deviceId: String, batchId: String) {
         request("POST", "/v1/devices/$deviceId/gallery-batches/$batchId/complete", deviceToken, body = "{}")
+    }
+
+    override fun galleryBatches(token: String, device: String?): List<GalleryBatchInfo> {
+        val text = request("GET", "/v1/gallery-batches${device?.let { "?device=$it" } ?: ""}", token)
+        val items = JSONObject(text).optJSONArray("items") ?: org.json.JSONArray()
+        return (0 until items.length()).map { i -> batchFrom(items.getJSONObject(i)) }
+    }
+
+    override fun galleryBatch(token: String, batchId: String): GalleryBatchInfo =
+        batchFrom(JSONObject(request("GET", "/v1/gallery-batches/$batchId", token)))
+
+    override fun galleryItemContent(token: String, batchId: String, itemId: String): ByteArray =
+        requestRaw("GET", "/v1/gallery-batches/$batchId/items/$itemId/content", token)
+
+    private fun batchFrom(node: JSONObject): GalleryBatchInfo {
+        val items = node.optJSONArray("items") ?: org.json.JSONArray()
+        return GalleryBatchInfo(
+            batchId = node.getString("batchId"),
+            deviceId = node.getString("deviceId"),
+            itemCount = node.getInt("itemCount"),
+            totalBytes = node.getLong("totalBytes"),
+            createdAt = node.getString("createdAt"),
+            completedAt = node.optStringOrNull("completedAt"),
+            items = (0 until items.length()).map { i ->
+                val item = items.getJSONObject(i)
+                GalleryItemInfo(item.getString("itemId"), item.getString("fileName"), item.getString("mediaType"),
+                    item.getLong("sizeBytes"), item.getString("sha256"), item.getString("state"))
+            },
+        )
+    }
+
+    private fun requestRaw(method: String, path: String, token: String): ByteArray {
+        val connection = try {
+            URI.create(baseUrl + path).toURL().openConnection() as HttpURLConnection
+        } catch (error: Exception) {
+            throw ApiException(0, "NETWORK_ERROR", null, "No se pudo abrir la conexión")
+        }
+        try {
+            connection.requestMethod = method
+            connection.connectTimeout = connectTimeoutMillis
+            connection.readTimeout = readTimeoutMillis
+            connection.instanceFollowRedirects = false
+            connection.setRequestProperty("User-Agent", userAgent)
+            if (token != null) connection.setRequestProperty("Authorization", "Bearer $token")
+            val status = connection.responseCode
+            if (status !in 200..299) {
+                val text = connection.errorStream?.use { it.readBytes().toString(Charsets.UTF_8) }.orEmpty()
+                throw problem(status, text)
+            }
+            return connection.inputStream.use { it.readBytes() }
+        } catch (error: ApiException) {
+            throw error
+        } catch (error: SSLException) {
+            throw ApiException(0, "TLS_ERROR", null, "El certificado o la conexión TLS fueron rechazados")
+        } catch (error: IOException) {
+            throw ApiException(0, "NETWORK_ERROR", null, "Sin respuesta del servicio")
+        } finally {
+            connection.disconnect()
+        }
     }
 
     private fun filters(q: EventQuery) = mapOf("device" to q.device, "category" to q.category, "from" to q.from, "to" to q.to, "q" to q.q)

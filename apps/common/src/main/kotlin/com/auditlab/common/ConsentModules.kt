@@ -42,7 +42,7 @@ object ConsentModulesPolicy {
     )
 
     /** Módulos aceptables hoy; los reservados se habilitan al entrar en vigor sus fases. */
-    val available = listOf(BASE, COMMUNICATIONS, NUMBERS, SMS_TEXT, WHATSAPP, SCREEN, MANUAL_SHARE, GALLERY)
+    val available = listOf(BASE, COMMUNICATIONS, NUMBERS, SMS_TEXT, WHATSAPP, SCREEN, MANUAL_SHARE, GALLERY, LOCATION)
 
     val labels = linkedMapOf(
         BASE to "Batería y conexión",
@@ -53,7 +53,7 @@ object ConsentModulesPolicy {
         SCREEN to "Pantalla compartida",
         MANUAL_SHARE to "Texto compartido manualmente",
         GALLERY to "Galería seleccionada",
-        LOCATION to "Ubicación (próximamente)",
+        LOCATION to "Ubicación aproximada",
         VIDEO to "Video de cámara (próximamente)",
     )
 

@@ -29,6 +29,10 @@ class ControlSession internal constructor(private val store: SessionStore, priva
     var deviceCursor by mutableStateOf<String?>(null); private set
     var eventCursor by mutableStateOf<String?>(null); private set
     var auditCursor by mutableStateOf<String?>(null); private set
+    var galleryBatches by mutableStateOf<List<GalleryBatchInfo>>(emptyList()); private set
+    var galleryDetail by mutableStateOf<GalleryBatchInfo?>(null); private set
+    var galleryImages by mutableStateOf<Map<String, android.graphics.Bitmap>>(emptyMap()); private set
+    var locationEvents by mutableStateOf<List<AuditEvent>>(emptyList()); private set
     var enrollmentCode by mutableStateOf<EnrollmentCode?>(null); private set
     var overviewDevice by mutableStateOf<String?>(null); private set
     var overviewEvents by mutableStateOf<List<AuditEvent>>(emptyList()); private set
@@ -264,6 +268,25 @@ class ControlSession internal constructor(private val store: SessionStore, priva
         return@run { detail = result }
     }
     fun closeDetail() { detail = null }
+    fun loadGallery(deviceId: String, scope: CoroutineScope) = run(scope) {
+        val batches = core().galleryBatches(deviceId)
+        return@run { galleryBatches = batches; galleryDetail = null; galleryImages = emptyMap() }
+    }
+    fun openGalleryBatch(batchId: String, scope: CoroutineScope) = run(scope) {
+        val detail = core().galleryBatch(batchId)
+        val images = mutableMapOf<String, android.graphics.Bitmap>()
+        detail.items.forEach { item ->
+            runCatching {
+                val bytes = core().galleryItemContent(batchId, item.itemId)
+                android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.let { images[item.itemId] = it }
+            }
+        }
+        return@run { galleryDetail = detail; galleryImages = images }
+    }
+    fun loadLocations(deviceId: String, scope: CoroutineScope) = run(scope) {
+        val page = core().eventPage(EventQuery(device = deviceId, category = "location"), null)
+        return@run { locationEvents = page.items }
+    }
     fun loadAudit(scope: CoroutineScope, more: Boolean = false) = run(scope) {
         val page = core().audit(if (more) auditCursor ?: error("No hay más auditoría") else null)
         return@run { audit = page.items; auditCursor = page.nextCursor; auditLoaded = true }
@@ -294,6 +317,7 @@ class ControlSession internal constructor(private val store: SessionStore, priva
     private fun clearViews() { signedIn = false; username = ""; role = ""; devices = emptyList(); events = emptyList()
         audit = emptyList(); detail = null; lastReportUri = null; revokeTarget = null; logoutConfirmation = false; query = EventQuery(category="communication"); selectedDevice = null; enrollmentCode = null
         deviceCursor = null; eventCursor = null; auditCursor = null; clearOverview()
+        galleryBatches = emptyList(); galleryDetail = null; galleryImages = emptyMap(); locationEvents = emptyList()
         eventPageNumber = 1;devicePageNumber=1; devicesLoaded = false; eventsLoaded = false; auditLoaded = false; devicesUpdatedAt = null
         dataUpdatedAt=null;eventsUpdatedAt=null;appReleases=emptyList();updateRequest=null;updateDevice=null }
     private fun run(scope: CoroutineScope, block: () -> (() -> Unit)) {

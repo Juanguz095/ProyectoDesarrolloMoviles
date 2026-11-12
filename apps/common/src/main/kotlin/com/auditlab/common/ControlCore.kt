@@ -96,6 +96,9 @@ class ControlCore(
     @Synchronized fun export(query: EventQuery) = authorized { api.exportEvents(it, query) }
     @Synchronized fun audit(cursor: String? = null) = authorized { api.auditPage(it, cursor) }
     @Synchronized fun whatsAppPreviews(device: String) = authorized { api.whatsAppPreviews(it, device) }
+    @Synchronized fun galleryBatches(device: String?) = authorized { api.galleryBatches(it, device) }
+    @Synchronized fun galleryBatch(batchId: String) = authorized { api.galleryBatch(it, batchId) }
+    @Synchronized fun galleryItemContent(batchId: String, itemId: String) = authorized { api.galleryItemContent(it, batchId, itemId) }
     @Synchronized fun appReleases(app: String) = authorized { api.appReleases(it,app) }
     @Synchronized fun appUpdate(device: String) = authorized { api.appUpdate(it,device) }
     @Synchronized fun requestAppUpdate(device: String, release: String): AppUpdateRequest {

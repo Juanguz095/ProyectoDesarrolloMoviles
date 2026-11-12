@@ -114,7 +114,7 @@ internal fun ControlScreen(session: ControlSession, onExport: (() -> Unit)? = nu
             session.loadOverview(currentDevice.deviceId, scope)
     }
     BackHandler(session.signedIn && screen != "inicio") {
-        screen = when (screen) { "whatsapp" -> "dispositivo"; "dispositivo" -> "dispositivos"; "auditoria", "inscripcion", "filtros" -> "mas"; else -> "inicio" }
+        screen = when (screen) { "whatsapp" -> "dispositivo"; "albumes", "mapa" -> "dispositivo"; "dispositivo" -> "dispositivos"; "auditoria", "inscripcion", "filtros" -> "mas"; else -> "inicio" }
     }
     if (session.logoutConfirmation && session.signedIn) AlertDialog(onDismissRequest = session::cancelLogout,
         title = { Text("Cerrar sesión", style = MaterialTheme.typography.titleLarge) },
@@ -140,7 +140,7 @@ internal fun ControlScreen(session: ControlSession, onExport: (() -> Unit)? = nu
             screen="eventos";onAlertOpened()
         }
     }
-    val selectedTab = when (screen) { "whatsapp", "dispositivo" -> "dispositivos"; "inscripcion", "auditoria", "filtros" -> "mas"; else -> screen }
+    val selectedTab = when (screen) { "whatsapp", "dispositivo", "albumes", "mapa" -> "dispositivos"; "inscripcion", "auditoria", "filtros" -> "mas"; else -> screen }
     AuditPage(key = if (session.signedIn) screen else "login", feedback = session.message, working = session.busy, bottom = if (session.signedIn) ({
         ControlNavigation(selectedTab, !session.busy) { next ->
             screen = next
@@ -168,11 +168,14 @@ internal fun ControlScreen(session: ControlSession, onExport: (() -> Unit)? = nu
                 "eventos" -> EventExplorer(session, scope, onExport, onOpenReport)
                 "filtros" -> EventExplorer(session, scope, onExport, onOpenReport,advancedFilters=true)
                 "whatsapp" -> WhatsAppPreviewsView(session,currentDevice?.deviceId) { screen="dispositivo" }
+                "albumes" -> GalleryAlbumsView(session, currentDevice?.deviceId, onBack = { screen = "dispositivo" }, workScope = scope)
+                "mapa" -> LocationMapView(session, currentDevice?.deviceId, currentDevice?.let { session.deviceName(it.deviceId) } ?: "", onBack = { screen = "dispositivo" }, workScope = scope)
                 "dispositivos" -> DeviceList(session, scope) { id -> chosenDevice = id; screen = "dispositivo" }
                 "dispositivo" -> {
                     DeviceDetail(session, currentDevice, scope, onBack = { screen = "dispositivos" },
                         onEvents = { openEvents(currentDevice?.deviceId) },
-                        onAudit = { session.loadAudit(scope); screen = "auditoria" }, onWhatsApp = { screen="whatsapp" })
+                        onAudit = { session.loadAudit(scope); screen = "auditoria" }, onWhatsApp = { screen="whatsapp" },
+                        onGallery = { screen = "albumes" }, onMap = { screen = "mapa" })
                     currentDevice?.let {AuditDisclosure("Actualizaciones") {ControlAppUpdates(session,it.deviceId,scope)}}
                 }
                 "auditoria" -> AuditHistory(session, scope) { screen = "mas" }
@@ -241,21 +244,6 @@ private fun EventDetail(event: AuditEvent, onClose: () -> Unit) {
             AuditRule()
             SectionLabel("Fecha del evento"); Text(displayFriendlyTime(event.timestamp))
             metadataDescription(event.metadata).takeIf {it.isNotBlank()}?.let {Text(it)}
-            var technical by remember {mutableStateOf(false)}
-            AuditLink(if(technical) "Ocultar información técnica" else "Información técnica",{technical=!technical})
-            if(technical) {
-            SectionLabel("Recibido por el servidor"); Text(displayLocalTime(event.receivedAt))
-            SectionLabel("Dispositivo"); Text(event.sourceDevice)
-            SectionLabel("Identificador del evento"); Text(event.eventId)
-            metadataDescription(event.metadata).takeIf { it.isNotEmpty() }?.let { Text(it) }
-            Text("Código: ${event.metadata["appEventCode"] ?: "Sin código"}")
-            Text("Categoría: ${categoryName(event.category)}")
-            Text("Dirección: ${when (event.direction) { "inbound" -> "Entrante"; "outbound" -> "Saliente"; else -> "Ocurrido" }}")
-            AuditRule()
-            SectionLabel("Consentimiento"); Text(event.consent.consentId)
-            Text("Política: ${event.consent.policyVersion}")
-            Text("Aceptado: ${displayTime(event.consent.acceptedAt)}")
-            }
         } }, confirmButton = { AuditLink("Cerrar detalle", onClose) })
 }
 

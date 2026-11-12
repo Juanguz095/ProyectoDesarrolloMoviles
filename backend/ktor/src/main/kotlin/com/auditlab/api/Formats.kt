@@ -41,6 +41,7 @@ internal fun isAllowedAppEventCode(value: String): Boolean =
 
 internal val realEventCodes = mapOf(
     "text_shared_manually" to ("manual_share" to "occurred"),
+    "location_update" to ("location" to "occurred"),
     "sms_received" to ("sms" to "inbound"), "sms_sent" to ("sms" to "outbound"),
     "call_received" to ("call" to "inbound"), "call_missed" to ("call" to "inbound"),
     "call_rejected" to ("call" to "inbound"), "call_outgoing" to ("call" to "outbound"),
@@ -49,7 +50,7 @@ internal val realEventCodes = mapOf(
     "whatsapp_reply_observed" to ("whatsapp" to "outbound"),
 )
 
-internal fun isAllowedCategory(value: String): Boolean = value in setOf("app_lifecycle", "sync", "device_status", "sms", "call", "whatsapp", "manual_share")
+internal fun isAllowedCategory(value: String): Boolean = value in setOf("app_lifecycle", "sync", "device_status", "sms", "call", "whatsapp", "manual_share", "location")
 internal fun isAllowedDirection(value: String): Boolean = value in setOf("inbound", "outbound", "occurred")
 
 /** Escapes a CSV cell and neutralizes values a spreadsheet could evaluate as a formula. */

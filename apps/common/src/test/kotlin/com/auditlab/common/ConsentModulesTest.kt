@@ -26,9 +26,9 @@ class ConsentModulesTest {
         }
     }
 
-    @Test fun `reserved location and video modules are not accepted before their phases`() {
+    @Test fun `reserved video module is not accepted before its phase`() {
         assertTrue(ConsentModulesPolicy.available.contains(ConsentModulesPolicy.GALLERY))
-        assertFalse(ConsentModulesPolicy.available.contains(ConsentModulesPolicy.LOCATION))
+        assertTrue(ConsentModulesPolicy.available.contains(ConsentModulesPolicy.LOCATION))
         assertFalse(ConsentModulesPolicy.available.contains(ConsentModulesPolicy.VIDEO))
         assertThrows(IllegalStateException::class.java) { ConsentModulesPolicy.policyOf("camera") }
     }
