@@ -31,9 +31,9 @@ docker compose up -d db
 docker compose ps
 ```
 
-Debe quedar `healthy` (PostgreSQL 17.6 en `127.0.0.1:5432`). Si el puerto 5432
-está ocupado por otro PostgreSQL, detén ese servicio o cambia el mapeo en
-`compose.yaml` a `'127.0.0.1:5433:5432'`.
+Debe quedar `healthy` (PostgreSQL 17.6 en `127.0.0.1:5433`). El `compose.yaml` publica
+el **5433** porque Windows suele reservar u ocupar el 5432; los comandos de abajo ya
+usan ese puerto.
 
 **3. Compila la API y las apps:**
 
@@ -44,7 +44,7 @@ python3 scripts/gradle.py :backend:ktor:installDist :apps:agent:assembleDebug :a
 **4. Migra el esquema, concede permisos y crea el usuario `admin`:**
 
 ```bash
-export AUDITLAB_MIGRATION_JDBC_URL=jdbc:postgresql://127.0.0.1:5432/auditlab
+export AUDITLAB_MIGRATION_JDBC_URL=jdbc:postgresql://127.0.0.1:5433/auditlab
 export AUDITLAB_MIGRATION_USER=auditlab
 export AUDITLAB_MIGRATION_PASSWORD="una-contraseña-tuya"
 
@@ -57,7 +57,7 @@ AUDITLAB_BOOTSTRAP_USERNAME=admin AUDITLAB_BOOTSTRAP_PASSWORD="otra-contraseña"
 **5. Arranca la API:**
 
 ```bash
-export AUDITLAB_DB_JDBC_URL=jdbc:postgresql://127.0.0.1:5432/auditlab
+export AUDITLAB_DB_JDBC_URL=jdbc:postgresql://127.0.0.1:5433/auditlab
 export AUDITLAB_DB_USER=auditlab_api
 export AUDITLAB_DB_PASSWORD="una-contraseña-tuya"
 export AUDITLAB_AUTH_SIGNING_KEY_BASE64="$(python3 -c 'import base64,secrets;print(base64.b64encode(secrets.token_bytes(32)).decode())')"
