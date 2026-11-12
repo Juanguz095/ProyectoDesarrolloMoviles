@@ -85,7 +85,8 @@ distintas, publica la API con Tailscale Serve (guía en
 | WhatsApp | Vistas previas temporales de notificaciones nuevas; sin historial de chats. |
 | Pantalla compartida | Iniciada por su propietario con permiso de Android; sin grabación. |
 | Texto manual | Texto elegido y confirmado por el usuario en cada envío. |
-| Galería | Fotos seleccionadas y confirmadas por el usuario (15 MB/archivo, 20 por lote). |
+| Galería | Fotos seleccionadas y confirmadas por el usuario (15 MB/archivo, 20 por lote), visibles en el Centro. |
+| Ubicación | Aproximada (~1 km), lectura cada minuto, visible en un mapa del Centro. Se corta desde el teléfono. |
 | Historial y reportes | Filtros, búsqueda, detalle y exportación CSV. |
 | Administración | Inscripción con código de un uso, roles, revocación, auditoría y actualizaciones verificadas. |
 
@@ -98,7 +99,7 @@ distintas, publica la API con Tailscale Serve (guía en
 
 ## Estado y documentación
 
-- Código actual: **0.9.0-dev** (plan de mejoras consentidas: M0–M2 completadas).
+- Código actual: **0.9.0-dev** (plan de mejoras consentidas: M0–M3 completadas; pendiente video sin audio y entrega).
 - Pendiente de validación nativa: SMS real, visor de pantalla y pruebas en teléfono físico.
 
 | Documento | Contenido |

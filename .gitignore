@@ -22,3 +22,4 @@ local.properties
 # OS
 .DS_Store
 Thumbs.db
+ktor-dev.err

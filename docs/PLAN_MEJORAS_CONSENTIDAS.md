@@ -6,6 +6,18 @@ Documentos relacionados: [PLAN_MAESTRO](PLAN_MAESTRO.md), [AVANCE](AVANCE.md), [
 [COMPARTIR_TEXTO_MANUAL_0.8.1](COMPARTIR_TEXTO_MANUAL_0.8.1.md), [COMPARTIR_PANTALLA](COMPARTIR_PANTALLA.md),
 [CAPTURA_REAL](CAPTURA_REAL.md), [WHATSAPP_NOTIFICACIONES](WHATSAPP_NOTIFICACIONES.md).
 
+## Estado de las fases (12 de noviembre de 2026)
+
+| Fase | Estado |
+| --- | --- |
+| M0 Revisión de privacidad y seguridad | ✅ Completada |
+| M1 Consentimiento por función | ✅ Completada (aceptar al activar; gestión en Detalles) |
+| M2 Galería seleccionada | ✅ Completada (selección + ver álbumes en el Centro) |
+| M3 Ubicación aproximada continua | ✅ Completada (lectura cada minuto, ~1 km, mapa en el Centro, cortable por el usuario) |
+| M4 Video de cámara sin audio | ❌ Pendiente |
+| M5 API/Centro consolidados | En curso (wiring de módulos al servidor pendiente) |
+| M6 Pruebas y entrega | ❌ Pendiente |
+
 ## 1. Objetivo y alcance
 
 Mejorar AuditLab manteniendo consentimiento explícito, indicador visible, revocación,
