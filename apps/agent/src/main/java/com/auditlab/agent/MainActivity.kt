@@ -262,7 +262,10 @@ internal fun AgentScreen(session: AgentSession, workScope: CoroutineScope? = nul
                                 AuditStateTag(when(module.state) { ModuleState.ACCEPTED -> "Aceptado"; ModuleState.PAUSED -> "Pausado"; else -> "Revocado" },
                                     active=module.state==ModuleState.ACCEPTED, attention=module.state==ModuleState.PAUSED, failed=module.state==ModuleState.REVOKED)
                             }
-                            if(module.state==ModuleState.REVOKED) Text("Revocado; aceptarlo de nuevo exige un consentimiento nuevo.", style=MaterialTheme.typography.bodySmall, color=AuditColors.Muted)
+                            if(module.state==ModuleState.REVOKED) {
+                                Text("Revocado; puedes aceptarlo de nuevo cuando quieras.", style=MaterialTheme.typography.bodySmall, color=AuditColors.Muted)
+                                AuditLink("Aceptar de nuevo", { session.setModuleState(scope, module.module, ModuleState.ACCEPTED) }, !session.busy)
+                            }
                             else Row {
                                 if(module.state==ModuleState.ACCEPTED) AuditLink("Pausar", { session.setModuleState(scope, module.module, ModuleState.PAUSED) }, !session.busy)
                                 else AuditLink("Reanudar", { session.setModuleState(scope, module.module, ModuleState.ACCEPTED) }, !session.busy)

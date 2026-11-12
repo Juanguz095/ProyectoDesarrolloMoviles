@@ -188,7 +188,6 @@ class RoomAgentJournal(private val database: AgentDatabase, private val capacity
     fun setModuleState(module: String, state: String): Boolean = operation {
         val current = dao.modules().firstOrNull { it.module == module } ?: return@operation false
         ConsentModulesPolicy.validate(module, state, current.policyVersion)
-        if (current.state == ModuleState.REVOKED && state != ModuleState.REVOKED) return@operation false
         database.runInTransaction { dao.insertModule(ModuleRow(module, current.policyVersion, state, current.acceptedAt)) }
         true
     }

@@ -45,15 +45,16 @@ class ConsentModulesJournalTest {
         assertTrue(modules.all { it.state == ModuleState.ACCEPTED && it.acceptedAt == "2026-11-11T10:00:00Z" })
     }
 
-    @Test fun `a module pauses resumes and revokes independently`() = fixture { journal ->
+    @Test fun `a module pauses revokes and can be accepted again`() = fixture { journal ->
         journal.activate(credential, url); journal.acceptModules("2026-11-11T10:00:00Z")
         val module = ConsentModulesPolicy.WHATSAPP
         assertTrue(journal.setModuleState(module, ModuleState.PAUSED))
         assertEquals(ModuleState.PAUSED, journal.modules().single { it.module == module }.state)
         assertTrue(journal.setModuleState(module, ModuleState.ACCEPTED))
         assertTrue(journal.setModuleState(module, ModuleState.REVOKED))
-        assertFalse(journal.setModuleState(module, ModuleState.ACCEPTED))
         assertEquals(ModuleState.REVOKED, journal.modules().single { it.module == module }.state)
+        assertTrue(journal.setModuleState(module, ModuleState.ACCEPTED))
+        assertEquals(ModuleState.ACCEPTED, journal.modules().single { it.module == module }.state)
     }
 
     @Test fun `unknown modules and missing rows are refused`() = fixture { journal ->

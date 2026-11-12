@@ -134,7 +134,8 @@ class AgentRuntime private constructor(private val context: android.app.Applicat
         // pausado o revocado bloquea su fuente hasta que el usuario lo gestione.
         val modules = runCatching { (journal as? RoomAgentJournal)?.modules() }.getOrNull().orEmpty().associateBy { it.module }
         fun requireModule(module: String) = check(modules[module]?.state == ModuleState.ACCEPTED) {
-            "El módulo «${ConsentModulesPolicy.labels[module]}» no está aceptado o fue pausado/revocado. Gestiónalo en Detalles y ajustes."
+            if (modules.isEmpty()) "No se detectan funciones aceptadas en este dispositivo. Ve a Detalles y ajustes y toca «Aceptar funciones»."
+            else "El módulo «${ConsentModulesPolicy.labels[module]}» no está aceptado o fue pausado/revocado. Gestiónalo en Detalles y ajustes."
         }
         requireModule(ConsentModulesPolicy.BASE)
         if (selection.communications) {

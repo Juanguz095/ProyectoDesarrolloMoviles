@@ -97,11 +97,13 @@ class AgentSession internal constructor(
     }
     fun setModuleState(scope: CoroutineScope, module: String, state: String) = perform(scope) {
         check(platform != null) { "Esta función necesita el Agente instalado." }
+        val previous = modulesJournal()!!.modules().firstOrNull { it.module == module }?.state
         check(modulesJournal()!!.setModuleState(module, state)) { "Ese módulo no admite el cambio solicitado." }
         if (state != ModuleState.ACCEPTED) stopModuleSource(module)
-        when (state) {
-            ModuleState.PAUSED -> "Función pausada. No captura hasta que la reanudes."
-            ModuleState.REVOKED -> "Función revocada. Volver a aceptarla exige un consentimiento nuevo."
+        when {
+            state == ModuleState.PAUSED -> "Función pausada. No captura hasta que la reanudes."
+            state == ModuleState.REVOKED -> "Función revocada. Volver a aceptarla requiere confirmarlo aquí."
+            previous == ModuleState.REVOKED -> "Función aceptada de nuevo."
             else -> "Función reanudada."
         }
     }
